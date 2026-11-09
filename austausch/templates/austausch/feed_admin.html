@@ -3,6 +3,7 @@
 {% load i18n %}
 
 {% block title %}{% trans 'Exchange Feed' %} - {{ block.super }}{% endblock %}
+{% block content_title %}{% if ADMIN_UNFOLD_ENABLED %}{% trans 'Exchange Feed' %}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -27,8 +28,8 @@
     .stat-card {
         flex: 1;
         min-width: 200px;
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
+        background: var(--ok-surface-2, #f8f9fa);
+        border: 1px solid var(--ok-line, #dee2e6);
         border-radius: 4px;
         padding: 20px;
         text-align: center;
@@ -36,15 +37,15 @@
     .stat-number {
         font-size: 32px;
         font-weight: bold;
-        color: #007cba;
+        color: var(--ok-brand, #007cba);
     }
     .stat-label {
-        color: #666;
+        color: var(--ok-ink-3, #666);
         margin-top: 5px;
     }
     .filter-section {
-        background: #fff;
-        border: 1px solid #dee2e6;
+        background: var(--ok-surface, #fff);
+        border: 1px solid var(--ok-line, #dee2e6);
         border-radius: 4px;
         padding: 20px;
         margin-bottom: 20px;
@@ -56,15 +57,15 @@
         margin-top: 20px;
     }
     .item-card {
-        background: #fff;
-        border: 1px solid #dee2e6;
+        background: var(--ok-surface, #fff);
+        border: 1px solid var(--ok-line, #dee2e6);
         border-radius: 4px;
         padding: 15px;
         position: relative;
     }
     .item-card.selected {
-        border-color: #007cba;
-        background: #f0f8ff;
+        border-color: var(--ok-brand, #007cba);
+        background: var(--ok-brand-soft, #f0f8ff);
     }
     .item-card.imported {
         border-color: #28a745;
@@ -91,7 +92,7 @@
         font-size: 18px;
         font-weight: bold;
         margin-bottom: 10px;
-        color: #333;
+        color: var(--ok-ink, #333);
         line-height: 1.4;
     }
     .item-checkbox {
@@ -103,19 +104,19 @@
         height: 20px;
         cursor: pointer;
         background-color: rgba(255, 255, 255, 0.9);
-        border: 2px solid #007cba;
+        border: 2px solid var(--ok-brand, #007cba);
         border-radius: 3px;
     }
     .item-checkbox:hover {
-        background-color: #fff;
+        background-color: var(--ok-surface, #fff);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
     .item-checkbox:checked {
-        background-color: #007cba;
-        border-color: #007cba;
+        background-color: var(--ok-brand, #007cba);
+        border-color: var(--ok-brand, #007cba);
     }
     .item-description {
-        color: #666;
+        color: var(--ok-ink-3, #666);
         font-size: 14px;
         margin-bottom: 10px;
         line-height: 1.5;
@@ -123,19 +124,19 @@
         overflow-y: auto;
     }
     .item-author {
-        color: #555;
+        color: var(--ok-ink-2, #555);
         font-size: 14px;
         margin-bottom: 12px;
         font-weight: 500;
     }
     .item-author strong {
-        color: #333;
+        color: var(--ok-ink, #333);
     }
     .item-meta {
         display: flex;
         gap: 10px;
         font-size: 12px;
-        color: #999;
+        color: var(--ok-ink-4, #999);
         margin-bottom: 10px;
     }
     .item-preview {
@@ -151,8 +152,8 @@
         margin-top: 10px;
     }
     .batch-actions {
-        background: #fff;
-        border: 1px solid #dee2e6;
+        background: var(--ok-surface, #fff);
+        border: 1px solid var(--ok-line, #dee2e6);
         border-radius: 4px;
         padding: 15px;
         margin-bottom: 20px;
@@ -249,7 +250,7 @@
     }
     .modal-content {
         position: relative;
-        background-color: #fff;
+        background-color: var(--ok-surface, #fff);
         border: 1px solid rgba(0, 0, 0, 0.2);
         border-radius: 4px;
         box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
@@ -271,7 +272,7 @@
         border: none;
         font-size: 24px;
         cursor: pointer;
-        color: #999;
+        color: var(--ok-ink-4, #999);
         padding: 0;
         width: 30px;
         height: 30px;
@@ -279,7 +280,7 @@
         text-align: center;
     }
     .btn-close:hover {
-        color: #333;
+        color: var(--ok-ink, #333);
     }
     .modal-body {
         padding: 15px;
@@ -426,7 +427,7 @@
                 </div>
             </div>
             {% elif item.file_type == 'pdf' %}
-            <div style="width: 100%; height: 150px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+            <div style="width: 100%; height: 150px; background: var(--ok-surface-hover, #f0f0f0); border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
                 <span style="font-size: 48px;">📄</span>
             </div>
             {% endif %}
@@ -487,7 +488,7 @@
             </div>
         </div>
         {% empty %}
-        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #999;">
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--ok-ink-4, #999);">
             {% trans 'No exchange items found' %}
         </div>
         {% endfor %}

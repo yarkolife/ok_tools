@@ -15,6 +15,7 @@ Including another URLconf
 """
 
 from . import accessibility_views
+from . import admin_dashboard
 from . import views
 # Import custom admin configurations to ensure they are loaded
 from .admin_imports import register_custom_admin
@@ -61,6 +62,7 @@ urlpatterns = [
     path("profile/password_reset/", PasswordResetView.as_view(), name="password_reset"),
     # This includes upstream passsword reset, login/out views.
     path("profile/", include("django.contrib.auth.urls")),
+    path("admin/ok-tasks/", admin_dashboard.tasks_fragment, name="admin_ok_tasks"),
     path("admin/", admin.site.urls),
     path("profile/", include("registration.urls")),
     path(

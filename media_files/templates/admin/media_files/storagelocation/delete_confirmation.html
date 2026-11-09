@@ -1,16 +1,16 @@
 {% extends "admin/base_site.html" %}
-{% load i18n l10n admin_urls %}
+{% load i18n l10n admin_urls static ok_static %}
 
 {% block extrahead %}
 {{ block.super }}
-<link href="{{ BOOTSTRAP_CDN_URL }}/dist/css/bootstrap.min.css" rel="stylesheet">
+{% if ADMIN_UNFOLD_ENABLED %}{# full Bootstrap CSS would restyle the Unfold admin #}<link href="{% static_v 'ok_tools/css/ok_bs_lite.css' %}" rel="stylesheet">{% else %}<link href="{{ BOOTSTRAP_CDN_URL }}/dist/css/bootstrap.min.css" rel="stylesheet">{% endif %}
 <script src="{{ BOOTSTRAP_CDN_URL }}/dist/js/bootstrap.bundle.min.js"></script>
 <style>
   .modal-backdrop { z-index: 2000 !important; }
   .modal { z-index: 2001 !important; }
   .delete-modal .modal-header.danger { background: #dc3545; color: #fff; }
-  .delete-modal .modal-header.warning { background: #ffc107; color: #212529; }
-  .delete-modal .delete-objects { max-height: 350px; overflow-y: auto; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 12px; }
+  .delete-modal .modal-header.warning { background: #ffc107; color: var(--ok-ink, #212529); }
+  .delete-modal .delete-objects { max-height: 350px; overflow-y: auto; background: var(--ok-surface-2, #f8f9fa); border: 1px solid var(--ok-line, #dee2e6); border-radius: 4px; padding: 12px; }
   .delete-modal .delete-objects ul { margin: 0; padding-left: 20px; }
   .delete-modal .delete-objects li { margin-bottom: 2px; }
   .delete-modal .modal-body .alert { margin-bottom: 12px; }

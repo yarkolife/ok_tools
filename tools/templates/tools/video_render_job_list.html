@@ -2,6 +2,7 @@
 {% load i18n %}
 
 {% block title %}{% trans 'Video Render Jobs' %} - {{ block.super }}{% endblock %}
+{% block content_title %}{% if ADMIN_UNFOLD_ENABLED %}{% trans 'Video Render Jobs' %}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -16,8 +17,8 @@
 <style>
     .jobs-container { padding: 20px; }
     .filter-section {
-        background: #fff;
-        border: 1px solid #dee2e6;
+        background: var(--ok-surface, #fff);
+        border: 1px solid var(--ok-line, #dee2e6);
         border-radius: 4px;
         padding: 15px;
         margin-bottom: 20px;
@@ -26,10 +27,10 @@
     .job-table th, .job-table td {
         padding: 12px;
         text-align: left;
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px solid var(--ok-line, #dee2e6);
         vertical-align: top;
     }
-    .job-table th { background: #f8f9fa; font-weight: bold; }
+    .job-table th { background: var(--ok-surface-2, #f8f9fa); font-weight: bold; }
     .status-badge { padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; display: inline-block; }
     .status-in_progress { background: #ffc107; color: #000; }
     .status-success { background: #28a745; color: #fff; }
@@ -93,7 +94,7 @@
             <tr {% if highlight_operation_id and op.id == highlight_operation_id %}class="row-highlight"{% endif %}>
                 <td>
                     <strong>#{{ op.id }}</strong>
-                    <div class="mono" style="margin-top: 4px; color:#666;">
+                    <div class="mono" style="margin-top: 4px; color:var(--ok-ink-3, #666);">
                         {% if op.details %}
                             {% if op.details.preview %}{% trans 'Preview' %}{% else %}{% trans 'Full' %}{% endif %}
                         {% endif %}
@@ -110,7 +111,7 @@
                 <td>{{ op.performed_at|date:"Y-m-d H:i" }}</td>
                 <td>
                     <div><strong>#{{ op.video_file.number }}</strong></div>
-                    <div class="mono" style="margin-top: 4px; color:#666;">{{ op.video_file.filename }}</div>
+                    <div class="mono" style="margin-top: 4px; color:var(--ok-ink-3, #666);">{{ op.video_file.filename }}</div>
                 </td>
                 <td class="mono">
                     {% if op.details %}
@@ -133,7 +134,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" style="text-align: center; padding: 40px; color: #999;">
+                <td colspan="6" style="text-align: center; padding: 40px; color: var(--ok-ink-4, #999);">
                     {% trans 'No jobs found' %}
                 </td>
             </tr>

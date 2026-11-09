@@ -11,9 +11,11 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
+from ok_tools.admin_base import ModelAdmin
+from ok_tools.admin_base import TabularInline
 
 
-class ExchangeChannelAuthInline(admin.TabularInline):
+class ExchangeChannelAuthInline(TabularInline):
     model = ExchangeChannelAuth
     extra = 0
     fields = [
@@ -31,7 +33,7 @@ class ExchangeChannelAuthInline(admin.TabularInline):
 
 
 @admin.register(ExchangeConfig)
-class ExchangeConfigAdmin(admin.ModelAdmin):
+class ExchangeConfigAdmin(ModelAdmin):
     """Admin for ExchangeConfig (singleton)."""
     
     autocomplete_fields = ['storage_location', 'default_media_authority']
@@ -173,7 +175,7 @@ class ExchangeConfigAdmin(admin.ModelAdmin):
 
 
 @admin.register(ExportToServerRun)
-class ExportToServerRunAdmin(admin.ModelAdmin):
+class ExportToServerRunAdmin(ModelAdmin):
     """Admin for export-to-server run results (read-only list)."""
     list_display = ['started_at', 'completed_at', 'user', 'mode', 'total_count', 'success_count', 'failure_count', 'skipped_no_pdf_count']
     list_filter = ['mode']
@@ -188,7 +190,7 @@ class ExportToServerRunAdmin(admin.ModelAdmin):
 
 
 @admin.register(ImportedLicenseMapping)
-class ImportedLicenseMappingAdmin(admin.ModelAdmin):
+class ImportedLicenseMappingAdmin(ModelAdmin):
     """Admin for remote-to-local license mapping."""
 
     list_display = ['source_channel', 'remote_license_number', 'local_license', 'updated_at']
@@ -204,7 +206,7 @@ class ImportedLicenseMappingAdmin(admin.ModelAdmin):
 
 
 @admin.register(ExchangeItem)
-class ExchangeItemAdmin(admin.ModelAdmin):
+class ExchangeItemAdmin(ModelAdmin):
     """Admin for ExchangeItem."""
     
     def changelist_view(self, request, extra_context=None):
@@ -336,7 +338,7 @@ class ExchangeItemAdmin(admin.ModelAdmin):
 
 
 @admin.register(ExchangeImport)
-class ExchangeImportAdmin(admin.ModelAdmin):
+class ExchangeImportAdmin(ModelAdmin):
     """Admin for ExchangeImport."""
     
     list_display = [

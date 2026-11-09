@@ -18,11 +18,12 @@ from django.utils.html import format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from licenses.models import License
+from ok_tools.admin_base import ModelAdmin
 from planung.services.plan_service import enrich_plan_items
 
 
 @admin.register(TagesPlan)
-class TagesPlanAdmin(admin.ModelAdmin):
+class TagesPlanAdmin(ModelAdmin):
     """Admin interface for managing TagesPlan entries."""
 
     list_display = ("datum", "is_draft", "show_items", "kommentar_short")
@@ -57,7 +58,9 @@ class TagesPlanAdmin(admin.ModelAdmin):
         cache_key = f"planung_calendar_weeks_context:{version}:{start_param or 'default'}:{weeks}"
         cached = cache.get(cache_key)
         if cached:
-            return TemplateResponse(request, "admin/planung/calendar_weeks.html", cached)
+            return TemplateResponse(
+                request, "admin/planung/calendar_weeks.html",
+                {**self.admin_site.each_context(request), **cached})
 
         # Parse broadcast block from organization config
         from registration import organization_config
@@ -278,7 +281,10 @@ class TagesPlanAdmin(admin.ModelAdmin):
             "show_api_docs": PlanungConfig.get_config().is_playout_api_configured(),
         }
         cache.set(cache_key, context, timeout=300)
-        return TemplateResponse(request, "admin/planung/calendar_weeks.html", context)
+        # The admin context (sidebar, header) is per user and not cached.
+        return TemplateResponse(
+            request, "admin/planung/calendar_weeks.html",
+            {**self.admin_site.each_context(request), **context})
 
     def is_draft(self, obj):
         """Return whether the plan is marked as draft.
@@ -350,10 +356,10 @@ class TagesPlanAdmin(admin.ModelAdmin):
 
         return format_html(
             "<table style='width:100%;border-collapse:collapse;'>"
-            "<tr><th style='border-bottom:1px solid #ccc;'>{}</th>"
-            "<th style='border-bottom:1px solid #ccc;'>{}</th>"
-            "<th style='border-bottom:1px solid #ccc;'>{}</th>"
-            "<th style='border-bottom:1px solid #ccc;'>{}</th></tr>"
+            "<tr><th style='border-bottom:1px solid var(--ok-line-2, #ccc);'>{}</th>"
+            "<th style='border-bottom:1px solid var(--ok-line-2, #ccc);'>{}</th>"
+            "<th style='border-bottom:1px solid var(--ok-line-2, #ccc);'>{}</th>"
+            "<th style='border-bottom:1px solid var(--ok-line-2, #ccc);'>{}</th></tr>"
             "{}</table>",
             _('Start'),
             _('License'),
@@ -370,7 +376,7 @@ class TagesPlanAdmin(admin.ModelAdmin):
 
 
 @admin.register(CalendarWeeksProxy)
-class CalendarWeeksAdmin(admin.ModelAdmin):
+class CalendarWeeksAdmin(ModelAdmin):
     """Menu entry that redirects straight to /calendar-weeks/."""
 
     def has_add_permission(self, request):
@@ -390,7 +396,7 @@ class CalendarWeeksAdmin(admin.ModelAdmin):
 
 
 @admin.register(PlanTemplate)
-class PlanTemplateAdmin(admin.ModelAdmin):
+class PlanTemplateAdmin(ModelAdmin):
     """Admin for reusable day plan templates."""
 
     list_display = ("name", "is_active", "updated_at")
@@ -401,7 +407,7 @@ class PlanTemplateAdmin(admin.ModelAdmin):
 
 
 @admin.register(PlanungConfig)
-class PlanungConfigAdmin(admin.ModelAdmin):
+class PlanungConfigAdmin(ModelAdmin):
     """Admin interface for planning module configuration."""
 
     fieldsets = (
@@ -460,7 +466,7 @@ class PlanungConfigAdmin(admin.ModelAdmin):
 
 
 @admin.register(PlanChangeLog)
-class PlanChangeLogAdmin(admin.ModelAdmin):
+class PlanChangeLogAdmin(ModelAdmin):
     """Read-only audit entries for day plan changes."""
 
     list_display = ("created_at", "plan_date", "action", "changed_by")

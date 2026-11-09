@@ -1,4 +1,4 @@
-{% load i18n static %}
+{% load i18n static ok_static %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE|default:'de' }}">
 <head>
@@ -9,9 +9,13 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link href="{% static 'notifications/css/feed.css' %}" rel="stylesheet">
+  <link href="{% static_v 'notifications/css/feed.css' %}" rel="stylesheet">
+  {% include "ok_tools/_theme_head.html" %}
 </head>
 <body>
+  {% translate "Notification center" as feed_title %}
+  {% url 'admin:notifications_feed' as feed_home %}
+  {% include "ok_tools/_topbar.html" with title=feed_title home_url=feed_home %}
   {% if messages %}
     <div class="notification-flashes" aria-live="polite">
       {% for message in messages %}
@@ -37,6 +41,6 @@
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
           integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1"
           crossorigin="anonymous"></script>
-  <script src="{% static 'notifications/js/build/feed.js' %}"></script>
+  <script src="{% static_v 'notifications/js/build/feed.js' %}"></script>
 </body>
 </html>

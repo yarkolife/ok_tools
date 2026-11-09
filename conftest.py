@@ -60,6 +60,32 @@ def browser(transactional_db, admin_user):
 class Browser(zope.testbrowser.browser.Browser):
     """Browser customized for cookie log-in to admin UI."""
 
+    def _setResponse(self, response):
+        """Move controls that belong to a form via ``form="id"`` into it.
+
+        The Unfold admin renders e.g. the save buttons and the changelist
+        checkboxes outside their <form> and links them with the HTML5
+        ``form`` attribute. Browsers submit them with the form; WebTest
+        (and so zope.testbrowser) only sees controls inside the element.
+        The classic admin has no such controls, then nothing changes.
+        """
+        if (b' form="' in (response.body or b'')
+                and 'html' in (response.content_type or '')):
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(response.body, 'html.parser')
+            moved = False
+            for element in soup.select('[form]'):
+                if element.name not in ('input', 'select', 'textarea', 'button'):
+                    continue
+                target = soup.find('form', id=element['form'])
+                if target is not None and target not in element.parents:
+                    del element['form']
+                    target.append(element.extract())
+                    moved = True
+            if moved:
+                response.body = str(soup).encode(response.charset or 'utf-8')
+        super()._setResponse(response)
+
     def login_admin(self):
         """Log-in the admin user."""
         self.open(f'{DOMAIN}{reverse_lazy("admin:login")}')
@@ -79,7 +105,23 @@ class Browser(zope.testbrowser.browser.Browser):
         try:
             self.getControl('Log in').click()
         except LookupError:
-            self.getForm(index=1).submit()
+            # Other login markup (e.g. the Unfold admin: the button text
+            # includes an icon name): submit the form holding the password.
+            self.login_form().submit()
+
+    def login_form(self):
+        """Return the form on the page that contains the password field."""
+        index = 0
+        while True:
+            try:
+                form = self.getForm(index=index)
+            except (LookupError, IndexError):
+                raise LookupError('No form with a password field on this page')
+            try:
+                form.getControl(name='password')
+                return form
+            except LookupError:
+                index += 1
 
 
 @pytest.fixture(scope='function')

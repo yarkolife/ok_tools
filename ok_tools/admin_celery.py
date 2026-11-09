@@ -24,6 +24,7 @@ except ImportError:
     from django.contrib.admin import ModelAdmin as BasePeriodicTaskAdmin
 
 from django_celery_results.models import TaskResult
+from ok_tools.admin_base import ModelAdmin
 from ok_tools.celery_health import is_orphaned_task_result
 
 
@@ -541,7 +542,7 @@ def run_periodic_tasks_now(modeladmin, request, queryset):
         messages.warning(request, _('%d task(s) failed to start.') % error_count)
 
 
-class PeriodicTaskAdmin(BasePeriodicTaskAdmin):
+class PeriodicTaskAdmin(BasePeriodicTaskAdmin, ModelAdmin):
     """Custom admin for PeriodicTask with run task action."""
     
     # Use custom template to add "Run task now" button
@@ -689,6 +690,21 @@ def register_periodic_task_admin():
 # Register the admin
 register_periodic_task_admin()
 
+def _restyle_registered_admins(*models):
+    """Give admins registered by other packages our ModelAdmin base.
+
+    With Unfold the base adds Unfold's widgets and templates; without it
+    the base is Django's ModelAdmin and this changes nothing.
+    """
+    for model in models:
+        current = admin.site._registry.get(model)
+        if current is None or isinstance(current, ModelAdmin):
+            continue
+        base = type(current)
+        admin.site.unregister(model)
+        admin.site.register(model, type(base.__name__, (base, ModelAdmin), {}))
+
+
 # Hide unused schedule types from admin (we only use Crontab and ClockedSchedule)
 def hide_unused_schedules():
     """
@@ -711,6 +727,7 @@ def hide_unused_schedules():
         
         # ClockedSchedule is kept available for one-time scheduled tasks
         # (not unregistering it)
+        _restyle_registered_admins(CrontabSchedule, ClockedSchedule)
         
         import logging
         logger = logging.getLogger(__name__)
@@ -730,7 +747,7 @@ try:
     from django_celery_results.models import GroupResult
     from django_celery_results.models import TaskResult
     
-    class TaskResultAdmin(BaseTaskResultAdmin):
+    class TaskResultAdmin(BaseTaskResultAdmin, ModelAdmin):
         """Custom admin for TaskResult with better filtering and display."""
         
         base_list_filter = getattr(BaseTaskResultAdmin, 'list_filter', ())

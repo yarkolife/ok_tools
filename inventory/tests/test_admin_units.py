@@ -74,7 +74,9 @@ class InventoryItemDevicesAdminTest(TestCase):
         self.assertIn('NX01088', html)
         self.assertIn('01.02.2025', html)  # last inspection column
         self.assertLess(html.index('id="units-group"'), html.index('id="inspections-group"'))
-        self.assertLess(html.index('id="inspections-group"'), html.index('field-photo_gallery'))
+        # the photo section (its placeholder; Unfold drops the field-<name> class
+        # on read-only rows) comes after the devices and inspections
+        self.assertLess(html.index('id="inspections-group"'), html.index('aria-label="No photos"'))
 
     def test_saving_two_devices_sets_quantity_and_serial_numbers(self):
         response = self.client.post(self.url, self._post_data(units=[

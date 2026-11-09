@@ -18,6 +18,7 @@ django-durationwidget2==1.0.6
 django-extensions==4.1
 django-import-export==4.4.1
 django-revproxy==0.13.0
+django-unfold==0.110.1
 et-xmlfile==2.0.0
 execnet==2.1.2
 fdfgen==0.16.1

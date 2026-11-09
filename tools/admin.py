@@ -2,6 +2,8 @@
 
 import json
 import logging
+from ok_tools.admin_base import ModelAdmin
+from ok_tools.admin_base import TabularInline
 from pathlib import Path
 
 from django.conf import settings
@@ -29,7 +31,7 @@ from .models import (
 # Only register ToolsConfig for configuration
 
 @admin.register(SlideshowProject)
-class SlideshowProjectAdmin(admin.ModelAdmin):
+class SlideshowProjectAdmin(ModelAdmin):
     """Admin interface for SlideshowProject - hidden from regular users."""
     
     def has_module_permission(self, request):
@@ -54,7 +56,7 @@ class SlideshowProjectAdmin(admin.ModelAdmin):
 
 
 @admin.register(SlideshowMedia)
-class SlideshowMediaAdmin(admin.ModelAdmin):
+class SlideshowMediaAdmin(ModelAdmin):
     """Admin interface for SlideshowMedia - hidden from regular users."""
     
     list_display = ['id', 'name', 'media_type', 'is_library', 'project', 'order', 'uploaded_at']
@@ -85,7 +87,7 @@ class SlideshowMediaAdmin(admin.ModelAdmin):
 
 
 @admin.register(SlideshowAudio)
-class SlideshowAudioAdmin(admin.ModelAdmin):
+class SlideshowAudioAdmin(ModelAdmin):
     """Admin interface for SlideshowAudio - hidden from regular users."""
     
     list_display = ['id', 'name', 'is_library', 'project', 'duration', 'created_at']
@@ -116,7 +118,7 @@ class SlideshowAudioAdmin(admin.ModelAdmin):
 
 
 @admin.register(ToolsConfig)
-class ToolsConfigAdmin(admin.ModelAdmin):
+class ToolsConfigAdmin(ModelAdmin):
     """Admin interface for ToolsConfig."""
 
     fieldsets = (
@@ -211,7 +213,7 @@ class ToolsConfigAdmin(admin.ModelAdmin):
 
 
 @admin.register(AudioNormalizeJob)
-class AudioNormalizeJobAdmin(admin.ModelAdmin):
+class AudioNormalizeJobAdmin(ModelAdmin):
     """Admin interface for AudioNormalizeJob - hidden from regular users."""
 
     list_display = [
@@ -247,7 +249,7 @@ class AudioNormalizeJobAdmin(admin.ModelAdmin):
 logger = logging.getLogger("django")
 
 
-class PresetOverlayInline(admin.TabularInline):
+class PresetOverlayInline(TabularInline):
     """Inline admin for preset overlays."""
 
     model = PresetOverlay
@@ -267,7 +269,7 @@ class PresetOverlayInline(admin.TabularInline):
 
 
 @admin.register(VideoPreset)
-class VideoPresetAdmin(admin.ModelAdmin):
+class VideoPresetAdmin(ModelAdmin):
     """Admin interface for video presets."""
 
     change_form_template = "admin/tools/videopreset/change_form.html"
@@ -539,7 +541,7 @@ class VideoPresetAdmin(admin.ModelAdmin):
 
 
 @admin.register(VideoEncodePreset)
-class VideoEncodePresetAdmin(admin.ModelAdmin):
+class VideoEncodePresetAdmin(ModelAdmin):
     """Admin interface for video encode presets."""
 
     list_display = ["display_name", "name", "width", "height", "fps", "video_bitrate_k", "audio_bitrate_k", "updated_at"]
@@ -575,7 +577,7 @@ class VideoEncodePresetAdmin(admin.ModelAdmin):
 
 
 @admin.register(PresetOverlay)
-class PresetOverlayAdmin(admin.ModelAdmin):
+class PresetOverlayAdmin(ModelAdmin):
     """Admin interface for preset overlays."""
 
     list_display = ["preset", "segment", "order", "overlay_type", "preview_text", "animation", "timing"]

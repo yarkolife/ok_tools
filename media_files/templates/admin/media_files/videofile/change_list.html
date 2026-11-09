@@ -26,7 +26,7 @@
         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
     .video-modal-header {
-        background: #417690;
+        background: var(--ok-brand, #417690);
         color: white;
         padding: 15px 20px;
         border-radius: 8px 8px 0 0;
@@ -71,8 +71,8 @@
             <span class="video-modal-close" onclick="closeVideoModal()">&times;</span>
         </div>
         <div class="video-modal-body">
-            <div class="video-modal-info" style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
-                <div style="font-size: 13px; color: #333;">
+            <div class="video-modal-info" style="margin-bottom: 15px; padding: 15px; background: var(--ok-surface-2, #f8f9fa); border-radius: 4px; border-left: 4px solid var(--ok-brand, #007bff);">
+                <div style="font-size: 13px; color: var(--ok-ink, #333);">
                     <p style="margin: 5px 0;"><strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> {% trans "File" %}:</strong> <span id="modalFileName"></span></p>
                     <p style="margin: 5px 0;"><strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg> {% trans "Number" %}:</strong> <span id="modalNumber"></span></p>
                     <p style="margin: 5px 0;"><strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> {% trans "Storage" %}:</strong> <span id="modalStorage"></span></p>

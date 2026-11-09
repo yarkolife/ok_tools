@@ -1,6 +1,28 @@
 CHANGELOG
 =========
 
+2026-11-09 (Version 4.66.0)
+==========================
+
+* **admin: New admin theme (Unfold), switched on per installation**
+  * ``ADMIN_UNFOLD_ENABLED=true`` in ``.env`` switches the Django admin to Unfold; without it the classic admin is unchanged. Removing the line and restarting goes back, no data is changed.
+  * Side menu grouped by task (Tagesgeschäft, Archiv & Medien, Nutzer & Projekte, Ausleihe & Inventar, Weitere, Einstellungen & Stammdaten, System) instead of by app (``ok_tools/admin_nav.py``). New models land in a group by ``ModelAdmin.menu_section``, the mapping table or their app; rarely used and nested models are left out of the menu but stay reachable through "All applications".
+  * Start page (``/admin/``): quick links, "Heute zu tun" counters (licenses to approve, rentals overdue / due today, open rental requests, open notifications), running and recently finished background tasks (reloads itself every 10 s), problems (contributions of the next 3 days without a usable video, storage locations that did not answer, failed exchange imports), fill rate of this and next broadcast week, new exchange items since the last visit, own recent changes.
+  * All ModelAdmins and inlines use ``ok_tools.admin_base`` (Unfold classes with the flag, Django's without). Unfold's date range filters parse ISO and German dates; ``settings.DATE_INPUT_FORMATS`` is a single string, so Unfold's own parser never matched.
+  * Logo (organisation logo or ``static/img/logo.png``) and the notification bell in the header, environment label ``ADMIN_ENVIRONMENT_LABEL``.
+  * Fixes for the Unfold mode: the admin login goes back to ``/admin/`` (``next`` field), custom submit buttons (print application/license, PDF, DISA and inventory import, run task) submit the form, pages outside the admin that extend the admin templates (exchange feed and export, tools, notification settings) get sidebar and header, the public site keeps ``ok_tools/templates/base.html``, Bootstrap CSS is not loaded inside the admin (``ok_bs_lite.css`` instead).
+* **Look and theme for all staff pages**
+  * One blue top bar with logo, notification bell and light/dark switch on the admin, the rental pages, the admin dashboard and the notification centre; the light/dark choice is shared by all pages.
+  * ``BRAND_COLOR`` (hex) in ``.env`` sets the colour of the bar, buttons and links; the palette for light and dark is derived from it (``ok_tools/brand.py``). Empty: ``#417690``, or the purple of ``DASHBOARD_THEME=vibrant``.
+  * Dark theme for the rental pages, the admin dashboard, the notification centre, the calendar weeks, the signature block and the custom admin templates; colours come from shared tokens (``ok_tools/static/ok_tools/css/ok_theme.css``).
+* **media_files: Rendering uses the original, not the preview or a rendered version**
+  * Previews and ``_vN`` versions are stored next to the original, and the render picked the newest file: after a preview the next render used the 10 s preview (and failed, case 09.11.2026 license 18567), after a render it produced ``_v1_v1`` with the overlays twice. ``VideoFile.render_source_for()`` skips previews, ``_vN`` files and ``rendered/``, prefers the manually marked primary, else the oldest original. The render page names the file that will be rendered.
+  * A middle part shorter than 0.5 s is no longer rendered on its own (it had no frames and ``loudnorm`` returned NaN); its time goes to the last segment, the length stays the same.
+* **rental: Extend an overdue rental**
+  * The detail page offers "Rückgabefrist verlängern" in the "…" menu and the "Verlängern" button also for overdue rentals; the form suggests tomorrow at the same time when the end lies in the past.
+* **tests**
+  * The browser tests run in both admin themes (login, buttons outside the form, URLs instead of menu links).
+
 2026-11-06 (Version 4.65.1)
 ==========================
 

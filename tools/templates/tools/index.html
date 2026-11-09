@@ -3,6 +3,7 @@
 {% load i18n %}
 
 {% block title %}{% trans 'Tools' %} - {{ block.super }}{% endblock %}
+{% block content_title %}{% if ADMIN_UNFOLD_ENABLED %}{% trans 'Tools' %}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -24,8 +25,8 @@
         margin-top: 20px;
     }
     .tool-card {
-        background: #fff;
-        border: 1px solid #dee2e6;
+        background: var(--ok-surface, #fff);
+        border: 1px solid var(--ok-line, #dee2e6);
         border-radius: 4px;
         padding: 30px;
         text-align: center;
@@ -35,7 +36,7 @@
     .tool-card:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        border-color: #007cba;
+        border-color: var(--ok-brand, #007cba);
     }
     .tool-icon {
         font-size: 64px;
@@ -53,10 +54,10 @@
         font-size: 24px;
         font-weight: bold;
         margin-bottom: 15px;
-        color: #333;
+        color: var(--ok-ink, #333);
     }
     .tool-description {
-        color: #666;
+        color: var(--ok-ink-3, #666);
         margin-bottom: 20px;
         line-height: 1.6;
     }

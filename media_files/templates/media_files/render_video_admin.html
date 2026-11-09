@@ -11,7 +11,7 @@
         max-width: 900px;
         margin: 20px auto;
         padding: 30px;
-        background: white;
+        background: var(--ok-surface, white);
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         box-sizing: border-box;
@@ -33,22 +33,22 @@
     }
     
     .video-info {
-        background: #f8f9fa;
+        background: var(--ok-surface-2, #f8f9fa);
         padding: 15px;
         border-radius: 6px;
         margin-bottom: 20px;
-        border-left: 4px solid #417690;
+        border-left: 4px solid var(--ok-brand, #417690);
     }
     
     .video-info h3 {
         margin-top: 0;
-        color: #417690;
+        color: var(--ok-brand, #417690);
     }
     
     .form-section {
         margin-bottom: 30px;
         padding: 20px;
-        border: 1px solid #e0e0e0;
+        border: 1px solid var(--ok-line, #e0e0e0);
         border-radius: 6px;
         width: 100%;
         max-width: 100%;
@@ -58,8 +58,8 @@
     
     .form-section h3 {
         margin-top: 0;
-        color: #333;
-        border-bottom: 2px solid #417690;
+        color: var(--ok-ink, #333);
+        border-bottom: 2px solid var(--ok-brand, #417690);
         padding-bottom: 10px;
     }
     
@@ -71,13 +71,13 @@
         display: block;
         font-weight: 500;
         margin-bottom: 8px;
-        color: #555;
+        color: var(--ok-ink-2, #555);
     }
     
     .form-group select {
         width: 100%;
         padding: 12px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--ok-line, #ddd);
         border-radius: 4px;
         font-size: 14px;
         line-height: 1.5;
@@ -99,7 +99,7 @@
         flex-direction: column;
         align-items: flex-start;
         padding: 15px;
-        border: 2px solid #e0e0e0;
+        border: 2px solid var(--ok-line, #e0e0e0);
         border-radius: 6px;
         transition: all 0.2s;
         cursor: pointer;
@@ -119,8 +119,8 @@
     }
     
     .checkbox-item:hover {
-        background: #f8f9fa;
-        border-color: #417690;
+        background: var(--ok-surface-2, #f8f9fa);
+        border-color: var(--ok-brand, #417690);
     }
     
     .checkbox-item input[type="checkbox"] {
@@ -139,17 +139,17 @@
     
     .checkbox-label {
         font-weight: 500;
-        color: #333;
+        color: var(--ok-ink, #333);
         margin-bottom: 5px;
     }
     
     .checkbox-item input[type="text"] {
         width: 100%;
         padding: 5px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--ok-line, #ddd);
         border-radius: 3px;
         font-size: 13px;
-        background: #fff;
+        background: var(--ok-surface, #fff);
         cursor: default;
     }
     
@@ -163,7 +163,7 @@
     .element-style-selection {
         margin-top: 15px;
         padding-top: 15px;
-        border-top: 1px solid #e0e0e0;
+        border-top: 1px solid var(--ok-line, #e0e0e0);
         width: 100%;
         max-width: 100%;
         box-sizing: border-box;
@@ -183,7 +183,7 @@
         box-sizing: border-box;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: thin;
-        scrollbar-color: #417690 #f0f0f0;
+        scrollbar-color: var(--ok-brand, #417690) #f0f0f0;
     }
     
     .element-style-selection .style-preview::-webkit-scrollbar {
@@ -191,13 +191,13 @@
     }
     
     .element-style-selection .style-preview::-webkit-scrollbar-track {
-        background: #f0f0f0;
+        background: var(--ok-surface-hover, #f0f0f0);
         border-radius: 4px;
         margin: 0 5px;
     }
     
     .element-style-selection .style-preview::-webkit-scrollbar-thumb {
-        background: #417690;
+        background: var(--ok-brand, #417690);
         border-radius: 4px;
     }
     
@@ -206,12 +206,12 @@
     }
     
     .style-card {
-        border: 2px solid #e0e0e0;
+        border: 2px solid var(--ok-line, #e0e0e0);
         border-radius: 8px;
         cursor: pointer;
         transition: all 0.2s;
         overflow: hidden;
-        background: white;
+        background: var(--ok-surface, white);
         flex-shrink: 0;
     }
     
@@ -243,12 +243,12 @@
     }
     
     .style-card:hover {
-        border-color: #417690;
+        border-color: var(--ok-brand, #417690);
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     
     .style-card.selected {
-        border-color: #417690;
+        border-color: var(--ok-brand, #417690);
         border-width: 3px;
         box-shadow: 0 0 0 2px #e7f3ff;
     }
@@ -328,7 +328,7 @@
     }
     
     .btn-preview {
-        background: #417690;
+        background: var(--ok-brand, #417690);
         color: white;
         padding: 12px 30px;
         border: none;
@@ -373,7 +373,7 @@
     
     .spinner {
         border: 4px solid #f3f3f3;
-        border-top: 4px solid #417690;
+        border-top: 4px solid var(--ok-brand, #417690);
         border-radius: 50%;
         width: 40px;
         height: 40px;
@@ -428,7 +428,7 @@
                     <input type="checkbox" id="show-title" name="show_title" value="true">
                     <label for="show-title">
                         <div class="checkbox-label">{% trans "Titel" %}</div>
-                        <input type="text" value="{{ license.title }}" readonly style="margin-top: 5px; width: 100%; padding: 5px; border: 1px solid #ddd; border-radius: 3px; font-size: 13px;">
+                        <input type="text" value="{{ license.title }}" readonly style="margin-top: 5px; width: 100%; padding: 5px; border: 1px solid var(--ok-line, #ddd); border-radius: 3px; font-size: 13px;">
                     </label>
                     <div class="element-style-selection" style="display: none;">
                         <label style="display: block; margin-bottom: 10px; font-weight: 500;">{% trans "Choose Style for Title:" %}</label>
@@ -439,7 +439,7 @@
                                         {% if style.preview_type == "modern_title" %}
                                             <div style="text-align: center; font-family: 'Montserrat', sans-serif;">
                                                 <div style="font-size: 16px; font-weight: 600; color: #4ec3e0;">[ Your Title Here ]</div>
-                                                <div style="font-size: 10px; font-weight: 400; color: #4ec3e0; margin-top: 8px; background: white; padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
+                                                <div style="font-size: 10px; font-weight: 400; color: #4ec3e0; margin-top: 8px; background: var(--ok-surface, white); padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
                                             </div>
                                         {% elif style.preview_type == "lower_third_left" %}
                                             <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
@@ -516,7 +516,7 @@
                     <input type="checkbox" id="show-subtitle" name="show_subtitle" value="true">
                     <label for="show-subtitle">
                         <div class="checkbox-label">{% trans "Untertitel" %}</div>
-                        <input type="text" value="{{ license.subtitle }}" readonly style="margin-top: 5px; width: 100%; padding: 5px; border: 1px solid #ddd; border-radius: 3px; font-size: 13px;">
+                        <input type="text" value="{{ license.subtitle }}" readonly style="margin-top: 5px; width: 100%; padding: 5px; border: 1px solid var(--ok-line, #ddd); border-radius: 3px; font-size: 13px;">
                     </label>
                     <div class="element-style-selection" style="display: none;">
                         <label style="display: block; margin-bottom: 10px; font-weight: 500;">{% trans "Choose Style for Subtitle:" %}</label>
@@ -531,7 +531,7 @@
                                         {% elif style.preview_type == "modern_title" %}
                                             <div style="text-align: center;">
                                                 <div style="font-size: 16px; font-weight: bold; color: #4ec3e0;">[ Your Title Here ]</div>
-                                                <div style="font-size: 10px; color: #4ec3e0; margin-top: 8px; background: white; padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
+                                                <div style="font-size: 10px; color: #4ec3e0; margin-top: 8px; background: var(--ok-surface, white); padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
                                             </div>
                                         {% elif style.preview_type == "lower_third_left" %}
                                             <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
@@ -608,7 +608,7 @@
                     <input type="checkbox" id="show-broadcast" name="show_broadcast_resp" value="true" checked>
                     <label for="show-broadcast">
                         <div class="checkbox-label">{% trans "Broadcast Responsibility" %}</div>
-                        <input type="text" value="{% trans "Sendeverantwortung" %}: {{ license.profile }}" readonly style="margin-top: 5px; width: 100%; padding: 5px; border: 1px solid #ddd; border-radius: 3px; font-size: 13px;">
+                        <input type="text" value="{% trans "Sendeverantwortung" %}: {{ license.profile }}" readonly style="margin-top: 5px; width: 100%; padding: 5px; border: 1px solid var(--ok-line, #ddd); border-radius: 3px; font-size: 13px;">
                     </label>
                     <div class="element-style-selection" style="display: block;">
                         <label style="display: block; margin-bottom: 10px; font-weight: 500;">{% trans "Choose Style for Broadcast Responsibility:" %}</label>
@@ -619,7 +619,7 @@
                                         {% if style.preview_type == "modern_title" %}
                                             <div style="text-align: center; font-family: 'Montserrat', sans-serif;">
                                                 <div style="font-size: 16px; font-weight: 600; color: #4ec3e0;">[ Your Title Here ]</div>
-                                                <div style="font-size: 10px; font-weight: 400; color: #4ec3e0; margin-top: 8px; background: white; padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
+                                                <div style="font-size: 10px; font-weight: 400; color: #4ec3e0; margin-top: 8px; background: var(--ok-surface, white); padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
                                             </div>
                                         {% elif style.preview_type == "lower_third_left" %}
                                             <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
@@ -695,7 +695,7 @@
                     <input type="checkbox" id="show-authority" name="show_media_authority" value="true" checked>
                     <label for="show-authority">
                         <div class="checkbox-label">{% trans "Bürgermedium" %}</div>
-                        <input type="text" value="{{ license.profile.media_authority.full_name|default:license.profile.media_authority.name }}, {{ license.created_at.year }}" readonly style="margin-top: 5px; width: 100%; padding: 5px; border: 1px solid #ddd; border-radius: 3px; font-size: 13px;">
+                        <input type="text" value="{{ license.profile.media_authority.full_name|default:license.profile.media_authority.name }}, {{ license.created_at.year }}" readonly style="margin-top: 5px; width: 100%; padding: 5px; border: 1px solid var(--ok-line, #ddd); border-radius: 3px; font-size: 13px;">
                     </label>
                     <div class="element-style-selection" style="display: block;">
                         <label style="display: block; margin-bottom: 10px; font-weight: 500;">{% trans "Choose Style for Media Authority:" %}</label>
@@ -710,7 +710,7 @@
                                         {% elif style.preview_type == "modern_title" %}
                                             <div style="text-align: center;">
                                                 <div style="font-size: 16px; font-weight: bold; color: #4ec3e0;">[ Your Title Here ]</div>
-                                                <div style="font-size: 10px; color: #4ec3e0; margin-top: 8px; background: white; padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
+                                                <div style="font-size: 10px; color: #4ec3e0; margin-top: 8px; background: var(--ok-surface, white); padding: 2px 6px; border-radius: 2px; display: inline-block;">EPISODE</div>
                                             </div>
                                         {% elif style.preview_type == "lower_third_left" %}
                                             <div style="position: absolute; bottom: 20px; left: 20px; text-align: left;">
@@ -807,7 +807,7 @@
                             <input type="checkbox" id="use-intro-outro" name="use_intro_outro" value="true" style="margin-right: 8px; width: auto;">
                             <span>{% trans "Add intro/outro clips and apply overlays to them" %}</span>
                         </label>
-                        <p style="margin-left: 24px; margin-top: 4px; color: #666; font-size: 13px;">
+                        <p style="margin-left: 24px; margin-top: 4px; color: var(--ok-ink-3, #666); font-size: 13px;">
                             {% trans "If checked: intro and outro clips will be added to the main video, and overlays will be applied to these clips. If unchecked: overlays will be applied to the first and last 5 seconds of the main video." %}
                         </p>
                     </div>

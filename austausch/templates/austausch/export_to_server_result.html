@@ -17,8 +17,8 @@
     margin: 0 auto;
   }
   .export-card {
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--ok-surface, #fff);
+    border: 1px solid var(--ok-line, #ddd);
     border-radius: 8px;
     padding: 24px;
     margin-bottom: 20px;
@@ -30,12 +30,12 @@
     gap: 12px;
     margin-bottom: 20px;
     padding-bottom: 16px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--ok-line, #eee);
   }
   .export-header svg {
     width: 28px;
     height: 28px;
-    color: #447e9b;
+    color: var(--ok-brand, #447e9b);
   }
   .export-header h1 {
     margin: 0;
@@ -49,15 +49,15 @@
     margin-bottom: 24px;
   }
   .export-info-item {
-    background: #f8f9fa;
+    background: var(--ok-surface-2, #f8f9fa);
     padding: 16px;
     border-radius: 6px;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--ok-line, #e9ecef);
   }
   .export-info-item strong {
     display: block;
     font-size: 12px;
-    color: #666;
+    color: var(--ok-ink-3, #666);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 4px;
@@ -65,7 +65,7 @@
   .export-info-item span {
     font-size: 18px;
     font-weight: 600;
-    color: #333;
+    color: var(--ok-ink, #333);
   }
   .export-stats-grid {
     display: grid;
@@ -77,7 +77,7 @@
     padding: 20px;
     border-radius: 8px;
     text-align: center;
-    border: 1px solid #ddd;
+    border: 1px solid var(--ok-line, #ddd);
   }
   .export-stat-card.success {
     background: #d4edda;
@@ -113,10 +113,10 @@
     font-size: 1.1rem;
     margin: 24px 0 12px;
     padding-bottom: 8px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--ok-line, #eee);
   }
   .export-details .id-list {
-    background: #f8f9fa;
+    background: var(--ok-surface-2, #f8f9fa);
     padding: 12px 16px;
     border-radius: 4px;
     font-family: monospace;
@@ -173,7 +173,7 @@
   .export-empty {
     text-align: center;
     padding: 40px 20px;
-    color: #666;
+    color: var(--ok-ink-3, #666);
   }
   .export-empty svg {
     width: 48px;
@@ -189,7 +189,7 @@
     gap: 12px;
     margin-top: 24px;
     padding-top: 20px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--ok-line, #eee);
   }
   .export-actions a {
     padding: 10px 24px;
@@ -198,9 +198,9 @@
     border-radius: 4px;
     text-decoration: none;
     transition: all 0.2s ease;
-    background: #447e9b;
+    background: var(--ok-brand, #447e9b);
     color: #fff;
-    border: 1px solid #447e9b;
+    border: 1px solid var(--ok-brand, #447e9b);
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -235,9 +235,9 @@
   .progress-container {
     margin-bottom: 24px;
     padding: 20px;
-    background: #f8f9fa;
+    background: var(--ok-surface-2, #f8f9fa);
     border-radius: 8px;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--ok-line, #e9ecef);
   }
   .progress-header {
     display: flex;
@@ -247,21 +247,21 @@
   }
   .progress-title {
     font-weight: 600;
-    color: #333;
+    color: var(--ok-ink, #333);
   }
   .progress-percent {
     font-size: 18px;
     font-weight: 700;
-    color: #447e9b;
+    color: var(--ok-brand, #447e9b);
   }
   .progress-bar-wrapper {
-    background: #e9ecef;
+    background: var(--ok-surface-hover, #e9ecef);
     border-radius: 4px;
     height: 24px;
     overflow: hidden;
   }
   .progress-bar {
-    background: linear-gradient(90deg, #447e9b, #5a9eb8);
+    background: linear-gradient(90deg, var(--ok-brand, #447e9b), #5a9eb8);
     height: 100%;
     width: 0%;
     transition: width 0.3s ease;
@@ -270,7 +270,7 @@
   .progress-details {
     margin-top: 12px;
     font-size: 13px;
-    color: #666;
+    color: var(--ok-ink-3, #666);
     display: flex;
     justify-content: space-between;
   }
@@ -281,7 +281,7 @@
     display: inline-block;
     margin-top: 12px;
     font-size: 12px;
-    color: #999;
+    color: var(--ok-ink-4, #999);
   }
  </style>
 

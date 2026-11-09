@@ -8,14 +8,14 @@
     .video-player-section {
         margin: 20px 0;
         padding: 20px;
-        background: #f8f9fa;
+        background: var(--ok-surface-2, #f8f9fa);
         border-radius: 8px;
-        border: 1px solid #dee2e6;
+        border: 1px solid var(--ok-line, #dee2e6);
     }
     .video-player-section h2 {
         margin-top: 0;
-        color: #333;
-        border-bottom: 2px solid #007bff;
+        color: var(--ok-ink, #333);
+        border-bottom: 2px solid var(--ok-brand, #007bff);
         padding-bottom: 10px;
     }
     .video-info {
@@ -24,7 +24,7 @@
     }
     .video-info p {
         margin: 5px 0;
-        color: #666;
+        color: var(--ok-ink-3, #666);
     }
     /* video player styles */
     .video-player-container {
@@ -54,7 +54,7 @@
     .video-loading {
         text-align: center;
         padding: 20px;
-        color: #666;
+        color: var(--ok-ink-3, #666);
     }
 </style>
 {% endblock %}
@@ -85,7 +85,7 @@
         </div>
         
         <div style="margin-top: 10px; text-align: center;">
-            <a href="{% url 'admin:media_files_videofile_stream' original.id %}" download class="button" style="padding: 8px 16px; background: #417690; color: white; text-decoration: none; border-radius: 4px; margin-right: 10px;">
+            <a href="{% url 'admin:media_files_videofile_stream' original.id %}" download class="button" style="padding: 8px 16px; background: var(--ok-brand, #417690); color: white; text-decoration: none; border-radius: 4px; margin-right: 10px;">
                 <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> {% trans "Download Video" %}
             </a>
             <a href="{% url 'media_files:render_video_admin' original.id %}" class="button" style="padding: 8px 16px; background: #28a745; color: white; text-decoration: none; border-radius: 4px;">
@@ -97,16 +97,16 @@
             <div>{% trans "Loading video..." %}</div>
         </div>
         
-        <div style="margin-top: 15px; padding: 15px; background: #e3f2fd; border-radius: 4px; border-left: 4px solid #2196F3;">
-            <div style="font-size: 13px; color: #333; margin-bottom: 5px;">
+        <div style="margin-top: 15px; padding: 15px; background: var(--ok-brand-soft, #e3f2fd); border-radius: 4px; border-left: 4px solid #2196F3;">
+            <div style="font-size: 13px; color: var(--ok-ink, #333); margin-bottom: 5px;">
                 <strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> {% trans "File Path" %}:</strong>
             </div>
-            <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ original.full_path }}</code>
+            <code style="display: block; padding: 10px; background: var(--ok-surface, white); border-radius: 3px; word-break: break-all; font-size: 12px; color: var(--ok-ink-2, #495057); border: 1px solid var(--ok-line, #dee2e6);">{{ original.full_path }}</code>
             {% if original.unc_path %}
-            <div style="font-size: 13px; color: #333; margin-top: 10px; margin-bottom: 5px;">
+            <div style="font-size: 13px; color: var(--ok-ink, #333); margin-top: 10px; margin-bottom: 5px;">
                 <strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> {% trans "UNC Path" %}:</strong>
             </div>
-            <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ original.unc_path }}</code>
+            <code style="display: block; padding: 10px; background: var(--ok-surface, white); border-radius: 3px; word-break: break-all; font-size: 12px; color: var(--ok-ink-2, #495057); border: 1px solid var(--ok-line, #dee2e6);">{{ original.unc_path }}</code>
             {% endif %}
         </div>
     {% else %}

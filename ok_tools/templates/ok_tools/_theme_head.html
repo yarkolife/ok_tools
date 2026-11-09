@@ -1,0 +1,5 @@
+{% load static ok_static %}{# Shared light/dark theme for pages outside the admin. Include at the end of <head>, after Bootstrap. #}
+<script src="{% static_v 'ok_tools/js/ok_theme.js' %}"></script>
+<style>{{ OK_BRAND_CSS }}</style>
+<link rel="stylesheet" href="{% static_v 'ok_tools/css/ok_theme.css' %}">
+<link rel="stylesheet" href="{% static_v 'ok_tools/css/ok_bootstrap.css' %}">

@@ -274,7 +274,7 @@ function CreateSetForm({ urls, onCreated, onCancel, submitting, setSubmitting })
         )}
 
         {searchResults.length > 0 && (
-          <div className="mt-2" style={{border: '1px solid var(--line)', borderRadius: 8, maxHeight: 220, overflow: 'auto', background: '#fff'}}>
+          <div className="mt-2" style={{border: '1px solid var(--line)', borderRadius: 8, maxHeight: 220, overflow: 'auto', background:'var(--bg-elev)'}}>
             {searchResults.map(item => (
               <div
                 key={item.id}
@@ -302,7 +302,7 @@ function CreateSetForm({ urls, onCreated, onCancel, submitting, setSubmitting })
       {selectedItems.length > 0 && (
         <div className="mb-4">
           <label className="form-label">{t('sets.selected_items', 'Ausgewählte Artikel')}</label>
-          <div style={{border: '1px solid var(--line)', borderRadius: 8, background: '#fff'}}>
+          <div style={{border: '1px solid var(--line)', borderRadius: 8, background:'var(--bg-elev)'}}>
             {selectedItems.map((si, idx) => (
               <div
                 key={si.inventory_item_id}

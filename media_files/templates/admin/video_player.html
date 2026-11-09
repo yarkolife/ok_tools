@@ -1,21 +1,22 @@
-{% load static %}
+{% load static i18n %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>{% trans "Video Player" %} - {{ video.filename }}</title>
     <style>
-        body { margin: 0; padding: 20px; background: #f5f5f5; font-family: Arial, sans-serif; }
-        .video-container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        body { margin: 0; padding: 20px; background: var(--ok-surface-2, #f5f5f5); font-family: Arial, sans-serif; }
+        .video-container { max-width: 1200px; margin: 0 auto; background: var(--ok-surface, white); padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .video-info { margin-bottom: 20px; }
-        .video-info h1 { color: #333; margin: 0 0 10px 0; }
-        .video-info p { color: #666; margin: 5px 0; }
+        .video-info h1 { color: var(--ok-ink, #333); margin: 0 0 10px 0; }
+        .video-info p { color: var(--ok-ink-3, #666); margin: 5px 0; }
         .plyr { width: 100%; height: auto; max-height: 600px; }
-        .loading { text-align: center; padding: 50px; color: #666; }
+        .loading { text-align: center; padding: 50px; color: var(--ok-ink-3, #666); }
         .error { color: #d32f2f; background: #ffebee; padding: 15px; border-radius: 4px; margin: 20px 0; }
-        .loading-progress { background: #f0f0f0; border-radius: 4px; padding: 10px; margin: 10px 0; }
+        .loading-progress { background: var(--ok-surface-hover, #f0f0f0); border-radius: 4px; padding: 10px; margin: 10px 0; }
         .progress-bar { background: #2196F3; height: 20px; border-radius: 4px; transition: width 0.3s; }
-        .progress-text { text-align: center; margin-top: 5px; color: #666; }
+        .progress-text { text-align: center; margin-top: 5px; color: var(--ok-ink-3, #666); }
     </style>
+    {% include "ok_tools/_theme_head.html" %}
 </head>
 <body>
     <div class="video-container">
@@ -50,10 +51,10 @@
                             • {% trans "Transcode video to H.264 format" %}
                             {% if video.id %}
                             <a href="{% url 'admin:media_files_videofile_changelist' %}?action=transcode_to_h264&_selected_action={{ video.id }}" 
-                               style="color: #007bff; margin-left: 5px;">[{% trans "Transcode now" %}]</a>
+                               style="color: var(--ok-brand, #007bff); margin-left: 5px;">[{% trans "Transcode now" %}]</a>
                             {% endif %}
                         </p>
-                        <p style="margin: 10px 0 0 0; color: #6c757d; font-size: 12px;">
+                        <p style="margin: 10px 0 0 0; color: var(--ok-ink-3, #6c757d); font-size: 12px;">
                             <strong>{% trans "Codec" %}:</strong> {{ video.video_codec_long|default:video.video_codec }}
                         </p>
                     </div>
@@ -72,17 +73,17 @@
                 {% trans "Your browser does not support the video tag." %}
             </video>
             
-            <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
-                <div style="font-size: 13px; color: #333; margin-bottom: 5px;">
+            <div style="margin-top: 15px; padding: 15px; background: var(--ok-surface-2, #f8f9fa); border-radius: 4px; border-left: 4px solid var(--ok-brand, #007bff);">
+                <div style="font-size: 13px; color: var(--ok-ink, #333); margin-bottom: 5px;">
                     <strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> {% trans "File Path (Linux)" %}:</strong>
                 </div>
-                <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ video.full_path }}</code>
+                <code style="display: block; padding: 10px; background: var(--ok-surface, white); border-radius: 3px; word-break: break-all; font-size: 12px; color: var(--ok-ink-2, #495057); border: 1px solid var(--ok-line, #dee2e6);">{{ video.full_path }}</code>
                 
                 {% if video.unc_path %}
-                <div style="font-size: 13px; color: #333; margin-top: 10px; margin-bottom: 5px;">
+                <div style="font-size: 13px; color: var(--ok-ink, #333); margin-top: 10px; margin-bottom: 5px;">
                     <strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> {% trans "File Path (Windows UNC)" %}:</strong>
                 </div>
-                <code style="display: block; padding: 10px; background: white; border-radius: 3px; word-break: break-all; font-size: 12px; color: #495057; border: 1px solid #dee2e6;">{{ video.unc_path }}</code>
+                <code style="display: block; padding: 10px; background: var(--ok-surface, white); border-radius: 3px; word-break: break-all; font-size: 12px; color: var(--ok-ink-2, #495057); border: 1px solid var(--ok-line, #dee2e6);">{{ video.unc_path }}</code>
                 {% endif %}
             </div>
         {% else %}
@@ -125,7 +126,7 @@
                         box-shadow: 0 4px 8px rgba(0,0,0,0.2);
                     ">
                         <div style="
-                            background: #417690;
+                            background: var(--ok-brand, #417690);
                             color: white;
                             padding: 15px 20px;
                             border-radius: 8px 8px 0 0;

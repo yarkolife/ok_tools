@@ -1,0 +1,132 @@
+{% extends 'admin/base_site.html' %}
+{% load i18n tz %}
+{% comment %}
+  Start page of the Unfold admin. Data: ok_tools.admin_dashboard.dashboard_callback.
+  The full list of models is in the sidebar ("All applications").
+{% endcomment %}
+
+{% block title %}{% translate "Start" %} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+{% block content_title %}{% translate "Start" %}{% endblock %}
+
+{% block content %}
+<div class="ok-dash">
+    {% if quick_links %}
+        <nav class="ok-quick" aria-label="{% translate 'Quick access' %}">
+            {% for link in quick_links %}
+                <a class="ok-quick__item" href="{{ link.url }}">
+                    <span class="material-symbols-outlined">{{ link.icon }}</span>
+                    <span>{{ link.title }}</span>
+                </a>
+            {% endfor %}
+        </nav>
+    {% endif %}
+
+    {% if todo_counters %}
+        <section aria-label="{% translate 'To do today' %}">
+            <h2 class="ok-dash-heading">{% translate "To do today" %}</h2>
+            <div class="ok-counters">
+                {% for c in todo_counters %}
+                    <a class="ok-counter{% if not c.count %} ok-counter--zero{% else %} ok-counter--{{ c.tone }}{% endif %}" href="{{ c.url|default:'#' }}">
+                        <span class="material-symbols-outlined ok-counter__icon">{{ c.icon }}</span>
+                        <span class="ok-counter__num">{{ c.count }}</span>
+                        <span class="ok-counter__title">{{ c.title }}</span>
+                        {% if c.hint %}<span class="ok-counter__hint">{{ c.hint }}</span>{% endif %}
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    <div class="ok-dash-grid">
+        {% include "admin/_ok_tasks.html" %}
+
+        <section class="ok-dash-card">
+            <header class="ok-dash-card__head">
+                <h2><span class="material-symbols-outlined">report</span>{% translate "Problems" %}</h2>
+            </header>
+            {% if problems %}
+                <ul class="ok-task-list">
+                    {% for p in problems %}
+                        <li class="ok-task ok-task--stack">
+                            <span class="material-symbols-outlined ok-problem-icon ok-problem-icon--{{ p.tone }}">{{ p.icon }}</span>
+                            <span class="ok-task__body">
+                                {% if p.url %}<a class="ok-task__name" href="{{ p.url }}" title="{{ p.title }}">{{ p.title }}</a>{% else %}<span class="ok-task__name">{{ p.title }}</span>{% endif %}
+                                {% if p.meta %}<span class="ok-task__meta">{{ p.meta }}</span>{% endif %}
+                            </span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="ok-dash-ok"><span class="material-symbols-outlined">check_circle</span>{% translate "Nothing to fix right now." %}</p>
+            {% endif %}
+        </section>
+
+        {% if week_program %}
+            <section class="ok-dash-card">
+                <header class="ok-dash-card__head">
+                    <h2><span class="material-symbols-outlined">calendar_month</span>{% translate "Broadcast program" %}</h2>
+                    <a href="{{ week_program.0.url }}">{% translate "Calendar weeks" %} →</a>
+                </header>
+                {% for w in week_program %}
+                    <a class="ok-week" href="{{ w.url }}">
+                        <span class="ok-week__head">
+                            <strong>{{ w.label }}</strong>
+                            <span class="ok-task__meta">KW {{ w.kw }} · {{ w.range }}</span>
+                            <span class="ok-week__rate ok-week__rate--{{ w.tone }}">{{ w.rate }}%</span>
+                        </span>
+                        <span class="ok-week__bar"><span class="ok-week__fill ok-week__fill--{{ w.tone }}" style="width: {{ w.bar }}%"></span></span>
+                        <span class="ok-task__meta">{% blocktranslate with days=w.planned_days n=w.licenses %}{{ days }} of 7 days planned · {{ n }} licenses{% endblocktranslate %}</span>
+                    </a>
+                {% endfor %}
+            </section>
+        {% endif %}
+
+        {% if exchange_news %}
+            <section class="ok-dash-card">
+                <header class="ok-dash-card__head">
+                    <h2><span class="material-symbols-outlined">swap_horiz</span>{% translate "New in the exchange" %}</h2>
+                    {% if exchange_news.url %}<a href="{{ exchange_news.url }}">{% translate "Exchange feed" %} →</a>{% endif %}
+                </header>
+                <p class="ok-exchange-summary">
+                    <span class="ok-counter__num">{{ exchange_news.arrived }}</span>
+                    <span>{% blocktranslate with since=exchange_news.since|localtime|date:"d.m. H:i" %}new since your last visit ({{ since }}){% endblocktranslate %}<br>
+                    <span class="ok-task__meta">{% blocktranslate with n=exchange_news.waiting %}{{ n }} items not imported yet{% endblocktranslate %}</span></span>
+                </p>
+                {% if exchange_news.latest %}
+                    <ul class="ok-task-list">
+                        {% for item in exchange_news.latest %}
+                            <li class="ok-task">
+                                <span class="ok-task__name">{{ item.title|default:item.filename|truncatechars:60 }}</span>
+                                <span class="ok-task__meta">{{ item.channel }} · {{ item.discovered_at|localtime|date:"d.m. H:i" }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </section>
+        {% endif %}
+
+        <section class="ok-dash-card">
+            <header class="ok-dash-card__head">
+                <h2><span class="material-symbols-outlined">history</span>{% translate "My recent changes" %}</h2>
+            </header>
+            {% if recent_actions %}
+                <ul class="ok-task-list">
+                    {% for entry in recent_actions %}
+                        <li class="ok-task">
+                            <span class="material-symbols-outlined ok-action-icon">{% if entry.is_addition %}add_circle{% elif entry.is_change %}edit{% else %}delete{% endif %}</span>
+                            {% if entry.is_deletion or not entry.get_admin_url %}
+                                <span class="ok-task__name">{{ entry.object_repr|truncatechars:60 }}</span>
+                            {% else %}
+                                <a class="ok-task__name" href="{{ entry.get_admin_url }}">{{ entry.object_repr|truncatechars:60 }}</a>
+                            {% endif %}
+                            <span class="ok-task__meta">{% if entry.content_type %}{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %} · {% endif %}{{ entry.action_time|localtime|date:"d.m. H:i" }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="ok-dash-empty">{% translate "None available" %}</p>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}

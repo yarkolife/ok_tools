@@ -1,4 +1,4 @@
-{% load static %}
+{% load static ok_static %}
 {% load i18n %}
 <!DOCTYPE html>
 <html lang="de">
@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="{% static 'img/favicon.ico' %}">
     <title>{% trans "Rental Statistics" %} - OK Tools</title>
     <link href="{% static 'admin/css/base.css' %}" rel="stylesheet">
-    <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
+    <link href="{% static_v 'rental/css/rental.css' %}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -40,28 +40,24 @@
         .return-overdue { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .return-pending { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
         .return-active { background: #cce5ff; color: #004085; border: 1px solid #99d3ff; }
+        html.dark .return-ontime, html.dark .calendar-cell.slot-free, html.dark .slot-free { background: var(--ok-success-soft) !important; color: var(--ok-success-ink); border-color: var(--ok-success-line); }
+        html.dark .return-overdue, html.dark .calendar-cell.slot-busy, html.dark .slot-busy { background: var(--ok-danger-soft) !important; color: var(--ok-danger-ink); border-color: var(--ok-danger-line); }
+        html.dark .return-pending, html.dark .calendar-cell.table-warning { background: var(--ok-warning-soft) !important; color: var(--ok-warning-ink); border-color: var(--ok-warning-line); }
+        html.dark .return-active { background: var(--ok-info-soft); color: var(--ok-info-ink); border-color: var(--ok-info-line); }
     </style>
+    {% include "ok_tools/_theme_head.html" %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #417690 !important;">
-        <div class="container-fluid">
-            <a class="navbar-brand text-white" href="{% url 'rental:admin_rental_process' %}">
-                <i class="fas fa-arrow-left me-2"></i>{% trans "Back to Rental Process" %}
-            </a>
-            <div class="navbar-nav ms-auto align-items-center gap-2">
-                <span class="navbar-text text-white d-none d-md-inline">
-                    <i class="fas fa-chart-bar me-2"></i>{% trans "Rental Statistics & Administration" %}
-                </span>
-                <div class="btn-group" role="group" aria-label="calendars">
-                    <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#invDayModal" title="{% trans 'Inventory calendar (day)' %}"><i class="fas fa-calendar-day me-1"></i><span class="d-none d-md-inline">{% trans "Day" %}</span></button>
-                    <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#invWeekModal" title="{% trans 'Inventory calendar (week)' %}"><i class="fas fa-calendar-week me-1"></i><span class="d-none d-md-inline">{% trans "Week" %}</span></button>
-                </div>
-                <a class="nav-link text-white" href="{% url 'admin:index' %}">
-                    <i class="fas fa-cog me-1"></i>{% trans "Administration" %}
-                </a>
-            </div>
-        </div>
-    </nav>
+    {% url 'rental:list' as rental_home %}
+    {% translate "Rental Statistics & Administration" as stats_title %}
+    {% include "ok_tools/_topbar.html" with title=stats_title home_url=rental_home %}
+    <div class="container-fluid d-flex flex-wrap align-items-center gap-2 pt-3">
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'rental:admin_rental_process' %}"><i class="fas fa-arrow-left me-1"></i>{% trans "Back to Rental Process" %}</a>
+        <div class="ms-auto"><div class="btn-group" role="group" aria-label="calendars">
+                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#invDayModal" title="{% trans 'Inventory calendar (day)' %}"><i class="fas fa-calendar-day me-1"></i><span class="d-none d-md-inline">{% trans "Day" %}</span></button>
+                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#invWeekModal" title="{% trans 'Inventory calendar (week)' %}"><i class="fas fa-calendar-week me-1"></i><span class="d-none d-md-inline">{% trans "Week" %}</span></button>
+                </div></div>
+    </div>
     <style>
       .slot-free { background:#e8f5e9 !important; }
       .slot-busy { background:#ffebee !important; }
@@ -73,16 +69,16 @@
       #singleInvTable { width: 100%; border-collapse: collapse; }
       #singleInvTable td, #singleInvTable th { 
         height: 35px; 
-        border: 1px solid #dee2e6; 
+        border: 1px solid var(--line); 
         padding: 4px; 
         text-align: center; 
         vertical-align: middle;
       }
       .calendar-grid { display:grid; grid-template-columns: repeat(7, 1fr); gap:4px; }
-      .calendar-cell { min-height:60px; padding:6px; border:1px solid #dee2e6; border-radius:4px; font-size:12px; text-align:center; }
+      .calendar-cell { min-height:60px; padding:6px; border:1px solid var(--line); border-radius:4px; font-size:12px; text-align:center; }
       .calendar-cell .date { font-weight:600; display:block; margin-bottom:4px; }
-      .calendar-cell.weekend-day { background-color: #f8f9fa; }
-      .calendar-cell.today-day { border: 2px solid #007bff; box-shadow: 0 0 5px rgba(0,123,255,0.3); }
+      .calendar-cell.weekend-day { background-color: var(--bg-sub); }
+      .calendar-cell.today-day { border: 2px solid var(--brand); box-shadow: 0 0 5px rgba(var(--ok-brand-rgb),0.3); }
       .calendar-cell.table-warning { background-color: #fff3cd !important; border-color: #ffeaa7; }
       .calendar-cell.slot-busy { background-color: #f8d7da !important; border-color: #f5c6cb; }
       .calendar-cell.slot-free { background-color: #d4edda !important; border-color: #c3e6cb; }
@@ -648,7 +644,7 @@
             const dayName = date.toLocaleDateString('de-DE', { weekday: 'short' });
             const dayNum = date.getDate();
             const monthName = date.toLocaleDateString('de-DE', { month: 'short' });
-            html += `<div class="calendar-cell" style="background: #f8f9fa; font-weight: bold;">
+            html += `<div class="calendar-cell" style="background: var(--bg-sub); font-weight: bold;">
               <div class="date">${dayName}</div>
               <div>${dayNum}. ${monthName}</div>
             </div>`;
@@ -731,7 +727,7 @@
           // Add day headers (Mo, Di, Mi, ...)
           const dayHeaders = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
           dayHeaders.forEach(dayName => {
-            html += `<div class="calendar-cell" style="background: #f8f9fa; font-weight: bold; font-size: 12px;">${dayName}</div>`;
+            html += `<div class="calendar-cell" style="background: var(--bg-sub); font-weight: bold; font-size: 12px;">${dayName}</div>`;
           });
           
           // Generate calendar days

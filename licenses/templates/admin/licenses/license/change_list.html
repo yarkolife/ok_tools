@@ -69,7 +69,7 @@
     flex-direction: column;
     width: 100%;
     pointer-events: auto;
-    background-color: #fff;
+    background-color: var(--ok-surface, #fff);
     background-clip: padding-box;
     border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 0.3rem;
@@ -83,7 +83,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 1rem 1rem;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid var(--ok-line, #dee2e6);
     border-top-left-radius: calc(0.3rem - 1px);
     border-top-right-radius: calc(0.3rem - 1px);
 }
@@ -127,7 +127,7 @@
     align-items: center;
     justify-content: flex-end;
     padding: 0.75rem;
-    border-top: 1px solid #dee2e6;
+    border-top: 1px solid var(--ok-line, #dee2e6);
     border-bottom-right-radius: calc(0.3rem - 1px);
     border-bottom-left-radius: calc(0.3rem - 1px);
 }
@@ -136,7 +136,7 @@
     display: inline-block;
     font-weight: 400;
     line-height: 1.5;
-    color: #212529;
+    color: var(--ok-ink, #212529);
     text-align: center;
     text-decoration: none;
     vertical-align: middle;

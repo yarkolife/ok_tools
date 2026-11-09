@@ -1,0 +1,147 @@
+/*
+ * Signature block in the admin change forms (licenses, users, rental
+ * requests). Colours come from ok_theme.css, with the classic admin values
+ * as fallbacks. The drawing surface stays white in both themes: it is the
+ * "paper" the signature is captured on and stored with.
+ */
+.admin-signature-section {
+    margin: 20px 0;
+    padding: 16px;
+    border: 1px solid var(--ok-line, #ccc);
+    border-radius: var(--ok-radius, 4px);
+    background: var(--ok-surface-2, #f9f9f9);
+    color: var(--ok-ink, #333);
+}
+.admin-signature-section h3 {
+    margin: 0 0 14px;
+    padding: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ok-ink, #333);
+    background: none;
+}
+.admin-signature-canvas-wrapper {
+    position: relative;
+    margin-bottom: 10px;
+    padding: 4px;
+    border: 1px solid var(--ok-line-2, #ccc);
+    border-radius: var(--ok-radius, 4px);
+    background: #fff;
+    overflow: hidden;
+}
+.admin-signature-canvas {
+    display: block;
+    width: 100%;
+    height: 150px;
+    cursor: crosshair;
+    background: #fff;
+    touch-action: none;
+    user-select: none;
+}
+.admin-signature-guide {
+    position: absolute;
+    bottom: 30%;
+    left: 5%;
+    right: 5%;
+    border-bottom: 1px dashed #ccc;
+    pointer-events: none;
+}
+.admin-signature-existing { margin: 15px 0; text-align: center; }
+.admin-signature-existing img {
+    max-width: 100%;
+    max-height: 200px;
+    padding: 4px;
+    border-radius: var(--ok-radius, 4px);
+    background: #fff;
+}
+
+/* Draw / QR switch */
+.admin-signature-methods,
+.admin-signature-method-buttons {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-bottom: 14px;
+    padding: 3px;
+    border: 1px solid var(--ok-line, #ccc);
+    border-radius: var(--ok-radius, 4px);
+    background: var(--ok-surface, #f6f6f6);
+}
+.admin-signature-method-btn,
+.admin-signature-method-buttons .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border: 0;
+    border-radius: calc(var(--ok-radius, 4px) - 2px);
+    background: transparent;
+    color: var(--ok-ink-2, #333);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+}
+.admin-signature-method-btn:hover,
+.admin-signature-method-buttons .btn:hover {
+    background: var(--ok-surface-hover, #e6e6e6);
+    color: var(--ok-ink, #333);
+}
+.admin-signature-method-btn.active,
+.admin-signature-method-buttons .btn.active {
+    background: var(--ok-brand, #417690);
+    color: #fff;
+}
+
+.admin-qr-sign-panel {
+    margin-top: 10px;
+    padding: 15px;
+    border: 1px solid var(--ok-line, #ccc);
+    border-radius: var(--ok-radius, 4px);
+    background: var(--ok-surface, #fff);
+}
+.admin-qr-sign-panel .help { color: var(--ok-ink-3, #666); }
+.admin-qr-sign-panel .btn-outline-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid var(--ok-brand, #417690);
+    border-radius: var(--ok-radius, 4px);
+    background: transparent;
+    color: var(--ok-brand, #417690);
+    font-size: 13px;
+    cursor: pointer;
+}
+.admin-qr-sign-panel .btn-outline-primary:hover { background: var(--ok-brand, #417690); color: #fff; }
+.admin-qr-sign-panel a { color: var(--ok-brand, #417690); }
+#admin-qr-session-qr { background: #fff; }
+
+.signature-actions,
+.admin-signature-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+.signature-clear-btn,
+.signature-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border: 1px solid var(--ok-line-2, #ccc);
+    border-radius: var(--ok-radius, 4px);
+    background: var(--ok-surface, #f6f6f6);
+    color: var(--ok-ink-2, #333);
+    font-size: 12px;
+    cursor: pointer;
+}
+.signature-clear-btn:hover { background: var(--ok-surface-hover, #e6e6e6); }
+.signature-delete-btn {
+    border-color: var(--ok-danger-line, #dc3545);
+    background: var(--ok-danger-soft, #f8d7da);
+    color: var(--ok-danger, #dc3545);
+}
+.signature-delete-btn:hover { filter: brightness(.95); }
+.signature-hint { font-size: 12px; color: var(--ok-ink-3, #666); }
+.admin-signature-section .text-muted { color: var(--ok-ink-3, #666) !important; }

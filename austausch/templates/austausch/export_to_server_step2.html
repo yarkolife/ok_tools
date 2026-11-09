@@ -16,8 +16,8 @@
     max-width: 100%;
   }
   .export-card {
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--ok-surface, #fff);
+    border: 1px solid var(--ok-line, #ddd);
     border-radius: 8px;
     padding: 24px;
     margin-bottom: 20px;
@@ -29,12 +29,12 @@
     gap: 12px;
     margin-bottom: 8px;
     padding-bottom: 16px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--ok-line, #eee);
   }
   .export-header svg {
     width: 28px;
     height: 28px;
-    color: #447e9b;
+    color: var(--ok-brand, #447e9b);
   }
   .export-header h1 {
     margin: 0;
@@ -42,14 +42,14 @@
     font-weight: 600;
   }
   .export-description {
-    color: #666;
+    color: var(--ok-ink-3, #666);
     margin-bottom: 20px;
     line-height: 1.5;
   }
   .export-table-wrapper {
     overflow-x: auto;
     margin: 20px 0;
-    border: 1px solid #ddd;
+    border: 1px solid var(--ok-line, #ddd);
     border-radius: 6px;
   }
   .export-step2-table {
@@ -58,21 +58,21 @@
     font-size: 13px;
   }
   .export-step2-table th {
-    background: #f8f9fa;
+    background: var(--ok-surface-2, #f8f9fa);
     padding: 12px 10px;
     text-align: left;
     font-weight: 600;
-    border-bottom: 2px solid #dee2e6;
+    border-bottom: 2px solid var(--ok-line, #dee2e6);
     white-space: nowrap;
-    color: #333;
+    color: var(--ok-ink, #333);
   }
   .export-step2-table td {
     padding: 10px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--ok-line, #eee);
     vertical-align: middle;
   }
   .export-step2-table tr:hover {
-    background: #f8f9fa;
+    background: var(--ok-surface-2, #f8f9fa);
   }
   .export-step2-table tr:last-child td {
     border-bottom: none;
@@ -105,31 +105,31 @@
   .export-form .schedule-row {
     margin: 20px 0;
     padding: 16px;
-    background: #f8f9fa;
+    background: var(--ok-surface-2, #f8f9fa);
     border-radius: 6px;
   }
   .export-form .schedule-row label {
     display: block;
     font-weight: 600;
     margin-bottom: 8px;
-    color: #333;
+    color: var(--ok-ink, #333);
   }
   .export-form input[type="datetime-local"] {
     padding: 8px 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--ok-line, #ddd);
     border-radius: 4px;
     font-size: 14px;
     width: 100%;
     max-width: 280px;
   }
   .export-form input[type="datetime-local"]:focus {
-    border-color: #447e9b;
+    border-color: var(--ok-brand, #447e9b);
     box-shadow: 0 0 0 2px rgba(68,126,155,0.1);
     outline: none;
   }
   .export-form .help-text {
     font-size: 12px;
-    color: #666;
+    color: var(--ok-ink-3, #666);
     margin-top: 4px;
   }
   .export-actions {
@@ -137,7 +137,7 @@
     gap: 12px;
     margin-top: 24px;
     padding-top: 20px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--ok-line, #eee);
   }
   .export-actions input[type="submit"] {
     padding: 10px 24px;
@@ -177,23 +177,23 @@
   }
   .publish-cell input[type="datetime-local"] {
     padding: 4px 6px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--ok-line, #ddd);
     border-radius: 4px;
     font-size: 13px;
   }
   .publish-cell input[type="datetime-local"]:disabled {
     background: #f1f1f1;
-    color: #999;
+    color: var(--ok-ink-4, #999);
   }
   .publish-cell .publish-hint {
     font-size: 11px;
-    color: #666;
+    color: var(--ok-ink-3, #666);
     margin-top: 3px;
   }
   .publish-cell .publish-hint button {
     border: none;
     background: none;
-    color: #447e9b;
+    color: var(--ok-brand, #447e9b);
     padding: 0;
     cursor: pointer;
     font-size: 11px;
@@ -215,10 +215,10 @@
   }
   .publish-bulk button {
     padding: 4px 10px;
-    border: 1px solid #447e9b;
+    border: 1px solid var(--ok-brand, #447e9b);
     border-radius: 4px;
-    background: #fff;
-    color: #447e9b;
+    background: var(--ok-surface, #fff);
+    color: var(--ok-brand, #447e9b);
     cursor: pointer;
     font-size: 12px;
   }

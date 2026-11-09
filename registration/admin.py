@@ -23,7 +23,9 @@ from django_admin_listfilter_dropdown.filters import DropdownFilter
 from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
-from import_export.forms import ExportForm
+from ok_tools.admin_base import AdminPasswordChangeForm
+from ok_tools.admin_base import ExportForm
+from ok_tools.admin_base import ModelAdmin
 from ok_tools.datetime import TZ
 from registration.signals import signal
 import datetime
@@ -50,10 +52,11 @@ class UserAdminForm(forms.ModelForm):
         }
 
 
-class UserAdmin(BaseUserAdmin):
+class UserAdmin(BaseUserAdmin, ModelAdmin):
     """How should the user be shown on the admin site."""
 
     form = UserAdminForm
+    change_password_form = AdminPasswordChangeForm
     change_form_template = 'admin/registration/okuser/change_form.html'
 
     fieldsets = (
@@ -225,7 +228,7 @@ class YearFilter(admin.SimpleListFilter):
 
 
 # register profile
-class ProfileAdmin(ExportMixin, admin.ModelAdmin):
+class ProfileAdmin(ExportMixin, ModelAdmin):
     """How should the profile be shown on the admin site."""
 
     resource_classes = [ProfileResource]
@@ -362,7 +365,7 @@ class ProfileAdmin(ExportMixin, admin.ModelAdmin):
 admin.site.register(Profile, ProfileAdmin)
 
 
-class MediaAuthorityAdmin(admin.ModelAdmin):
+class MediaAuthorityAdmin(ModelAdmin):
     """Define search_fields."""
 
     search_fields = ['name', 'full_name', 'target_channel']
@@ -373,7 +376,7 @@ class MediaAuthorityAdmin(admin.ModelAdmin):
 admin.site.register(MediaAuthority, MediaAuthorityAdmin)
 
 
-class NotificationAdmin(admin.ModelAdmin):
+class NotificationAdmin(ModelAdmin):
     """Admin interface for Notification model."""
 
     list_display = [
@@ -474,7 +477,7 @@ class RegistrationConfigAdminForm(forms.ModelForm):
         )
 
 
-class RegistrationConfigAdmin(admin.ModelAdmin):
+class RegistrationConfigAdmin(ModelAdmin):
     """Admin interface for RegistrationConfig model."""
 
     form = RegistrationConfigAdminForm
@@ -492,7 +495,7 @@ class RegistrationConfigAdmin(admin.ModelAdmin):
         return False
 
 
-class OrganizationConfigAdmin(admin.ModelAdmin):
+class OrganizationConfigAdmin(ModelAdmin):
     """Admin for OrganizationConfig singleton."""
     
     fieldsets = (

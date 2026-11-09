@@ -426,6 +426,7 @@ def _export_step1_context(config):
     if getattr(config, 'default_media_authority', None):
         default_media_authority_name = config.default_media_authority.name
     return {
+        'title': _('Export to server'),
         'default_media_authority_id': default_media_authority_id,
         'default_media_authority_name': default_media_authority_name,
     }
@@ -747,6 +748,7 @@ def export_to_server_step2(request):
         return redirect(reverse('austausch:export_to_server_step1'))
 
     return render(request, 'austausch/export_to_server_step2.html', {
+        'title': _('Export to server'),
         'mode': mode,
         'items': items,
         'all_ids': ids,
@@ -785,5 +787,7 @@ def export_to_server_result(request):
         run = ExportToServerRun.objects.order_by('-started_at').first()
     
     if not run:
-        return render(request, 'austausch/export_to_server_result.html', {'run': None, 'task_id': task_id})
-    return render(request, 'austausch/export_to_server_result.html', {'run': run, 'task_id': task_id})
+        return render(request, 'austausch/export_to_server_result.html',
+                      {'run': None, 'task_id': task_id, 'title': _('Export to server')})
+    return render(request, 'austausch/export_to_server_result.html',
+                  {'run': run, 'task_id': task_id, 'title': _('Export to server')})

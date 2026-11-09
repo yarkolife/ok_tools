@@ -1,4 +1,4 @@
-{% load i18n static %}
+{% load i18n static ok_static %}
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -9,26 +9,16 @@
     <link rel="apple-touch-icon" href="{% static 'img/favicon.ico' %}">
     <title>{% trans "Process return" %} — {{ rental.id }}</title>
     <link href="{% static 'admin/css/base.css' %}" rel="stylesheet">
-    <link href="{% static 'rental/css/rental.css' %}" rel="stylesheet">
+    <link href="{% static_v 'rental/css/rental.css' %}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    {% include "ok_tools/_theme_head.html" %}
 </head>
 <body>
-    <div class="topbar">
-        <nav class="navbar navbar-expand-lg navbar-dark">
-            <div class="container-fluid">
-                <a class="navbar-brand text-white" href="{% url 'rental:list' %}">
-                    <i class="fas fa-tools me-2"></i>OK Tools <span class="opacity-75">— {% trans "Rental Management" %}</span>
-                </a>
-                <div class="navbar-nav ms-auto align-items-center gap-2">
-                    <a class="btn btn-sm btn-outline-light" href="/admin/">
-                        <i class="fas fa-cog me-1"></i><span>{% trans "Back to Administration" %}</span>
-                    </a>
-                </div>
-            </div>
-        </nav>
-    </div>
+    {% url 'rental:list' as rental_home %}
+    {% translate "Rental Management" as rental_title %}
+    {% include "ok_tools/_topbar.html" with title=rental_title home_url=rental_home %}
 
     <div class="page">
         {% include 'rental/_sidebar.html' with sidebar_active='return' %}

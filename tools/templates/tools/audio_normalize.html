@@ -2,6 +2,7 @@
 {% load i18n %}
 
 {% block title %}{% trans 'Audio Broadcast Normalize (R128)' %} - {{ block.super }}{% endblock %}
+{% block content_title %}{% if ADMIN_UNFOLD_ENABLED %}{% trans 'Audio Broadcast Normalize (R128)' %}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -17,8 +18,8 @@
 <style>
     .tool-container { padding: 20px; }
     .section {
-        background: #fff;
-        border: 1px solid #dee2e6;
+        background: var(--ok-surface, #fff);
+        border: 1px solid var(--ok-line, #dee2e6);
         border-radius: 10px;
         padding: 18px;
         margin-bottom: 18px;
@@ -38,7 +39,7 @@
         padding: 8px 12px;
         border: 1px solid #d1d5db;
         border-radius: 8px;
-        background: #fff;
+        background: var(--ok-surface, #fff);
         font-size: 14px;
         box-sizing: border-box;
     }
@@ -68,7 +69,7 @@
     .report-card { border: 1px solid #e5e7eb; background: #f9fafb; border-radius: 10px; padding: 14px; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; }
     .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-    .metric-card { border: 1px solid #e5e7eb; background: #fff; border-radius: 10px; padding: 12px; }
+    .metric-card { border: 1px solid #e5e7eb; background: var(--ok-surface, #fff); border-radius: 10px; padding: 12px; }
     .metric-label { font-weight: 700; font-size: 12px; text-transform: uppercase; color: #6b7280; letter-spacing: 0.03em; }
     .metric-value { font-size: 20px; font-weight: 700; margin-top: 4px; color: #111827; }
     .metric-delta { font-size: 12px; color: #6b7280; margin-top: 6px; }
@@ -105,7 +106,7 @@
         width: 100%;
         border-collapse: collapse;
         font-size: 13px;
-        background: #fff;
+        background: var(--ok-surface, #fff);
         border-radius: 10px;
         overflow: hidden;
         border: 1px solid #e5e7eb;
@@ -145,7 +146,7 @@
     .status-pill {
         display: inline-flex; align-items: center;
         padding: 2px 10px; border-radius: 999px;
-        border: 1px solid #e5e7eb; background: #fff;
+        border: 1px solid #e5e7eb; background: var(--ok-surface, #fff);
         font-weight: 600; font-size: 12px; color: #111827;
         line-height: 1;
     }
@@ -675,7 +676,7 @@ async function searchMediaByNumber() {
         const dataStreamUrl = r.external ? esc(r.stream_url || '') : '';
         const dataRelpath = !r.external ? esc(r.relpath || '') : '';
         return `
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 10px; border:1px solid #e5e7eb; border-radius:10px; background:#fff; margin-top:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 10px; border:1px solid #e5e7eb; border-radius:10px; background:var(--ok-surface, #fff); margin-top:8px;">
                 <div style="min-width: 0;">
                     <div style="font-weight:700; color:#111827; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${title}${badge}</div>
                     <div class="hint" style="margin-top:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${sub}</div>

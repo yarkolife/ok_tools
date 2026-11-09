@@ -12,6 +12,7 @@ from django.test import override_settings
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils import translation
+from ok_tools.admin_base import UNFOLD
 from ok_tools.datetime import TZ
 from ok_tools.testing import DOMAIN
 from ok_tools.testing import EMAIL
@@ -493,7 +494,7 @@ def test__licenses__admin__LicenseAdmin__1(
     for i in range(4):
         # select all LRs
         browser.getControl(name='_selected_action').controls[i].click()
-    browser.getControl('Action').value = 'confirm'
+    browser.getControl(name='action').value = 'confirm'
     browser.getControl(name='index').click()
 
     assert ('3 Licenses were successfully confirmed.'
@@ -516,7 +517,7 @@ def test__licenses__admin__LicenseAdmin__2(
     for i in range(4):
         # select all LRs
         browser.getControl(name='_selected_action').controls[i].click()
-    browser.getControl('Action').value = 'unconfirm'
+    browser.getControl(name='action').value = 'unconfirm'
     browser.getControl(name='index').click()
 
     assert ('3 Licenses were successfully unconfirmed.'
@@ -570,7 +571,7 @@ def test__licenses__admin__LicenseAdmin__6(browser):
     browser.open(A_LICENSE_URL)
     browser.follow('Add License')
 
-    assert 'Number:' not in browser.contents
+    assert 'name="number"' not in browser.contents
 
 
 def test__licenses__admin__LicenseAdmin__7(browser, license):
@@ -579,7 +580,7 @@ def test__licenses__admin__LicenseAdmin__7(browser, license):
     browser.open(A_LICENSE_URL)
     browser.follow(license.title)
 
-    assert 'Number:' in browser.contents
+    assert 'name="number"' in browser.contents
 
 
 def test__licenses__admin__LicenseAdmin__8(
@@ -624,7 +625,7 @@ def test__licenses__admin__LicenseAdmin__11(browser, license):
     browser.open(A_LICENSE_URL)
 
     browser.getControl(name='_selected_action').controls[0].selected = True
-    browser.getControl('Action').value = 'confirm'
+    browser.getControl(name='action').value = 'confirm'
     browser.getControl(name='index').click()
 
     assert f'profile of {license} is not verified' in browser.contents
@@ -635,7 +636,7 @@ def test__licenses__admin__LicenseAdmin__response_change__1(
         db, user, license: License, browser):
     """Print license form in admin change view."""
     browser.login_admin()
-    browser.follow('Licenses', index=1)
+    browser.open(A_LICENSE_URL)
     browser.follow(license.title)
     browser.getControl('Print license').click()
 
@@ -834,10 +835,13 @@ def test__licenses__admin__DateRangeFilter(browser, license_dict, user):
     )
 
     browser.login_admin()
-    browser.open(
-        f'{A_LICENSE_URL}?created_at__range__gte=2025-01-01'
-        '&created_at__range__lte=2025-12-31'
-    )
+    # Query parameters of the date range filter of each admin theme.
+    if UNFOLD:
+        query = 'created_at_from=2025-01-01&created_at_to=2025-12-31'
+    else:
+        query = ('created_at__range__gte=2025-01-01'
+                 '&created_at__range__lte=2025-12-31')
+    browser.open(f'{A_LICENSE_URL}?{query}')
 
     assert license_before.title not in browser.contents
     assert license_inside.title in browser.contents
@@ -1455,7 +1459,7 @@ def test__licenses__admin__LicenseAdmin__unconfirm_preserves_metadata(
     browser.login_admin()
     browser.open(A_LICENSE_URL)
     browser.getControl(name='_selected_action').controls[0].selected = True
-    browser.getControl('Action').value = 'unconfirm'
+    browser.getControl(name='action').value = 'unconfirm'
     browser.getControl(name='index').click()
 
     assert '1 License was successfully unconfirmed.' in browser.contents
@@ -1479,7 +1483,7 @@ def test__licenses__admin__LicenseAdmin__reconfirm_preserves_original_metadata(
     browser.login_admin()
     browser.open(A_LICENSE_URL)
     browser.getControl(name='_selected_action').controls[0].selected = True
-    browser.getControl('Action').value = 'unconfirm'
+    browser.getControl(name='action').value = 'unconfirm'
     browser.getControl(name='index').click()
 
     lr = License.objects.get(id=license.id)
@@ -1488,7 +1492,7 @@ def test__licenses__admin__LicenseAdmin__reconfirm_preserves_original_metadata(
 
     browser.open(A_LICENSE_URL)
     browser.getControl(name='_selected_action').controls[0].selected = True
-    browser.getControl('Action').value = 'confirm'
+    browser.getControl(name='action').value = 'confirm'
     browser.getControl(name='index').click()
 
     assert '1 License was successfully confirmed.' in browser.contents
@@ -1504,7 +1508,7 @@ def test__licenses__admin__LicenseAdmin__first_confirm_fills_metadata(
     browser.login_admin()
     browser.open(A_LICENSE_URL)
     browser.getControl(name='_selected_action').controls[0].selected = True
-    browser.getControl('Action').value = 'confirm'
+    browser.getControl(name='action').value = 'confirm'
     browser.getControl(name='index').click()
 
     assert '1 License was successfully confirmed.' in browser.contents

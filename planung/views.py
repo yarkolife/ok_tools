@@ -180,27 +180,12 @@ def day_plan_detail(request, iso_date):
         return JsonResponse({"error": _("Method not allowed")}, status=405)
 
 
-@require_GET
-@staff_member_required
-def week_stats(request):
-    """Return aggregated statistics for 4 consecutive weeks."""
-    from datetime import date as dt_date
+def compute_week_stats(start_date, weeks):
+    """Planned days, broadcast time and fill rate for consecutive weeks.
+
+    Used by the calendar week cards (week_stats) and the admin start page.
+    """
     from registration import organization_config
-
-    start_param = request.GET.get("start")
-    if start_param:
-        start_date = parse_date(start_param)
-    else:
-        today = dt_date.today()
-        start_date = today - timedelta(days=today.weekday())
-    if not start_date:
-        return JsonResponse({"error": _("Invalid start date")}, status=400)
-
-    weeks = int(request.GET.get("weeks", 4))
-    if weeks < 1:
-        weeks = 1
-    if weeks > 12:
-        weeks = 12
 
     broadcast_start = organization_config.get_broadcast_start()
     broadcast_end = organization_config.get_broadcast_end()
@@ -252,6 +237,31 @@ def week_stats(request):
             }
         )
 
+    return rows
+
+
+@require_GET
+@staff_member_required
+def week_stats(request):
+    """Return aggregated statistics for 4 consecutive weeks."""
+    from datetime import date as dt_date
+
+    start_param = request.GET.get("start")
+    if start_param:
+        start_date = parse_date(start_param)
+    else:
+        today = dt_date.today()
+        start_date = today - timedelta(days=today.weekday())
+    if not start_date:
+        return JsonResponse({"error": _("Invalid start date")}, status=400)
+
+    weeks = int(request.GET.get("weeks", 4))
+    if weeks < 1:
+        weeks = 1
+    if weeks > 12:
+        weeks = 12
+
+    rows = compute_week_stats(start_date, weeks)
     return JsonResponse({"weeks": rows})
 
 

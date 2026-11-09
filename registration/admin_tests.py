@@ -21,6 +21,8 @@ PWD = 'testpassword'
 
 LIST_URL = (f'{DOMAIN}'
             f'{reverse_lazy("admin:registration_profile_changelist")}')
+ADD_URL = f'{DOMAIN}{reverse_lazy("admin:registration_profile_add")}'
+USER_ADD_URL = f'{DOMAIN}{reverse_lazy("admin:registration_okuser_add")}'
 
 
 def a_change_url(id):
@@ -34,8 +36,8 @@ def a_change_url(id):
 def test__registration__admin__1(browser):
     """It is possible to log in as a valid admin user."""
     browser.login_admin()
-    assert 'Site administration' in browser.contents
     assert browser.url == f'{DOMAIN}/admin/'
+    assert str(reverse_lazy('admin:logout')) in browser.contents
 
 
 def test__registration__admin__2(browser, user_dict):
@@ -43,10 +45,9 @@ def test__registration__admin__2(browser, user_dict):
     password = 'userpassword'
 
     browser.login_admin()
-    browser.follow('Users')
-    browser.follow('Add User')
+    browser.open(USER_ADD_URL)
     browser.getControl('Email').value = user_dict['email']
-    browser.getControl('Password:').value = password
+    browser.getControl(name='password1').value = password
     browser.getControl(name='password2').value = password
     browser.getControl(name='_save').click()
 
@@ -60,8 +61,7 @@ def test__registration__signals__send_verification_mail__1(
     """After verification a user gets send an email."""
     assert 0 == len(mail_outbox)
     browser.login_admin()
-    browser.getLink('Profiles').click()
-    browser.getLink(user.email).click()
+    browser.open(a_change_url(user.profile.id))
     browser.getControl('Verified').selected = True
     browser.getControl(name='_save').click()
 
@@ -92,8 +92,7 @@ def test__registration__admin__ProfileAdmin__3(db, user_dict, browser):
     user = User.objects.create_user(user_dict['email'], password=PWD)
 
     browser.login_admin()
-    browser.follow('Profile')
-    browser.follow('Add Profile')
+    browser.open(ADD_URL)
 
     browser.getControl(name='okuser')._control.force_value(
         user.id)  # select user
@@ -177,7 +176,7 @@ def test__registration__admin__verify__1(
     create_user(user_dict)
     browser.login_admin()
 
-    browser.getLink('Profile').click()
+    browser.open(LIST_URL)
 
     # select both profiles
     browser.getControl(name='_selected_action').controls[0].selected = True
@@ -208,7 +207,7 @@ def test__registration__admin__verify__2(
 
     browser.login_admin()
 
-    browser.getLink('Profile').click()
+    browser.open(LIST_URL)
 
     # select both profiles
     browser.getControl(name='_selected_action').controls[0].selected = True
@@ -236,7 +235,7 @@ def test__registration__admin__unverify__1(db, user_dict, browser):
     create_user(user_dict, verified=True)
     browser.login_admin()
 
-    browser.getLink('Profile').click()
+    browser.open(LIST_URL)
 
     # select both profiles
     browser.getControl(name='_selected_action').controls[0].selected = True
@@ -257,8 +256,7 @@ def test__registration__admin__response_change__1(db, user, browser):
     """Print application form."""
     browser.login_admin()
 
-    browser.getLink('Profile').click()
-    browser.getLink(user.email).click()
+    browser.open(a_change_url(user.profile.id))
     browser.getControl('Print').click()
 
     assert browser.headers['Content-Type'] == 'application/pdf'

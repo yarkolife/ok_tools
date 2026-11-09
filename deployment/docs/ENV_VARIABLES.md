@@ -429,6 +429,32 @@ This document provides comprehensive reference for all environment variables use
   - Available themes: `default` (blue), `dark` (dark background with orange accents), `vibrant` (purple)
   - Affects colors, gradients, and styling of the user dashboard interface
 
+### BRAND_COLOR
+- **Description:** Brand colour of the installation (hex)
+- **Type:** String
+- **Required:** No
+- **Default:** empty: `#6366f1` with `DASHBOARD_THEME=vibrant`, otherwise `#417690`
+- **Example:** `BRAND_COLOR=#004354`
+- **Notes:**
+  - The top bar (logo, notification bell, theme switch) uses this colour as it is
+  - Buttons, links and highlights in the admin, rental, dashboard and notification pages use a palette derived from it, in light and dark theme
+  - Restart the containers after a change (`docker compose up -d`)
+
+### ADMIN_UNFOLD_ENABLED
+- **Description:** New admin theme (Unfold): grouped side menu, start page with tasks and to-dos
+- **Type:** Boolean
+- **Required:** No
+- **Default:** `False` (classic Django admin)
+- **Example:** `ADMIN_UNFOLD_ENABLED=true`
+- **Notes:** Switch back by removing the line and restarting; no data is changed
+
+### ADMIN_ENVIRONMENT_LABEL
+- **Description:** Label in the admin header, e.g. for a test server
+- **Type:** String
+- **Required:** No
+- **Default:** empty (no label; `Development` when `DEBUG=True`)
+- **Example:** `ADMIN_ENVIRONMENT_LABEL=Test`
+
 ---
 
 ## Video Configuration

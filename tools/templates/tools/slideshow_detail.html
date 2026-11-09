@@ -3,6 +3,7 @@
 {% load i18n %}
 
 {% block title %}{{ project.name }} - {{ block.super }}{% endblock %}
+{% block content_title %}{% if ADMIN_UNFOLD_ENABLED %}{{ project.name }}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -20,8 +21,8 @@
         padding: 20px;
     }
     .section {
-        background: #fff;
-        border: 1px solid #dee2e6;
+        background: var(--ok-surface, #fff);
+        border: 1px solid var(--ok-line, #dee2e6);
         border-radius: 4px;
         padding: 20px;
         margin-bottom: 20px;
@@ -30,7 +31,7 @@
         font-size: 18px;
         font-weight: bold;
         margin-bottom: 15px;
-        color: #333;
+        color: var(--ok-ink, #333);
     }
     .status-badge {
         padding: 4px 8px;
@@ -50,12 +51,12 @@
     }
     .info-item {
         padding: 10px;
-        background: #f8f9fa;
+        background: var(--ok-surface-2, #f8f9fa);
         border-radius: 4px;
     }
     .info-label {
         font-weight: bold;
-        color: #666;
+        color: var(--ok-ink-3, #666);
         margin-bottom: 5px;
     }
     .media-grid {
@@ -160,7 +161,7 @@
                     🎥 {% trans 'Video' %}
                 </div>
                 {% endif %}
-                <div style="margin-top: 5px; font-size: 12px; color: #666;">
+                <div style="margin-top: 5px; font-size: 12px; color: var(--ok-ink-3, #666);">
                     #{{ media.order }} - {{ media.media_type|title }}
                 </div>
             </div>
@@ -178,7 +179,7 @@
         <div class="info-item">
             <strong>{{ audio.name }}</strong>
             {% if audio.duration %}
-            <div style="margin-top: 5px; color: #666;">
+            <div style="margin-top: 5px; color: var(--ok-ink-3, #666);">
                 {% trans 'Duration' %}: {{ audio.duration|floatformat:1 }} {% trans 'seconds' %}
             </div>
             {% endif %}

@@ -3,6 +3,9 @@
 import logging
 import os
 from datetime import timedelta
+from ok_tools.admin_base import ModelAdmin
+from ok_tools.admin_base import TabularInline
+from ok_tools.admin_base import date_range_filter
 from pathlib import Path
 from django.conf import settings
 from django import forms
@@ -54,11 +57,11 @@ def _admin_archive_cleanup_preview_page(title: str, rows: list) -> HttpResponse:
         f"<title>{esc(title)}</title>",
         "<style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; padding:16px}"
         "table{border-collapse:collapse; width:100%}"
-        "th,td{border:1px solid #ddd; padding:8px; vertical-align:top}"
+        "th,td{border:1px solid var(--ok-line, #ddd); padding:8px; vertical-align:top}"
         "th{background:#f6f6f6; text-align:left}"
         ".keep{color:#17a2b8; font-weight:700}"
         ".del{color:#dc3545}"
-        ".muted{color:#666}"
+        ".muted{color:var(--ok-ink-3, #666)}"
         "</style></head><body>",
         f"<h2>{esc(title)}</h2>",
         "<p class='muted'>This is a preview only. No files were deleted.</p>",
@@ -353,7 +356,7 @@ class VideoFileAdminForm(forms.ModelForm):
         return instance
 
 
-class FileOperationInline(admin.TabularInline):
+class FileOperationInline(TabularInline):
     """Inline admin for file operations history."""
 
     model = FileOperation
@@ -372,7 +375,7 @@ class FileOperationInline(admin.TabularInline):
 
 
 @admin.register(StorageLocation)
-class StorageLocationAdmin(admin.ModelAdmin):
+class StorageLocationAdmin(ModelAdmin):
     """Admin interface for storage locations."""
 
     list_display = [
@@ -415,7 +418,7 @@ class StorageLocationAdmin(admin.ModelAdmin):
         from media_files.storage_health import health_state
 
         if not obj.last_health_check:
-            return format_html('<span style="color:#999;">{}</span>', _('not measured'))
+            return format_html('<span style="color:var(--ok-ink-4, #999);">{}</span>', _('not measured'))
         state = health_state(obj)
         if state is None:
             label = _('stale')
@@ -894,7 +897,7 @@ class FPSFilter(admin.SimpleListFilter):
 
 
 @admin.register(VideoFile)
-class VideoFileAdmin(admin.ModelAdmin):
+class VideoFileAdmin(ModelAdmin):
     """Admin interface for video files."""
 
     form = VideoFileAdminForm
@@ -909,7 +912,7 @@ class VideoFileAdmin(admin.ModelAdmin):
     ]
     list_filter = [
         'storage_location', 'format', 'is_available', 'is_preview',
-        ('created_at', DateRangeFilter),
+        date_range_filter('created_at', DateRangeFilter),
         'has_video', 'has_audio',
         ArchiveCleanupFilter, HasDuplicatesFilter, IsPrimaryVersionFilter, FPSFilter
     ]
@@ -1709,7 +1712,7 @@ class VideoFileAdmin(admin.ModelAdmin):
     def fps_display(self, obj):
         """Display FPS with warning if not 25."""
         if obj.fps is None:
-            return mark_safe('<span style="color: #999;">—</span>')
+            return mark_safe('<span style="color: var(--ok-ink-4, #999);">—</span>')
         
         fps_value = float(obj.fps)
         fps_formatted = f"{fps_value:.2f}"
@@ -1759,7 +1762,7 @@ class VideoFileAdmin(admin.ModelAdmin):
         try:
             if getattr(obj, 'is_preview', False):
                 return format_html(
-                    '<span style="color: #6c757d;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg> {}</span>',
+                    '<span style="color: var(--ok-ink-3, #6c757d);"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg> {}</span>',
                     _('Preview clip (not a version)'),
                 )
             # Check for duplicates (same number, any storage; previews excluded by get_all_versions)
@@ -1767,7 +1770,7 @@ class VideoFileAdmin(admin.ModelAdmin):
             same_storage_versions = all_versions.filter(storage_location=obj.storage_location)
             
             if not all_versions.exists():
-                return format_html('<span style="color: #6c757d;" title="{}">—</span>', _('Unique - no duplicates'))
+                return format_html('<span style="color: var(--ok-ink-3, #6c757d);" title="{}">—</span>', _('Unique - no duplicates'))
             
             is_primary = obj.is_primary_version()
             total_count = all_versions.count()
@@ -1786,7 +1789,7 @@ class VideoFileAdmin(admin.ModelAdmin):
             if is_primary:
                 return format_html(
                     '<span style="color: #28a745; font-weight: bold;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> PRIMARY</span><br>'
-                    '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
+                    '<span style="color: var(--ok-ink-3, #6c757d); font-size: 0.85em;">({} {})</span>',
                     tooltip,
                     total_count + 1,
                     _('versions total')
@@ -1816,7 +1819,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                         if obj.id == best_archive.id:
                             return format_html(
                                 '<span style="color: #17a2b8; font-weight: bold;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> {}</span><br>'
-                                '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
+                                '<span style="color: var(--ok-ink-3, #6c757d); font-size: 0.85em;">({} {})</span>',
                                 tooltip,
                                 _('ARCHIVE PRIMARY'),
                                 total_count + 1,
@@ -1824,7 +1827,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                             )
                         return format_html(
                             '<span style="color: #ffc107; font-weight: bold;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> {}</span><br>'
-                            '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
+                            '<span style="color: var(--ok-ink-3, #6c757d); font-size: 0.85em;">({} {})</span>',
                             tooltip,
                             _('ARCHIVE DUPLICATE'),
                             total_count + 1,
@@ -1834,7 +1837,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                 # Single archive copy among multiple storages: treat as canonical archive copy
                 return format_html(
                     '<span style="color: #17a2b8; font-weight: bold;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> {}</span><br>'
-                    '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
+                    '<span style="color: var(--ok-ink-3, #6c757d); font-size: 0.85em;">({} {})</span>',
                     tooltip,
                     _('ARCHIVE VERSION'),
                     total_count + 1,
@@ -1854,7 +1857,7 @@ class VideoFileAdmin(admin.ModelAdmin):
                 if is_old:
                     return format_html(
                         '<span style="color: #dc3545; font-weight: bold;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> OLD VERSION</span><br>'
-                        '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
+                        '<span style="color: var(--ok-ink-3, #6c757d); font-size: 0.85em;">({} {})</span>',
                         tooltip,
                         total_count + 1,
                         _('versions total')
@@ -1862,7 +1865,7 @@ class VideoFileAdmin(admin.ModelAdmin):
 
             return format_html(
                 '<span style="color: #ffc107; font-weight: bold;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> {}</span><br>'
-                '<span style="color: #6c757d; font-size: 0.85em;">({} {})</span>',
+                '<span style="color: var(--ok-ink-3, #6c757d); font-size: 0.85em;">({} {})</span>',
                 tooltip,
                 _('DUPLICATE'),
                 total_count + 1,
@@ -1871,7 +1874,7 @@ class VideoFileAdmin(admin.ModelAdmin):
         except Exception as e:
             # Log the error and return neutral indicator to prevent 500
             logger.error(f'Error in duplicates_indicator for VideoFile {obj.id}: {e}', exc_info=True)
-            return format_html('<span style="color: #6c757d;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span>', _('Error determining status'))
+            return format_html('<span style="color: var(--ok-ink-3, #6c757d);" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span>', _('Error determining status'))
 
     duplicates_indicator.short_description = _('Versions')
     
@@ -1881,8 +1884,8 @@ class VideoFileAdmin(admin.ModelAdmin):
             return '-'
         if getattr(obj, 'is_preview', False):
             return format_html(
-                '<span style="color: #6c757d;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg> {}</span><br>'
-                '<span style="color: #666;">{}</span>',
+                '<span style="color: var(--ok-ink-3, #6c757d);"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg> {}</span><br>'
+                '<span style="color: var(--ok-ink-3, #666);">{}</span>',
                 _('Preview clip'),
                 _('Not linked to license; not counted as a version.'),
             )
@@ -1893,24 +1896,24 @@ class VideoFileAdmin(admin.ModelAdmin):
             is_primary = obj.is_primary_version()
         except Exception as e:
             logger.error(f'Error in duplicate_status_display for VideoFile {obj.id}: {e}', exc_info=True)
-            return format_html('<span style="color: #6c757d;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span>', _('Error determining status'))
+            return format_html('<span style="color: var(--ok-ink-3, #6c757d);" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span>', _('Error determining status'))
         count = obj.duplicate_count
         
         if is_primary:
             return format_html(
                 '<span style="color: #28a745;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> PRIMARY VERSION</span><br>'
-                '<span style="color: #666;">This is the best quality version. {} duplicate(s) exist.</span>',
+                '<span style="color: var(--ok-ink-3, #666);">This is the best quality version. {} duplicate(s) exist.</span>',
                 count
             )
         else:
             try:
                 primary_versions = [v for v in obj.get_all_versions() if v.is_primary_version()]
                 if not primary_versions:
-                    return format_html('<span style="color: #6c757d;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span>', _('Error determining status'))
+                    return format_html('<span style="color: var(--ok-ink-3, #6c757d);" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span>', _('Error determining status'))
                 primary = primary_versions[0]
             except Exception as e:
                 logger.error(f'Error selecting primary in duplicate_status_display for VideoFile {obj.id}: {e}', exc_info=True)
-                return format_html('<span style="color: #6c757d;" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span>', _('Error determining status'))
+                return format_html('<span style="color: var(--ok-ink-3, #6c757d);" title="{}"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span>', _('Error determining status'))
             if obj.storage_location and obj.storage_location.storage_type == 'ARCHIVE':
                 archive_versions = list(
                     VideoFile.objects.filter(
@@ -1937,28 +1940,28 @@ class VideoFileAdmin(admin.ModelAdmin):
                     if obj.id != best_archive.id:
                         return format_html(
                             '<span style="color: #ffc107;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> {}</span><br>'
-                            '<span style="color: #666;">Keep: <a href="{}">{}</a></span>',
+                            '<span style="color: var(--ok-ink-3, #666);">Keep: <a href="{}">{}</a></span>',
                             _('ARCHIVE DUPLICATE'),
                             reverse('admin:media_files_videofile_change', args=[best_archive.id]),
                             best_archive.filename
                         )
                     return format_html(
                         '<span style="color: #17a2b8;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> {}</span><br>'
-                        '<span style="color: #666;">Other archive versions exist: {}.</span>',
+                        '<span style="color: var(--ok-ink-3, #666);">Other archive versions exist: {}.</span>',
                         _('ARCHIVE PRIMARY'),
                         len(archive_versions) - 1
                     )
 
                 return format_html(
                     '<span style="color: #17a2b8;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg> {}</span><br>'
-                    '<span style="color: #666;">Primary version is in: <a href="{}">{}</a></span>',
+                    '<span style="color: var(--ok-ink-3, #666);">Primary version is in: <a href="{}">{}</a></span>',
                     _('ARCHIVE VERSION'),
                     reverse('admin:media_files_videofile_change', args=[primary.id]),
                     primary.storage_location.name
                 )
             return format_html(
                 '<span style="color: #ffc107;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> {} </span><br>'
-                '<span style="color: #666;">Primary version is in: <a href="{}">{}</a></span>',
+                '<span style="color: var(--ok-ink-3, #666);">Primary version is in: <a href="{}">{}</a></span>',
                 _('DUPLICATE VERSION'),
                 reverse('admin:media_files_videofile_change', args=[primary.id]),
                 primary.storage_location.name
@@ -1976,16 +1979,16 @@ class VideoFileAdmin(admin.ModelAdmin):
         if getattr(obj, 'is_preview', False):
             # This record is a preview clip; show note and list full versions only
             intro = format_html(
-                mark_safe('<div style="padding: 8px; background: #f0f0f0; border-left: 3px solid #6c757d; margin: 5px 0;">'
+                mark_safe('<div style="padding: 8px; background: var(--ok-surface-hover, #f0f0f0); border-left: 3px solid #6c757d; margin: 5px 0;">'
                 '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg> <strong>{}</strong></div>'),
                 _('This record is a preview clip (not linked to license). Full versions:'),
             )
         else:
             intro = ''
         if all_versions.count() <= 1 and not getattr(obj, 'is_preview', False):
-            return format_html('<span style="color: #6c757d;">{}</span>', _('No other versions'))
+            return format_html('<span style="color: var(--ok-ink-3, #6c757d);">{}</span>', _('No other versions'))
         if all_versions.count() == 0 and getattr(obj, 'is_preview', False):
-            return format_html('{}<span style="color: #6c757d;">{}</span>', intro, _('No full versions for this number.'))
+            return format_html('{}<span style="color: var(--ok-ink-3, #6c757d);">{}</span>', intro, _('No full versions for this number.'))
         
         versions_list = list(all_versions.select_related('storage_location'))
         html_parts = []
@@ -2024,7 +2027,7 @@ class VideoFileAdmin(admin.ModelAdmin):
             if is_primary:
                 status = mark_safe('<span style="color: #28a745; font-weight: bold;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><polyline points="20 6 9 17 4 12"></polyline></svg> PRIMARY</span>')
             elif is_current:
-                status = mark_safe('<span style="color: #007bff; font-weight: bold;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> CURRENT</span>')
+                status = mark_safe('<span style="color: var(--ok-brand, #007bff); font-weight: bold;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> CURRENT</span>')
             else:
                 if v.storage_location and v.storage_location.storage_type == 'ARCHIVE':
                     if best_archive and v.id == best_archive.id:
@@ -2061,7 +2064,7 @@ class VideoFileAdmin(admin.ModelAdmin):
             info = format_html(
                 '<strong>{}</strong><br>'
                 '{} • {} • {} • {} • {}<br>'
-                '<small style="color: #6c757d;">{}: {}</small>',
+                '<small style="color: var(--ok-ink-3, #6c757d);">{}: {}</small>',
                 v.filename,
                 v.storage_location.name,
                 format_info,
@@ -2074,16 +2077,16 @@ class VideoFileAdmin(admin.ModelAdmin):
 
             if is_current:
                 html_parts.append(format_html(
-                    '<div style="padding: 8px; background: #e7f3ff; '
-                    'border-left: 3px solid #007bff; margin: 5px 0;">{}<br>{}</div>',
+                    '<div style="padding: 8px; background: var(--ok-brand-soft, #e7f3ff); '
+                    'border-left: 3px solid var(--ok-brand, #007bff); margin: 5px 0;">{}<br>{}</div>',
                     status,
                     info,
                 ))
             else:
                 url = reverse('admin:media_files_videofile_change', args=[v.id])
                 html_parts.append(format_html(
-                    '<div style="padding: 8px; background: #f8f9fa; '
-                    'border-left: 3px solid #dee2e6; margin: 5px 0;">'
+                    '<div style="padding: 8px; background: var(--ok-surface-2, #f8f9fa); '
+                    'border-left: 3px solid var(--ok-line, #dee2e6); margin: 5px 0;">'
                     '{}<br><a href="{}">{}</a></div>',
                     status,
                     url,
@@ -2114,7 +2117,7 @@ class VideoFileAdmin(admin.ModelAdmin):
             player_text = _("Player")  # Get translated text beforehand
 
             return format_html(
-                '<a href="#" onclick="openVideoModal(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\')" style="color: #417690; text-decoration: none;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg> {}</a>',
+                '<a href="#" onclick="openVideoModal(\'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\', \'{}\')" style="color: var(--ok-brand, #417690); text-decoration: none;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg> {}</a>',
                 stream_url,
                 obj.filename or '',
                 number,
@@ -2196,11 +2199,11 @@ class VideoFileAdmin(admin.ModelAdmin):
                     </div>
                     
                     <!-- Video Info -->
-                    <div style="margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 4px; border-left: 4px solid #007bff;">
-                        <div style="font-size: 12px; color: #333; margin-bottom: 5px;">
+                    <div style="margin-top: 15px; padding: 12px; background: var(--ok-surface-2, #f8f9fa); border-radius: 4px; border-left: 4px solid var(--ok-brand, #007bff);">
+                        <div style="font-size: 12px; color: var(--ok-ink, #333); margin-bottom: 5px;">
                             <strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> {}:</strong>
                         </div>
-                        <code style="display: block; padding: 8px; background: white; border-radius: 3px; word-break: break-all; font-size: 11px; color: #495057; border: 1px solid #dee2e6;">{}</code>
+                        <code style="display: block; padding: 8px; background: var(--ok-surface, white); border-radius: 3px; word-break: break-all; font-size: 11px; color: var(--ok-ink-2, #495057); border: 1px solid var(--ok-line, #dee2e6);">{}</code>
                         {}
                     </div>
                     
@@ -2272,10 +2275,10 @@ class VideoFileAdmin(admin.ModelAdmin):
                 file_path_linux,  # Use pre-translated string
                 obj.full_path,
                 f'''
-                    <div style="font-size: 12px; color: #333; margin-top: 10px; margin-bottom: 5px;">
+                    <div style="font-size: 12px; color: var(--ok-ink, #333); margin-top: 10px; margin-bottom: 5px;">
                         <strong><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> {file_path_windows}:</strong>
                     </div>
-                    <code style="display: block; padding: 8px; background: white; border-radius: 3px; word-break: break-all; font-size: 11px; color: #495057; border: 1px solid #dee2e6;">{obj.unc_path}</code>
+                    <code style="display: block; padding: 8px; background: var(--ok-surface, white); border-radius: 3px; word-break: break-all; font-size: 11px; color: var(--ok-ink-2, #495057); border: 1px solid var(--ok-line, #dee2e6);">{obj.unc_path}</code>
                 ''' if obj.unc_path else '',
                 obj.id  # video player ID for script
             )
@@ -2797,7 +2800,7 @@ class VideoFileAdmin(admin.ModelAdmin):
         Force delete duplicate versions inside ARCHIVE only, even if archive protection is enabled.
         Requires confirmation phrase + current user's password.
         """
-        if not admin.ModelAdmin.has_delete_permission(self, request):
+        if not ModelAdmin.has_delete_permission(self, request):
             self.message_user(request, _('You do not have permission to delete videos.'), level='error')
             return
 
@@ -3589,7 +3592,7 @@ class VideoFileAdmin(admin.ModelAdmin):
 
 
 @admin.register(FileOperation)
-class FileOperationAdmin(admin.ModelAdmin):
+class FileOperationAdmin(ModelAdmin):
     """Admin interface for file operations (read-only)."""
 
     change_list_template = 'admin/media_files/fileoperation/change_list.html'
@@ -3601,7 +3604,7 @@ class FileOperationAdmin(admin.ModelAdmin):
     ]
     list_filter = [
         'operation_type', 'status',
-        ('performed_at', DateRangeFilter),
+        date_range_filter('performed_at', DateRangeFilter),
         'source_location', 'destination_location'
     ]
     search_fields = ['video_file__number', 'video_file__filename', 'error_message']
@@ -3651,7 +3654,7 @@ class SystemManagementProxy(VideoFile):
 
 
 @admin.register(SystemManagementProxy)
-class SystemManagementProxyAdmin(admin.ModelAdmin):
+class SystemManagementProxyAdmin(ModelAdmin):
     """Admin for System Management proxy model."""
     
     def has_add_permission(self, request):
@@ -3670,7 +3673,7 @@ class SystemManagementProxyAdmin(admin.ModelAdmin):
 
 
 @admin.register(MediaFilesConfig)
-class MediaFilesConfigAdmin(admin.ModelAdmin):
+class MediaFilesConfigAdmin(ModelAdmin):
     """Admin interface for MediaFilesConfig model."""
     
     def has_add_permission(self, request):
@@ -3720,7 +3723,7 @@ class CoverFeatureGateMixin:
 
 
 @admin.register(CoverTemplate)
-class CoverTemplateAdmin(CoverFeatureGateMixin, admin.ModelAdmin):
+class CoverTemplateAdmin(CoverFeatureGateMixin, ModelAdmin):
     """Admin interface for editor-configurable cover template rules."""
 
     list_display = ['priority', 'name', 'scope', 'match_pattern', 'template', 'is_active']
@@ -3770,7 +3773,7 @@ class CoverOverlayForm(forms.ModelForm):
 
 
 @admin.register(CoverOverlay)
-class CoverOverlayAdmin(CoverFeatureGateMixin, admin.ModelAdmin):
+class CoverOverlayAdmin(CoverFeatureGateMixin, ModelAdmin):
     """Admin for uploadable graphic overlays (PNG/SVG) grouped into pools."""
 
     form = CoverOverlayForm
@@ -3825,13 +3828,13 @@ class CoverOverlayAdmin(CoverFeatureGateMixin, admin.ModelAdmin):
         image_url = reverse('admin:media_files_coveroverlay_image', args=[obj.pk])
         if obj.image and not obj.image.name.lower().endswith('.svg'):
             return format_html(
-                '<img src="{}" style="height:60px;background:#ddd;border:1px solid #ccc"/>',
+                '<img src="{}" style="height:60px;background:#ddd;border:1px solid var(--ok-line-2, #ccc)"/>',
                 image_url)
         return format_html('<a href="{}">SVG</a>', image_url)
 
 
 @admin.register(CoverOverlayRule)
-class CoverOverlayRuleAdmin(CoverFeatureGateMixin, admin.ModelAdmin):
+class CoverOverlayRuleAdmin(CoverFeatureGateMixin, ModelAdmin):
     """Admin for pattern -> overlay-pool rules."""
 
     list_display = ['priority', 'name', 'scope', 'match_pattern', 'pool', 'selection_mode', 'is_active']

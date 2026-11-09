@@ -1,0 +1,11 @@
+{% extends "admin/login.html" %}
+{% comment %}
+  Unfold's login form has no "next" field, so a login at /admin/login/
+  ended on the public start page (LOGIN_REDIRECT_URL) instead of the
+  admin. The classic admin template sends it; add it here, linked to the
+  form through the form attribute.
+{% endcomment %}
+{% block login_after %}
+    <input type="hidden" name="next" value="{{ next }}" form="login-form">
+    {{ block.super }}
+{% endblock %}

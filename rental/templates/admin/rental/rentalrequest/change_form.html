@@ -5,17 +5,9 @@
 
 {% block extrahead %}
 {{ block.super }}
+<link rel="stylesheet" href="{% static 'ok_tools/css/admin_signature.css' %}">
 <style>
-.admin-signature-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #fafafa; }
-.admin-signature-section h3 { margin-top: 0; }
-.admin-signature-existing { margin: 15px 0; text-align: center; }
-.admin-signature-existing img { max-width: 100%; max-height: 200px; }
-.admin-signature-canvas-wrapper { position: relative; border: 1px solid #ccc; background: #fff; border-radius: 4px; overflow: hidden; }
-.admin-signature-canvas { width: 100%; height: 200px; touch-action: none; user-select: none; }
-.admin-signature-guide { position: absolute; bottom: 30%; left: 5%; right: 5%; border-bottom: 1px dashed #ccc; pointer-events: none; }
-.admin-signature-actions { margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
-.admin-signature-method-buttons { display: flex; gap: 10px; margin-bottom: 15px; }
-.admin-signature-method-buttons .btn.active { background-color: #0d6efd; color: white; border-color: #0d6efd; }
+.admin-signature-canvas { height: 200px; }
 .icon-svg { vertical-align: text-bottom; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.2.0/dist/signature_pad.umd.min.js"></script>
@@ -396,7 +388,7 @@
             <div id="admin-session-status" class="small text-muted mt-2"></div>
             <div id="admin-session-panel" style="display:none; margin-top: 10px;">
                 <div style="display:flex; gap:15px; align-items:flex-start; flex-wrap:wrap;">
-                    <img id="admin-session-qr" style="max-width:200px; border:1px solid #ddd; border-radius:4px;" alt="{% trans 'QR Code' %}">
+                    <img id="admin-session-qr" style="max-width:200px; border:1px solid var(--ok-line, #ddd); border-radius:4px;" alt="{% trans 'QR Code' %}">
                     <div>
                         <p class="mb-1"><strong>{% trans 'Scan QR and sign on your phone.' %}</strong></p>
                         <p class="mb-1 small"><a href="#" id="admin-session-link" target="_blank" rel="noopener"></a></p>

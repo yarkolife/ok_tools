@@ -17,8 +17,8 @@
     margin: 0 auto;
   }
   .mediathek-rescan-card {
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--ok-surface, #fff);
+    border: 1px solid var(--ok-line, #ddd);
     border-radius: 8px;
     padding: 24px;
     margin-bottom: 20px;
@@ -30,12 +30,12 @@
     gap: 12px;
     margin-bottom: 8px;
     padding-bottom: 16px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--ok-line, #eee);
   }
   .mediathek-rescan-header svg {
     width: 28px;
     height: 28px;
-    color: #447e9b;
+    color: var(--ok-brand, #447e9b);
   }
   .mediathek-rescan-header h1 {
     margin: 0;
@@ -43,7 +43,7 @@
     font-weight: 600;
   }
   .mediathek-rescan-description {
-    color: #666;
+    color: var(--ok-ink-3, #666);
     margin-bottom: 24px;
     line-height: 1.5;
   }
@@ -55,18 +55,18 @@
     display: block;
     font-weight: 600;
     margin-bottom: 6px;
-    color: #333;
+    color: var(--ok-ink, #333);
   }
   .mediathek-rescan-form input[type="date"] {
     width: 100%;
     max-width: 220px;
     padding: 8px 12px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--ok-line, #ddd);
     border-radius: 4px;
     font-size: 14px;
   }
   .mediathek-rescan-form input[type="date"]:focus {
-    border-color: #447e9b;
+    border-color: var(--ok-brand, #447e9b);
     box-shadow: 0 0 0 2px rgba(68,126,155,0.1);
     outline: none;
   }
@@ -75,7 +75,7 @@
     align-items: flex-start;
     gap: 10px;
     padding: 12px;
-    background: #f8f9fa;
+    background: var(--ok-surface-2, #f8f9fa);
     border-radius: 6px;
     margin-top: 16px;
   }
@@ -88,7 +88,7 @@
   }
   .mediathek-rescan-form .help-text {
     font-size: 12px;
-    color: #666;
+    color: var(--ok-ink-3, #666);
     margin-top: 4px;
   }
   .mediathek-rescan-actions {
@@ -96,7 +96,7 @@
     gap: 12px;
     margin-top: 24px;
     padding-top: 20px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--ok-line, #eee);
   }
   .mediathek-rescan-actions input[type="submit"] {
     padding: 10px 24px;
@@ -107,9 +107,9 @@
     transition: all 0.2s ease;
   }
   .mediathek-rescan-actions input[type="submit"].default {
-    background: #447e9b;
+    background: var(--ok-brand, #447e9b);
     color: #fff;
-    border: 1px solid #447e9b;
+    border: 1px solid var(--ok-brand, #447e9b);
   }
   .mediathek-rescan-actions input[type="submit"].default:hover {
     background: #366274;
@@ -121,15 +121,15 @@
     font-weight: 600;
     border-radius: 4px;
     text-decoration: none;
-    background: #fff;
-    color: #666;
-    border: 1px solid #ddd;
+    background: var(--ok-surface, #fff);
+    color: var(--ok-ink-3, #666);
+    border: 1px solid var(--ok-line, #ddd);
     display: inline-block;
     line-height: 1.2;
   }
   .mediathek-rescan-actions .cancel-link:hover {
-    background: #f5f5f5;
-    color: #333;
+    background: var(--ok-surface-2, #f5f5f5);
+    color: var(--ok-ink, #333);
   }
 </style>
 

@@ -11,6 +11,7 @@ from django import forms
 from django.conf import settings
 from django.core.validators import FileExtensionValidator
 from django.utils.translation import gettext_lazy as _
+from ok_tools.admin_base import FILTER_INPUT_CLASS
 import logging
 import re
 
@@ -235,11 +236,11 @@ class RangeNumericForm(forms.Form):
 
         self.fields[self.name + '_from'] = forms.FloatField(
             label='', required=False,
-            widget=forms.NumberInput(attrs={'placeholder': _('From')})
+            widget=forms.NumberInput(attrs={'placeholder': _('From'), 'class': FILTER_INPUT_CLASS})
         )
         self.fields[self.name + '_to'] = forms.FloatField(
             label='', required=False,
-            widget=forms.NumberInput(attrs={'placeholder': _('To')})
+            widget=forms.NumberInput(attrs={'placeholder': _('To'), 'class': FILTER_INPUT_CLASS})
         )
 
 
@@ -260,6 +261,7 @@ class RangeIntegerForm(forms.Form):
             widget=forms.NumberInput(attrs={
                 'min': 0,
                 'placeholder': _('From'),
+                'class': FILTER_INPUT_CLASS,
             }),
         )
         self.fields[self.name + '_to'] = forms.IntegerField(
@@ -269,6 +271,7 @@ class RangeIntegerForm(forms.Form):
             widget=forms.NumberInput(attrs={
                 'min': 0,
                 'placeholder': _('To'),
+                'class': FILTER_INPUT_CLASS,
             }),
         )
 

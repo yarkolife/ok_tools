@@ -1,0 +1,10 @@
+{% extends "admin/base_site.html" %}
+{% load ok_admin_context %}
+{% comment %}
+  Unfold's admin/base_site.html, plus the admin context for pages that are
+  not admin views (austausch, tools, notification settings, ...). Those
+  views do not pass admin.site.each_context(), so Unfold would draw no
+  sidebar and no header. The skeleton renders the branding block first,
+  so the tag runs before the sidebar is drawn.
+{% endcomment %}
+{% block branding %}{% ensure_admin_context %}{{ block.super }}{% endblock %}

@@ -6,7 +6,7 @@
     {{ block.super }}
     {% if original.pk %}
     <div class="submit-row">
-        <a href="{% url 'admin:media_files_videopreset_edit_preset' original.pk %}" class="button" style="background: #417690; color: white; text-decoration: none; padding: 10px 15px; border-radius: 4px; display: inline-block; margin-left: 5px;">
+        <a href="{% url 'admin:media_files_videopreset_edit_preset' original.pk %}" class="button" style="background: var(--ok-brand, #417690); color: white; text-decoration: none; padding: 10px 15px; border-radius: 4px; display: inline-block; margin-left: 5px;">
             🎨 {% trans 'Edit in Visual Editor' %}
         </a>
     </div>

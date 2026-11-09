@@ -5,8 +5,8 @@
 {{ block.super }}
 <style>
 .contributions-api-docs {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
+    background: var(--ok-surface-2, #f8f9fa);
+    border: 1px solid var(--ok-line, #dee2e6);
     border-radius: 4px;
     padding: 20px;
     margin: 20px 0;
@@ -14,11 +14,11 @@
 
 .contributions-api-docs h3 {
     margin-top: 0;
-    color: #333;
+    color: var(--ok-ink, #333);
 }
 
 .contributions-api-docs code {
-    background: #e9ecef;
+    background: var(--ok-surface-hover, #e9ecef);
     padding: 2px 6px;
     border-radius: 3px;
     font-family: 'Courier New', monospace;
@@ -41,7 +41,7 @@
 }
 
 .contributions-api-docs .copy-btn {
-    background: #007bff;
+    background: var(--ok-brand, #007bff);
     color: white;
     border: none;
     padding: 5px 10px;
@@ -58,8 +58,8 @@
 .contributions-api-docs .endpoint-section {
     margin: 15px 0;
     padding: 15px;
-    background: white;
-    border: 1px solid #e9ecef;
+    background: var(--ok-surface, white);
+    border: 1px solid var(--ok-line, #e9ecef);
     border-radius: 4px;
 }
 
@@ -71,18 +71,18 @@
 
 .contributions-api-docs .param-table th,
 .contributions-api-docs .param-table td {
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--ok-line, #dee2e6);
     padding: 8px 12px;
     text-align: left;
 }
 
 .contributions-api-docs .param-table th {
-    background: #e9ecef;
+    background: var(--ok-surface-hover, #e9ecef);
     font-weight: 600;
 }
 
 .contributions-api-docs .param-table code {
-    background: #f1f3f5;
+    background: var(--ok-surface-hover, #f1f3f5);
 }
 </style>
 <script>
@@ -152,9 +152,9 @@ function createContributionsApiModal() {
     
     modal.innerHTML = `
         <div style="background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 900px; border-radius: 8px; max-height: 90vh; overflow-y: auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dee2e6; padding-bottom: 15px; margin-bottom: 15px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--ok-line, #dee2e6); padding-bottom: 15px; margin-bottom: 15px;">
                 <h2 style="margin: 0;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg> ${contributionsI18n.modalTitle}</h2>
-                <button onclick="closeContributionsApiModal()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666;">&times;</button>
+                <button onclick="closeContributionsApiModal()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: var(--ok-ink-3, #666);">&times;</button>
             </div>
             
             <div style="margin-bottom: 20px;">
@@ -433,7 +433,7 @@ function showContributionsNotification(message) {
 {{ block.super }}
 {% if show_api_docs %}
 <li>
-    <a href="#" onclick="showContributionsApiModal(); return false;" class="button" style="background: #007bff; color: white;">
+    <a href="#" onclick="showContributionsApiModal(); return false;" class="button" style="background: var(--ok-brand, #007bff); color: white;">
         <svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg> {% trans "API Documentation" %}
     </a>
 </li>

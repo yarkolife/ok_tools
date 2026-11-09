@@ -509,15 +509,6 @@
 
     return (
       <div className={activeRow ? 'notifications-app drawer-open' : 'notifications-app'}>
-        <header className="topbar">
-          <a className="brand" href={initial.urls.admin}>
-            <i className="fas fa-toolbox" aria-hidden="true"></i>
-            <span>OK Tools <b>— {initial.i18n.title}</b></span>
-          </a>
-          <a className="admin-link" href={initial.urls.admin}>
-            <i className="fas fa-gear" aria-hidden="true"></i>{initial.i18n.administration}
-          </a>
-        </header>
         <div className="app-frame">
           <Sidebar />
           <main className="notifications-main">

@@ -4,6 +4,6 @@
 {% block submit_buttons_bottom %}
     {{ block.super }}
     <div class="submit-row">
-        <input type="submit" value="{% translate 'Import' %}" name='_import_disa'>
+        <input form="{{ opts.model_name }}_form" type="submit" value="{% translate 'Import' %}" name='_import_disa'>
     </div>
 {% endblock %}

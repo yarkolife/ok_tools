@@ -11,6 +11,8 @@
 {% block extrahead %}
 <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.ico' %}" />
 <link rel="stylesheet" type="text/css" href="{% static 'css/admin/custom_admin.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'ok_tools/css/ok_theme.css' %}" />
+<style>{{ OK_BRAND_CSS }}</style>
 <style>
     #site-name img {
         height: 60px;
@@ -36,7 +38,7 @@
                     <p>Your browser does not support HTML5 video.</p>
                 </video>
                 
-                <div style="margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 4px;">
+                <div style="margin-top: 15px; padding: 12px; background: var(--ok-surface-2, #f8f9fa); border-radius: 4px;">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
                         <div><strong>Number:</strong> <span id="videoPlayerNumber"></span></div>
                         <div><strong>Duration:</strong> <span id="videoPlayerDuration"></span></div>

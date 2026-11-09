@@ -425,7 +425,7 @@ function StepItems({ initial, cart, setCart, rooms, setRooms, user, period }) {
       <CartSummary cart={cart} setQty={setQty} removeItem={removeItem} rooms={rooms} />
 
       {mode === 'items' ? (
-        <div className="catalog" style={{border: '1px solid var(--line)', borderRadius: 12, overflow: 'hidden', background: '#fff'}}>
+        <div className="catalog" style={{border: '1px solid var(--line)', borderRadius: 12, overflow: 'hidden', background:'var(--bg-elev)'}}>
           <div className="catalog-tabs">
             {visibleCategories.map(c => (
               <div key={c.id} className={cls('t', activeTab === c.id && 'active')}
@@ -492,7 +492,7 @@ function StepItems({ initial, cart, setCart, rooms, setRooms, user, period }) {
           </div>
         </div>
       ) : mode === 'sets' ? (
-        <div className="catalog" style={{border: '1px solid var(--line)', borderRadius: 12, overflow: 'hidden', background: '#fff'}}>
+        <div className="catalog" style={{border: '1px solid var(--line)', borderRadius: 12, overflow: 'hidden', background:'var(--bg-elev)'}}>
           <div className="catalog-body">
             <div className="filters">
               <div className="ms-auto muted tiny">

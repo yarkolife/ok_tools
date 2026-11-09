@@ -4,7 +4,6 @@ from .models import Project
 from .models import ProjectCategory
 from .models import ProjectLeader
 from .models import TargetGroup
-from admin_auto_filters.filters import AutocompleteFilterFactory
 from django.contrib import admin
 from django.contrib import messages
 from django.urls import path
@@ -12,7 +11,10 @@ from django.utils.translation import gettext_lazy as _
 from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
-from import_export.forms import ExportForm
+from ok_tools.admin_base import ExportForm
+from ok_tools.admin_base import ModelAdmin
+from ok_tools.admin_base import autocomplete_filter
+from ok_tools.admin_base import date_range_filter
 # from rangefilter.filters import DateRangeFilter
 import datetime
 import logging
@@ -126,7 +128,7 @@ class CustomDateRangeFilter(admin.FieldListFilter):
         ]
 
 
-class MediaEducationSupervisorAdmin(admin.ModelAdmin):
+class MediaEducationSupervisorAdmin(ModelAdmin):
     """Define search_fields for ProjectAdmin autocomplete_fields."""
 
     search_fields = ['name']
@@ -135,7 +137,7 @@ class MediaEducationSupervisorAdmin(admin.ModelAdmin):
 admin.site.register(MediaEducationSupervisor, MediaEducationSupervisorAdmin)
 
 
-class ProjectLeaderAdmin(admin.ModelAdmin):
+class ProjectLeaderAdmin(ModelAdmin):
     """Define search fields for ProjectAdmin autocomplete_fields."""
 
     search_fields = ['name']
@@ -144,7 +146,7 @@ class ProjectLeaderAdmin(admin.ModelAdmin):
 admin.site.register(ProjectLeader, ProjectLeaderAdmin)
 
 
-class ProjectCategoryAdmin(admin.ModelAdmin):
+class ProjectCategoryAdmin(ModelAdmin):
     """Add search_fields for the AutocompleteFilterFactory."""
 
     search_fields = ['name']
@@ -153,7 +155,7 @@ class ProjectCategoryAdmin(admin.ModelAdmin):
 admin.site.register(ProjectCategory, ProjectCategoryAdmin)
 
 
-class TargetGroupAdmin(admin.ModelAdmin):
+class TargetGroupAdmin(ModelAdmin):
     """Add search_fields for the AutocompleteFilterFactory."""
 
     search_fields = ['name']
@@ -263,7 +265,7 @@ class YearFilter(admin.SimpleListFilter):
                 raise ValueError(msg)
 
 
-class ProjectAdmin(ExportMixin, admin.ModelAdmin):
+class ProjectAdmin(ExportMixin, ModelAdmin):
     """Admin interface definitions for Projects."""
 
     resource_classes = [ProjectResource]
@@ -291,12 +293,12 @@ class ProjectAdmin(ExportMixin, admin.ModelAdmin):
     search_help_text = _('title, topic, description')
 
     list_filter = (
-        AutocompleteFilterFactory(_('Target Group'), 'target_group'),
-        AutocompleteFilterFactory(_('Project Category'), 'project_category'),
-        AutocompleteFilterFactory(_('Project leader'), 'project_leader'),
+        autocomplete_filter(_('Target Group'), 'target_group'),
+        autocomplete_filter(_('Project Category'), 'project_category'),
+        autocomplete_filter(_('Project leader'), 'project_leader'),
         'jugendmedienschutz',
         'democracy_project',
-        ('date', CustomDateRangeFilter),
+        date_range_filter('date', CustomDateRangeFilter),
         YearFilter,
     )
 

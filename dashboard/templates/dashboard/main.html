@@ -5,9 +5,6 @@
 {% block title %}{% trans "Main Dashboard" %}{% endblock %}
 
 {% block extra_css %}
-<link href="{{ BOOTSTRAP_CDN_URL }}/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<link href="{% static 'dashboard/css/dashboard.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -473,29 +470,29 @@
 
 .system-status-item {
     padding: 16px;
-    background: #f8f9fa;
+    background: var(--ok-surface-2);
     border-radius: 8px;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--ok-line);
     transition: all 0.3s ease;
     height: 100%;
 }
 
 .system-status-item:hover {
-    background: #ffffff;
-    border-color: #dee2e6;
+    background: var(--ok-surface);
+    border-color: var(--ok-line);
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .status-title {
     font-weight: 600;
-    color: #495057;
+    color: var(--ok-ink-2);
     font-size: 14px;
     margin-bottom: 4px;
 }
 
 .status-message {
     font-size: 12px;
-    color: #6c757d;
+    color: var(--ok-ink-3);
     line-height: 1.4;
 }
 
@@ -519,16 +516,16 @@
     display: flex;
     align-items: center;
     padding: 16px;
-    background: #f8f9fa;
+    background: var(--ok-surface-2);
     border-radius: 8px;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--ok-line);
     transition: all 0.3s ease;
     height: 100%;
 }
 
 .quick-stat-item:hover {
-    background: #ffffff;
-    border-color: #dee2e6;
+    background: var(--ok-surface);
+    border-color: var(--ok-line);
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     transform: translateY(-2px);
 }
@@ -579,14 +576,14 @@
 .stat-label {
     font-size: 12px;
     font-weight: 500;
-    color: #6c757d;
+    color: var(--ok-ink-3);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .recent-item {
     padding: 0.75rem 0;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--ok-line);
 }
 
 .recent-item:last-child {
@@ -595,12 +592,12 @@
 
 .recent-item .item-title {
     font-weight: 500;
-    color: #495057;
+    color: var(--ok-ink-2);
 }
 
 .recent-item .item-meta {
     font-size: 0.8rem;
-    color: #6c757d;
+    color: var(--ok-ink-3);
 }
 </style>
 

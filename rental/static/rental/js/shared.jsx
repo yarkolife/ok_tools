@@ -248,7 +248,7 @@ function SignatureModal({ urls, onClose, onSigned }) {
   };
 
   const modalBg = {position:'fixed',inset:0,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999};
-  const card = {background:'#fff',borderRadius:12,padding:24,width:620,maxWidth:'95vw',maxHeight:'90vh',overflowY:'auto'};
+  const card = {background:'var(--bg-elev)',borderRadius:12,padding:24,width:620,maxWidth:'95vw',maxHeight:'90vh',overflowY:'auto'};
 
   return (
     <div style={modalBg} onClick={closeAll}>
@@ -334,9 +334,9 @@ function SignatureModal({ urls, onClose, onSigned }) {
             <h5 style={{margin:'0 0 8px',fontSize:16,fontWeight:600}}>{t('sig.qr_title', 'Sign with phone')}</h5>
             <p className="muted" style={{fontSize:13,margin:'0 0 16px'}}>{t('sig.scan_qr', 'Scan the QR code with your phone to sign')}</p>
             {signSessionStatus === 'signed' ? (
-              <div style={{textAlign:'center',padding:24,background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:8}}>
-                <i className="fas fa-circle-check" style={{fontSize:34,color:'#15803d',marginBottom:10}}></i>
-                <p style={{fontWeight:700,margin:'0 0 4px',color:'#166534'}}>{t('sig.received_title', 'Signature received')}</p>
+              <div style={{textAlign:'center',padding:24,background:'var(--ok-success-soft)',border:'1px solid var(--ok-success-line)',borderRadius:8}}>
+                <i className="fas fa-circle-check" style={{fontSize:34,color:'var(--ok-success)',marginBottom:10}}></i>
+                <p style={{fontWeight:700,margin:'0 0 4px',color:'var(--ok-success)'}}>{t('sig.received_title', 'Signature received')}</p>
                 <p className="muted tiny" style={{margin:0}}>{t('sig.received_desc', 'The phone signature was transferred to this rental. The page will update automatically.')}</p>
               </div>
             ) : signSessionStatus === 'expired' ? (
@@ -346,7 +346,7 @@ function SignatureModal({ urls, onClose, onSigned }) {
                 <button className="btn btn-ghost btn-sm" onClick={() => { setSignSessionStatus(null); doCreateSession(); }}>{t('sig.retry', 'Retry')}</button>
               </div>
             ) : (
-              <div style={{background:'#f8f9fa',borderRadius:8,padding:16,textAlign:'center'}}>
+              <div style={{background:'var(--bg-sub)',borderRadius:8,padding:16,textAlign:'center'}}>
                 {signQrUrl ? (
                   <img src={signQrUrl} alt="QR Code" style={{width:200,height:200,margin:'0 auto'}} onError={e => { e.target.style.display='none'; }} />
                 ) : (

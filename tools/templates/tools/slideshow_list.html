@@ -3,6 +3,7 @@
 {% load i18n %}
 
 {% block title %}{% trans 'Slideshow Projects' %} - {{ block.super }}{% endblock %}
+{% block content_title %}{% if ADMIN_UNFOLD_ENABLED %}{% trans 'Slideshow Projects' %}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -18,8 +19,8 @@
         padding: 20px;
     }
     .filter-section {
-        background: #fff;
-        border: 1px solid #dee2e6;
+        background: var(--ok-surface, #fff);
+        border: 1px solid var(--ok-line, #dee2e6);
         border-radius: 4px;
         padding: 15px;
         margin-bottom: 20px;
@@ -32,10 +33,10 @@
     .project-table td {
         padding: 12px;
         text-align: left;
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px solid var(--ok-line, #dee2e6);
     }
     .project-table th {
-        background: #f8f9fa;
+        background: var(--ok-surface-2, #f8f9fa);
         font-weight: bold;
     }
     .status-badge {
@@ -110,7 +111,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5" style="text-align: center; padding: 40px; color: #999;">
+                <td colspan="5" style="text-align: center; padding: 40px; color: var(--ok-ink-4, #999);">
                     {% trans 'No projects found' %}
                 </td>
             </tr>

@@ -132,11 +132,14 @@ def test__contributions__admin__ContributionsAdmin__4(
 
     browser.login_admin()
 
+    # Boolean icon: <img alt="True"> (classic admin) or title="True" (Unfold)
     browser.open(con_change_url(early_contr.id))
-    assert 'alt="True"' in browser.contents
+    assert ('alt="True"' in browser.contents
+            or 'title="True"' in browser.contents)
 
     browser.open(con_change_url(late_contr.id))
-    assert 'alt="False"' in browser.contents
+    assert ('alt="False"' in browser.contents
+            or 'title="False"' in browser.contents)
 
 
 def test__contributions__models__1(db, license, contribution_dict):
@@ -334,7 +337,7 @@ def test__contributions__admin__1(browser, db, license):
     for i in range(3):
         # select all disaimports
         browser.getControl(name='_selected_action').controls[i].click()
-    browser.getControl('Action').value = 'import_files'
+    browser.getControl(name='action').value = 'import_files'
     browser.getControl(name='index').click()
 
     assert '3 files successfully imported.' in browser.contents

@@ -2,7 +2,6 @@ from .disa_import import disa_import
 from .models import Contribution
 from .models import ContributionManager
 from .models import DisaImport
-from admin_auto_filters.filters import AutocompleteFilterFactory
 from datetime import datetime as dt
 from django import forms
 from django import http
@@ -15,7 +14,9 @@ from django.utils.translation import ngettext as _p
 from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.fields import Field
-from import_export.forms import ExportForm
+from ok_tools.admin_base import ExportForm
+from ok_tools.admin_base import ModelAdmin
+from ok_tools.admin_base import autocomplete_filter
 from ok_tools.datetime import TZ
 from registration.models import MediaAuthority
 # from rangefilter.filters import DateTimeRangeFilter
@@ -809,7 +810,7 @@ class YearFilter(admin.SimpleListFilter):
                 raise ValueError(msg)
 
 
-class ContributionAdmin(ExportMixin, admin.ModelAdmin):
+class ContributionAdmin(ExportMixin, ModelAdmin):
     """How should the Contribution be shown on the admin site."""
 
     resource_classes = [ProgramResource, ContributionResource, MediathekResource]
@@ -908,13 +909,13 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
     search_help_text = _('Title, Subtitle, Number')
 
     list_filter = [
-        AutocompleteFilterFactory(_('Profile'), 'license__profile'),
-        AutocompleteFilterFactory(_('License'), 'license'),
+        autocomplete_filter(_('Profile'), 'license__profile'),
+        autocomplete_filter(_('License'), 'license'),
         ('broadcast_date', CustomDateTimeRangeFilter),
         PrimaryFilter,
         YearFilter,
         WeekFilter,
-        AutocompleteFilterFactory(
+        autocomplete_filter(
             _('Media Authority'), 'license__profile__media_authority'),
     ]
 
@@ -991,7 +992,7 @@ class ContributionAdmin(ExportMixin, admin.ModelAdmin):
 admin.site.register(Contribution, ContributionAdmin)
 
 
-class DisaImportAdmin(admin.ModelAdmin):
+class DisaImportAdmin(ModelAdmin):
     """How should the DISA export data and import options be shown."""
 
     change_form_template = 'admin/disa_import_change_form.html'

@@ -13,7 +13,6 @@ from .models import Location
 from .models import Manufacturer
 from .models import Organization
 from .services import InventoryService
-from admin_auto_filters.filters import AutocompleteFilterFactory
 from django import forms
 from django.contrib import admin
 from django.contrib import messages
@@ -48,9 +47,12 @@ def no_photo_placeholder():
     )
 from import_export.admin import ExportMixin
 from import_export.fields import Field
-from import_export.forms import ExportForm
 from import_export.resources import ModelResource
 from import_export.widgets import DateWidget
+from ok_tools.admin_base import ExportForm
+from ok_tools.admin_base import ModelAdmin
+from ok_tools.admin_base import TabularInline
+from ok_tools.admin_base import autocomplete_filter
 
 
 class InventoryResource(ModelResource):
@@ -108,7 +110,7 @@ class InventoryResource(ModelResource):
             for unit in item.units.all() if unit.purchase_cost is not None)
 
 
-class InventoryUnitInline(admin.TabularInline):
+class InventoryUnitInline(TabularInline):
     """One row per device: serial number, status, purchase and inspection."""
 
     model = InventoryUnit
@@ -148,7 +150,7 @@ class InventoryUnitInline(admin.TabularInline):
         )
 
 
-class InspectionInline(admin.TabularInline):
+class InspectionInline(TabularInline):
     """Inline admin for Inspection model."""
 
     model = Inspection
@@ -181,7 +183,7 @@ def unit_label(unit):
 
 
 @admin.register(Location)
-class LocationAdmin(admin.ModelAdmin):
+class LocationAdmin(ModelAdmin):
     """Admin interface for Location (hierarchical)."""
 
     list_display = ("full_path", "parent")
@@ -191,7 +193,7 @@ class LocationAdmin(admin.ModelAdmin):
 
 
 @admin.register(InventorySeries)
-class InventorySeriesAdmin(admin.ModelAdmin):
+class InventorySeriesAdmin(ModelAdmin):
     """Admin interface for InventorySeries."""
 
     list_display = ('prefix', 'description', 'padding', 'active')
@@ -202,7 +204,7 @@ class InventorySeriesAdmin(admin.ModelAdmin):
 
 
 @admin.register(InventoryItem)
-class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
+class InventoryItemAdmin(ExportMixin, ModelAdmin):
     """Admin interface for InventoryItem."""
 
     change_list_template = 'admin/inventory_item_change_list.html'
@@ -226,10 +228,10 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
         'location__name',
     ]
     list_filter = [
-        AutocompleteFilterFactory(_('Manufacturer'), 'manufacturer'),
-        AutocompleteFilterFactory(_('Category'), 'category'),
-        AutocompleteFilterFactory(_('Owner'), 'owner'),
-        AutocompleteFilterFactory(_('Location'), 'location'),
+        autocomplete_filter(_('Manufacturer'), 'manufacturer'),
+        autocomplete_filter(_('Category'), 'category'),
+        autocomplete_filter(_('Owner'), 'owner'),
+        autocomplete_filter(_('Location'), 'location'),
         ('units__purchase_date', admin.DateFieldListFilter),
         'status', 'available_for_rent', 'barcode_attached',
     ]
@@ -432,7 +434,7 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
         if not images:
             return format_html(
                 '<span style="display:inline-block;width:48px;height:48px;'
-                'border:1px dashed #ccc;border-radius:4px;background:#fafafa;" '
+                'border:1px dashed var(--ok-line-2, #ccc);border-radius:4px;background:var(--ok-surface-2, #fafafa);" '
                 'title="{}"></span>',
                 _('No photos'),
             )
@@ -452,7 +454,7 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
             'data-lightbox="{}" data-lightbox-original-label="{}">'
             '<img src="{}" loading="lazy" alt="{}" '
             'style="width:48px;height:48px;object-fit:cover;display:block;'
-            'border:1px solid #ccc;border-radius:4px;"></a>',
+            'border:1px solid var(--ok-line-2, #ccc);border-radius:4px;"></a>',
             reverse('inventory:item_image', args=[first.id]),
             first.filename,
             slides,
@@ -482,8 +484,8 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
             '<a href="{}" target="_blank" rel="noopener" title="{}" '
             'data-lightbox="{}" data-lightbox-full="{}" data-lightbox-caption="{}" '
             'data-lightbox-group="{}" data-lightbox-original-label="{}" '
-            'style="display:block;width:150px;height:150px;border:1px solid #ccc;'
-            'border-radius:6px;overflow:hidden;background:#fafafa;">'
+            'style="display:block;width:150px;height:150px;border:1px solid var(--ok-line-2, #ccc);'
+            'border-radius:6px;overflow:hidden;background:var(--ok-surface-2, #fafafa);">'
             '<img src="{}" loading="lazy" alt="{}" '
             'style="width:100%;height:100%;object-fit:cover;display:block;"></a>',
             (
@@ -559,7 +561,7 @@ class InventoryItemAdmin(ExportMixin, admin.ModelAdmin):
 
 
 @admin.register(Manufacturer)
-class ManufacturerAdmin(admin.ModelAdmin):
+class ManufacturerAdmin(ModelAdmin):
     """Admin interface for Manufacturer."""
 
     list_display = ('name', 'description')
@@ -568,7 +570,7 @@ class ManufacturerAdmin(admin.ModelAdmin):
 
 
 @admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
+class CategoryAdmin(ModelAdmin):
     """Admin interface for Category."""
 
     list_display = ('name', 'description')
@@ -577,7 +579,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 @admin.register(Organization)
-class OrganizationAdmin(admin.ModelAdmin):
+class OrganizationAdmin(ModelAdmin):
     """Admin interface for Organization."""
 
     list_display = ('name', 'description')
@@ -608,7 +610,7 @@ class AuditLogResource(ModelResource):
 
 
 @admin.register(AuditLog)
-class AuditLogAdmin(ExportMixin, admin.ModelAdmin):
+class AuditLogAdmin(ExportMixin, ModelAdmin):
     """Admin interface for AuditLog."""
 
     resource_class = AuditLogResource
@@ -646,7 +648,7 @@ class AuditLogAdmin(ExportMixin, admin.ModelAdmin):
 
 
 @admin.register(InventoryImport)
-class InventoryImportAdmin(admin.ModelAdmin):
+class InventoryImportAdmin(ModelAdmin):
     """Admin interface for InventoryImport."""
 
     change_form_template = 'admin/inventory_import_change_form.html'
@@ -692,7 +694,7 @@ class InventoryImportAdmin(admin.ModelAdmin):
             )
         return format_html(
             '<div style="max-height: 300px; overflow-y: auto; '
-            'border: 1px solid #ccc; background: #fafafa; padding: 8px;">'
+            'border: 1px solid var(--ok-line-2, #ccc); background: var(--ok-surface-2, #fafafa); padding: 8px;">'
             '<ul style="margin:0; padding-left:20px;">{}</ul></div>{}',
             error_list,
             download_link
@@ -746,7 +748,7 @@ class InventoryImportAdmin(admin.ModelAdmin):
 
 
 @admin.register(Inspection)
-class InspectionAdmin(admin.ModelAdmin):
+class InspectionAdmin(ModelAdmin):
     """Admin interface for Inspection model."""
 
     list_display = ("inspection_number", "inventory_item", "unit", "target_part", "inspection_date", "result")
@@ -769,7 +771,7 @@ class InspectionAdmin(admin.ModelAdmin):
 
 
 @admin.register(InspectionImport)
-class InspectionImportAdmin(admin.ModelAdmin):
+class InspectionImportAdmin(ModelAdmin):
     """Admin interface for InspectionImport."""
 
     change_form_template = 'admin/inspection_import_change_form.html'
@@ -813,7 +815,7 @@ class InspectionImportAdmin(admin.ModelAdmin):
             )
         return format_html(
             '<div style="max-height: 300px; overflow-y: auto; '
-            'border: 1px solid #ccc; background: #fafafa; padding: 8px;">'
+            'border: 1px solid var(--ok-line-2, #ccc); background: var(--ok-surface-2, #fafafa); padding: 8px;">'
             '<ul style="margin:0; padding-left:20px;">{}</ul></div>{}',
             error_list,
             download_link
@@ -880,7 +882,7 @@ class InventoryImageConfigForm(forms.ModelForm):
 
 
 @admin.register(InventoryImageConfig)
-class InventoryImageConfigAdmin(admin.ModelAdmin):
+class InventoryImageConfigAdmin(ModelAdmin):
     """Singleton admin for inventory photo settings."""
 
     form = InventoryImageConfigForm
@@ -925,7 +927,7 @@ class InventoryImageConfigAdmin(admin.ModelAdmin):
 
 
 @admin.register(InventoryItemImage)
-class InventoryItemImageAdmin(admin.ModelAdmin):
+class InventoryItemImageAdmin(ModelAdmin):
     """Admin interface for indexed inventory item photos."""
 
     list_display = (

@@ -1,0 +1,393 @@
+/*
+ * Fixes for the classic admin markup our templates still emit, so it fits
+ * the Unfold theme. Loaded only with ADMIN_UNFOLD_ENABLED (UNFOLD["STYLES"]).
+ */
+
+/* Extra object tools: our change_list templates add <li><a> items to the
+   object-tools block; Unfold renders that block inside the header bar. */
+ul.object-tools {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+}
+
+ul.object-tools > li {
+    list-style: none;
+}
+
+/* Unfold's own add button carries .border; style only our plain links. */
+ul.object-tools > li > a:not(.border) {
+    display: inline-flex;
+    align-items: center;
+    height: 38px;
+    margin: -0.25rem 0;
+    padding: 0 0.75rem;
+    border: 1px solid var(--color-base-200, #e5e7eb);
+    border-radius: var(--border-radius, 6px);
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--color-font-important-light, #111827);
+    background: #fff;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+}
+
+ul.object-tools > li > a:not(.border):hover {
+    background: var(--color-base-50, #f9fafb);
+}
+
+.dark ul.object-tools > li > a:not(.border) {
+    color: var(--color-font-important-dark, #f3f4f6);
+    background: transparent;
+    border-color: var(--color-base-700, #374151);
+}
+
+/* Logo in the sidebar header (see unfold_templates/unfold/helpers/site_logo.html). */
+.ok-site-logo img {
+    height: 44px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+/* Notification bell in the header (notifications/badge.html). */
+.notifications-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--border-radius, 8px);
+    color: var(--color-font-default-light);
+}
+.notifications-badge:hover {
+    background: var(--color-base-100);
+    color: var(--color-primary-600);
+}
+.dark .notifications-badge {
+    color: var(--color-font-default-dark);
+}
+.dark .notifications-badge:hover {
+    background: rgb(255 255 255 / .06);
+    color: var(--color-primary-400);
+}
+/* Long field labels: Unfold gives the label column a fixed 38px line
+   height, so a label that wraps runs over the next line. */
+@media (min-width: 1024px) {
+    .field-line > div.lg\:h-\[38px\] {
+        height: auto;
+        min-height: 38px;
+        line-height: 1.35;
+        padding-top: 9px;
+        padding-bottom: 9px;
+        padding-right: 0.75rem;
+    }
+    .field-line > div.lg\:h-\[38px\] > label {
+        line-height: 1.35;
+    }
+}
+
+/* Classic admin buttons (class="button", <input class="default">) in our
+   custom templates. Layer "oklegacy": Tailwind utilities still win. */
+@layer oklegacy {
+    a.button,
+    button.button,
+    input.button,
+    input[type=submit].default,
+    input[type=button].button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .4rem;
+        min-height: 34px;
+        padding: .3rem .8rem;
+        border: 1px solid var(--ok-line-2);
+        border-radius: var(--ok-radius);
+        background: var(--ok-surface);
+        color: var(--ok-ink);
+        font-size: .875rem;
+        font-weight: 500;
+        line-height: 1.4;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        box-shadow: var(--ok-shadow-sm);
+    }
+    a.button:hover,
+    button.button:hover,
+    input.button:hover { background: var(--ok-surface-hover); }
+    .button.default,
+    input[type=submit].default {
+        background: var(--color-primary-600);
+        border-color: var(--color-primary-600);
+        color: #fff;
+    }
+    .button.default:hover,
+    input[type=submit].default:hover { background: var(--color-primary-700); }
+}
+
+/* Variables of the classic Django admin, used by our own templates
+   (filters, change forms). Unfold does not define them; map them onto the
+   shared tokens so those templates follow the light/dark theme. */
+:root {
+    --primary: var(--ok-brand);
+    --secondary: var(--ok-brand-strong);
+    --accent: var(--ok-brand-soft);
+    --primary-fg: #fff;
+    --body-fg: var(--ok-ink);
+    --body-bg: var(--ok-surface);
+    --body-quiet-color: var(--ok-ink-3);
+    --body-medium-color: var(--ok-ink-2);
+    --body-loud-color: var(--ok-ink);
+    --header-color: var(--ok-ink);
+    --header-branding-color: var(--ok-ink);
+    --header-bg: var(--ok-surface);
+    --header-link-color: var(--ok-brand);
+    --breadcrumbs-fg: var(--ok-ink-3);
+    --breadcrumbs-link-fg: var(--ok-brand);
+    --breadcrumbs-bg: var(--ok-surface-2);
+    --link-fg: var(--ok-brand);
+    --link-hover-color: var(--ok-brand-strong);
+    --link-selected-fg: var(--ok-brand-strong);
+    --hairline-color: var(--ok-line);
+    --border-color: var(--ok-line-2);
+    --error-fg: var(--ok-danger);
+    --message-success-bg: var(--ok-success-soft);
+    --message-success-fg: var(--ok-success-ink);
+    --message-success-border: var(--ok-success-line);
+    --message-warning-bg: var(--ok-warning-soft);
+    --message-error-bg: var(--ok-danger-soft);
+    --darkened-bg: var(--ok-surface-2);
+    --selected-bg: var(--ok-surface-hover);
+    --selected-row: var(--ok-brand-soft);
+    --button-fg: #fff;
+    --button-bg: var(--color-primary-600);
+    --button-border: var(--color-primary-600);
+    --button-hover-bg: var(--color-primary-700);
+    --button-hover-border: var(--color-primary-700);
+    --default-button-bg: var(--color-primary-600);
+    --default-button-hover-bg: var(--color-primary-700);
+    --close-button-bg: var(--ok-ink-3);
+    --close-button-hover-bg: var(--ok-ink-2);
+    --delete-button-bg: #b91c1c;
+    --delete-button-hover-bg: #991b1b;
+    --object-tools-fg: var(--ok-ink);
+    --object-tools-bg: var(--ok-surface);
+    --object-tools-hover-bg: var(--ok-surface-hover);
+    --focus-color: var(--ok-brand);
+}
+
+/* Our date/time range filter (admin/filter_datetime_range.html) */
+.date-range-filter-container input[type=date],
+.date-range-filter-container input[type=time] {
+    min-height: 34px;
+    border-radius: var(--ok-radius) !important;
+}
+.date-range-filter-container .date-filter-btn {
+    border-radius: var(--ok-radius) !important;
+}
+
+/* ---- Brand bar: the top of the sidebar and the header row share the
+   blue bar of the pages outside the admin (ok-topbar in ok_theme.css). ---- */
+.ok-brandbar,
+.dark .ok-brandbar {
+    background: var(--ok-topbar-bg) !important;
+    border-color: var(--ok-topbar-line) !important;
+    color: #fff;
+}
+.ok-brandbar h1,
+.ok-brandbar h1 a,
+.ok-brandbar h1 span,
+.ok-brandbar > div > div > .material-symbols-outlined,
+.ok-brandbar #header-inner > div > div:first-child .material-symbols-outlined,
+.ok-brandbar .notifications-badge,
+.ok-brandbar .text-subtle {
+    color: #fff !important;
+}
+.ok-brandbar h1 .text-base-400,
+.ok-brandbar h1 .text-base-500 { color: rgb(255 255 255 / .6) !important; }
+.ok-brandbar h1 a:hover { text-decoration: underline; }
+.ok-brandbar .bg-base-200 { background: rgb(255 255 255 / .25) !important; }
+.ok-brandbar .notifications-badge:hover { background: rgb(255 255 255 / .14); color: #fff; }
+/* plain-text action links (e.g. "Export") */
+.ok-brandbar #header-inner a.text-font-default-light,
+.ok-brandbar #header-inner a.text-font-default-dark { color: #fff !important; }
+.ok-brandbar .ok-site-logo img { height: 46px; }
+.ok-brandbar.border-b { border-bottom-width: 1px; }
+/* white buttons in the bar (Export, ...) keep dark text in the light theme */
+.ok-brandbar .bg-white { color: var(--color-font-important-light); }
+.dark .ok-brandbar .bg-white { color: #fff; }
+
+/* ---- Start page (unfold_templates/admin/index.html) ---- */
+.ok-dash { display: flex; flex-direction: column; gap: 20px; }
+.ok-quick { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.ok-quick__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--ok-line);
+    border-radius: var(--ok-radius-lg);
+    background: var(--ok-surface);
+    color: var(--ok-ink);
+    font-weight: 500;
+    box-shadow: var(--ok-shadow-sm);
+}
+.ok-quick__item .material-symbols-outlined { color: var(--ok-brand); }
+.ok-quick__item:hover { border-color: var(--ok-brand); background: var(--ok-surface-hover); }
+.ok-dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; align-items: start; }
+.ok-dash-card {
+    border: 1px solid var(--ok-line);
+    border-radius: var(--ok-radius-lg);
+    background: var(--ok-surface);
+    box-shadow: var(--ok-shadow-sm);
+    padding: 14px 16px 12px;
+}
+.ok-dash-card__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.ok-dash-card__head h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 15px; font-weight: 600; color: var(--ok-ink); }
+.ok-dash-card__head h2 .material-symbols-outlined { color: var(--ok-brand); font-size: 20px; }
+.ok-dash-card__head a { font-size: 12.5px; color: var(--ok-brand); }
+.ok-dash-sub { margin: 14px 0 4px; font-size: 11.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ok-ink-3); }
+.ok-dash-empty { margin: 6px 0; color: var(--ok-ink-3); }
+.ok-dash-foot { margin: 10px 0 0; font-size: 11px; color: var(--ok-ink-4); text-align: right; }
+.ok-task-list { margin: 0; padding: 0; list-style: none; }
+.ok-task { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--ok-line); }
+.ok-task:last-child { border-bottom: 0; }
+.ok-task__name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ok-ink); font-weight: 500; }
+a.ok-task__name:hover { color: var(--ok-brand); }
+.ok-task__meta { flex: 0 0 auto; font-size: 12px; color: var(--ok-ink-3); white-space: nowrap; }
+.ok-task__state { flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; }
+.ok-task__state--ok { background: var(--ok-success); }
+.ok-task__state--bad { background: var(--ok-danger); }
+.ok-task__state--run { background: var(--ok-brand); box-shadow: 0 0 0 0 rgba(var(--ok-brand-rgb), .6); animation: ok-pulse-dot 1.6s infinite; }
+@keyframes ok-pulse-dot { 70% { box-shadow: 0 0 0 7px rgba(var(--ok-brand-rgb), 0); } 100% { box-shadow: 0 0 0 0 rgba(var(--ok-brand-rgb), 0); } }
+.ok-action-icon { font-size: 18px; color: var(--ok-ink-3); }
+
+/* "Heute zu tun" counters, week program, problems */
+.ok-dash-heading { margin: 0 0 8px; font-size: 11.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--ok-ink-3); }
+.ok-counters { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.ok-counter {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: "icon num" "title title" "hint hint";
+    align-items: center;
+    column-gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--ok-line);
+    border-left-width: 4px;
+    border-radius: var(--ok-radius-lg);
+    background: var(--ok-surface);
+    box-shadow: var(--ok-shadow-sm);
+    color: var(--ok-ink);
+}
+.ok-counter:hover { background: var(--ok-surface-hover); }
+.ok-counter__icon { grid-area: icon; font-size: 22px; color: var(--ok-ink-3); }
+.ok-counter__num { grid-area: num; font-size: 26px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.ok-counter__title { grid-area: title; margin-top: 6px; font-weight: 500; }
+.ok-counter__hint { grid-area: hint; font-size: 11.5px; color: var(--ok-ink-3); }
+.ok-counter--danger { border-left-color: var(--ok-danger); }
+.ok-counter--danger .ok-counter__icon, .ok-counter--danger .ok-counter__num { color: var(--ok-danger); }
+.ok-counter--warning { border-left-color: var(--ok-warning); }
+.ok-counter--warning .ok-counter__icon, .ok-counter--warning .ok-counter__num { color: var(--ok-warning); }
+.ok-counter--info { border-left-color: var(--ok-brand); }
+.ok-counter--info .ok-counter__icon, .ok-counter--info .ok-counter__num { color: var(--ok-brand); }
+.ok-counter--zero { border-left-color: var(--ok-line); }
+.ok-counter--zero .ok-counter__num { color: var(--ok-ink-4); }
+
+.ok-problem-icon { font-size: 19px; }
+.ok-problem-icon--danger { color: var(--ok-danger); }
+.ok-problem-icon--warning { color: var(--ok-warning); }
+.ok-problem-icon--muted { color: var(--ok-ink-3); }
+.ok-dash-ok { display: flex; align-items: center; gap: 8px; margin: 6px 0; color: var(--ok-success); font-weight: 500; }
+
+.ok-week { display: flex; flex-direction: column; gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--ok-line); color: var(--ok-ink); }
+.ok-week:last-child { border-bottom: 0; }
+.ok-week__head { display: flex; align-items: baseline; gap: 10px; }
+.ok-week__rate { margin-left: auto; font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ok-week__bar { display: block; height: 8px; border-radius: 4px; background: var(--ok-surface-hover); overflow: hidden; }
+.ok-week__fill { display: block; height: 100%; border-radius: 4px; }
+.ok-week__rate--success { color: var(--ok-success); } .ok-week__fill--success { background: var(--ok-success); }
+.ok-week__rate--warning { color: var(--ok-warning); } .ok-week__fill--warning { background: var(--ok-warning); }
+.ok-week__rate--danger { color: var(--ok-danger); }   .ok-week__fill--danger { background: var(--ok-danger); }
+.ok-week__rate--muted { color: var(--ok-ink-3); }     .ok-week__fill--muted { background: var(--ok-ink-4); }
+
+.ok-exchange-summary { display: flex; align-items: center; gap: 12px; margin: 4px 0 8px; }
+.ok-exchange-summary .ok-counter__num { color: var(--ok-brand); }
+.ok-dash-grid { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
+.ok-task--stack { align-items: flex-start; }
+.ok-task__body { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; }
+.ok-task__body .ok-task__name { display: block; }
+.ok-task__body .ok-task__meta { white-space: normal; }
+
+/* Form fields of admins that still use Django's plain widgets (no Unfold
+   classes). Tailwind's reset leaves them without border or background.
+   Unfold's own widgets carry "border" classes and are not matched. */
+@layer oklegacy {
+    #content input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]):not([type=submit]):not([type=button]):not([type=reset]):not([type=image]):not([type=range]):not([type=color]):not([class*="border"]),
+    #content textarea:not([class*="border"]),
+    #content select:not([class*="border"]) {
+        min-height: 36px;
+        max-width: 100%;
+        padding: 6px 10px;
+        border: 1px solid var(--ok-line-2);
+        border-radius: var(--ok-radius);
+        background-color: var(--ok-surface);
+        color: var(--ok-ink);
+        font-size: .875rem;
+        box-shadow: var(--ok-shadow-sm);
+    }
+    #content input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=hidden]):not([class*="border"]):focus,
+    #content textarea:not([class*="border"]):focus,
+    #content select:not([class*="border"]):focus {
+        outline: 2px solid var(--ok-brand);
+        outline-offset: -2px;
+    }
+    #content input.vTextField:not([class*="border"]),
+    #content input.vURLField:not([class*="border"]),
+    #content textarea:not([class*="border"]) { width: 100%; max-width: 42rem; }
+    #content select[multiple]:not([class*="border"]) { min-height: 120px; }
+    #content input[type=file]:not([class*="border"]) { font-size: .875rem; color: var(--ok-ink-2); }
+    #content input[type=checkbox]:not([class*="border"]) { width: 16px; height: 16px; accent-color: var(--ok-brand); }
+}
+
+/* Unfold's own header actions (Export, Import, ...) sit in a white <ul>
+   with square corners; on the brand bar style them like our object-tool
+   buttons: rounded, white in the light theme, outlined in the dark one. */
+@media (min-width: 1024px) {
+    .ok-brandbar #header-inner ul.bg-white {
+        gap: 0.75rem;
+        background: transparent !important;
+    }
+    .ok-brandbar #header-inner ul.bg-white > li {
+        overflow: hidden;
+        border: 1px solid var(--color-base-200);
+        border-radius: var(--border-radius, 8px) !important;
+        background: #fff;
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+    }
+    .ok-brandbar #header-inner ul.bg-white > li > a {
+        height: 38px;
+        margin: -0.25rem 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        color: var(--color-font-important-light);
+        font-size: 0.875rem;
+    }
+    .ok-brandbar #header-inner ul.bg-white > li:hover { background: var(--color-base-50); }
+    .dark .ok-brandbar #header-inner ul.bg-white > li {
+        border-color: rgb(255 255 255 / .25);
+        background: transparent;
+    }
+    .dark .ok-brandbar #header-inner ul.bg-white > li > a { color: #fff; }
+    .dark .ok-brandbar #header-inner ul.bg-white > li:hover { background: rgb(255 255 255 / .1); }
+}
+.dark .ok-brandbar ul.object-tools > li > a:not(.border) {
+    border-color: rgb(255 255 255 / .25);
+    color: #fff;
+}
+.dark .ok-brandbar ul.object-tools > li > a:not(.border):hover { background: rgb(255 255 255 / .1); }

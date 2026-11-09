@@ -333,19 +333,19 @@
         
         if (isManualTime) {
           // Manual time mode indicator
-          bgColor = '#e7f3ff';
+          bgColor = 'var(--plan-time-manual)';
           title = gettext('Manual time setting (can be outside block)');
         } else if (isInSecondHalf(startSec)) {
-          bgColor = '#fff3cd';
+          bgColor = 'var(--plan-time-half)';
           title = gettext('Video starts in second half of minute (30-59 seconds)');
         }
         
         // Check if outside block
         if (startSec < blockStart || startSec >= blockEnd) {
           if (bgColor) {
-            bgColor = '#ffe7e7'; // Light red for outside block
+            bgColor = 'var(--plan-time-outside)'; // Light red for outside block
           } else {
-            bgColor = '#ffe7e7';
+            bgColor = 'var(--plan-time-outside)';
           }
           if (title) {
             title += ' • ' + gettext('Outside broadcast block');
@@ -364,7 +364,7 @@
         const yp = youthProtectionOf($row);
         const ypViolated = !youthProtectionFits(yp, startSec, duration0);
         if (ypViolated) {
-          bgColor = '#ffd4d4';
+          bgColor = 'var(--plan-time-yp)';
           const ypText = gettext('Youth protection: broadcast only allowed between')
             + ' ' + yp.allowed_from + ' – ' + yp.allowed_until + ' (' + yp.label + ')';
           title = title ? title + ' • ' + ypText : ypText;
@@ -395,7 +395,7 @@
         // Update end time display with day offset if needed
         let endTimeHTML = endTimeString;
         if (endDayOffset > 0) {
-          endTimeHTML = endTimeString + '<br><small style="display: block; font-size: 11px; color: #6c757d; font-weight: normal;">(+' + endDayOffset + ' ' + gettext('day') + ')</small>';
+          endTimeHTML = endTimeString + '<br><small style="display: block; font-size: 11px; color: var(--plan-muted); font-weight: normal;">(+' + endDayOffset + ' ' + gettext('day') + ')</small>';
         }
         $row.find('.end-time').html(endTimeHTML);
 
@@ -466,7 +466,7 @@
       const endDayOffset = getDayOffset(endSec);
       
       if (endDayOffset > 0) {
-        return endTimeString + '<br><small style="display: block; font-size: 11px; color: #6c757d; font-weight: normal;">(+' + endDayOffset + ' ' + gettext('day') + ')</small>';
+        return endTimeString + '<br><small style="display: block; font-size: 11px; color: var(--plan-muted); font-weight: normal;">(+' + endDayOffset + ' ' + gettext('day') + ')</small>';
       }
       return endTimeString;
     }
@@ -545,7 +545,7 @@
                     const isLive = Boolean(item.is_live);
                     const liveBadge = isLive ? '<span class="live-badge" style="margin-left: 4px;"><svg viewBox="0 0 24 24" fill="#dc3545" stroke="#dc3545" stroke-width="2" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3" fill="white" stroke="white" stroke-width="1.5"></path></svg></span>' : '';
                     const $row = $('<tr data-license-id="' + (licenseId || '') + '" data-license-number="' + item.number + '">' +
-                      '<td><input type="time" class="form-control input-sm start-time-input" value="' + startTimeDisplay + '" data-internal-time="' + startTimeWithSeconds + '"><small class="time-with-seconds" style="display: block; font-size: 11px; color: #6c757d; font-weight: normal; margin-top: 2px;">' + startTimeWithSeconds + '</small></td>' +
+                      '<td><input type="time" class="form-control input-sm start-time-input" value="' + startTimeDisplay + '" data-internal-time="' + startTimeWithSeconds + '"><small class="time-with-seconds" style="display: block; font-size: 11px; color: var(--plan-muted); font-weight: normal; margin-top: 2px;">' + startTimeWithSeconds + '</small></td>' +
                       '<td class="end-time">' + endTime + '</td>' +
                       '<td>' + licenseLink + contributionLink + liveBadge + '</td>' +
                       '<td>' + (item.title || '') + (item.subtitle ? ' – ' + item.subtitle : '') + '</td>' +
@@ -572,7 +572,7 @@
                     // Apply visual indicator if time is in second half of minute (check internal seconds)
                     // Note: startSec is already defined above, so we reuse it
                     if (isInSecondHalf(startSec)) {
-                      $row.find('.start-time-input').css('background-color', '#fff3cd').attr('title', gettext('Video starts in second half of minute (30-59 seconds)'));
+                      $row.find('.start-time-input').css('background-color', 'var(--plan-time-half)').attr('title', gettext('Video starts in second half of minute (30-59 seconds)'));
                     }
                     plannedItems.push({
                       number: item.number,
@@ -630,7 +630,7 @@
           const endDayOffset = getDayOffset(endSec);
           let endTimeHTML = endTimeString;
           if (endDayOffset > 0) {
-            endTimeHTML = endTimeString + '<br><small style="display: block; font-size: 11px; color: #6c757d; font-weight: normal;">(+' + endDayOffset + ' ' + gettext('day') + ')</small>';
+            endTimeHTML = endTimeString + '<br><small style="display: block; font-size: 11px; color: var(--plan-muted); font-weight: normal;">(+' + endDayOffset + ' ' + gettext('day') + ')</small>';
           }
           $row.find('.end-time').html(endTimeHTML);
           
@@ -956,7 +956,7 @@
         const isLive = Boolean(data.is_live);
         const liveBadge = isLive ? '<span class="live-badge" style="margin-left: 4px;"><svg viewBox="0 0 24 24" fill="#dc3545" stroke="#dc3545" stroke-width="2" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3" fill="white" stroke="white" stroke-width="1.5"></path></svg></span>' : '';
         const $row = $('<tr data-license-id="' + (licenseId || '') + '" data-license-number="' + data.number + '">' +
-          '<td><input type="time" class="form-control input-sm start-time-input" value="' + startTimeDisplay + '" data-internal-time="' + startTimeWithSeconds + '"><small class="time-with-seconds" style="display: block; font-size: 11px; color: #6c757d; font-weight: normal; margin-top: 2px;">' + startTimeWithSeconds + '</small></td>' +
+          '<td><input type="time" class="form-control input-sm start-time-input" value="' + startTimeDisplay + '" data-internal-time="' + startTimeWithSeconds + '"><small class="time-with-seconds" style="display: block; font-size: 11px; color: var(--plan-muted); font-weight: normal; margin-top: 2px;">' + startTimeWithSeconds + '</small></td>' +
           '<td class="end-time">' + endTime + '</td>' +
           '<td>' + licenseLink + contributionLink + liveBadge + '</td>' +
           '<td>' + data.title + (data.subtitle ? ' – ' + data.subtitle : '') + '</td>' +
@@ -993,7 +993,7 @@
         // Apply visual indicator if time is in second half of minute (check internal seconds)
         const startSec = timeToSeconds(startTimeWithSeconds);
         if (isInSecondHalf(startSec)) {
-          $row.find('.start-time-input').css('background-color', '#fff3cd').attr('title', gettext('Video starts in second half of minute (30-59 seconds)'));
+          $row.find('.start-time-input').css('background-color', 'var(--plan-time-half)').attr('title', gettext('Video starts in second half of minute (30-59 seconds)'));
         }
 
         plannedItems.push({
@@ -1351,7 +1351,7 @@
         const endDayOffset = getDayOffset(endSec);
         let endTimeHTML = endTimeString;
         if (endDayOffset > 0) {
-          endTimeHTML = endTimeString + '<br><small style="display: block; font-size: 11px; color: #6c757d; font-weight: normal;">(+' + endDayOffset + ' ' + gettext('day') + ')</small>';
+          endTimeHTML = endTimeString + '<br><small style="display: block; font-size: 11px; color: var(--plan-muted); font-weight: normal;">(+' + endDayOffset + ' ' + gettext('day') + ')</small>';
         }
         video.$row.find('.end-time').html(endTimeHTML);
         
@@ -1706,7 +1706,7 @@
         const endDayOffset = getDayOffset(endSec);
         let endTimeHTML = endTimeString;
         if (endDayOffset > 0) {
-          endTimeHTML = endTimeString + '<br><small style="display: block; font-size: 11px; color: #6c757d; font-weight: normal;">(+' + endDayOffset + ' ' + gettext('day') + ')</small>';
+          endTimeHTML = endTimeString + '<br><small style="display: block; font-size: 11px; color: var(--plan-muted); font-weight: normal;">(+' + endDayOffset + ' ' + gettext('day') + ')</small>';
         }
         $row.find('.end-time').html(endTimeHTML);
         

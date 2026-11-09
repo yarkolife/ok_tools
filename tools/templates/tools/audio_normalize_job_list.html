@@ -2,6 +2,7 @@
 {% load i18n %}
 
 {% block title %}{% trans 'Audio Normalize Jobs' %} - {{ block.super }}{% endblock %}
+{% block content_title %}{% if ADMIN_UNFOLD_ENABLED %}{% trans 'Audio Normalize Jobs' %}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -16,8 +17,8 @@
 <style>
     .jobs-container { padding: 20px; }
     .filter-section {
-        background: #fff;
-        border: 1px solid #dee2e6;
+        background: var(--ok-surface, #fff);
+        border: 1px solid var(--ok-line, #dee2e6);
         border-radius: 4px;
         padding: 15px;
         margin-bottom: 20px;
@@ -26,10 +27,10 @@
     .job-table th, .job-table td {
         padding: 12px;
         text-align: left;
-        border-bottom: 1px solid #dee2e6;
+        border-bottom: 1px solid var(--ok-line, #dee2e6);
         vertical-align: top;
     }
-    .job-table th { background: #f8f9fa; font-weight: bold; }
+    .job-table th { background: var(--ok-surface-2, #f8f9fa); font-weight: bold; }
     .status-badge { padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; display: inline-block; }
     .status-pending { background: #6c757d; color: white; }
     .status-analyzing { background: #0dcaf0; color: #000; }
@@ -84,7 +85,7 @@
                     <a href="{% url 'tools:audio_normalize_job_detail' job.id %}">
                         <strong>#{{ job.id }}</strong>
                     </a>
-                    <div class="mono" style="margin-top: 4px; color:#666;">
+                    <div class="mono" style="margin-top: 4px; color:var(--ok-ink-3, #666);">
                         {% if job.input_file %}{{ job.input_file.name|cut:"tools/audio_normalize/" }}{% else %}-{% endif %}
                     </div>
                 </td>
@@ -114,7 +115,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" style="text-align: center; padding: 40px; color: #999;">
+                <td colspan="6" style="text-align: center; padding: 40px; color: var(--ok-ink-4, #999);">
                     {% trans 'No jobs found' %}
                 </td>
             </tr>

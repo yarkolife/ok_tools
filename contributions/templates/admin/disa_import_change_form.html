@@ -8,8 +8,8 @@
     #date-selection-container {
         margin: 15px 0;
         padding: 15px;
-        background: #f8f9fa;
-        border: 1px solid #ddd;
+        background: var(--ok-surface-2, #f8f9fa);
+        border: 1px solid var(--ok-line, #ddd);
         border-radius: 4px;
     }
     #date-selection-container label {
@@ -19,7 +19,7 @@
     }
     #import_from_date_select {
         padding: 8px 12px;
-        border: 1px solid #ccc;
+        border: 1px solid var(--ok-line-2, #ccc);
         border-radius: 4px;
         min-width: 200px;
         height: auto;
@@ -27,12 +27,12 @@
         line-height: 1.4;
     }
     #dates-loading {
-        color: #666;
+        color: var(--ok-ink-3, #666);
         font-style: italic;
     }
     #dates-count {
         margin-left: 10px;
-        color: #666;
+        color: var(--ok-ink-3, #666);
         font-size: 0.9em;
     }
     #dates-error {
@@ -42,8 +42,8 @@
     .custom-submit-row {
         padding: 12px 14px;
         margin: 0 0 20px;
-        background: #f8f9fa;
-        border: 1px solid #ddd;
+        background: var(--ok-surface-2, #f8f9fa);
+        border: 1px solid var(--ok-line, #ddd);
         border-radius: 4px;
         display: flex;
         gap: 10px;
@@ -63,7 +63,7 @@
         background: #5a6268;
     }
     .custom-submit-row input[name="_import_disa"] {
-        background: #417690;
+        background: var(--ok-brand, #417690);
         color: white;
     }
     .custom-submit-row input[name="_import_disa"]:hover {
@@ -84,8 +84,8 @@
     </div>
     
     <div class="custom-submit-row">
-        <input type="submit" value="{% translate 'Save' %}" name="_save">
-        <input type="submit" value="{% translate 'Save and Import' %}" name="_import_disa">
+        <input form="{{ opts.model_name }}_form" type="submit" value="{% translate 'Save' %}" name="_save">
+        <input form="{{ opts.model_name }}_form" type="submit" value="{% translate 'Save and Import' %}" name="_import_disa">
     </div>
 {% endblock %}
 

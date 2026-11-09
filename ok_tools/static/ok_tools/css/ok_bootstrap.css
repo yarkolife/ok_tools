@@ -1,0 +1,70 @@
+/*
+ * Bootstrap 5.3 on OK Tools tokens (needs ok_theme.css first).
+ * Only for pages that load Bootstrap: some of its class names (bg-white,
+ * text-muted, ...) also exist in Unfold's Tailwind build.
+ */
+:root,
+[data-bs-theme=light],
+[data-bs-theme=dark] {
+    --bs-primary: var(--ok-brand);
+    --bs-primary-rgb: var(--ok-brand-rgb);
+    --bs-link-color: var(--ok-brand);
+    --bs-link-color-rgb: var(--ok-brand-rgb);
+    --bs-link-hover-color: var(--ok-brand-strong);
+    --bs-body-bg: var(--ok-bg);
+    --bs-body-color: var(--ok-ink);
+    --bs-secondary-color: var(--ok-ink-3);
+    --bs-secondary-bg: var(--ok-surface-hover);
+    --bs-tertiary-bg: var(--ok-surface-2);
+    --bs-border-color: var(--ok-line);
+    --bs-emphasis-color: var(--ok-ink);
+    --bs-heading-color: var(--ok-ink);
+    --bs-border-radius: var(--ok-radius);
+    --bs-font-sans-serif: var(--ok-font);
+}
+html[data-bs-theme] .card,
+html[data-bs-theme] .modal-content,
+html[data-bs-theme] .dropdown-menu,
+html[data-bs-theme] .list-group-item {
+    --bs-card-bg: var(--ok-surface);
+    --bs-modal-bg: var(--ok-surface);
+    --bs-dropdown-bg: var(--ok-surface);
+    --bs-list-group-bg: var(--ok-surface);
+    --bs-card-border-color: var(--ok-line);
+    --bs-card-cap-bg: var(--ok-surface-2);
+}
+html[data-bs-theme] .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--ok-ink);
+    --bs-table-border-color: var(--ok-line);
+    --bs-table-striped-bg: var(--ok-surface-2);
+    --bs-table-hover-bg: var(--ok-surface-hover);
+}
+html[data-bs-theme] .btn-primary {
+    --bs-btn-bg: var(--ok-brand);
+    --bs-btn-border-color: var(--ok-brand);
+    --bs-btn-hover-bg: var(--ok-brand-strong);
+    --bs-btn-hover-border-color: var(--ok-brand-strong);
+    --bs-btn-active-bg: var(--ok-brand-strong);
+    --bs-btn-active-border-color: var(--ok-brand-strong);
+    --bs-btn-disabled-bg: var(--ok-brand);
+    --bs-btn-disabled-border-color: var(--ok-brand);
+}
+html[data-bs-theme] .btn-outline-primary {
+    --bs-btn-color: var(--ok-brand);
+    --bs-btn-border-color: var(--ok-brand);
+    --bs-btn-hover-bg: var(--ok-brand);
+    --bs-btn-hover-border-color: var(--ok-brand);
+    --bs-btn-active-bg: var(--ok-brand);
+}
+html[data-bs-theme] .form-control,
+html[data-bs-theme] .form-select {
+    background-color: var(--ok-surface);
+    border-color: var(--ok-line-2);
+    color: var(--ok-ink);
+}
+html[data-bs-theme] .text-muted { color: var(--ok-ink-3) !important; }
+html[data-bs-theme] .bg-white,
+html[data-bs-theme] .bg-light { background-color: var(--ok-surface) !important; }
+html.dark .text-dark { color: var(--ok-ink) !important; }
+

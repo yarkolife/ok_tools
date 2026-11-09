@@ -6755,3 +6755,300 @@ msgstr "%(count)d Artikel als etikettiert markiert."
 #, python-format
 msgid "%(count)d item(s) marked as not labelled."
 msgstr "%(count)d Artikel als nicht etikettiert markiert."
+
+#: ok_tools/admin_nav.py
+msgid "Daily work"
+msgstr "Tagesgeschäft"
+
+#: ok_tools/admin_nav.py
+msgid "Archive & media"
+msgstr "Archiv & Medien"
+
+#: ok_tools/admin_nav.py
+msgid "Users & projects"
+msgstr "Nutzer & Projekte"
+
+#: ok_tools/admin_nav.py
+msgid "Rental & inventory"
+msgstr "Ausleihe & Inventar"
+
+#: ok_tools/admin_nav.py
+msgid "Tools"
+msgstr "Werkzeuge"
+
+#: ok_tools/admin_nav.py
+msgid "Settings & reference data"
+msgstr "Einstellungen & Stammdaten"
+
+#: ok_tools/admin_nav.py
+msgid "System"
+msgstr "System"
+
+#: ok_tools/templates/ok_tools/_topbar.html
+msgid "Theme: light / dark / system"
+msgstr "Design: hell / dunkel / System"
+
+#: ok_tools/templates/ok_tools/_topbar.html
+msgid "Switch theme"
+msgstr "Design wechseln"
+
+#: ok_tools/templates/ok_tools/_topbar.html
+msgid "Back to Administration"
+msgstr "Zurück zur Verwaltung"
+
+#: ok_tools/templates/ok_tools/_topbar.html
+msgid "Administration"
+msgstr "Verwaltung"
+
+#: ok_tools/admin_nav.py
+msgid "More"
+msgstr "Weitere"
+
+#: ok_tools/admin_nav.py
+msgid "Background tasks"
+msgstr "Hintergrundaufgaben"
+
+#: ok_tools/admin_dashboard.py
+msgid "Categories (licenses)"
+msgstr "Kategorien (Freistellungen)"
+
+#: ok_tools/admin_dashboard.py
+msgid "Categories (inventory)"
+msgstr "Kategorien (Inventar)"
+
+#: ok_tools/admin_dashboard.py
+msgid "Video rendering"
+msgstr "Video-Rendering"
+
+#: ok_tools/admin_dashboard.py
+msgid "Reel rendering"
+msgstr "Reel-Rendering"
+
+#: ok_tools/admin_dashboard.py
+msgid "Reel hooks"
+msgstr "Reel-Hooks"
+
+#: ok_tools/admin_dashboard.py
+msgid "Slideshow"
+msgstr "Diashow"
+
+#: ok_tools/admin_dashboard.py
+msgid "Audio normalisation"
+msgstr "Audio-Normalisierung"
+
+#: ok_tools/admin_dashboard.py
+msgid "Audio analysis"
+msgstr "Audio-Analyse"
+
+#: ok_tools/admin_dashboard.py
+msgid "Transcoding HEVC → H.264"
+msgstr "Transkodierung HEVC → H.264"
+
+#: ok_tools/admin_dashboard.py
+msgid "Export to server"
+msgstr "Export zum Server"
+
+#: ok_tools/admin_dashboard.py
+msgid "Exchange import"
+msgstr "Austausch-Import"
+
+#: ok_tools/admin_dashboard.py
+msgid "Exchange download"
+msgstr "Austausch-Download"
+
+#: ok_tools/admin_dashboard.py
+msgid "Exchange folder sync"
+msgstr "Austausch-Ordner synchronisieren"
+
+#: ok_tools/admin_dashboard.py
+msgid "Copy videos for playout"
+msgstr "Videos für Playout kopieren"
+
+#: ok_tools/admin_dashboard.py
+msgid "Playout media sync"
+msgstr "Playout-Medien abgleichen"
+
+#: ok_tools/admin_dashboard.py
+msgid "Video storage scan"
+msgstr "Videospeicher-Scan"
+
+#: ok_tools/admin_dashboard.py
+msgid "Video metadata update"
+msgstr "Video-Metadaten aktualisieren"
+
+#: ok_tools/admin_dashboard.py
+msgid "Cover generation"
+msgstr "Cover erzeugen"
+
+#: ok_tools/admin_dashboard.py
+msgid "Duplicate search"
+msgstr "Duplikatsuche"
+
+#: ok_tools/admin_dashboard.py
+msgid "Database backup"
+msgstr "Datenbank-Backup"
+
+#: ok_tools/admin_dashboard.py
+msgid "Nextcloud download"
+msgstr "Nextcloud-Download"
+
+#: ok_tools/admin_dashboard.py
+msgid "New license"
+msgstr "Neue Freistellung"
+
+#: ok_tools/admin_dashboard.py
+msgid "Calendar weeks"
+msgstr "Kalenderwochen"
+
+#: ok_tools/admin_dashboard.py
+msgid "New rental"
+msgstr "Neue Ausleihe"
+
+#: ok_tools/admin_dashboard.py
+msgid "Exchange feed"
+msgstr "Austausch-Feed"
+
+#: ok_tools/admin_dashboard.py
+msgid "DISA import"
+msgstr "DISA-Import"
+
+#: ok_tools/admin_dashboard.py
+msgid "Video files"
+msgstr "Videodateien"
+
+#: ok_tools/admin_dashboard.py
+msgid "Running now"
+msgstr "Läuft gerade"
+
+#: ok_tools/admin_dashboard.py
+msgid "All background tasks"
+msgstr "Alle Hintergrundaufgaben"
+
+#: ok_tools/admin_dashboard.py
+msgid "Task results are not recorded on this installation."
+msgstr "Aufgabenergebnisse werden in dieser Installation nicht gespeichert."
+
+#: ok_tools/admin_dashboard.py
+msgid "queued"
+msgstr "in der Warteschlange"
+
+#: ok_tools/admin_dashboard.py
+msgid "running for"
+msgstr "läuft seit"
+
+#: ok_tools/admin_dashboard.py
+msgid "No task is running."
+msgstr "Keine Aufgabe läuft."
+
+#: ok_tools/admin_dashboard.py
+msgid "Finished in the last %(h)s hours"
+msgstr "In den letzten %(h)s Stunden beendet"
+
+#: ok_tools/admin_dashboard.py
+msgid "Nothing finished recently."
+msgstr "In letzter Zeit nichts beendet."
+
+#: ok_tools/admin_dashboard.py
+msgid "Start"
+msgstr "Start"
+
+#: ok_tools/admin_dashboard.py
+msgid "Quick access"
+msgstr "Schnellzugriff"
+
+#: ok_tools/admin_dashboard.py
+msgid "My recent changes"
+msgstr "Meine letzten Änderungen"
+
+#: ok_tools/admin_dashboard.py
+msgid "Licenses to approve"
+msgstr "Freistellungen zu genehmigen"
+
+#: ok_tools/admin_dashboard.py
+#, python-format
+msgid "created in the last %(days)s days"
+msgstr "angelegt in den letzten %(days)s Tagen"
+
+#: ok_tools/admin_dashboard.py
+msgid "Rentals overdue"
+msgstr "Ausleihen überfällig"
+
+#: ok_tools/admin_dashboard.py
+msgid "Rentals due today"
+msgstr "Ausleihen heute fällig"
+
+#: ok_tools/admin_dashboard.py
+msgid "Rental requests waiting"
+msgstr "Ausleihanfragen offen"
+
+#: ok_tools/admin_dashboard.py
+msgid "Open notifications"
+msgstr "Offene Benachrichtigungen"
+
+#: ok_tools/admin_dashboard.py
+msgid "This week"
+msgstr "Diese Woche"
+
+#: ok_tools/admin_dashboard.py
+msgid "Next week"
+msgstr "Nächste Woche"
+
+#: ok_tools/admin_dashboard.py
+#, python-format
+msgid "on air %(when)s, no usable video"
+msgstr "Sendung %(when)s, kein verwendbares Video"
+
+#: ok_tools/admin_dashboard.py
+#, python-format
+msgid "%(n)s more contributions without video"
+msgstr "%(n)s weitere Beiträge ohne Video"
+
+#: ok_tools/admin_dashboard.py
+#, python-format
+msgid "did not answer (checked %(when)s)"
+msgstr "antwortet nicht (geprüft %(when)s)"
+
+#: ok_tools/admin_dashboard.py
+#, python-format
+msgid "%(n)s failed exchange imports"
+msgstr "%(n)s fehlgeschlagene Austausch-Importe"
+
+#: ok_tools/admin_dashboard.py
+#, python-format
+msgid "last %(days)s days"
+msgstr "letzte %(days)s Tage"
+
+#: ok_tools/admin_dashboard.py
+msgid "To do today"
+msgstr "Heute zu tun"
+
+#: ok_tools/admin_dashboard.py
+msgid "Problems"
+msgstr "Probleme"
+
+#: ok_tools/admin_dashboard.py
+msgid "Nothing to fix right now."
+msgstr "Gerade gibt es nichts zu beheben."
+
+#: ok_tools/admin_dashboard.py
+msgid "Broadcast program"
+msgstr "Sendeprogramm"
+
+#: ok_tools/admin_dashboard.py
+#, python-format
+msgid "%(days)s of 7 days planned · %(n)s licenses"
+msgstr "%(days)s von 7 Tagen geplant · %(n)s Freistellungen"
+
+#: ok_tools/admin_dashboard.py
+msgid "New in the exchange"
+msgstr "Neu im Austausch"
+
+#: ok_tools/admin_dashboard.py
+#, python-format
+msgid "new since your last visit (%(since)s)"
+msgstr "neu seit deinem letzten Besuch (%(since)s)"
+
+#: ok_tools/admin_dashboard.py
+#, python-format
+msgid "%(n)s items not imported yet"
+msgstr "%(n)s Elemente noch nicht importiert"

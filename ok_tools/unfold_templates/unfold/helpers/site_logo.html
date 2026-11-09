@@ -1,0 +1,13 @@
+{% load i18n %}
+{% comment %}
+  Our logo already carries the organisation's name, so it replaces Unfold's
+  small logo + site name. Light and dark variants are still supported.
+{% endcomment %}
+<a href="{% url "admin:index" %}" class="block ok-site-logo" title="{{ site_header|default:'' }}">
+    {% if site_logo.light and site_logo.dark %}
+        <img src="{{ site_logo.dark }}" alt="{{ site_header|default:_('Home') }}" class="hidden dark:block"/>
+        <img src="{{ site_logo.light }}" alt="{{ site_header|default:_('Home') }}" class="block dark:hidden"/>
+    {% else %}
+        <img src="{{ site_logo }}" alt="{{ site_header|default:_('Home') }}"/>
+    {% endif %}
+</a>

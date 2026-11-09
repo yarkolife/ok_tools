@@ -5,10 +5,11 @@ from notifications.models import NotificationConfig
 from notifications.models import NotificationEvent
 from notifications.models import NotificationSuppression
 from notifications.models import Subscription
+from ok_tools.admin_base import ModelAdmin
 
 
 @admin.register(NotificationConfig)
-class NotificationConfigAdmin(admin.ModelAdmin):
+class NotificationConfigAdmin(ModelAdmin):
     """Singleton settings of the notification system."""
 
     list_display = ['__str__', 'enabled', 'digest_time', 'retention_days']
@@ -31,7 +32,7 @@ class NotificationConfigAdmin(admin.ModelAdmin):
 
 
 @admin.register(NotificationEvent)
-class NotificationEventAdmin(admin.ModelAdmin):
+class NotificationEventAdmin(ModelAdmin):
     """Read-only view of the raw event stream, for troubleshooting."""
 
     list_display = ['occurred_at', 'module', 'event_type', 'category',
@@ -57,7 +58,7 @@ class NotificationEventAdmin(admin.ModelAdmin):
 
 
 @admin.register(NotificationSuppression)
-class NotificationSuppressionAdmin(admin.ModelAdmin):
+class NotificationSuppressionAdmin(ModelAdmin):
     """Permanently silenced objects. Deleting a row lets them reappear."""
 
     list_display = ['label', 'event_type', 'object_id', 'created_by',
@@ -85,7 +86,7 @@ class NotificationSuppressionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Subscription)
-class SubscriptionAdmin(admin.ModelAdmin):
+class SubscriptionAdmin(ModelAdmin):
     """Subscriptions are normally managed on the notifications page."""
 
     list_display = ['user', 'module', 'event_type']
@@ -103,7 +104,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
 
 
 @admin.register(ManualReminder)
-class ManualReminderAdmin(admin.ModelAdmin):
+class ManualReminderAdmin(ModelAdmin):
     """Reminders staff write themselves, for work the data cannot show."""
 
     list_display = ('title', 'repeat', 'active', 'created_by')

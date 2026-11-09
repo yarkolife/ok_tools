@@ -4,6 +4,7 @@
 {% load number_filters %}
 
 {% block title %}{% if project %}{% trans 'Edit Slideshow' %}{% else %}{% trans 'Create Slideshow' %}{% endif %} - {{ block.super }}{% endblock %}
+{% block content_title %}{% if ADMIN_UNFOLD_ENABLED %}{% if project %}{% trans 'Edit Slideshow' %}{% else %}{% trans 'Create Slideshow' %}{% endif %}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -21,8 +22,8 @@
         padding: 20px;
     }
     .section {
-        background: #fff;
-        border: 1px solid #dee2e6;
+        background: var(--ok-surface, #fff);
+        border: 1px solid var(--ok-line, #dee2e6);
         border-radius: 4px;
         padding: 20px;
         margin-bottom: 20px;
@@ -31,7 +32,7 @@
         font-size: 18px;
         font-weight: bold;
         margin-bottom: 15px;
-        color: #333;
+        color: var(--ok-ink, #333);
     }
     .media-grid {
         display: grid;
@@ -41,7 +42,7 @@
     }
     .media-item {
         position: relative;
-        border: 1px solid #dee2e6;
+        border: 1px solid var(--ok-line, #dee2e6);
         border-radius: 4px;
         overflow: hidden;
     }
@@ -74,7 +75,7 @@
         font-size: 12px;
     }
     .upload-zone {
-        border: 2px dashed #dee2e6;
+        border: 2px dashed var(--ok-line, #dee2e6);
         border-radius: 4px;
         padding: 40px;
         text-align: center;
@@ -82,11 +83,11 @@
         transition: border-color 0.3s;
     }
     .upload-zone:hover {
-        border-color: #007cba;
+        border-color: var(--ok-brand, #007cba);
     }
     .upload-zone.dragover {
-        border-color: #007cba;
-        background: #f0f8ff;
+        border-color: var(--ok-brand, #007cba);
+        background: var(--ok-brand-soft, #f0f8ff);
     }
     .settings-row {
         display: flex;
@@ -105,7 +106,7 @@
         display: block;
         margin-bottom: 8px;
         font-weight: 600;
-        color: #333;
+        color: var(--ok-ink, #333);
         font-size: 14px;
     }
     .settings-field input[type="number"],
@@ -114,7 +115,7 @@
         width: 100%;
         height: 42px;
         padding: 8px 12px;
-        border: 1px solid #dee2e6;
+        border: 1px solid var(--ok-line, #dee2e6);
         border-radius: 4px;
         font-size: 15px;
         transition: border-color 0.2s;
@@ -151,8 +152,8 @@
         align-items: center;
         justify-content: space-between;
         padding: 10px;
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
+        background: var(--ok-surface-2, #f8f9fa);
+        border: 1px solid var(--ok-line, #dee2e6);
         border-radius: 4px;
         margin-bottom: 10px;
     }
@@ -177,7 +178,7 @@
     .settings-subsection {
         margin-bottom: 25px;
         padding-bottom: 20px;
-        border-bottom: 1px solid #e9ecef;
+        border-bottom: 1px solid var(--ok-line, #e9ecef);
     }
     .settings-subsection:last-child {
         margin-bottom: 0;
@@ -188,10 +189,10 @@
         font-size: 16px;
         font-weight: 600;
         margin-bottom: 15px;
-        color: #495057;
+        color: var(--ok-ink-2, #495057);
     }
     .settings-help-text {
-        color: #6c757d;
+        color: var(--ok-ink-3, #6c757d);
         font-size: 13px;
         line-height: 1.4;
         margin-bottom: 10px;
@@ -200,7 +201,7 @@
         align-self: flex-end;
     }
     #content .slideshow-creator-container .settings-section {
-        background: #ffffff;
+        background: var(--ok-surface, #ffffff);
         border: 1px solid #e6e9ee;
         box-shadow: 0 2px 10px rgba(16, 24, 40, 0.06);
         padding: 24px;
@@ -232,7 +233,7 @@
     .settings-field input[type="text"]:focus,
     .settings-field select:focus {
         outline: none;
-        border-color: #007cba;
+        border-color: var(--ok-brand, #007cba);
         box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.1);
     }
     #content .slideshow-creator-container .settings-section .settings-row {
@@ -247,7 +248,7 @@
     #content .slideshow-creator-container .settings-section .settings-field input[type="number"],
     #content .slideshow-creator-container .settings-section .settings-field input[type="text"],
     #content .slideshow-creator-container .settings-section .settings-field select {
-        background: #ffffff;
+        background: var(--ok-surface, #ffffff);
         border-color: #d1d5db;
         border-radius: 8px;
         height: 42px;
@@ -269,7 +270,7 @@
         transition: all 0.2s;
     }
     .tab-btn:hover {
-        color: #007cba;
+        color: var(--ok-brand, #007cba);
     }
     .library-item:hover {
         transform: scale(1.02);
@@ -283,7 +284,7 @@
         opacity: 0.5;
     }
     .media-item.drag-over {
-        border: 2px dashed #007cba;
+        border: 2px dashed var(--ok-brand, #007cba);
     }
     .drag-handle {
         position: absolute;
@@ -319,8 +320,8 @@
             <div class="section-title">{% trans 'Media Files' %}</div>
             
             <!-- Tabs for Upload / Library -->
-            <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #dee2e6;">
-                <button type="button" class="tab-btn active" onclick="switchTab('upload')" id="uploadTab" style="padding: 10px 20px; border: none; background: none; cursor: pointer; border-bottom: 3px solid #007cba;">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid var(--ok-line, #dee2e6);">
+                <button type="button" class="tab-btn active" onclick="switchTab('upload')" id="uploadTab" style="padding: 10px 20px; border: none; background: none; cursor: pointer; border-bottom: 3px solid var(--ok-brand, #007cba);">
                     {% trans 'Upload New' %}
                 </button>
                 <button type="button" class="tab-btn" onclick="switchTab('library')" id="libraryTab" style="padding: 10px 20px; border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent;">
@@ -359,7 +360,7 @@
                             🎥 {% trans 'Video' %}
                         </div>
                         {% endif %}
-                        <div style="padding: 8px; background: #f8f9fa; font-size: 12px; text-align: center;">
+                        <div style="padding: 8px; background: var(--ok-surface-2, #f8f9fa); font-size: 12px; text-align: center;">
                             {{ media.name|default:media.file.name|truncatechars:30 }}
                         </div>
                         <div style="position: absolute; top: 5px; left: 5px; background: rgba(0, 124, 186, 0.9); color: white; padding: 3px 8px; border-radius: 3px; font-size: 11px;">
@@ -368,7 +369,7 @@
                         <button type="button" class="delete-btn" onclick="event.stopPropagation(); deleteLibraryMedia({{ media.id }})" title="{% trans 'Delete from library' %}">×</button>
                     </div>
                     {% empty %}
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #6c757d;">
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--ok-ink-3, #6c757d);">
                         {% trans 'No media in library yet' %}
                     </div>
                     {% endfor %}
@@ -376,17 +377,17 @@
             </div>
             
             <!-- Project Media -->
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #dee2e6;">
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid var(--ok-line, #dee2e6);">
                 <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 15px;">
                     {% trans 'Project Media' %}
-                    <span style="font-size: 13px; font-weight: normal; color: #6c757d; margin-left: 10px;">{% trans 'Drag to reorder' %}</span>
+                    <span style="font-size: 13px; font-weight: normal; color: var(--ok-ink-3, #6c757d); margin-left: 10px;">{% trans 'Drag to reorder' %}</span>
                 </h3>
                 <div style="margin-bottom: 10px; display: flex; gap: 10px; align-items: center;">
                     <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
                         <input type="checkbox" id="selectAllMedia" onchange="toggleSelectAll()">
                         <span>{% trans 'Select All' %}</span>
                     </label>
-                    <span id="selectedCount" style="color: #6c757d; font-size: 13px; margin-left: 10px;">0 {% trans 'selected' %}</span>
+                    <span id="selectedCount" style="color: var(--ok-ink-3, #6c757d); font-size: 13px; margin-left: 10px;">0 {% trans 'selected' %}</span>
                     <button type="button" id="bulkDeleteBtn" onclick="bulkDeleteMedia()" style="display: none; background: rgba(220, 53, 69, 0.9); color: white; border: none; border-radius: 3px; padding: 5px 10px; cursor: pointer; font-size: 12px; margin-left: auto;">
                         {% trans 'Delete Selected' %}
                     </button>
@@ -410,7 +411,7 @@
                         <button type="button" class="library-btn" onclick="event.stopPropagation(); makeMediaLibrary({{ media.id }})">{% trans 'Make library' %}</button>
                     </div>
                     {% empty %}
-                    <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #6c757d;">
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: var(--ok-ink-3, #6c757d);">
                         {% trans 'No media files yet. Upload or add from library.' %}
                     </div>
                     {% endfor %}
@@ -423,8 +424,8 @@
             <div class="section-title">{% trans 'Background Music' %}</div>
             
             <!-- Tabs for Upload / Library -->
-            <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #dee2e6;">
-                <button type="button" class="tab-btn active" onclick="switchAudioTab('upload')" id="audioUploadTab" style="padding: 10px 20px; border: none; background: none; cursor: pointer; border-bottom: 3px solid #007cba;">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid var(--ok-line, #dee2e6);">
+                <button type="button" class="tab-btn active" onclick="switchAudioTab('upload')" id="audioUploadTab" style="padding: 10px 20px; border: none; background: none; cursor: pointer; border-bottom: 3px solid var(--ok-brand, #007cba);">
                     {% trans 'Upload New' %}
                 </button>
                 <button type="button" class="tab-btn" onclick="switchAudioTab('library')" id="audioLibraryTab" style="padding: 10px 20px; border: none; background: none; cursor: pointer; border-bottom: 3px solid transparent;">
@@ -451,7 +452,7 @@
                         </div>
                     </div>
                     {% empty %}
-                    <div style="text-align: center; padding: 20px; color: #6c757d;">
+                    <div style="text-align: center; padding: 20px; color: var(--ok-ink-3, #6c757d);">
                         {% trans 'No audio in library yet' %}
                     </div>
                     {% endfor %}
@@ -459,7 +460,7 @@
             </div>
             
             <!-- Project Audio -->
-            <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #dee2e6;">
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid var(--ok-line, #dee2e6);">
                 <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 10px;">{% trans 'Project Audio' %}</h3>
                 <div id="audioPreview">
                     {% for audio in audio_files %}
@@ -471,7 +472,7 @@
                         </div>
                     </div>
                     {% empty %}
-                    <div style="text-align: center; padding: 15px; color: #6c757d; font-size: 14px;">
+                    <div style="text-align: center; padding: 15px; color: var(--ok-ink-3, #6c757d); font-size: 14px;">
                         {% trans 'No audio file yet. Upload or add from library.' %}
                     </div>
                     {% endfor %}

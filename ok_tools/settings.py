@@ -14,6 +14,8 @@ from datetime import timedelta
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import gettext_lazy as _
+from ok_tools.brand import palette as brand_palette
+from ok_tools.brand import resolve_brand_color
 from pathlib import Path
 import dj_database_url
 import logging
@@ -237,6 +239,24 @@ if TOOLS_ENABLED:
 if NOTIFICATIONS_ENABLED:
     INSTALLED_APPS.append("notifications")
 
+# Admin theme: Unfold (https://unfoldadmin.com). Off by default while the
+# admin is being migrated; enable with ADMIN_UNFOLD_ENABLED=true. The apps go
+# first so Unfold's AdminSite replaces the default one before autodiscover
+# and its admin templates win over the app ones.
+# Brand colour of the installation (hex, e.g. #417690): admin, top bar and
+# buttons. Empty: taken from DASHBOARD_THEME (see ok_tools/brand.py).
+BRAND_COLOR = resolve_brand_color(
+    get_env('BRAND_COLOR', default=''), get_env('DASHBOARD_THEME', default='default'))
+
+ADMIN_UNFOLD_ENABLED = get_env('ADMIN_UNFOLD_ENABLED', default=False, cast=bool)
+if ADMIN_UNFOLD_ENABLED:
+    INSTALLED_APPS[0:0] = [
+        "unfold",
+        "unfold.contrib.filters",
+        "unfold.contrib.forms",
+        "unfold.contrib.import_export",
+    ]
+
 MIDDLEWARE = [
     "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -275,10 +295,81 @@ TEMPLATES = [
                 "ok_tools.context_processors.nextcloud_context",
                 "ok_tools.context_processors.dashboard_theme_context",
                 "ok_tools.context_processors.module_flags",
+                "ok_tools.context_processors.brand_context",
             ],
         },
     },
 ]
+
+
+if ADMIN_UNFOLD_ENABLED:
+    # Template search order as without Unfold, plus:
+    # - ok_tools/unfold_templates first: our overrides of Unfold's templates
+    #   (logo, header, start page, login);
+    # - ok_tools/templates keeps its place (its base.html must beat
+    #   registration/templates/base.html) but its admin/*.html belong to the
+    #   classic admin and are skipped, so Unfold's admin templates win.
+    _ok_templates = BASE_DIR / "ok_tools" / "templates"
+    _dirs = TEMPLATES[0]["DIRS"]
+    _split = _dirs.index(_ok_templates)
+    TEMPLATES[0]["APP_DIRS"] = False
+    TEMPLATES[0]["DIRS"] = []
+    TEMPLATES[0]["OPTIONS"]["loaders"] = [(
+        "django.template.loaders.cached.Loader", [
+            ("django.template.loaders.filesystem.Loader",
+             [BASE_DIR / "ok_tools" / "unfold_templates", *_dirs[:_split]]),
+            ("ok_tools.template_loaders.NonAdminLoader", [_ok_templates]),
+            ("django.template.loaders.filesystem.Loader", _dirs[_split + 1:]),
+            "django.template.loaders.app_directories.Loader",
+        ],
+    )]
+
+    # Shown in the admin header, e.g. "Test" or "Produktion".
+    ADMIN_ENVIRONMENT_LABEL = get_env('ADMIN_ENVIRONMENT_LABEL', default='')
+
+    UNFOLD = {
+        "SITE_TITLE": "OK Tools",
+        "SITE_HEADER": "OK Tools",
+        "SITE_URL": "/",
+        "SITE_SYMBOL": "live_tv",
+        "SITE_LOGO": "ok_tools.admin_nav.site_logo",
+        "SITE_FAVICONS": [{"rel": "icon", "type": "image/x-icon", "href": "ok_tools.admin_nav.favicon"}],
+        "BORDER_RADIUS": "8px",
+        # Primary: palette from BRAND_COLOR (ok_tools/brand.py). Base:
+        # blue-grey neutrals, the dark background is base-900 (#181c24); the
+        # same values are in ok_tools/static/ok_tools/css/ok_theme.css
+        # for the pages outside the Django admin.
+        "COLORS": {
+            "base": {
+                "50": "oklch(98% .002 250)",
+                "100": "oklch(96% .004 255)",
+                "200": "oklch(92.5% .007 258)",
+                "300": "oklch(87% .01 258)",
+                "400": "oklch(71% .016 260)",
+                "500": "oklch(55.5% .02 262)",
+                "600": "oklch(44.5% .022 262)",
+                "700": "oklch(37% .022 263)",
+                "800": "oklch(29% .02 264)",
+                "900": "oklch(22.6% .017 264)",
+                "950": "oklch(17.5% .014 264)",
+            },
+            "primary": brand_palette(BRAND_COLOR),
+        },
+        "SHOW_HISTORY": True,
+        "SHOW_VIEW_ON_SITE": True,
+        "ENVIRONMENT": "ok_tools.admin_nav.environment_callback",
+        "DASHBOARD_CALLBACK": "ok_tools.admin_dashboard.dashboard_callback",
+        "STYLES": [
+            "ok_tools.admin_nav.theme_stylesheet",
+            "ok_tools.admin_nav.override_stylesheet",
+        ],
+        "SCRIPTS": ["ok_tools.admin_nav.theme_script"],
+        "SIDEBAR": {
+            "show_search": True,
+            "show_all_applications": True,
+            "navigation": "ok_tools.admin_nav.navigation",
+        },
+    }
 
 
 WSGI_APPLICATION = "ok_tools.wsgi.application"

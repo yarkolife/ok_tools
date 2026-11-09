@@ -8,6 +8,7 @@ from django.urls import reverse
 from django import forms
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.admin import TokenAdmin as BaseTokenAdmin
+from ok_tools.admin_base import ModelAdmin
 from registration.models import Profile
 
 User = get_user_model()
@@ -57,7 +58,7 @@ class MemberFilter(SimpleListFilter):
 # User admin is handled by registration app, we only customize Token admin
 
 
-class TokenAdmin(BaseTokenAdmin):
+class TokenAdmin(BaseTokenAdmin, ModelAdmin):
     """Custom Token admin with staff-only users and API link."""
     
     list_display = ('key', 'user_email', 'user_name', 'created', 'api_link')
@@ -94,7 +95,7 @@ class TokenAdmin(BaseTokenAdmin):
             
             return format_html(
                 '<a href="#" onclick="showApiExample(\'{}\', \'{}\')" '
-                'style="color: #007cba; text-decoration: none;">'
+                'style="color: var(--ok-brand, #007cba); text-decoration: none;">'
                 '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg> API Example</a>',
                 obj.key,
                 api_url

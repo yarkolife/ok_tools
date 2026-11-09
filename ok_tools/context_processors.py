@@ -60,4 +60,26 @@ def module_flags(request):
         'AUSTAUSCH_ENABLED': getattr(settings, 'AUSTAUSCH_ENABLED', False),
         'TOOLS_ENABLED': getattr(settings, 'TOOLS_ENABLED', False),
         'NOTIFICATIONS_ENABLED': getattr(settings, 'NOTIFICATIONS_ENABLED', False),
+        'ADMIN_UNFOLD_ENABLED': getattr(settings, 'ADMIN_UNFOLD_ENABLED', False),
     }
+
+
+def brand_context(request):
+    """CSS variables of the brand colour (BRAND_COLOR) for every page.
+
+    Unfold injects its palette only into admin pages; ok_tools/_theme_head.html
+    and the classic admin print this block so the pages outside Unfold use
+    the same colours.
+    """
+    from django.utils.safestring import mark_safe
+    from ok_tools.brand import css_variables
+    return {'OK_BRAND_CSS': mark_safe(_brand_css(settings.BRAND_COLOR, css_variables))}
+
+
+_BRAND_CSS_CACHE: dict = {}
+
+
+def _brand_css(color, build):
+    if color not in _BRAND_CSS_CACHE:
+        _BRAND_CSS_CACHE[color] = build(color)
+    return _BRAND_CSS_CACHE[color]

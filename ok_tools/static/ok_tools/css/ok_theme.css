@@ -1,0 +1,236 @@
+/*
+ * OK Tools design tokens, light and dark.
+ *
+ * Brand colours come from BRAND_COLOR (ok_tools/brand.py): --color-primary-*
+ * is injected by Unfold on admin pages and by OK_BRAND_CSS elsewhere; the
+ * fallbacks below are the default blue #417690. Neutrals as in UNFOLD["COLORS"]:
+ * blue-grey neutrals (dark background #181c24). Pages outside the Unfold admin (rental, dashboard, planning)
+ * use these variables instead of fixed colours, so both themes work.
+ * ok_theme.js sets html.dark and data-bs-theme from the shared setting.
+ */
+
+/* Layer order for the Unfold admin (Tailwind v4 declares properties, theme,
+   base, components, utilities). This file loads before Unfold's CSS, so
+   "oklegacy" lands between Tailwind's reset and its utilities: legacy class
+   styles (ok_bs_lite.css, .button) beat the reset but never a utility. */
+@layer properties, theme, base, oklegacy, components, utilities;
+
+:root {
+    --ok-brand: var(--color-primary-600, #417690);
+    --ok-brand-strong: var(--color-primary-700, #2f5d74);
+    --ok-brand-rgb: var(--ok-brand-rgb-light, 65, 118, 144);
+    --ok-brand-soft: var(--color-primary-100, oklch(94.4% .023 231));
+    --ok-brand-ink: var(--color-primary-800, oklch(39% .055 232));
+    --ok-brand-line: var(--color-primary-200, oklch(85% .04 231));
+    --ok-on-brand: #ffffff;
+    --ok-topbar-bg: var(--ok-brand-bar, #417690);
+    --ok-topbar-line: rgba(0, 0, 0, .12);
+
+    --ok-bg: oklch(98% .002 250);           /* page canvas  (base-50) */
+    --ok-surface: #ffffff;                  /* cards, tables */
+    --ok-surface-2: oklch(98.6% .002 250);  /* side nav, table heads */
+    --ok-surface-hover: oklch(96% .004 255);
+    --ok-line: oklch(92.5% .007 258);       /* base-200 */
+    --ok-line-2: oklch(87% .01 258);        /* base-300 */
+    --ok-ink: oklch(22.6% .017 264);        /* base-900 */
+    --ok-ink-2: oklch(44.5% .022 262);      /* base-600 */
+    --ok-ink-3: oklch(55.5% .02 262);       /* base-500 */
+    --ok-ink-4: oklch(71% .016 260);        /* base-400 */
+
+    --ok-success: #15803d;  --ok-success-soft: #dcfce7; --ok-success-line: #86efac; --ok-success-ink: #14532d;
+    --ok-warning: #b45309;  --ok-warning-soft: #fef3c7; --ok-warning-line: #fcd34d; --ok-warning-ink: #78350f;
+    --ok-danger:  #dc2626;  --ok-danger-soft:  #fee2e2; --ok-danger-line:  #fca5a5; --ok-danger-ink:  #7f1d1d;
+    --ok-info:    #2563eb;  --ok-info-soft:    #dbeafe; --ok-info-line:    #93c5fd; --ok-info-ink:    #1e3a8a;
+    --ok-neutral-soft: oklch(96% .004 255); --ok-neutral-line: oklch(87% .01 258);
+
+    --ok-radius: 8px;
+    --ok-radius-lg: 12px;
+    --ok-shadow-sm: 0 1px 2px rgba(16, 18, 14, .06);
+    --ok-shadow-md: 0 4px 14px rgba(16, 18, 14, .08);
+    --ok-font: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --ok-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+html.dark {
+    --ok-brand: var(--color-primary-500, oklch(62% .074 231));  /* reads better on dark */
+    --ok-brand-strong: var(--color-primary-400, oklch(70.5% .07 231));
+    --ok-brand-rgb: var(--ok-brand-rgb-dark, 92, 146, 172);
+    --ok-brand-soft: color-mix(in oklch, var(--color-primary-900, oklch(33% .047 232)) 70%, transparent);
+    --ok-brand-ink: var(--color-primary-300, oklch(81% .058 231));
+    --ok-brand-line: var(--color-primary-800, oklch(42% .05 232));
+    --ok-topbar-bg: var(--color-primary-900, oklch(33% .047 232));
+    --ok-topbar-line: rgba(255, 255, 255, .06);
+
+    --ok-bg: oklch(22.6% .017 264);         /* #181c24 */
+    --ok-surface: oklch(25.5% .018 264);
+    --ok-surface-2: oklch(24% .017 264);
+    --ok-surface-hover: oklch(29% .02 264);
+    --ok-line: oklch(31% .02 264);
+    --ok-line-2: oklch(37% .022 263);
+    --ok-ink: oklch(96% .004 255);
+    --ok-ink-2: oklch(87% .01 258);
+    --ok-ink-3: oklch(71% .016 260);
+    --ok-ink-4: oklch(55.5% .02 262);
+
+    --ok-success: #4ade80;  --ok-success-soft: rgba(34, 197, 94, .14);  --ok-success-line: rgba(74, 222, 128, .4);  --ok-success-ink: #bbf7d0;
+    --ok-warning: #fbbf24;  --ok-warning-soft: rgba(245, 158, 11, .15); --ok-warning-line: rgba(251, 191, 36, .4);  --ok-warning-ink: #fde68a;
+    --ok-danger:  #f87171;  --ok-danger-soft:  rgba(239, 68, 68, .15);  --ok-danger-line:  rgba(248, 113, 113, .4); --ok-danger-ink:  #fecaca;
+    --ok-info:    #60a5fa;  --ok-info-soft:    rgba(59, 130, 246, .15); --ok-info-line:    rgba(96, 165, 250, .4);  --ok-info-ink:    #bfdbfe;
+    --ok-neutral-soft: rgba(255, 255, 255, .06); --ok-neutral-line: oklch(37% .022 263);
+
+    --ok-shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
+    --ok-shadow-md: 0 4px 14px rgba(0, 0, 0, .45);
+}
+
+/* ---- Top bar of pages outside the admin (ok_tools/_topbar.html) ---- */
+.ok-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 64px;
+    padding: 0 16px;
+    background: var(--ok-topbar-bg);
+    border-bottom: 1px solid var(--ok-topbar-line);
+    color: var(--ok-on-brand);
+    font-family: var(--ok-font);
+    font-size: 14px;
+}
+.ok-topbar a { color: inherit; text-decoration: none !important; }
+.ok-topbar__logo { display: flex; align-items: center; flex: 0 0 auto; }
+.ok-topbar__logo img { height: 44px; width: auto; max-width: 220px; object-fit: contain; border-radius: 4px; }
+.ok-topbar__title {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: -.01em;
+}
+.ok-topbar__title small { font-weight: 500; opacity: .8; }
+.ok-topbar__actions { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+.ok-topbar__btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 36px;
+    min-width: 36px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: var(--ok-radius);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.ok-topbar__btn:hover { background: rgba(255, 255, 255, .14); color: #fff; }
+.ok-topbar__btn svg { width: 18px; height: 18px; flex: 0 0 auto; }
+.ok-topbar__user { opacity: .9; }
+.ok-topbar .notifications-badge { width: 36px; height: 36px; border-radius: var(--ok-radius); display: inline-flex; align-items: center; justify-content: center; position: relative; color: inherit; }
+.ok-topbar .notifications-badge:hover { background: rgba(255, 255, 255, .14); }
+
+/* theme toggle: show the icon of the current preference */
+[data-ok-theme-toggle] .ok-ico-light,
+[data-ok-theme-toggle] .ok-ico-dark,
+[data-ok-theme-toggle] .ok-ico-auto { display: none; }
+[data-ok-theme-toggle][data-pref=light] .ok-ico-light,
+[data-ok-theme-toggle][data-pref=dark] .ok-ico-dark,
+[data-ok-theme-toggle][data-pref=auto] .ok-ico-auto,
+[data-ok-theme-toggle]:not([data-pref]) .ok-ico-auto { display: block; }
+
+@media (max-width: 720px) {
+    .ok-topbar__title small,
+    .ok-topbar__btn-label,
+    .ok-topbar__user { display: none; }
+    .ok-topbar__logo img { height: 36px; }
+}
+
+/* Notification counter, shared by the admin header and the top bar. */
+.notifications-badge-count {
+    position: absolute;
+    top: 0;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 9px;
+    background: #dc2626;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 18px;
+    text-align: center;
+}
+.notifications-badge-dot {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fbbf24;
+}
+.notifications-badge .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+}
+
+/* ---- Buttons emitted by admin code (format_html) and custom pages ---- */
+.ok-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    margin-top: 6px;
+    padding: 0 12px;
+    border: 1px solid transparent;
+    border-radius: var(--ok-radius);
+    background: var(--ok-brand);
+    color: #fff !important;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none !important;
+    white-space: nowrap;
+    cursor: pointer;
+    box-shadow: var(--ok-shadow-sm);
+}
+.ok-btn:hover { background: var(--ok-brand-strong); }
+html.dark .ok-btn { background: var(--color-primary-700, oklch(45.6% .063 232)); }
+html.dark .ok-btn:hover { background: var(--color-primary-600, oklch(54% .07 231)); }
+.ok-btn--success { background: #15803d; }
+.ok-btn--success:hover { background: #166534; }
+html.dark .ok-btn--success { background: #15803d; }
+html.dark .ok-btn--success:hover { background: #16a34a; }
+.ok-btn--secondary,
+html.dark .ok-btn--secondary {
+    background: var(--ok-surface);
+    border-color: var(--ok-line-2);
+    color: var(--ok-ink) !important;
+}
+.ok-btn--secondary:hover,
+html.dark .ok-btn--secondary:hover { background: var(--ok-surface-hover); }
+.ok-btn--danger,
+html.dark .ok-btn--danger { background: var(--ok-danger-soft); border-color: var(--ok-danger-line); color: var(--ok-danger) !important; }
+.ok-btn svg, .icon-svg { display: inline-block; flex: 0 0 auto; vertical-align: text-bottom; }
+
+.ok-muted { color: var(--ok-ink-3); }
+.ok-text-warning { color: var(--ok-warning); font-weight: 600; }
+.ok-text-danger { color: var(--ok-danger); font-weight: 600; }
+.ok-text-success { color: var(--ok-success); font-weight: 600; }
+.ok-text-info { color: var(--ok-info); font-weight: 600; }
+.ok-link { color: var(--ok-brand); text-decoration: none; cursor: pointer; }
+.ok-link:hover { text-decoration: underline; }
+.ok-btn-row { display: flex; flex-wrap: wrap; gap: 6px; }

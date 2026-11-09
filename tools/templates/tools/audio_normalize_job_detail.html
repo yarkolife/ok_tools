@@ -2,6 +2,7 @@
 {% load i18n %}
 
 {% block title %}{% trans 'Audio Normalize Job' %} #{{ job.id }} - {{ block.super }}{% endblock %}
+{% block content_title %}{% if ADMIN_UNFOLD_ENABLED %}{% trans 'Audio Normalize Job' %} #{{ job.id }}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -16,8 +17,8 @@
 {{ block.super }}
 <style>
     .job-detail-container { padding: 20px; }
-    .section { background: #fff; border: 1px solid #dee2e6; border-radius: 4px; padding: 20px; margin-bottom: 20px; }
-    .section-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #333; }
+    .section { background: var(--ok-surface, #fff); border: 1px solid var(--ok-line, #dee2e6); border-radius: 4px; padding: 20px; margin-bottom: 20px; }
+    .section-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: var(--ok-ink, #333); }
     .status-badge { padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold; display: inline-block; }
     .status-pending { background: #6c757d; color: white; }
     .status-analyzing { background: #0dcaf0; color: #000; }
@@ -25,8 +26,8 @@
     .status-completed { background: #28a745; color: white; }
     .status-failed { background: #dc3545; color: white; }
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    .info-item { padding: 10px; background: #f8f9fa; border-radius: 4px; }
-    .info-label { font-weight: bold; color: #666; margin-bottom: 5px; }
+    .info-item { padding: 10px; background: var(--ok-surface-2, #f8f9fa); border-radius: 4px; }
+    .info-label { font-weight: bold; color: var(--ok-ink-3, #666); margin-bottom: 5px; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; }
 </style>
 {% endblock %}

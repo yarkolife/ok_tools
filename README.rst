@@ -160,6 +160,7 @@ Features
   - Past room slots are disabled and visually separated; occupied day-calendar blocks open the corresponding rental detail
   - Period edits reject room or inventory conflicts and atomically synchronize linked room reservations
   - Automatic rental expiration management via cron jobs
+  - Issued and overdue rentals can be extended from the detail page (button and "…" menu)
   - Configurable automatic return reminder emails for issued rentals, tracked so each rental is reminded once unless delivery fails
 
 - **Dashboard Analytics** - Comprehensive data visualization and monitoring
@@ -223,6 +224,11 @@ Features
   - Export/import functionality (django-import-export)
   - Custom date/time range filters
   - Inline editing for related models
+  - Optional new admin theme (Unfold, ``ADMIN_UNFOLD_ENABLED=true``): side menu grouped by task (Tagesgeschäft, Archiv & Medien, Nutzer & Projekte, Ausleihe & Inventar, Weitere, Einstellungen & Stammdaten, System) instead of by app; new models are placed by ``ModelAdmin.menu_section`` or the table in ``ok_tools/admin_nav.py``
+  - Start page of the new theme: quick links, "Heute zu tun" counters (licenses to approve, rentals overdue / due today, open rental requests, notifications), running and recently finished background tasks (render, imports, scans; refreshed every 10 s), problems (contributions of the next days without a usable video, unreachable storage locations, failed exchange imports), fill rate of this and next broadcast week, new exchange items since the last visit
+  - ModelAdmins import their base classes and filter helpers from ``ok_tools.admin_base``, which resolves to Unfold or to the classic Django classes depending on the flag
+  - One top bar with the organisation logo, notification bell and light/dark switch on the admin, rental pages, admin dashboard and notification centre; the light/dark choice is shared by all staff pages
+  - Brand colour per installation (``BRAND_COLOR``); the palette for both themes is derived from it
 
 - **REST API** - JSON endpoints for data access with token authentication
   - Rental API endpoints (equipment, rooms, requests, transactions)
@@ -284,6 +290,7 @@ Features
   - Position presets (center, corners, lower third)
   - Template-based rendering
   - Preview functionality for presets
+  - The render always uses the original file of a license: previews and rendered ``_vN`` versions stored next to it are skipped (``VideoFile.render_source_for``), and the render page names the source file
 
 - **Storage Management** - Multiple storage location support
   - Hierarchical storage location tracking
@@ -464,6 +471,11 @@ Configuration is done via environment variables in `.env` file located in the pr
 - `ALLOWED_HOSTS` - Comma-separated list of allowed hosts
 - `ORG_NAME`, `ORG_SHORT_NAME` - Organization information
 - `ORG_ADDRESS`, `ORG_OPENING_HOURS` - Contact information (use `\n` for line breaks)
+- `BRAND_COLOR` - Brand colour (hex, e.g. ``#417690``) of the top bar, buttons and links; empty: taken from `DASHBOARD_THEME`
+- `ADMIN_UNFOLD_ENABLED` - ``true`` switches the admin to the new theme (Unfold); remove the line and restart to go back
+- `ADMIN_ENVIRONMENT_LABEL` - Label in the admin header, e.g. ``Test`` on a test server
+
+**Logo:** the top bar shows the "Large logo" of the organisation configuration if one is uploaded, otherwise ``custom/img/logo.png`` from the production directory (copied to ``static/img/logo.png`` by ``update.sh``). The bar uses the brand colour as background, so a logo with its own background or light lettering works best.
 
 See ``deployment/docs/ENV_VARIABLES.md`` for complete reference.
 

@@ -1,16 +1,16 @@
 {% extends "admin/change_list.html" %}
-{% load i18n static %}
+{% load i18n static ok_static %}
 
 {% block extrahead %}
 {{ block.super }}
 
 <!-- Bootstrap CSS/JS for stable modal behavior -->
-<link href="{{ BOOTSTRAP_CDN_URL }}/dist/css/bootstrap.min.css" rel="stylesheet">
+{% if ADMIN_UNFOLD_ENABLED %}{# full Bootstrap CSS would restyle the Unfold admin #}<link href="{% static_v 'ok_tools/css/ok_bs_lite.css' %}" rel="stylesheet">{% else %}<link href="{{ BOOTSTRAP_CDN_URL }}/dist/css/bootstrap.min.css" rel="stylesheet">{% endif %}
 <script src="{{ BOOTSTRAP_CDN_URL }}/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
-    .scan-explanation { margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 4px; font-size: 13px; }
-    .scan-explanation h4 { margin-top: 0; margin-bottom: 10px; color: #495057; }
+    .scan-explanation { margin-top: 20px; padding: 15px; background: var(--ok-surface-hover, #e9ecef); border-radius: 4px; font-size: 13px; }
+    .scan-explanation h4 { margin-top: 0; margin-bottom: 10px; color: var(--ok-ink-2, #495057); }
     .scan-explanation ul { margin: 0; padding-left: 20px; }
     .scan-explanation li { margin-bottom: 5px; }
     /* Ensure modal overlays above Django admin */
@@ -76,7 +76,7 @@ function showResultModal(title, htmlContent, isSuccess) {
     const footer = modal.querySelector('.modal-footer');
 
     // Set header color based on type
-    header.style.background = isSuccess ? '#417690' : '#dc3545';
+    header.style.background = isSuccess ? 'var(--ok-brand, #417690)' : '#dc3545';
     header.style.color = '#fff';
 
     // Set title
@@ -110,7 +110,7 @@ function showTaskResultsConfirm() {
     const body = modal.querySelector('.modal-body');
     const footer = modal.querySelector('.modal-footer');
 
-    header.style.background = '#417690';
+    header.style.background = 'var(--ok-brand, #417690)';
     header.style.color = '#fff';
     modal.querySelector('.modal-title').innerHTML = '<svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> {% trans "Task Results" %}';
     body.innerHTML = '<p>{% trans "Open task results page?" %}</p>';
@@ -232,7 +232,7 @@ window.addEventListener('DOMContentLoaded', function() {
 <div class="modal fade" id="scanModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
-      <div class="modal-header" style="background:#417690;color:#fff;">
+      <div class="modal-header" style="background:var(--ok-brand, #417690);color:#fff;">
         <h5 class="modal-title"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> {% trans "Storage Scan Options" %}</h5>
         <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="closeModal()"></button>
       </div>
@@ -288,7 +288,7 @@ window.addEventListener('DOMContentLoaded', function() {
 <div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header" style="background:#417690;color:#fff;">
+      <div class="modal-header" style="background:var(--ok-brand, #417690);color:#fff;">
         <h5 class="modal-title"></h5>
         <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="closeResultModal()"></button>
       </div>

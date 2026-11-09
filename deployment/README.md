@@ -124,6 +124,14 @@ The configuration system uses environment variables organized into logical group
 - `ORG_ADDRESS` - Organization address (use `\n` for line breaks)
 - `ORG_OPENING_HOURS` - Opening hours (use `\n` for line breaks)
 
+#### Look and Admin Theme
+- `BRAND_COLOR` - Brand colour (hex, e.g. `#417690`) of the top bar, buttons and links in light and dark theme; empty: `#417690`, or the purple of `DASHBOARD_THEME=vibrant`
+- `ADMIN_UNFOLD_ENABLED` - `true` switches the Django admin to the new theme (grouped menu, start page with tasks and to-dos); remove the line and run `docker compose up -d` to go back, no data is changed
+- `ADMIN_ENVIRONMENT_LABEL` - Label in the admin header (e.g. `Test`); leave empty on production
+- Logo: "Large logo" of the organisation configuration, otherwise `custom/img/logo.png` in the production directory (copied by `update.sh`)
+
+Recommended rollout for several installations: update all servers with the flag off, then switch `ADMIN_UNFOLD_ENABLED=true` on one server first.
+
 #### Celery Configuration
 - `CELERY_BROKER_URL` - Redis broker URL
 - `CELERY_RESULT_BACKEND` - Result backend (django-db or redis)

@@ -1,0 +1,43 @@
+{% load i18n tz %}
+{% comment %}"Läuft gerade" block of the start page; reloaded by htmx (ok_tools.admin_dashboard.tasks_fragment).{% endcomment %}
+<section id="ok-tasks" class="ok-dash-card"
+         hx-get="{% url 'admin_ok_tasks' %}" hx-trigger="every 10s" hx-swap="outerHTML">
+    <header class="ok-dash-card__head">
+        <h2><span class="material-symbols-outlined">autorenew</span>{% translate "Running now" %}</h2>
+        {% if tasks_list_url %}<a href="{{ tasks_list_url }}">{% translate "All background tasks" %} →</a>{% endif %}
+    </header>
+
+    {% if not tasks_available %}
+        <p class="ok-dash-empty">{% translate "Task results are not recorded on this installation." %}</p>
+    {% else %}
+        {% if tasks_running %}
+            <ul class="ok-task-list">
+                {% for t in tasks_running %}
+                    <li class="ok-task">
+                        <span class="ok-task__state ok-task__state--run" title="{{ t.status }}"></span>
+                        <a class="ok-task__name" href="{{ t.url }}" title="{{ t.name }}">{{ t.label }}</a>
+                        <span class="ok-task__meta">{% if t.status == "PENDING" or t.status == "RECEIVED" %}{% translate "queued" %}{% else %}{% translate "running for" %} {{ t.duration }}{% endif %}{% if t.worker %} · {{ t.worker }}{% endif %}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="ok-dash-empty">{% translate "No task is running." %}</p>
+        {% endif %}
+
+        <h3 class="ok-dash-sub">{% blocktranslate with h=tasks_recent_hours %}Finished in the last {{ h }} hours{% endblocktranslate %}</h3>
+        {% if tasks_recent %}
+            <ul class="ok-task-list">
+                {% for t in tasks_recent %}
+                    <li class="ok-task">
+                        <span class="ok-task__state {% if t.status == 'SUCCESS' %}ok-task__state--ok{% else %}ok-task__state--bad{% endif %}" title="{{ t.status }}"></span>
+                        <a class="ok-task__name" href="{{ t.url }}" title="{{ t.name }}">{{ t.label }}</a>
+                        <span class="ok-task__meta">{% if t.status != 'SUCCESS' %}<strong class="ok-text-danger">{{ t.status }}</strong> · {% endif %}{{ t.done|localtime|time:"H:i" }} · {{ t.duration }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="ok-dash-empty">{% translate "Nothing finished recently." %}</p>
+        {% endif %}
+        <p class="ok-dash-foot">{% translate "Updated" %} {{ tasks_checked_at|localtime|time:"H:i:s" }}</p>
+    {% endif %}
+</section>

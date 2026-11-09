@@ -29,9 +29,11 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django_admin_listfilter_dropdown.filters import DropdownFilter
 from django_admin_listfilter_dropdown.filters import RelatedDropdownFilter
+from ok_tools.admin_base import ModelAdmin
+from ok_tools.admin_base import TabularInline
 
 
-class RentalItemInline(admin.TabularInline):
+class RentalItemInline(TabularInline):
     """Inline editor for rental items within a rental request."""
 
     model = RentalItem
@@ -48,7 +50,7 @@ class RentalItemInline(admin.TabularInline):
     autocomplete_fields = ("inventory_item",)
 
 
-class RentalTransactionInline(admin.TabularInline):
+class RentalTransactionInline(TabularInline):
     """Inline editor for rental transactions related to a rental item."""
 
     model = RentalTransaction
@@ -57,7 +59,7 @@ class RentalTransactionInline(admin.TabularInline):
     readonly_fields = ("performed_at",)
 
 
-class RentalIssueInline(admin.TabularInline):
+class RentalIssueInline(TabularInline):
     """Inline editor for issues discovered during return of a rental item."""
 
     model = RentalIssue
@@ -66,7 +68,7 @@ class RentalIssueInline(admin.TabularInline):
     readonly_fields = ("reported_at",)
 
 
-class RentalConsumableInline(admin.TabularInline):
+class RentalConsumableInline(TabularInline):
     """Inline editor for consumables handed out with a rental."""
 
     model = RentalConsumable
@@ -75,7 +77,7 @@ class RentalConsumableInline(admin.TabularInline):
     readonly_fields = ("reminder_count", "last_reminder_sent_at")
 
 
-class RoomRentalInline(admin.TabularInline):
+class RoomRentalInline(TabularInline):
     """Inline editor to attach rooms to a rental request."""
 
     model = RoomRental
@@ -85,7 +87,7 @@ class RoomRentalInline(admin.TabularInline):
 
 
 @admin.register(RentalRequest)
-class RentalRequestAdmin(admin.ModelAdmin):
+class RentalRequestAdmin(ModelAdmin):
     """Admin configuration for ``RentalRequest`` objects."""
 
     form = RentalRequestAdminForm
@@ -152,7 +154,7 @@ class RentalRequestAdmin(admin.ModelAdmin):
             )
         else:
             return format_html(
-                '<span style="color: #999;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> {}</span>',
+                '<span style="color: var(--ok-ink-4, #999);"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> {}</span>',
                 _('No')
             )
 
@@ -170,7 +172,7 @@ class RentalRequestAdmin(admin.ModelAdmin):
             )
         else:
             return format_html(
-                '<span style="color: #999;"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> {}</span>',
+                '<span style="color: var(--ok-ink-4, #999);"><svg class="icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: text-bottom;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> {}</span>',
                 _('No digital signature')
             )
 
@@ -196,7 +198,7 @@ class RentalRequestAdmin(admin.ModelAdmin):
 
 
 @admin.register(RentalItem)
-class RentalItemAdmin(admin.ModelAdmin):
+class RentalItemAdmin(ModelAdmin):
     """Admin configuration for ``RentalItem`` records."""
 
     list_display = (
@@ -270,7 +272,7 @@ class RentalItemAdmin(admin.ModelAdmin):
     is_overdue_display.short_description = _('Overdue Status')
 
 
-class EquipmentSetItemInline(admin.TabularInline):
+class EquipmentSetItemInline(TabularInline):
     """Inline editor for items inside an equipment set."""
 
     model = EquipmentSetItem
@@ -279,7 +281,7 @@ class EquipmentSetItemInline(admin.TabularInline):
 
 
 @admin.register(EquipmentSet)
-class EquipmentSetAdmin(admin.ModelAdmin):
+class EquipmentSetAdmin(ModelAdmin):
     """Admin configuration for equipment sets management."""
 
     list_display = ("name", "is_template", "is_active", "created_by", "created_at")
@@ -367,7 +369,7 @@ class EquipmentSetAdmin(admin.ModelAdmin):
 
 
 @admin.register(RentalTransaction)
-class RentalTransactionAdmin(admin.ModelAdmin):
+class RentalTransactionAdmin(ModelAdmin):
     """Admin configuration for rental transactions."""
 
     form = RentalTransactionForm
@@ -379,7 +381,7 @@ class RentalTransactionAdmin(admin.ModelAdmin):
 
 
 @admin.register(RentalIssue)
-class RentalIssueAdmin(admin.ModelAdmin):
+class RentalIssueAdmin(ModelAdmin):
     """Admin configuration for rental issues management."""
 
     form = RentalIssueForm
@@ -410,7 +412,7 @@ class RoomImageClearableFileInput(forms.ClearableFileInput):
         return context
 
 
-class RoomImageInline(admin.TabularInline):
+class RoomImageInline(TabularInline):
     """Inline admin for room photos with a small preview."""
 
     model = RoomImage
@@ -441,7 +443,7 @@ class RoomImageInline(admin.TabularInline):
                 'data-lightbox="{}" data-lightbox-caption="{}" '
                 'data-lightbox-group="room-{}" title="{}">'
                 '<img src="{}?size=thumb" style="height:80px;width:80px;'
-                'object-fit:cover;border-radius:6px;border:1px solid #ccc;'
+                'object-fit:cover;border-radius:6px;border:1px solid var(--ok-line-2, #ccc);'
                 'cursor:zoom-in;"></a>',
                 full,
                 full,
@@ -454,7 +456,7 @@ class RoomImageInline(admin.TabularInline):
 
 
 @admin.register(Room)
-class RoomAdmin(admin.ModelAdmin):
+class RoomAdmin(ModelAdmin):
     """Admin interface for room management."""
 
     class Media:
@@ -494,7 +496,7 @@ class RoomAdmin(admin.ModelAdmin):
 
 
 @admin.register(RoomRental)
-class RoomRentalAdmin(admin.ModelAdmin):
+class RoomRentalAdmin(ModelAdmin):
     """Admin interface for room rental management."""
 
     list_display = ['room', 'rental_request', 'people_count', 'rental_status', 'rental_dates']
@@ -541,7 +543,7 @@ class RoomRentalAdmin(admin.ModelAdmin):
 
 
 @admin.register(RentalProcessProxy)
-class RentalProcessProxyAdmin(admin.ModelAdmin):
+class RentalProcessProxyAdmin(ModelAdmin):
     """Custom admin for rental process link; redirects to rental process page."""
 
     def changelist_view(self, request, extra_context=None):
@@ -569,7 +571,7 @@ class RentalProcessProxyAdmin(admin.ModelAdmin):
         return False
 
 
-class LabelLineInline(admin.TabularInline):
+class LabelLineInline(TabularInline):
     """The lines a label format prints, in order."""
 
     model = LabelLine
@@ -582,7 +584,7 @@ class LabelLineInline(admin.TabularInline):
 
 
 @admin.register(LabelFormat)
-class LabelFormatAdmin(admin.ModelAdmin):
+class LabelFormatAdmin(ModelAdmin):
     """Admin interface for the label sizes the print dialog offers."""
 
     list_display = ('name', 'size_label', 'slug', 'gap_mm', 'is_active',
@@ -616,7 +618,7 @@ class LabelFormatAdmin(admin.ModelAdmin):
 
 
 @admin.register(RentalConsumable)
-class RentalConsumableAdmin(admin.ModelAdmin):
+class RentalConsumableAdmin(ModelAdmin):
     """Admin list of consumables handed out with rentals."""
 
     list_display = ("name", "quantity", "quantity_returned", "status", "rental_request",
@@ -628,7 +630,7 @@ class RentalConsumableAdmin(admin.ModelAdmin):
 
 
 @admin.register(RentalConfig)
-class RentalConfigAdmin(admin.ModelAdmin):
+class RentalConfigAdmin(ModelAdmin):
     """Admin interface for RentalConfig model."""
 
     filter_horizontal = ['user_organizations', 'member_organizations',

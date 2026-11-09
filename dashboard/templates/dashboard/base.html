@@ -1,4 +1,4 @@
-{% load static %}
+{% load static ok_static %}
 {% load i18n %}
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE|default:'de' }}">
@@ -17,10 +17,36 @@
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <!-- Custom CSS -->
-    <link href="{% static 'dashboard/css/dashboard.css' %}" rel="stylesheet">
+    <link href="{% static_v 'dashboard/css/dashboard.css' %}" rel="stylesheet">
+    {% include "ok_tools/_theme_head.html" %}
+    <script>
+        // Chart.js text and grid lines follow the light/dark theme.
+        (function () {
+            function token(name) {
+                return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+            }
+            function apply() {
+                if (!window.Chart) { return; }
+                Chart.defaults.color = token('--ok-ink-3');
+                Chart.defaults.borderColor = token('--ok-line');
+                Object.values(Chart.instances || {}).forEach(function (chart) {
+                    Object.values(chart.options.scales || {}).forEach(function (scale) {
+                        if (scale.ticks) { scale.ticks.color = Chart.defaults.color; }
+                        if (scale.grid) { scale.grid.color = Chart.defaults.borderColor; }
+                    });
+                    chart.update('none');
+                });
+            }
+            apply();
+            document.addEventListener('ok:themechange', apply);
+        })();
+    </script>
     {% block extra_css %}{% endblock %}
 </head>
 <body class="dashboard-body">
+    {% url 'dashboard:main' as dashboard_home %}
+    {% translate "Dashboard" as dashboard_title %}
+    {% include "ok_tools/_topbar.html" with title=dashboard_title home_url=dashboard_home %}
     <!-- Sidebar -->
     <nav id="sidebar" class="sidebar">
         <div class="sidebar-header">
