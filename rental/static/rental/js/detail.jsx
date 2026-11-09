@@ -33,6 +33,21 @@ function ActionBar({ rental, urls }) {
     }
   }, []);
 
+  // Open the extend form. For an overdue rental the current end lies in the
+  // past; suggest tomorrow at the same time instead.
+  const openExtend = () => {
+    const current = extendTo ? new Date(extendTo) : null;
+    if (!current || isNaN(current) || current <= new Date()) {
+      const base = current && !isNaN(current) ? current : new Date();
+      const next = new Date();
+      next.setDate(next.getDate() + 1);
+      next.setHours(base.getHours(), base.getMinutes(), 0, 0);
+      const pad = n => String(n).padStart(2, '0');
+      setExtendTo(`${next.getFullYear()}-${pad(next.getMonth() + 1)}-${pad(next.getDate())}T${pad(next.getHours())}:${pad(next.getMinutes())}`);
+    }
+    setExtendOpen(true);
+  };
+
   const doExtend = async () => {
     setBusy(true);
     try {
@@ -100,8 +115,8 @@ function ActionBar({ rental, urls }) {
     <>
       {extendOpen && (
         <div className="inline-extend">
-          <i className="fas fa-clock" style={{color:'oklch(0.55 0.14 75)'}}></i>
-          <strong style={{color:'oklch(0.38 0.13 75)', fontSize: 12.5}}>
+          <i className="fas fa-clock" style={{color:'var(--ok-warning)'}}></i>
+          <strong style={{color:'var(--ok-warning-ink)', fontSize: 12.5}}>
             {t('extend.title', 'Extend return deadline')}
           </strong>
           <span className="muted tiny">{t('extend.from', 'from')}</span>
@@ -159,7 +174,7 @@ function ActionBar({ rental, urls }) {
           )}
           {status === 'issued' && (
             <>
-              <button className="btn btn-ghost btn-sm" onClick={() => setExtendOpen(o => !o)} disabled={busy}>
+              <button className="btn btn-ghost btn-sm" onClick={() => (extendOpen ? setExtendOpen(false) : openExtend())} disabled={busy}>
                 <i className="fas fa-clock me-1"></i>{t('btn.extend', 'Extend')}
               </button>
               <a className="btn btn-primary btn-sm" href={urls.return_page}>
@@ -171,6 +186,9 @@ function ActionBar({ rental, urls }) {
             <>
               <button className="btn btn-ghost btn-sm" onClick={doSendReminder} disabled={busy}>
                 <i className="fas fa-envelope me-1"></i>{t('btn.send_reminder', 'Send reminder')}
+              </button>
+              <button className="btn btn-ghost btn-sm" onClick={() => (extendOpen ? setExtendOpen(false) : openExtend())} disabled={busy}>
+                <i className="fas fa-clock me-1"></i>{t('btn.extend', 'Extend')}
               </button>
               <a className="btn btn-primary btn-sm" href={urls.return_page}>
                 <i className="fas fa-box-open me-1"></i>{t('btn.start_return', 'Start return')}
@@ -209,6 +227,10 @@ function ActionBar({ rental, urls }) {
               {(!rental.has_signature && (rental.status === 'draft' || rental.status === 'reserved')) && (
                 <li><a className="dropdown-item" href="#period" onClick={e => { e.preventDefault(); setChangePeriodOpen(true); }}>
                   <i className="fas fa-calendar-days"></i>{t('menu.edit_period', 'Edit period')}</a></li>
+              )}
+              {(status === 'issued' || status === 'overdue') && (
+                <li><button className="dropdown-item" onClick={openExtend} disabled={busy}>
+                  <i className="fas fa-clock"></i>{t('extend.title', 'Extend return deadline')}</button></li>
               )}
               <li><hr className="dropdown-divider" /></li>
               <li><button className="dropdown-item" onClick={doSendReminder}>
@@ -445,7 +467,7 @@ function AddItemsModal({ rental, urls, existingItems, onClose }) {
 
   return (
     <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999}} onClick={onClose}>
-      <div style={{background:'#fff',borderRadius:12,padding:20,width:720,maxWidth:'94vw',maxHeight:'84vh',display:'flex',flexDirection:'column'}} onClick={e => e.stopPropagation()}>
+      <div style={{background:'var(--bg-elev)',borderRadius:12,padding:20,width:720,maxWidth:'94vw',maxHeight:'84vh',display:'flex',flexDirection:'column'}} onClick={e => e.stopPropagation()}>
         <h6 style={{margin:'0 0 12px',fontSize:13,textTransform:'uppercase',letterSpacing:'.04em',color:'var(--ink-3)',fontWeight:600}}>
           {t('add_items.title', 'Add items to rental')}
         </h6>
@@ -514,7 +536,7 @@ function ReportIssueModal({ item, onClose, urls }) {
 
   return (
     <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999}} onClick={onClose}>
-      <div style={{background:'#fff',borderRadius:12,padding:20,width:400,maxWidth:'90vw'}} onClick={e => e.stopPropagation()}>
+      <div style={{background:'var(--bg-elev)',borderRadius:12,padding:20,width:400,maxWidth:'90vw'}} onClick={e => e.stopPropagation()}>
         <h6 style={{margin:'0 0 12px',fontSize:13,textTransform:'uppercase',letterSpacing:'.04em',color:'var(--ink-3)',fontWeight:600}}>
           {item ? t('report.title_item', 'Report issue') + ': ' + item.name : t('report.title', 'Log issue')}
         </h6>
@@ -706,7 +728,7 @@ function SwapUnitModal({ item, onClose, urls, rental, onSwapped }) {
 
   return (
     <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999}} onClick={onClose}>
-      <div style={{background:'#fff',borderRadius:12,padding:20,width:520,maxWidth:'90vw',maxHeight:'80vh',display:'flex',flexDirection:'column'}} onClick={e => e.stopPropagation()}>
+      <div style={{background:'var(--bg-elev)',borderRadius:12,padding:20,width:520,maxWidth:'90vw',maxHeight:'80vh',display:'flex',flexDirection:'column'}} onClick={e => e.stopPropagation()}>
         <h6 style={{margin:'0 0 12px',fontSize:13,textTransform:'uppercase',letterSpacing:'.04em',color:'var(--ink-3)',fontWeight:600}}>
           {t('swap.title', 'Swap')}: {item.name}
         </h6>
@@ -780,7 +802,7 @@ function ChangeUserModal({ urls, onClose, onChanged }) {
 
   return (
     <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999}} onClick={onClose}>
-      <div style={{background:'#fff',borderRadius:12,padding:20,width:560,maxWidth:'90vw',maxHeight:'80vh',display:'flex',flexDirection:'column'}} onClick={e => e.stopPropagation()}>
+      <div style={{background:'var(--bg-elev)',borderRadius:12,padding:20,width:560,maxWidth:'90vw',maxHeight:'80vh',display:'flex',flexDirection:'column'}} onClick={e => e.stopPropagation()}>
         <h6 style={{margin:'0 0 12px',fontSize:13,textTransform:'uppercase',letterSpacing:'.04em',color:'var(--ink-3)',fontWeight:600}}>
           {t('change_user.title', 'Change user')}
         </h6>
@@ -844,7 +866,7 @@ function ChangePeriodModal({ rental, urls, onClose, onChanged }) {
 
   return (
     <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999}} onClick={onClose}>
-      <div style={{background:'#fff',borderRadius:12,padding:20,width:440,maxWidth:'90vw'}} onClick={e => e.stopPropagation()}>
+      <div style={{background:'var(--bg-elev)',borderRadius:12,padding:20,width:440,maxWidth:'90vw'}} onClick={e => e.stopPropagation()}>
         <h6 style={{margin:'0 0 16px',fontSize:13,textTransform:'uppercase',letterSpacing:'.04em',color:'var(--ink-3)',fontWeight:600}}>
           {t('change_period.title', 'Edit rental period')}
         </h6>
@@ -1026,7 +1048,7 @@ function AddRoomModal({ rental, urls, existingRooms, onClose }) {
 
   return (
     <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999}} onClick={onClose}>
-      <div style={{background:'#fff',borderRadius:12,padding:20,width:560,maxWidth:'90vw',maxHeight:'85vh',overflowY:'auto'}} onClick={e => e.stopPropagation()}>
+      <div style={{background:'var(--bg-elev)',borderRadius:12,padding:20,width:560,maxWidth:'90vw',maxHeight:'85vh',overflowY:'auto'}} onClick={e => e.stopPropagation()}>
         <h6 style={{margin:'0 0 16px',fontSize:13,textTransform:'uppercase',letterSpacing:'.04em',color:'var(--ink-3)',fontWeight:600}}>
           {t('add_room.title', 'Add room to rental')}
         </h6>
