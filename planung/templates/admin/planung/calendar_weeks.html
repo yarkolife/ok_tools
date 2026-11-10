@@ -689,11 +689,15 @@
       </div>
 
       <div class="modal-body">
-        <div class="time-status text-success" id="timeStatus">
-          <strong>{% trans "Broadcast block" %}:</strong> {{ broadcast_start }} – {{ broadcast_end }} (<span id="blockDurationDisplay"></span>) •
-          <span id="remainingTime" aria-live="polite">{% trans "Full available" %}</span>
-          <br><small>{% trans "Large gaps (≥5 min) can be filled with videos" %}</small>
-          <br><small>{% trans "You can manually set any time (including 00:00 and times outside the block) by editing the start time field" %}</small>
+        <div class="planning-block-info" id="timeStatus">
+          <div class="planning-block-info__main">
+            <strong>{% trans "Broadcast block" %}:</strong> {{ broadcast_start }} – {{ broadcast_end }} (<span id="blockDurationDisplay"></span>) •
+            <span id="remainingTime" aria-live="polite">{% trans "Full available" %}</span>
+          </div>
+          <div class="planning-block-info__hint">
+            {% trans "Large gaps (≥5 min) can be filled with videos" %} ·
+            {% trans "You can manually set any time (including 00:00 and times outside the block) by editing the start time field" %}
+          </div>
         </div>
 
         <div class="planning-modal-summary" id="planModalSummary" aria-live="polite">
@@ -705,13 +709,16 @@
 
         <div id="planningInlineNotice" class="planning-inline-notice" hidden></div>
 
-        <div class="d-flex gap-2 mb-3 flex-wrap">
-          <input type="number" id="licenseNumberInput" class="form-control" placeholder="{% trans 'Enter license number...' %}" style="width: 270px;">
-          <button id="addLicenseBtn" class="button default" type="button">
+        <div class="planning-addbar">
+          <div class="planning-addbar__field">
+            <svg class="planning-addbar__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6.2 1.6a.6.6 0 0 1 .5.7L6.3 5h3l.5-2.9a.6.6 0 1 1 1.2.2L10.5 5h2.2a.6.6 0 0 1 0 1.2h-2.4l-.5 3.6h2.4a.6.6 0 0 1 0 1.2H9.6l-.5 2.9a.6.6 0 1 1-1.2-.2l.4-2.7h-3l-.5 2.9a.6.6 0 1 1-1.2-.2l.4-2.7H1.8a.6.6 0 0 1 0-1.2h2.4l.5-3.6H2.3a.6.6 0 0 1 0-1.2h2.6l.5-2.9a.6.6 0 0 1 .8-.5Zm-.1 4.6-.5 3.6h3l.5-3.6h-3Z" fill="currentColor"/></svg>
+            <input type="number" id="licenseNumberInput" class="planning-addbar__input" inputmode="numeric" placeholder="{% trans 'Enter license number...' %}" aria-label="{% trans 'Enter license number...' %}">
+          </div>
+          <button id="addLicenseBtn" class="button default planning-addbar__add" type="button">
             <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2a.75.75 0 0 1 .75.75V7.25h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5h4.5v-4.5A.75.75 0 0 1 8 2Z" fill="currentColor"/></svg>
             {% trans "Add" %}
           </button>
-          <button id="alignToFiveMinutesBtn" class="button" type="button" title="{% trans 'Align all start times to 0 or 5 minutes' %}" style="white-space: nowrap;">
+          <button id="alignToFiveMinutesBtn" class="button planning-addbar__align" type="button" title="{% trans 'Align all start times to 0 or 5 minutes' %}">
             <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 8 1.5Zm0 1.3A5.2 5.2 0 1 1 2.8 8 5.2 5.2 0 0 1 8 2.8Zm-.65 1.9a.65.65 0 0 1 1.3 0v3.01l2.22 1.28a.65.65 0 1 1-.65 1.13L7.68 8.66a.65.65 0 0 1-.33-.56V4.7Z" fill="currentColor"/></svg>
             {% trans "Align to 5 min" %}
           </button>
@@ -734,15 +741,16 @@
           </tbody>
         </table>
 
-        <div class="form-group">
+        <div class="planning-notes">
           <label for="noteText">{% trans "Comment or notes:" %}</label>
-          <textarea id="noteText" class="form-control" rows="3"></textarea>
+          <textarea id="noteText" class="form-control" rows="2"></textarea>
         </div>
       </div>
 
       <div class="modal-footer planning-footer">
+        <div class="planning-footer__row planning-footer__row--tools">
         <div class="planning-footer__group" aria-label="{% trans 'Preparation actions' %}">
-          <select id="templateSelect" class="form-select" style="max-width:260px;">
+          <select id="templateSelect" class="form-select planning-footer__select">
             <option value="">{% trans "Select template" %}</option>
           </select>
           <button id="applyTemplateBtn" class="button" type="button">
@@ -759,7 +767,7 @@
           </button>
         </div>
 
-        <div class="planning-footer__group" aria-label="{% trans 'Export action' %}">
+        <div class="planning-footer__group planning-footer__group--export" aria-label="{% trans 'Export action' %}">
           <button id="exportPlanBtn" class="button" type="button">
             <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.75a.75.75 0 0 1 .75.75v5.69l1.47-1.47a.75.75 0 1 1 1.06 1.06l-2.75 2.75a.75.75 0 0 1-1.06 0L4.72 7.78a.75.75 0 0 1 1.06-1.06l1.47 1.47V2.5A.75.75 0 0 1 8 1.75ZM2.5 10.25A.75.75 0 0 1 3.25 11v1.75h9.5V11a.75.75 0 0 1 1.5 0v2A1.25 1.25 0 0 1 13 14.25H3A1.25 1.25 0 0 1 1.75 13v-2a.75.75 0 0 1 .75-.75Z" fill="currentColor"/></svg>
             {% trans "Export JSON" %}
@@ -778,6 +786,9 @@
           </button>
         </div>
 
+        </div>
+
+        <div class="planning-footer__row">
         <div class="planning-footer__group" aria-label="{% trans 'Danger actions' %}">
           <button id="deletePlanBtn" class="button btn-danger" type="button">
             <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M6.5 2a1 1 0 0 0-1 1v.5H3.75a.75.75 0 0 0 0 1.5h.36l.67 7.33A1.75 1.75 0 0 0 6.52 14h2.96a1.75 1.75 0 0 0 1.74-1.67l.67-7.33h.36a.75.75 0 0 0 0-1.5H10.5V3a1 1 0 0 0-1-1h-3ZM7 3.5h2V3h-2v.5Zm-.31 2.2a.65.65 0 0 1 .65.65v4a.65.65 0 1 1-1.3 0v-4a.65.65 0 0 1 .65-.65Zm2.62 0a.65.65 0 0 1 .65.65v4a.65.65 0 1 1-1.3 0v-4a.65.65 0 0 1 .65-.65Z" fill="currentColor"/></svg>
@@ -798,6 +809,7 @@
             <svg class="btn-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5a6.5 6.5 0 1 0 6.5 6.5A6.5 6.5 0 0 0 8 1.5Zm2.97 5.53-3.25 3.25a.75.75 0 0 1-1.06 0L5.03 8.66a.75.75 0 1 1 1.06-1.06l1.1 1.1 2.72-2.72a.75.75 0 1 1 1.06 1.06Z" fill="currentColor"/></svg>
             {% trans "Plan!" %}
           </button>
+        </div>
         </div>
       </div>
 

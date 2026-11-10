@@ -365,38 +365,6 @@
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
 }
 
-.planning-footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.45rem;
-  width: 100%;
-}
-
-.planning-footer__group {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  align-items: center;
-}
-
-.planning-footer__group--primary {
-  margin-left: auto;
-  justify-content: flex-end;
-}
-
-.planning-footer .button {
-  min-height: 30px;
-  font-size: 0.9rem;
-  padding: 0.34rem 0.62rem;
-}
-
-.planning-footer .btn-icon {
-  width: 0.9rem;
-  height: 0.9rem;
-  flex: 0 0 0.9rem;
-}
-
 .planning-toast-region {
   position: fixed;
   right: 1rem;
@@ -484,9 +452,6 @@
   opacity: 1;
 }
 
-#timeStatus {
-  color: #0b6b4a;
-}
 
 #licenseTable {
   border-color: var(--plan-border);
@@ -657,10 +622,132 @@ html.dark .planning-stat-card { box-shadow: none; }
 html.dark .summary-chip--warning { background: rgba(234, 179, 8, .16); border-color: #ca8a04; color: #fde68a; }
 html.dark .summary-chip--danger { background: rgba(239, 68, 68, .16); border-color: #dc2626; color: #fecaca; }
 html.dark .planning-inline-notice { background: rgba(245, 158, 11, .14); border-color: #d97706; color: #fed7aa; }
-html.dark #timeStatus { color: #4ade80; }
 html.dark #licenseTable tbody .gap-row-small,
 html.dark #licenseTable tbody .gap-row-small td { background: rgba(59, 130, 246, .14); }
 html.dark #licenseTable tbody .gap-row-large,
 html.dark #licenseTable tbody .gap-row-large td { background: rgba(245, 158, 11, .14); }
 html.dark #licenseTable tbody tr.yp-violation > td { background-color: rgba(239, 68, 68, .14); }
 html.dark .planning-toast { background: #0b0e13; }
+
+/* ---- Day plan modal ---- */
+#dayPlanModal .modal-body { padding: 1.1rem 1.25rem; }
+
+/* Broadcast block info */
+.planning-block-info {
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--plan-border);
+  border-left: 3px solid var(--ok-brand, #417690);
+  border-radius: 6px;
+  background: var(--plan-surface-2);
+  color: var(--plan-text);
+}
+.planning-block-info__main { font-size: 0.95rem; }
+.planning-block-info__main #remainingTime { font-weight: 600; }
+.planning-block-info__hint { margin-top: 0.2rem; font-size: 0.8rem; color: var(--plan-muted); }
+
+/* Add bar: the most used control of the modal */
+.planning-addbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.4rem 0 0.9rem;
+  padding: 0.65rem;
+  border: 1px solid var(--plan-border);
+  border-radius: 8px;
+  background: var(--plan-surface-2);
+}
+.planning-addbar__field {
+  position: relative;
+  flex: 0 1 320px;
+  min-width: 200px;
+}
+.planning-addbar__icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  width: 1rem;
+  height: 1rem;
+  transform: translateY(-50%);
+  color: var(--plan-muted);
+  pointer-events: none;
+}
+#dayPlanModal .planning-addbar__input {
+  width: 100%;
+  height: 40px;
+  padding: 0 0.75rem 0 2.2rem;
+  border: 1px solid var(--ok-line-2, #c3cad3);
+  border-radius: 6px;
+  background: var(--plan-surface);
+  color: var(--plan-text);
+  font-size: 1rem;
+  font-weight: 600;
+  -moz-appearance: textfield;
+}
+.planning-addbar__input::-webkit-outer-spin-button,
+.planning-addbar__input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+#dayPlanModal .planning-addbar__input::placeholder { color: var(--plan-muted); font-weight: 400; }
+#dayPlanModal .planning-addbar__input:focus {
+  outline: none;
+  border-color: var(--ok-brand, #417690);
+  box-shadow: 0 0 0 3px var(--plan-ring);
+}
+#dayPlanModal .planning-addbar .button {
+  height: 40px;
+  padding: 0 1rem;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+.planning-addbar__add { font-weight: 600; }
+.planning-addbar__align { margin-left: auto; }
+
+/* Notes */
+.planning-notes { margin-top: 0.9rem; }
+.planning-notes label { display: block; margin-bottom: 0.3rem; font-weight: 600; font-size: 0.9rem; }
+#dayPlanModal .planning-notes textarea { width: 100%; max-width: none; resize: vertical; }
+
+/* Footer: tools row, then delete / close / save / plan */
+#dayPlanModal .planning-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+}
+.planning-footer > * { margin: 0; }
+.planning-footer__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1.25rem;
+}
+.planning-footer__row--tools {
+  border-bottom: 1px solid var(--plan-border);
+  background: var(--plan-surface-2);
+}
+.planning-footer__group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+.planning-footer__group--export,
+.planning-footer__group--primary { margin-left: auto; }
+#dayPlanModal .planning-footer .button,
+#dayPlanModal .planning-footer__select {
+  height: 36px;
+  font-size: 0.9rem;
+}
+#dayPlanModal .planning-footer .button { padding: 0 0.8rem; white-space: nowrap; }
+#dayPlanModal .planning-footer__select { width: 240px; max-width: 100%; padding-top: 0; padding-bottom: 0; }
+.planning-footer .btn-icon { width: 0.95rem; height: 0.95rem; flex: 0 0 0.95rem; }
+#dayPlanModal .planning-footer__group--primary .button { height: 38px; padding: 0 1rem; }
+#dayPlanModal #planPlanBtn { font-weight: 600; padding: 0 1.3rem; }
+
+@media (max-width: 700px) {
+  .planning-addbar__field { flex-basis: 100%; }
+  .planning-addbar__align,
+  .planning-footer__group--export,
+  .planning-footer__group--primary { margin-left: 0; }
+}
