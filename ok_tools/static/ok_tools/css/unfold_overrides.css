@@ -391,3 +391,11 @@ a.ok-task__name:hover { color: var(--ok-brand); }
     color: #fff;
 }
 .dark .ok-brandbar ul.object-tools > li > a:not(.border):hover { background: rgb(255 255 255 / .1); }
+
+/* Autocomplete dropdowns (select2): Unfold gives the highlighted option a
+   light grey background, while Django's autocomplete.css still sets the
+   text to --primary-fg (white) for its blue background. Keep the text in
+   the normal ink colour of the theme. */
+.select2-container--admin-autocomplete .select2-results__option--highlighted[aria-selected] {
+    color: var(--ok-ink, #1f2937) !important;
+}

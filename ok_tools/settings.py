@@ -363,7 +363,10 @@ if ADMIN_UNFOLD_ENABLED:
             "ok_tools.admin_nav.theme_stylesheet",
             "ok_tools.admin_nav.override_stylesheet",
         ],
-        "SCRIPTS": ["ok_tools.admin_nav.theme_script"],
+        "SCRIPTS": [
+            "ok_tools.admin_nav.theme_script",
+            "ok_tools.admin_nav.select2_i18n_script",
+        ],
         "SIDEBAR": {
             "show_search": True,
             "show_all_applications": True,

@@ -72,10 +72,10 @@ html.dark {
     --ok-ink-3: oklch(71% .016 260);
     --ok-ink-4: oklch(55.5% .02 262);
 
-    --ok-success: #4ade80;  --ok-success-soft: rgba(34, 197, 94, .14);  --ok-success-line: rgba(74, 222, 128, .4);  --ok-success-ink: #bbf7d0;
-    --ok-warning: #fbbf24;  --ok-warning-soft: rgba(245, 158, 11, .15); --ok-warning-line: rgba(251, 191, 36, .4);  --ok-warning-ink: #fde68a;
-    --ok-danger:  #f87171;  --ok-danger-soft:  rgba(239, 68, 68, .15);  --ok-danger-line:  rgba(248, 113, 113, .4); --ok-danger-ink:  #fecaca;
-    --ok-info:    #60a5fa;  --ok-info-soft:    rgba(59, 130, 246, .15); --ok-info-line:    rgba(96, 165, 250, .4);  --ok-info-ink:    #bfdbfe;
+    --ok-success: #7cc49a;  --ok-success-soft: rgba(84, 160, 116, .16); --ok-success-line: rgba(124, 196, 154, .4); --ok-success-ink: #cfe6d7;
+    --ok-warning: #d9b866;  --ok-warning-soft: rgba(204, 172, 64, .16); --ok-warning-line: rgba(217, 184, 102, .4); --ok-warning-ink: #eadcb4;
+    --ok-danger:  #e58a8a;  --ok-danger-soft:  rgba(214, 96, 96, .16);  --ok-danger-line:  rgba(229, 138, 138, .4); --ok-danger-ink:  #f1d0d0;
+    --ok-info:    #8db0e0;  --ok-info-soft:    rgba(104, 140, 200, .17); --ok-info-line:    rgba(141, 176, 224, .4); --ok-info-ink:    #d2deef;
     --ok-neutral-soft: rgba(255, 255, 255, .06); --ok-neutral-line: oklch(37% .022 263);
 
     --ok-shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
@@ -232,5 +232,14 @@ html.dark .ok-btn--danger { background: var(--ok-danger-soft); border-color: var
 .ok-text-success { color: var(--ok-success); font-weight: 600; }
 .ok-text-info { color: var(--ok-info); font-weight: 600; }
 .ok-link { color: var(--ok-brand); text-decoration: none; cursor: pointer; }
+
+/* Older admin columns set Bootstrap colours inline (style="color: #28a745").
+   In the dark theme map them onto the softer status tokens. */
+html.dark [style*="color: #28a745"], html.dark [style*="color:#28a745"],
+html.dark [style*="color: #2e7d32"] { color: var(--ok-success) !important; }
+html.dark [style*="color: #ffc107"], html.dark [style*="color:#ffc107"] { color: var(--ok-warning) !important; }
+html.dark [style*="color: #dc3545"], html.dark [style*="color:#dc3545"],
+html.dark [style*="color: #ba2121"], html.dark [style*="color:#c00"] { color: var(--ok-danger) !important; }
+html.dark [style*="color: #17a2b8"], html.dark [style*="color:#17a2b8"] { color: var(--ok-info) !important; }
 .ok-link:hover { text-decoration: underline; }
 .ok-btn-row { display: flex; flex-wrap: wrap; gap: 6px; }

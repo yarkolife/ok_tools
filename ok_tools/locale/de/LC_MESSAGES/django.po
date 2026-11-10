@@ -7052,3 +7052,368 @@ msgstr "neu seit deinem letzten Besuch (%(since)s)"
 #, python-format
 msgid "%(n)s items not imported yet"
 msgstr "%(n)s Elemente noch nicht importiert"
+
+# django-unfold templates (Unfold ships no German catalogue)
+#: unfold
+msgid "(no comment exists)"
+msgstr "(kein Kommentar vorhanden)"
+
+#: unfold
+msgid "Add new item"
+msgstr "Neuen Eintrag hinzufügen"
+
+#: unfold
+msgid "Add row"
+msgstr "Zeile hinzufügen"
+
+#: unfold
+msgid "After you've created a user, you’ll be able to edit more user options."
+msgstr "Nachdem Sie einen Benutzer angelegt haben, können Sie weitere Optionen bearbeiten."
+
+#: unfold
+msgid "All applications"
+msgstr "Alle Anwendungen"
+
+#: unfold
+msgid "Available shortcuts"
+msgstr "Verfügbare Tastenkürzel"
+
+#: unfold
+msgid "Bold"
+msgstr "Fett"
+
+#: unfold
+msgid "Change History"
+msgstr "Änderungsverlauf"
+
+#: unfold
+msgid "Changelist shortcuts"
+msgstr "Tastenkürzel der Liste"
+
+#: unfold
+msgid "Choose a date from the list below to recover a deleted version of an object."
+msgstr "Wählen Sie unten ein Datum, um eine gelöschte Version eines Objekts wiederherzustellen."
+
+#: unfold
+msgid "Choose a date from the list below to revert to a previous version of this object."
+msgstr "Wählen Sie unten ein Datum, um zu einer früheren Version dieses Objekts zurückzukehren."
+
+#: unfold
+msgid "Click to cancel"
+msgstr "Zum Abbrechen klicken"
+
+#: unfold
+msgid "Click to download"
+msgstr "Zum Herunterladen klicken"
+
+#: unfold
+msgid "Code"
+msgstr "Code"
+
+#: unfold
+msgid "Collapse"
+msgstr "Einklappen"
+
+#: unfold
+msgid "Command tool shortcuts"
+msgstr "Tastenkürzel der Befehlssuche"
+
+#: unfold
+msgid "Create new record"
+msgstr "Neuen Datensatz anlegen"
+
+#: unfold
+msgid "Current file"
+msgstr "Aktuelle Datei"
+
+#: unfold
+msgid "Dark"
+msgstr "Dunkel"
+
+#: unfold
+msgid "Dataset not found. No action performed."
+msgstr "Datensatz nicht gefunden. Keine Aktion ausgeführt."
+
+#: unfold
+msgid "Default"
+msgstr "Standard"
+
+#: unfold
+msgid "Edit comment:"
+msgstr "Kommentar bearbeiten:"
+
+#: unfold
+msgid "Enter an URL"
+msgstr "URL eingeben"
+
+#: unfold
+msgid "False"
+msgstr "Nein"
+
+#: unfold
+msgid "General"
+msgstr "Allgemein"
+
+#: unfold
+msgid "Global shortcuts"
+msgstr "Globale Tastenkürzel"
+
+#: unfold
+msgid "Go back"
+msgstr "Zurück"
+
+#: unfold
+msgid "Go back to history list"
+msgstr "Zurück zum Verlauf"
+
+#: unfold
+msgid "Group"
+msgstr "Gruppe"
+
+#: unfold
+msgid "Group permissions"
+msgstr "Gruppenberechtigungen"
+
+#: unfold
+msgid "Heading"
+msgstr "Überschrift"
+
+#: unfold
+msgid "Indent decrease"
+msgstr "Einzug verkleinern"
+
+#: unfold
+msgid "Indent increase"
+msgstr "Einzug vergrößern"
+
+#: unfold
+msgid "Italic"
+msgstr "Kursiv"
+
+#: unfold
+msgid "Light"
+msgstr "Hell"
+
+#: unfold
+msgid "Link"
+msgstr "Link"
+
+#: unfold
+msgid "Manage group"
+msgstr "Gruppe verwalten"
+
+#: unfold
+msgid "Manage user"
+msgstr "Benutzer verwalten"
+
+#: unfold
+msgid "Navigate"
+msgstr "Navigieren"
+
+#: unfold
+msgid "No data"
+msgstr "Keine Daten"
+
+#: unfold
+msgid "No results found"
+msgstr "Keine Ergebnisse gefunden"
+
+#: unfold
+msgid "Nothing matched your search"
+msgstr "Keine Treffer für Ihre Suche"
+
+#: unfold
+msgid "Object"
+msgstr "Objekt"
+
+#: unfold
+msgid "Object permissions"
+msgstr "Objektberechtigungen"
+
+#: unfold
+msgid "Open command tool"
+msgstr "Befehlssuche öffnen"
+
+#: unfold
+msgid "Open selection"
+msgstr "Auswahl öffnen"
+
+#: unfold
+msgid "Open selection in new tab"
+msgstr "Auswahl in neuem Tab öffnen"
+
+#: unfold
+msgid "Open shortcuts list"
+msgstr "Liste der Tastenkürzel öffnen"
+
+#: unfold
+msgid "Ordered list"
+msgstr "Nummerierte Liste"
+
+#: unfold
+msgid "Paragraph"
+msgstr "Absatz"
+
+#: unfold
+msgid "Press the save button below to recover this version of the object."
+msgstr "Klicken Sie unten auf Speichern, um diese Version des Objekts wiederherzustellen."
+
+#: unfold
+msgid "Press the save button below to revert to this version of the object."
+msgstr "Klicken Sie unten auf Speichern, um zu dieser Version des Objekts zurückzukehren."
+
+#: unfold
+msgid "Quote"
+msgstr "Zitat"
+
+#: unfold
+msgid "Recent searches"
+msgstr "Letzte Suchen"
+
+#: unfold
+msgid "Record picture"
+msgstr "Foto aufnehmen"
+
+#: unfold
+msgid "Redo"
+msgstr "Wiederholen"
+
+#: unfold
+msgid "Reset filters"
+msgstr "Filter zurücksetzen"
+
+#: unfold
+msgid "Reset to default"
+msgstr "Auf Standard zurücksetzen"
+
+#: unfold
+msgid "Revert"
+msgstr "Zurücksetzen"
+
+#: unfold
+msgid "Revert to this version"
+msgstr "Zu dieser Version zurückkehren"
+
+#: unfold
+msgid "Select action"
+msgstr "Aktion wählen"
+
+#: unfold
+msgid "Select action to run"
+msgstr "Auszuführende Aktion wählen"
+
+#: unfold
+msgid "Select currency"
+msgstr "Währung wählen"
+
+#: unfold
+msgid "Select format"
+msgstr "Format wählen"
+
+#: unfold
+msgid "Select record"
+msgstr "Datensatz wählen"
+
+#: unfold
+msgid "Select value"
+msgstr "Wert wählen"
+
+#: unfold
+msgid "Strike"
+msgstr "Durchgestrichen"
+
+#: unfold
+msgid "There are no deleted objects to recover"
+msgstr "Es gibt keine gelöschten Objekte zum Wiederherstellen"
+
+#: unfold
+msgid "There are no differences."
+msgstr "Es gibt keine Unterschiede."
+
+#: unfold
+msgid "This exporter will export the following fields"
+msgstr "Dieser Export enthält die folgenden Felder"
+
+#: unfold
+msgid "This item will be deleted."
+msgstr "Dieser Eintrag wird gelöscht."
+
+#: unfold
+msgid "This object doesn't have a change history."
+msgstr "Für dieses Objekt gibt es keinen Änderungsverlauf."
+
+#: unfold
+msgid "This object doesn't have a change history. It probably wasn't added via this admin site."
+msgstr "Für dieses Objekt gibt es keinen Änderungsverlauf. Es wurde wahrscheinlich nicht über diese Verwaltung angelegt."
+
+#: unfold
+msgid "This page yielded into no results."
+msgstr "Diese Seite enthält keine Ergebnisse."
+
+#: unfold
+msgid "Toggle dark/light mode"
+msgstr "Hell/Dunkel umschalten"
+
+#: unfold
+msgid "Toggle filter"
+msgstr "Filter ein-/ausblenden"
+
+#: unfold
+msgid "Toggle password visibility"
+msgstr "Passwort anzeigen/verbergen"
+
+#: unfold
+msgid "Toggle sidebar"
+msgstr "Seitenleiste ein-/ausblenden"
+
+#: unfold
+msgid "True"
+msgstr "Ja"
+
+#: unfold
+msgid "Type to search"
+msgstr "Suchbegriff eingeben"
+
+#: unfold
+msgid "Underlined"
+msgstr "Unterstrichen"
+
+#: unfold
+msgid "Undo"
+msgstr "Rückgängig"
+
+#: unfold
+msgid "Unlink"
+msgstr "Link entfernen"
+
+#: unfold
+msgid "Unordered list"
+msgstr "Aufzählung"
+
+#: unfold
+msgid "User permissions"
+msgstr "Benutzerberechtigungen"
+
+#: unfold
+msgid "View traceback"
+msgstr "Traceback anzeigen"
+
+#: unfold
+msgid "You can not create nested object without parent"
+msgstr "Ein verschachteltes Objekt kann nicht ohne übergeordnetes Objekt angelegt werden"
+
+#: unfold
+msgid "You have been successfully logged out from the administration"
+msgstr "Sie wurden erfolgreich von der Verwaltung abgemeldet"
+
+#: unfold
+msgid "compare"
+msgstr "vergleichen"
+
+#: unfold
+msgid "next"
+msgstr "weiter"
+
+#: unfold
+msgid "previous"
+msgstr "zurück"

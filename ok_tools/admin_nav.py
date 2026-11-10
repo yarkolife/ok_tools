@@ -308,6 +308,11 @@ def theme_script(request) -> str:
     return _versioned("ok_tools/js/ok_theme.js")
 
 
+def select2_i18n_script(request) -> str:
+    """German texts for the select2 dropdowns of the change list filters."""
+    return _versioned("ok_tools/js/select2_i18n.js")
+
+
 def override_stylesheet(request) -> str:
     """CSS that fits the classic admin markup of our templates into Unfold."""
     return _versioned("ok_tools/css/unfold_overrides.css")

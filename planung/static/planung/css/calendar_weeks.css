@@ -17,6 +17,11 @@
   --plan-warning: #8a4b10;
   --plan-current: #1986b4;
   --plan-ring: rgba(20, 132, 185, 0.28);
+  /* day status: background, border, text, hover */
+  --st-planned-bg: #d4ecdc;  --st-planned-line: #6fb68b;  --st-planned-ink: #14532d;  --st-planned-hover: #c3e3ce;
+  --st-draft-bg: #f8e6b8;    --st-draft-line: #d4a53c;    --st-draft-ink: #6b4510;    --st-draft-hover: #f2dba0;
+  --st-comment-bg: #d8e6f8;  --st-comment-line: #7aa2d6;  --st-comment-ink: #1e3a6e;  --st-comment-hover: #c7daf3;
+  --st-outside-bg: #fbdcc4;  --st-outside-line: #e09a5f;  --st-outside-ink: #7a3412;  --st-outside-hover: #f7cdab;
 }
 
 .sr-only {
@@ -99,34 +104,14 @@
   line-height: 1.25;
 }
 
-.status-badge--planned {
-  background: #d9eee3;
-  border-color: #1f8a5b;
-  color: #12472f;
-}
-
-.status-badge--draft {
-  background: #f9e8c7;
-  border-color: #d2a240;
-  color: #7d4a13;
-}
-
-.status-badge--comment {
-  background: #ddebfb;
-  border-color: #2f78c5;
-  color: #1f4a8a;
-}
-
+.status-badge--planned { background: var(--st-planned-bg); border-color: var(--st-planned-line); color: var(--st-planned-ink); }
+.status-badge--draft { background: var(--st-draft-bg); border-color: var(--st-draft-line); color: var(--st-draft-ink); }
+.status-badge--comment { background: var(--st-comment-bg); border-color: var(--st-comment-line); color: var(--st-comment-ink); }
+.status-badge--outside { background: var(--st-outside-bg); border-color: var(--st-outside-line); color: var(--st-outside-ink); }
 .status-badge--empty {
-  background: #f3f4f6;
-  border-color: #cbd5e1;
+  background: var(--plan-surface-2);
+  border-color: var(--plan-border);
   color: var(--ok-ink-2, #334155);
-}
-
-.status-badge--outside {
-  background: #fef3c7;
-  border-color: #f59e0b;
-  color: #92400e;
 }
 
 .planning-stat-card {
@@ -302,37 +287,20 @@
   pointer-events: none;
 }
 
-.planning-calendar-table td.bg-success {
-  background: #d9eee3;
-  color: #12472f;
-  box-shadow: inset 0 0 0 3px #1f8a5b;
-}
-
-.planning-calendar-table td.bg-warning {
-  background: #f9e8c7;
-  color: #7d4a13;
-  box-shadow: inset 0 0 0 3px #f2b705;
-}
-
-.planning-calendar-table td.bg-info {
-  background: #ddebfb;
-  color: #1f4a8a;
-  box-shadow: inset 0 0 0 3px #2f78c5;
-}
-
-.planning-calendar-table td.bg-outside {
-  background: #fef3c7;
-  color: #92400e;
-  box-shadow: inset 0 0 0 3px #f59e0b;
-}
-
-.planning-calendar-table td.bg-success .date-cell,
-.planning-calendar-table td.bg-warning .date-cell,
-.planning-calendar-table td.bg-info .date-cell,
-.planning-calendar-table td.bg-outside .date-cell {
-  border-color: transparent;
-  background: rgba(255, 255, 255, 0.88);
-}
+/* Day status: the whole cell takes the status colour, the date button
+   a thin border in the same hue (colours: --st-* in :root / html.dark). */
+.planning-calendar-table td.bg-success { background: var(--st-planned-bg); color: var(--st-planned-ink); }
+.planning-calendar-table td.bg-success .date-cell { border-color: var(--st-planned-line); background: transparent; color: var(--st-planned-ink) !important; }
+.planning-calendar-table td.bg-success .date-cell:hover { border-color: var(--st-planned-ink); background: var(--st-planned-hover); }
+.planning-calendar-table td.bg-warning { background: var(--st-draft-bg); color: var(--st-draft-ink); }
+.planning-calendar-table td.bg-warning .date-cell { border-color: var(--st-draft-line); background: transparent; color: var(--st-draft-ink) !important; }
+.planning-calendar-table td.bg-warning .date-cell:hover { border-color: var(--st-draft-ink); background: var(--st-draft-hover); }
+.planning-calendar-table td.bg-info { background: var(--st-comment-bg); color: var(--st-comment-ink); }
+.planning-calendar-table td.bg-info .date-cell { border-color: var(--st-comment-line); background: transparent; color: var(--st-comment-ink) !important; }
+.planning-calendar-table td.bg-info .date-cell:hover { border-color: var(--st-comment-ink); background: var(--st-comment-hover); }
+.planning-calendar-table td.bg-outside { background: var(--st-outside-bg); color: var(--st-outside-ink); }
+.planning-calendar-table td.bg-outside .date-cell { border-color: var(--st-outside-line); background: transparent; color: var(--st-outside-ink) !important; }
+.planning-calendar-table td.bg-outside .date-cell:hover { border-color: var(--st-outside-ink); background: var(--st-outside-hover); }
 
 .planning-calendar-table .current-week td {
   box-shadow: inset 0 3px 0 0 var(--plan-current), inset 0 -3px 0 0 var(--plan-current);
@@ -666,36 +634,25 @@
 
 /* ---- Dark theme (html.dark, set by Unfold / ok_theme.js) ---- */
 html.dark {
-  --plan-primary: #4ade80;
-  --plan-info: #93c5fd;
-  --plan-warning: #fbbf24;
-  --plan-current: #5fb3d9;
+  --plan-primary: #86c9a0;
+  --plan-info: #a9c4e6;
+  --plan-warning: #dcbf7c;
+  --plan-current: #6aa9c8;
   --plan-ring: rgba(95, 179, 217, 0.35);
   --plan-time-manual: rgba(59, 130, 246, .22);
   --plan-time-half: rgba(234, 179, 8, .22);
   --plan-time-outside: rgba(239, 68, 68, .22);
   --plan-time-yp: rgba(239, 68, 68, .34);
 }
-html.dark .status-badge--planned,
-html.dark .planning-calendar-table td.bg-success { background: rgba(34, 197, 94, .16); color: #bbf7d0; border-color: #22c55e; }
-html.dark .status-badge--draft,
-html.dark .planning-calendar-table td.bg-warning { background: rgba(234, 179, 8, .16); color: #fde68a; border-color: #eab308; }
-html.dark .status-badge--comment,
-html.dark .planning-calendar-table td.bg-info { background: rgba(59, 130, 246, .18); color: #bfdbfe; border-color: #3b82f6; }
-html.dark .status-badge--outside,
-html.dark .planning-calendar-table td.bg-outside { background: rgba(245, 158, 11, .18); color: #fed7aa; border-color: #f59e0b; }
-html.dark .status-badge--empty { background: rgba(255, 255, 255, .06); color: var(--plan-text); border-color: var(--plan-border); }
-html.dark .planning-calendar-table td.bg-success { box-shadow: inset 0 0 0 3px #16a34a; }
-html.dark .planning-calendar-table td.bg-warning { box-shadow: inset 0 0 0 3px #ca8a04; }
-html.dark .planning-calendar-table td.bg-info { box-shadow: inset 0 0 0 3px #2563eb; }
-html.dark .planning-calendar-table td.bg-outside { box-shadow: inset 0 0 0 3px #d97706; }
-html.dark .planning-calendar-table td.bg-success .date-cell,
-html.dark .planning-calendar-table td.bg-warning .date-cell,
-html.dark .planning-calendar-table td.bg-info .date-cell,
-html.dark .planning-calendar-table td.bg-outside .date-cell { background: rgba(0, 0, 0, .28); }
-html.dark .planning-calendar-table .date-cell:hover { border-color: var(--ok-line-2, #555); }
+html.dark {
+  --st-planned-bg: rgba(84, 160, 116, .21);  --st-planned-line: rgba(110, 180, 138, .40);  --st-planned-ink: #cfe6d7;  --st-planned-hover: rgba(84, 160, 116, .27);
+  --st-draft-bg: rgba(204, 172, 64, .19);    --st-draft-line: rgba(214, 184, 92, .42);    --st-draft-ink: #eadcb4;    --st-draft-hover: rgba(196, 160, 72, .26);
+  --st-comment-bg: rgba(104, 140, 200, .22); --st-comment-line: rgba(128, 160, 214, .40); --st-comment-ink: #d2deef;  --st-comment-hover: rgba(104, 140, 200, .28);
+  --st-outside-bg: rgba(214, 106, 66, .22);  --st-outside-line: rgba(228, 128, 92, .45);  --st-outside-ink: #f0cdbd;  --st-outside-hover: rgba(214, 106, 66, .32);
+}
+html.dark .planning-calendar-table td:not([class*="bg-"]) .date-cell:hover { border-color: var(--ok-line-2, #555); }
 html.dark .planning-calendar-table .kw-cell--current,
-html.dark .kw-current-indicator { background: rgba(95, 179, 217, .16); color: #bae6fd; border-color: #5fb3d9; }
+html.dark .kw-current-indicator { background: rgba(106, 169, 200, .14); color: #cfe3ee; border-color: rgba(106, 169, 200, .55); }
 html.dark .planning-stat-card { box-shadow: none; }
 html.dark .summary-chip--warning { background: rgba(234, 179, 8, .16); border-color: #ca8a04; color: #fde68a; }
 html.dark .summary-chip--danger { background: rgba(239, 68, 68, .16); border-color: #dc2626; color: #fecaca; }
