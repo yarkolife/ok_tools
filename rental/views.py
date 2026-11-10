@@ -487,6 +487,17 @@ def _i18n_bundle():
         'room.start_date': _('Start date'),
         'room.start_time': _('Start time'),
         'room.booked': _('Booked'),
+        # Room calendar - reserve from the day view
+        'cal.book_hint': _('Click a free slot or drag across several to reserve the room.'),
+        'cal.click_to_book': _('Click to reserve'),
+        'cal.people': _('People'),
+        'cal.project': _('Project'),
+        'cal.purpose': _('Purpose'),
+        'cal.user_req': _('Please choose a user.'),
+        'cal.book': _('Reserve'),
+        'cal.creating': _('Reserving…'),
+        'cal.created': _('Room reserved'),
+        'cal.open_rental': _('Open rental'),
         'rooms.none': _('No rooms booked in this rental.'),
         # Tags
         'tag.booked': _('Booked'),
@@ -3854,6 +3865,14 @@ class RoomCalendarDayView(StaffRequiredMixin, TemplateView):
         context['sidebar_active'] = 'room_calendar'
         context['i18n_strings'] = _i18n_bundle()
         context['flags_json'] = _frontend_flags()
+        # Free slots can be reserved right from the day view (room_calendar.jsx).
+        context['room_cal_config'] = {
+            'urls': {
+                'create': reverse('rental:create_submit'),
+                'users_search': reverse('rental:api_users_search'),
+                'new_user': reverse('admin:registration_okuser_add'),
+            },
+        }
         _add_sidebar_counts(context)
         return context
 

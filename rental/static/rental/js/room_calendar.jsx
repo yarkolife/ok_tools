@@ -1,10 +1,38 @@
 const { useState, useEffect, useMemo } = React;
 
+/* Booking config of the page: {urls: {create, users_search, new_user}}. */
+const __roomCalCfgNode = document.getElementById('room-cal-config');
+const ROOM_CAL_CFG = __roomCalCfgNode ? JSON.parse(__roomCalCfgNode.textContent) : null;
+
 function RoomCalendar({ date }) {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dayInfo, setDayInfo] = useState(null);
+  const [reloadKey, setReloadKey] = useState(0);
+  // Drag over free slots: {roomId, anchor, cur} (slot indexes).
+  const [drag, setDrag] = useState(null);
+  // Open booking dialog: {room, start, end} (slot indexes, end exclusive).
+  const [booking, setBooking] = useState(null);
+  const canBook = !!(ROOM_CAL_CFG && ROOM_CAL_CFG.urls && ROOM_CAL_CFG.urls.create);
+
+  // Finish a drag wherever the mouse is released.
+  useEffect(() => {
+    if (!drag) return;
+    const onUp = () => {
+      const room = rooms.find(r => r.id === drag.roomId);
+      if (room) {
+        setBooking({
+          room,
+          start: Math.min(drag.anchor, drag.cur),
+          end: Math.max(drag.anchor, drag.cur) + 1,
+        });
+      }
+      setDrag(null);
+    };
+    document.addEventListener('mouseup', onUp);
+    return () => document.removeEventListener('mouseup', onUp);
+  }, [drag, rooms]);
 
   useEffect(() => {
     async function fetchSchedule() {
@@ -41,9 +69,9 @@ function RoomCalendar({ date }) {
       }
     }
     fetchSchedule();
-  }, [date]);
+  }, [date, reloadKey]);
 
-  if (loading) {
+  if (loading && rooms.length === 0) {
     return (
       <div className="tl-loading">
         <i className="fas fa-spinner fa-spin"></i>
@@ -92,9 +120,25 @@ function RoomCalendar({ date }) {
       {totalSlots > 0 && (
         <TimeAxis slots={rooms[0].schedule[0].slots} />
       )}
+      {canBook && (
+        <div className="tl-hint">
+          <i className="fas fa-hand-pointer"></i>
+          {t('cal.book_hint', 'Click a free slot or drag across several to reserve the room.')}
+        </div>
+      )}
       {rooms.map(room => (
-        <TimelineRow key={room.id} room={room} />
+        <TimelineRow key={room.id} room={room} canBook={canBook} drag={drag} setDrag={setDrag} />
       ))}
+      {booking && (
+        <RoomBookingModal
+          date={date}
+          room={booking.room}
+          initialStart={booking.start}
+          initialEnd={booking.end}
+          onClose={() => setBooking(null)}
+          onCreated={() => setReloadKey(k => k + 1)}
+        />
+      )}
     </div>
   );
 }
@@ -122,7 +166,7 @@ function TimeAxis({ slots }) {
   );
 }
 
-function TimelineRow({ room }) {
+function TimelineRow({ room, canBook, drag, setDrag }) {
   const daySchedule = room.schedule && room.schedule[0] ? room.schedule[0] : null;
   const slots = daySchedule ? daySchedule.slots : [];
   const total = slots.length;
@@ -131,12 +175,13 @@ function TimelineRow({ room }) {
     if (!total) return [];
     const out = [];
     let cur = null;
-    for (const slot of slots) {
+    for (let idx = 0; idx < slots.length; idx++) {
+      const slot = slots[idx];
       const occ = slot.status === 'occupied' && slot.info;
       const key = occ ? (slot.info.rental_request_id || slot.info.user_name) : '__free__';
       if (key === '__free__') {
         if (cur) out.push(cur);
-        cur = { key, status: slot.status, info: slot.info, time: slot.time, count: 1 };
+        cur = { key, status: slot.status, info: slot.info, time: slot.time, count: 1, idx };
         out.push(cur);
         cur = null;
         continue;
@@ -147,7 +192,7 @@ function TimelineRow({ room }) {
         continue;
       }
       if (cur) out.push(cur);
-      cur = { key, status: slot.status, info: slot.info, time: slot.time, count: 1 };
+      cur = { key, status: slot.status, info: slot.info, time: slot.time, count: 1, idx };
     }
     if (cur) out.push(cur);
     for (const b of out) {
@@ -157,6 +202,19 @@ function TimelineRow({ room }) {
     }
     return out;
   }, [slots, total]);
+
+  // Extend a drag only over the free slots next to its start.
+  const extendTo = (idx) => {
+    if (!drag || drag.roomId !== room.id) return;
+    const step = idx >= drag.anchor ? 1 : -1;
+    let reach = drag.anchor;
+    while (reach !== idx && slots[reach + step] && slots[reach + step].status === 'available') {
+      reach += step;
+    }
+    if (reach !== drag.cur) setDrag({ ...drag, cur: reach });
+  };
+  const inDrag = (idx) => drag && drag.roomId === room.id
+    && idx >= Math.min(drag.anchor, drag.cur) && idx <= Math.max(drag.anchor, drag.cur);
 
   return (
     <div className="tl-row">
@@ -176,16 +234,25 @@ function TimelineRow({ room }) {
       <div className="tl-bar">
         {blocks.map((b, i) => {
           const isBooking = b.status === 'occupied' && b.info;
+          const bookable = canBook && b.status === 'available';
           const Segment = isBooking ? 'a' : 'div';
           const title = isBooking
             ? `${b.info.user_name} · ${b.info.project}\n${b.time} — ${b.endTime}${b.info.people_count > 1 ? '\n' + b.info.people_count + ' people' : ''}`
             : b.status === 'past'
               ? t('room.past', 'Past')
-              : t('available', 'Available');
+              : bookable
+                ? `${b.time} — ${b.endTime} · ${t('cal.click_to_book', 'Click to reserve')}`
+                : t('available', 'Available');
           return (
             <Segment
               key={i}
-              className={cls('tl-seg', b.status)}
+              className={cls('tl-seg', b.status, bookable && 'bookable', bookable && inDrag(b.idx) && 'selecting')}
+              onMouseDown={bookable ? (e) => {
+                if (e.button !== 0) return;
+                e.preventDefault();
+                setDrag({ roomId: room.id, anchor: b.idx, cur: b.idx });
+              } : undefined}
+              onMouseEnter={bookable ? () => extendTo(b.idx) : undefined}
               href={isBooking ? b.info.detail_url : undefined}
               style={{
                 width: `${(b.count / total) * 100}%`,
@@ -199,6 +266,185 @@ function TimelineRow({ room }) {
             </Segment>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+const _slotEnd = (time) => {
+  const [h, m] = time.split(':').map(Number);
+  const end = h * 60 + m + 30;
+  return `${String(Math.floor(end / 60)).padStart(2, '0')}:${String(end % 60).padStart(2, '0')}`;
+};
+
+/* Reserve a room for one user straight from the day view. Creates the same
+   rental as the wizard (rooms only, status "reserved"); the server checks
+   working hours and conflicts again. */
+function RoomBookingModal({ date, room, initialStart, initialEnd, onClose, onCreated }) {
+  const slots = (room.schedule && room.schedule[0] && room.schedule[0].slots) || [];
+  const [start, setStart] = useState(initialStart);
+  const [end, setEnd] = useState(initialEnd);
+  const [user, setUser] = useState(null);
+  const [project, setProject] = useState('');
+  const [purpose, setPurpose] = useState('');
+  const [people, setPeople] = useState(1);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(null);
+  const [created, setCreated] = useState(null);
+  const pickerInitial = useMemo(() => ({ users: [], urls: ROOM_CAL_CFG.urls }), []);
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape' && !busy) onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [busy, onClose]);
+
+  // Start: any free slot. End: up to the next taken slot after the start.
+  const startOptions = slots.map((s, i) => ({ i, s })).filter(o => o.s.status === 'available');
+  const endOptions = [];
+  for (let i = start; i < slots.length && slots[i].status === 'available'; i++) {
+    endOptions.push({ i: i + 1, label: _slotEnd(slots[i].time) });
+  }
+  const changeStart = (value) => {
+    const s0 = Number(value);
+    let maxEnd = s0;
+    while (maxEnd < slots.length && slots[maxEnd].status === 'available') maxEnd++;
+    const keepLength = Math.max(end - start, 1);
+    setStart(s0);
+    setEnd(Math.min(s0 + keepLength, maxEnd));
+  };
+
+  const startTime = slots[start] ? slots[start].time : '';
+  const endTime = slots[end - 1] ? _slotEnd(slots[end - 1].time) : '';
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!user) { setError(t('cal.user_req', 'Please choose a user.')); return; }
+    if (!project.trim()) { setError(t('wiz.project_req', 'Please enter a project name.')); return; }
+    setBusy(true);
+    setError(null);
+    // A booking up to midnight ends at 00:00 of the next day.
+    let endDate = date;
+    let endAt = endTime;
+    if (endAt === '24:00') {
+      const d = new Date(date + 'T12:00:00');
+      d.setDate(d.getDate() + 1);
+      endDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      endAt = '00:00';
+    }
+    try {
+      const res = await apiPost(ROOM_CAL_CFG.urls.create, {
+        user_id: user.id,
+        project: project.trim(),
+        purpose: purpose.trim(),
+        items: [],
+        rooms: [{
+          id: room.id,
+          start_date: date, start_time: startTime,
+          end_date: endDate, end_time: endAt,
+          people_count: Math.max(1, Number(people) || 1),
+        }],
+      });
+      setCreated(res);
+      onCreated();
+    } catch (err) {
+      setError(err.message);
+    }
+    setBusy(false);
+  };
+
+  const dayLabel = new Date(date + 'T12:00:00').toLocaleDateString('de-DE',
+    { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' });
+
+  return (
+    <div className="rc-modal-bg" onMouseDown={() => !busy && onClose()}>
+      <div className="rc-modal" role="dialog" aria-modal="true" onMouseDown={e => e.stopPropagation()}>
+        <div className="rc-modal-head">
+          <div>
+            <h5>{t('room.reserve', 'Reserve room')}</h5>
+            <div className="rc-modal-sub">
+              <i className="fas fa-door-open"></i> {room.name}
+              <span className="rc-dot">·</span>{dayLabel}
+            </div>
+          </div>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={onClose} disabled={busy}
+                  aria-label={t('btn.close', 'Close')}><i className="fas fa-times"></i></button>
+        </div>
+
+        {created ? (
+          <div className="rc-modal-done">
+            <div className="rc-done-line">
+              <i className="fas fa-circle-check"></i>
+              <div>
+                <div className="rc-done-title">{t('cal.created', 'Room reserved')}</div>
+                <div className="muted tiny">{room.name} · {startTime} — {endTime} · {user && user.name}</div>
+              </div>
+            </div>
+            <div className="rc-modal-actions">
+              <button type="button" className="btn btn-ghost btn-sm" onClick={onClose}>{t('btn.close', 'Close')}</button>
+              <a className="btn btn-primary btn-sm" href={created.detail_url}>
+                <i className="fas fa-arrow-right me-1"></i>{t('cal.open_rental', 'Open rental')}
+              </a>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={submit}>
+            <div className="rc-grid">
+              <label className="rc-field">
+                <span>{t('room.start_time', 'Start time')}</span>
+                <select className="form-select form-select-sm" value={start} onChange={e => changeStart(e.target.value)}>
+                  {startOptions.map(o => <option key={o.i} value={o.i}>{o.s.time}</option>)}
+                </select>
+              </label>
+              <label className="rc-field">
+                <span>{t('room.end_time', 'End time')}</span>
+                <select className="form-select form-select-sm" value={end} onChange={e => setEnd(Number(e.target.value))}>
+                  {endOptions.map(o => <option key={o.i} value={o.i}>{o.label}</option>)}
+                </select>
+              </label>
+              <label className="rc-field">
+                <span>{t('cal.people', 'People')}</span>
+                <input type="number" min="1" max={room.capacity > 0 ? room.capacity : undefined}
+                       className="form-control form-control-sm" value={people}
+                       onChange={e => setPeople(e.target.value)} />
+              </label>
+            </div>
+
+            <div className="rc-field">
+              <span>{t('wiz.step1', 'User')} *</span>
+              <QuickUserPicker initial={pickerInitial} user={user} setUser={setUser} />
+              {ROOM_CAL_CFG.urls.new_user && !user && (
+                <a className="rc-link tiny" href={ROOM_CAL_CFG.urls.new_user} target="_blank" rel="noopener">
+                  <i className="fas fa-user-plus me-1"></i>{t('wiz.new_user', 'New user')}
+                </a>
+              )}
+            </div>
+
+            <label className="rc-field">
+              <span>{t('cal.project', 'Project')} *</span>
+              <input type="text" className="form-control form-control-sm" value={project}
+                     onChange={e => setProject(e.target.value)} maxLength={255} />
+            </label>
+            <label className="rc-field">
+              <span>{t('cal.purpose', 'Purpose')}</span>
+              <textarea className="form-control form-control-sm" rows={2} value={purpose}
+                        onChange={e => setPurpose(e.target.value)} />
+            </label>
+
+            {error && <div className="rc-error"><i className="fas fa-circle-exclamation me-1"></i>{error}</div>}
+
+            <div className="rc-modal-actions">
+              <button type="button" className="btn btn-ghost btn-sm" onClick={onClose} disabled={busy}>
+                {t('btn.cancel', 'Cancel')}
+              </button>
+              <button type="submit" className="btn btn-primary btn-sm" disabled={busy || !user || !project.trim()}>
+                {busy
+                  ? <><i className="fas fa-spinner fa-spin me-1"></i>{t('cal.creating', 'Reserving…')}</>
+                  : <><i className="fas fa-check me-1"></i>{t('cal.book', 'Reserve')} {startTime}–{endTime}</>}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );

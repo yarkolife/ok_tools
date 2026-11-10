@@ -38,6 +38,11 @@ DEFAULT_MIN_READ_MBPS = 1.0
 DEFAULT_MAX_HEALTH_AGE_SECONDS = 2 * 3600
 # Grace period between terminate() and kill() for a child stuck in I/O.
 TERMINATE_GRACE = 10.0
+# Directory entries looked at when a location has no known video to sample
+# (e.g. a share holding only inventory photos).
+DIR_SCAN_LIMIT = 200
+# probe_directory(): the folder answered but holds no file to read.
+EMPTY = 'empty'
 
 
 def mp_context():
@@ -86,6 +91,83 @@ def _probe_worker(path, sample_bytes, result):
     os._exit(0)
 
 
+def _find_sample_in_dir(root, limit=DIR_SCAN_LIMIT):
+    """Return the first non-empty regular file under ``root``, or ``''``.
+
+    Breadth first and bounded by ``limit`` entries. Raises ``OSError`` when
+    ``root`` itself cannot be listed; unreadable subfolders are skipped.
+    """
+    queue = [root]
+    seen = 0
+    while queue:
+        folder = queue.pop(0)
+        try:
+            entries = os.scandir(folder)
+        except OSError:
+            if folder == root:
+                raise
+            continue
+        with entries:
+            for entry in entries:
+                seen += 1
+                if seen > limit:
+                    return ''
+                try:
+                    if entry.is_file(follow_symlinks=False) and entry.stat().st_size > 0:
+                        return entry.path
+                    if entry.is_dir(follow_symlinks=False):
+                        queue.append(entry.path)
+                except OSError:
+                    continue
+    return ''
+
+
+def _dir_probe_worker(root, sample_bytes, result):
+    """Child entry point for probe_directory(): -1 unreadable, -2 empty."""
+    try:
+        path = _find_sample_in_dir(root)
+        if path:
+            read, elapsed = _read_sample(path, sample_bytes)
+            result[0] = float(read)
+            result[1] = elapsed
+        else:
+            result[0] = -2.0
+    except BaseException:  # noqa: BLE001 - any failure means "cannot read"
+        result[0] = -1.0
+    os._exit(0)
+
+
+def probe_directory(root, sample_bytes=PROBE_SAMPLE_BYTES, timeout=PROBE_TIMEOUT):
+    """Read speed of any file in ``root`` (MB/s), ``EMPTY`` or ``None``.
+
+    For locations without a known video: lists the folder and reads the first
+    file found, in a child process like probe_read_speed(). ``EMPTY`` means the
+    folder answered but holds nothing to read; ``None`` means it could not be
+    listed or read in time.
+    """
+    context = mp_context()
+    result = context.Array(ctypes.c_double, 2)
+    try:
+        proc = context.Process(target=_dir_probe_worker, args=(root, sample_bytes, result))
+        proc.start()
+    except Exception:
+        logger.warning('Cannot fork a probe process for %s', root, exc_info=True)
+        return None
+
+    proc.join(timeout)
+    if proc.is_alive():
+        kill_child(proc)
+        logger.warning('Directory probe timed out after %.0fs: %s', timeout, root)
+        return None
+
+    read, elapsed = result[0], result[1]
+    if read == -2.0:
+        return EMPTY
+    if read <= 0:
+        return None
+    return (read / MB) / elapsed
+
+
 def probe_read_speed(path, sample_bytes=PROBE_SAMPLE_BYTES, timeout=PROBE_TIMEOUT):
     """Measure read speed of ``path`` in MB/s, or ``None`` when unreadable.
 
@@ -132,6 +214,16 @@ def record_read_speed(storage_location, read_mbps):
     )
 
 
+def _clear_health(storage_location):
+    """Forget the last measurement: the location's health is unknown."""
+    from media_files.models import StorageLocation
+
+    storage_location.last_read_mbps = None
+    storage_location.last_health_check = None
+    StorageLocation.objects.filter(pk=storage_location.pk).update(
+        last_read_mbps=None, last_health_check=None)
+
+
 def _pick_sample_file(storage_location):
     """Return the path of a file on this location that is cheap to sample."""
     from media_files.models import VideoFile
@@ -153,12 +245,16 @@ def measure_storage_health(storage_location, timeout=PROBE_TIMEOUT):
     """
     sample_path = _pick_sample_file(storage_location)
     if not sample_path:
-        # Nothing to read: record the attempt, but do not claim a speed.
-        record_read_speed(storage_location, None)
-        logger.debug('No sample file on storage %s; health unknown', storage_location)
-        return None
-
-    read_mbps = probe_read_speed(sample_path, timeout=timeout)
+        # No known video (e.g. a share with photos only): read any file there.
+        read_mbps = probe_directory(storage_location.path, timeout=timeout)
+        if read_mbps == EMPTY:
+            # Reachable but nothing to read: health unknown, not "silent".
+            _clear_health(storage_location)
+            logger.debug('Storage %s holds no file to sample; health unknown', storage_location)
+            return None
+        sample_path = storage_location.path
+    else:
+        read_mbps = probe_read_speed(sample_path, timeout=timeout)
     record_read_speed(storage_location, read_mbps)
     if read_mbps is None:
         logger.warning(

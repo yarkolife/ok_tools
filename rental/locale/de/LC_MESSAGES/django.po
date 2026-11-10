@@ -125,7 +125,7 @@ msgstr "Projektname"
 
 #: rental/admin.py:307 rental/models.py:35 rental/views.py:343
 msgid "Purpose"
-msgstr ""
+msgstr "Zweck"
 
 #: rental/admin.py:308 rental/models.py:39 rental/models.py:771
 #: rental/templates/rental/print_pick_list.html:107
@@ -4975,3 +4975,22 @@ msgstr "Dieses Material kann nicht geändert werden."
 
 msgid "Returned and closed rentals"
 msgstr "Zurückgegebene und geschlossene Ausleihen"
+
+# Room calendar: reserve from the day view
+msgid "Click a free slot or drag across several to reserve the room."
+msgstr "Auf einen freien Slot klicken oder über mehrere ziehen, um den Raum zu reservieren."
+
+msgid "Click to reserve"
+msgstr "Klicken zum Reservieren"
+
+msgid "Please choose a user."
+msgstr "Bitte einen Nutzer auswählen."
+
+msgid "Reserving…"
+msgstr "Wird reserviert…"
+
+msgid "Room reserved"
+msgstr "Raum reserviert"
+
+msgid "Open rental"
+msgstr "Ausleihe öffnen"

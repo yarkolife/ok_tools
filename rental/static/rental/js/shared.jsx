@@ -366,8 +366,119 @@ function SignatureModal({ urls, onClose, onSigned }) {
   );
 }
 
+/* --------- user search (wizard, quick mode, room calendar) --------- */
+function useUserSearch(initial, q) {
+  const [remoteUsers, setRemoteUsers] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!q || q.length < 2) { setRemoteUsers([]); setLoading(false); return; }
+    setLoading(true);
+    const timer = setTimeout(() => {
+      apiGet(initial.urls.users_search + '?q=' + encodeURIComponent(q))
+        .then(data => setRemoteUsers(data.users || []))
+        .catch(() => setRemoteUsers([]))
+        .finally(() => setLoading(false));
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [q]);
+
+  const needle = (q || '').toLowerCase();
+  const localFiltered = (initial.users || []).filter(u =>
+    !needle || u.name.toLowerCase().includes(needle) || u.org.toLowerCase().includes(needle)
+  );
+  const seen = new Set(localFiltered.map(u => u.id));
+  return {
+    users: [...localFiltered, ...(remoteUsers || []).filter(u => !seen.has(u.id))],
+    loading,
+  };
+}
+
+function QuickUserPicker({ initial, user, setUser, onPicked }) {
+  const [q, setQ] = React.useState('');
+  const [open, setOpen] = React.useState(false);
+  const { users, loading } = useUserSearch(initial, q);
+  const boxRef = React.useRef(null);
+
+  // Close the menu when the operator clicks anywhere else.
+  React.useEffect(() => {
+    if (!open) return;
+    const onPointerDown = e => {
+      if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    return () => document.removeEventListener('mousedown', onPointerDown);
+  }, [open]);
+
+  const pick = u => { setUser(u); setQ(''); setOpen(false); if (onPicked) onPicked(u); };
+
+  if (user) {
+    return (
+      <div className="d-flex align-items-center" style={{gap: 8, minWidth: 0}}>
+        <Avatar user={user} size={26} />
+        <div style={{minWidth: 0}}>
+          <div className="text-truncate" style={{fontWeight: 500, fontSize: 13}}>{user.name}</div>
+          <div className="tiny text-truncate d-flex align-items-center" style={{gap: 4}}>
+            <RoleBadge role={user.role} roleKey={user.role_key} />
+            <span className="muted text-truncate">{user.org}</span>
+          </div>
+        </div>
+        <button className="btn btn-ghost btn-sm ms-auto" type="button"
+                title={t('wiz.clear', 'Clear')}
+                onClick={() => { setUser(null); setQ(''); setOpen(true); }}>
+          <i className="fas fa-times muted"></i>
+        </button>
+      </div>
+    );
+  }
+
+  const options = users.slice(0, 20);
+  return (
+    <div ref={boxRef} style={{position: 'relative'}}>
+      <div className="input-group input-group-sm">
+        <span className="input-group-text"><i className="fas fa-search"></i></span>
+        <input type="text" className="form-control"
+               placeholder={t('wiz.search_user', 'Search by name, email, student ID…')}
+               value={q}
+               onFocus={() => setOpen(true)}
+               onChange={e => { setQ(e.target.value); setOpen(true); }}
+               onKeyDown={e => {
+                 if (e.key === 'Escape') setOpen(false);
+                 // Enter picks the only remaining match, so a keyboard-only
+                 // operator never has to reach for the mouse.
+                 if (e.key === 'Enter' && options.length === 1) {
+                   e.preventDefault();
+                   pick(options[0]);
+                 }
+               }} />
+      </div>
+      {open && (
+        <div className="quick-user-menu">
+          {loading && <div className="muted tiny p-2">{t('loading', 'Loading…')}</div>}
+          {!loading && options.length === 0 && (
+            <div className="muted tiny p-2">{t('wiz.no_users', 'No users match your search.')}</div>
+          )}
+          {options.map(u => (
+            <div key={u.id} className="quick-user-option" onClick={() => pick(u)}>
+              <Avatar user={u} size={26} />
+              <div style={{minWidth: 0}}>
+                <div className="text-truncate" style={{fontWeight: 500, fontSize: 13}}>{u.name}</div>
+                <div className="tiny text-truncate d-flex align-items-center" style={{gap: 4}}>
+                  <RoleBadge role={u.role} roleKey={u.role_key} />
+                  <span className="muted text-truncate">{u.org}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 Object.assign(window, {
   cls, fmtDate, fmtDateShort,
   getCookie, apiPost, apiGet,
   t, FLAGS, beep, StatusPill, Avatar, RoleBadge, SignatureModal,
+  useUserSearch, QuickUserPicker,
 });
