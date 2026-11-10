@@ -568,21 +568,34 @@
 
 {% block submit_buttons_bottom %}
     {{ block.super }}
-    <div class="submit-row">
-        <input form="{{ opts.model_name }}_form"
-            type="submit"
-            value="{% translate 'Print license' %}"
-            name='_print_license'>
-        <input form="{{ opts.model_name }}_form"
-            type="submit"
-            value="{% translate 'Download PDF' %}"
-            name='_download_pdf'
-            style="margin-left: 10px;">
+    <div class="submit-row ok-extra-submit">
+        <button form="{{ opts.model_name }}_form" type="submit" name="_print_license" value="1"
+                class="ok-btn ok-btn--secondary">
+            {% if ADMIN_UNFOLD_ENABLED %}<span class="material-symbols-outlined" aria-hidden="true">print</span>{% endif %}
+            {% translate 'Print license' %}
+        </button>
+        <button form="{{ opts.model_name }}_form" type="submit" name="_download_pdf" value="1"
+                class="ok-btn ok-btn--secondary">
+            {% if ADMIN_UNFOLD_ENABLED %}<span class="material-symbols-outlined" aria-hidden="true">download</span>{% endif %}
+            {% translate 'Download PDF' %}
+        </button>
+        {% if object.confirmed %}
+        <span class="ok-extra-submit__hint">
+            {% blocktranslate %}Confirmed licenses are not editable!{% endblocktranslate %}
+        </span>
+        {% endif %}
     </div>
-    {% if object.confirmed %}
-    <p>
-        {% blocktranslate %}
-            Confirmed licenses are not editable!
-        {% endblocktranslate %}
-   {% endif %}
+    {% if ADMIN_UNFOLD_ENABLED %}
+    <script>
+    // Put print / PDF into Unfold's sticky submit bar, next to Close / Delete.
+    (function () {
+        var row = document.currentScript.previousElementSibling;
+        var bar = document.querySelector('#submit-row .container');
+        var left = bar && bar.querySelector(':scope > .mr-auto');
+        if (!row || !bar) return;
+        row.classList.add('ok-extra-submit--in-bar');
+        if (left) { bar.insertBefore(row, left); } else { bar.appendChild(row); }
+    })();
+    </script>
+    {% endif %}
 {% endblock %}

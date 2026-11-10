@@ -243,3 +243,23 @@ html.dark [style*="color: #ba2121"], html.dark [style*="color:#c00"] { color: va
 html.dark [style*="color: #17a2b8"], html.dark [style*="color:#17a2b8"] { color: var(--ok-info) !important; }
 .ok-link:hover { text-decoration: underline; }
 .ok-btn-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Extra buttons below the change form (e.g. print / PDF of a license) */
+.ok-extra-submit {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 12px 0;
+    background: none;
+    border: 0;
+}
+.ok-extra-submit .ok-btn { margin-top: 0; height: 36px; font-size: 14px; }
+.ok-extra-submit .ok-btn .material-symbols-outlined { font-size: 18px; }
+.ok-extra-submit__hint {
+    margin-left: 6px;
+    color: var(--ok-ink-3);
+    font-size: 13px;
+}
+.ok-extra-submit--in-bar { padding: 0; }

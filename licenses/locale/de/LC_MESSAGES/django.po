@@ -3023,3 +3023,12 @@ msgstr "Titel, Untertitel, Nummer, Beschreibung, weitere Personen, alte Beitrags
 
 msgid "medium number, license title or number"
 msgstr "Trägernummer, Titel oder Nummer der Freistellung"
+
+msgid "Confirmed licenses are not editable!"
+msgstr "Genehmigte Freistellungen sind nicht bearbeitbar!"
+
+msgid "Skipped (no profile): %s"
+msgstr "Übersprungen (kein Profil): %s"
+
+msgid "PDF could not be created for: %s"
+msgstr "PDF konnte nicht erstellt werden für: %s"

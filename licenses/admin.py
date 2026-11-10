@@ -1362,6 +1362,7 @@ class LicenseAdmin(ExportMixin, ModelAdmin):
         'confirm',
         'unconfirm',
         'duplicate_license',
+        'download_pdf_action',
         'search_videos_for_licenses',
         'clear_mediathek_url_action',
         'refresh_mediathek_url_action',
@@ -1512,6 +1513,50 @@ class LicenseAdmin(ExportMixin, ModelAdmin):
               '%(failed)d fehlgeschlagen.') % {
                 'generated': generated, 'skipped': skipped, 'failed': failed},
             messages.SUCCESS if not failed else messages.WARNING)
+
+    @admin.action(description=_('Download PDF'))
+    def download_pdf_action(self, request, queryset):
+        """PDF of the selected licenses: one file, or a ZIP for several."""
+        import io
+        import zipfile
+        from django.http import FileResponse
+        from .generate_file import _build_license_pdf_bytes
+        from .generate_file import normalize_filename
+
+        licenses = list(queryset.select_related('profile').order_by('number'))
+        without_profile = [lic for lic in licenses if not lic.profile_id]
+        licenses = [lic for lic in licenses if lic.profile_id]
+        if without_profile:
+            self.message_user(
+                request,
+                _('Skipped (no profile): %s') % ', '.join(str(lic.number) for lic in without_profile),
+                messages.WARNING)
+        if not licenses:
+            return None
+
+        def pdf_name(lic):
+            title = normalize_filename(lic.title) if lic.title else 'Untitled'
+            return f"{lic.number}_{title}.pdf"
+
+        if len(licenses) == 1:
+            return generate_license_file(licenses[0], filename=pdf_name(licenses[0]), as_attachment=True)
+
+        buffer = io.BytesIO()
+        failed = []
+        with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as archive:
+            for lic in licenses:
+                try:
+                    archive.writestr(pdf_name(lic), _build_license_pdf_bytes(lic))
+                except Exception:
+                    failed.append(str(lic.number))
+        if failed:
+            self.message_user(
+                request, _('PDF could not be created for: %s') % ', '.join(failed), messages.WARNING)
+            if len(failed) == len(licenses):
+                return None
+        buffer.seek(0)
+        stamp = timezone.localtime().strftime('%Y%m%d_%H%M')
+        return FileResponse(buffer, filename=f'Freistellungen_{stamp}.zip', as_attachment=True)
 
     @admin.action(description=_('Create a copy of selected licenses'))
     def duplicate_license(self, request, queryset):
