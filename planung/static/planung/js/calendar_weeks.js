@@ -531,8 +531,6 @@
                     const durationSeconds = item.duration || 0;
                     const endTime = calculateEndTime(item.start, durationSeconds);
                     const licenseId = item.license_id || '';
-                    const licenseLink = licenseId ? '<a href="/admin/licenses/license/' + licenseId + '/change/" target="_blank">' + item.number + '</a>' : item.number;
-                    const contributionLink = licenseId ? ' <a href="/admin/contributions/contribution/?q=' + item.number + '" target="_blank" title="' + gettext('View Contributions') + '">📺</a>' : '';
                     const senderResponsible = item.sender_responsible || item.author || '';
                     // Store time with seconds internally, but display only HH:MM
                     let startTimeWithSeconds = item.start;
@@ -543,15 +541,14 @@
                     }
                     const startTimeDisplay = timeToDisplay(startTimeWithSeconds); // Show only HH:MM
                     const isLive = Boolean(item.is_live);
-                    const liveBadge = isLive ? '<span class="live-badge" style="margin-left: 4px;"><svg viewBox="0 0 24 24" fill="#dc3545" stroke="#dc3545" stroke-width="2" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3" fill="white" stroke="white" stroke-width="1.5"></path></svg></span>' : '';
                     const $row = $('<tr data-license-id="' + (licenseId || '') + '" data-license-number="' + item.number + '">' +
                       '<td><input type="time" class="form-control input-sm start-time-input" value="' + startTimeDisplay + '" data-internal-time="' + startTimeWithSeconds + '"><small class="time-with-seconds" style="display: block; font-size: 11px; color: var(--plan-muted); font-weight: normal; margin-top: 2px;">' + startTimeWithSeconds + '</small></td>' +
                       '<td class="end-time">' + endTime + '</td>' +
-                      '<td>' + licenseLink + contributionLink + liveBadge + '</td>' +
+                      '<td class="license-number-cell">' + numberCellHtml(item.number, licenseId, isLive) + '</td>' +
                       '<td>' + (item.title || '') + (item.subtitle ? ' – ' + item.subtitle : '') + '</td>' +
                       '<td class="sender-responsible">' + senderResponsible + '</td>' +
                       '<td>' + formatTime(durationSeconds) + '</td>' +
-                      '<td><span class="drag-handle" style="cursor:move;font-size:18px;margin-right:6px;">&#9776;</span><button class="btn btn-xs btn-danger remove-row">&times;</button></td>' +
+                      '<td class="plan-actions">' + actionsCellHtml(item.number, licenseId) + '</td>' +
                       '</tr>');
                     $row.data('is-live', isLive);
                     $row.data('youth-protection', item.youth_protection || null);
@@ -935,6 +932,103 @@
       return roundedPos;
     }
 
+    // Number cell of a plan row: license link, contributions link, live
+    // badge and the button that replaces the license in place.
+    function numberCellHtml(number, licenseId, isLive) {
+      const link = licenseId
+        ? '<a href="/admin/licenses/license/' + licenseId + '/change/" target="_blank">' + number + '</a>'
+        : String(number);
+      const live = isLive
+        ? '<span class="live-badge" style="margin-left: 4px;"><svg viewBox="0 0 24 24" fill="#dc3545" stroke="#dc3545" stroke-width="2" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3" fill="white" stroke="white" stroke-width="1.5"></path></svg></span>'
+        : '';
+      const edit = '<button type="button" class="replace-license-btn" title="' + gettext('Replace license number') + '" aria-label="' + gettext('Replace license number') + '">' +
+        '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M11.06 1.94a1.5 1.5 0 0 1 2.12 0l.88.88a1.5 1.5 0 0 1 0 2.12l-8 8a.75.75 0 0 1-.35.2l-3 .75a.75.75 0 0 1-.91-.91l.75-3a.75.75 0 0 1 .2-.35l8-8Zm1.06 1.06-.94.94 1 1 .94-.94-1-1Zm-2 2-6.38 6.38-.33 1.33 1.33-.33L12.12 6l-2-1Z" fill="currentColor"/></svg>' +
+        '</button>';
+      return '<span class="license-number">' + link + live + '</span>' + edit;
+    }
+
+    // Actions cell: contributions of the license, drag handle, remove.
+    function actionsCellHtml(number, licenseId) {
+      const contributions = licenseId
+        ? '<a class="plan-action plan-action--contrib" href="/admin/contributions/contribution/?q=' + number + '" target="_blank" title="' + gettext('View Contributions') + '" aria-label="' + gettext('View Contributions') + '">📺</a>'
+        : '';
+      return contributions +
+        '<span class="drag-handle" style="cursor:move;font-size:18px;margin-right:6px;">&#9776;</span>' +
+        '<button class="btn btn-xs btn-danger remove-row">&times;</button>';
+    }
+
+    // Replace the license of a row, keeping its start time.
+    function replaceRowLicense($row, number) {
+      $.get('/api/license/' + number + '/', function (data) {
+        const licenseId = data.license_id || '';
+        const isLive = Boolean(data.is_live);
+        const cells = $row.find('td');
+        $row.attr('data-license-id', licenseId).data('license-id', licenseId);
+        $row.attr('data-license-number', data.number).data('license-number', data.number);
+        $row.data('is-live', isLive);
+        $row.data('youth-protection', data.youth_protection || null);
+        cells.eq(2).html(numberCellHtml(data.number, licenseId, isLive));
+        cells.eq(6).html(actionsCellHtml(data.number, licenseId));
+        cells.eq(3).text(data.title + (data.subtitle ? ' – ' + data.subtitle : ''));
+        cells.eq(4).text(data.sender_responsible || data.author || '');
+        cells.eq(5).text(formatTime(data.duration_seconds));
+        syncPlannedItemsFromTable();
+        recalculateSchedule();
+        updateRemainingTime();
+        notify(interpolate(gettext('Replaced by license %s'), [data.number]), 'success');
+      }).fail(function () {
+        notify(gettext('License not found or not confirmed'), 'error');
+        $row.find('.license-number-input').addClass('planning-input-error').trigger('focus');
+      });
+    }
+
+    $('#licenseTable').on('click', '.replace-license-btn', function () {
+      const $cell = $(this).closest('td');
+      if ($cell.find('.license-number-input').length) return;
+      const current = $cell.closest('tr').data('license-number') || '';
+      const $input = $('<input type="number" class="license-number-input" inputmode="numeric">')
+        .val(current)
+        .attr('aria-label', gettext('Replace license number'))
+        .attr('title', gettext('Enter: replace · Esc: cancel'));
+      $cell.children().hide();
+      $cell.append($input);
+      $input.trigger('focus').trigger('select');
+    });
+
+    function closeNumberEditor($input) {
+      const $cell = $input.closest('td');
+      $input.remove();
+      $cell.children().show();
+    }
+
+    $('#licenseTable').on('keydown', '.license-number-input', function (e) {
+      const $input = $(this);
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();   // keep the modal open
+        closeNumberEditor($input);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const $row = $input.closest('tr');
+        const number = String($input.val()).trim();
+        if (!number || number === String($row.data('license-number'))) {
+          closeNumberEditor($input);
+          return;
+        }
+        replaceRowLicense($row, number);
+      }
+    });
+
+    $('#licenseTable').on('blur', '.license-number-input', function () {
+      const $input = $(this);
+      // Leave the editor open while a lookup failed, so the number can be fixed.
+      setTimeout(function () {
+        if ($input.closest('body').length && !$input.hasClass('planning-input-error')) {
+          closeNumberEditor($input);
+        }
+      }, 150);
+    });
+
     $('#addLicenseBtn').on('click', function () {
       const number = $('#licenseNumberInput').val().trim();
       if (!number) return;
@@ -945,8 +1039,6 @@
         const startTime = secondsToTimeString(bestPosition);
         const endTime = secondsToTimeString(bestPosition + data.duration_seconds);
         const licenseId = data.license_id || '';
-        const licenseLink = licenseId ? '<a href="/admin/licenses/license/' + licenseId + '/change/" target="_blank">' + data.number + '</a>' : data.number;
-                    const contributionLink = licenseId ? ' <a href="/admin/contributions/contribution/?q=' + data.number + '" target="_blank" title="' + gettext('View Contributions') + '">📺</a>' : '';
         const senderResponsible = data.sender_responsible || data.author || '';
 
         // Format start time: store with seconds internally, display only HH:MM
@@ -954,15 +1046,14 @@
         const startTimeWithSeconds = startTime;
         const startTimeDisplay = timeToDisplay(startTimeWithSeconds); // Show only HH:MM
         const isLive = Boolean(data.is_live);
-        const liveBadge = isLive ? '<span class="live-badge" style="margin-left: 4px;"><svg viewBox="0 0 24 24" fill="#dc3545" stroke="#dc3545" stroke-width="2" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3" fill="white" stroke="white" stroke-width="1.5"></path></svg></span>' : '';
         const $row = $('<tr data-license-id="' + (licenseId || '') + '" data-license-number="' + data.number + '">' +
           '<td><input type="time" class="form-control input-sm start-time-input" value="' + startTimeDisplay + '" data-internal-time="' + startTimeWithSeconds + '"><small class="time-with-seconds" style="display: block; font-size: 11px; color: var(--plan-muted); font-weight: normal; margin-top: 2px;">' + startTimeWithSeconds + '</small></td>' +
           '<td class="end-time">' + endTime + '</td>' +
-          '<td>' + licenseLink + contributionLink + liveBadge + '</td>' +
+          '<td class="license-number-cell">' + numberCellHtml(data.number, licenseId, isLive) + '</td>' +
           '<td>' + data.title + (data.subtitle ? ' – ' + data.subtitle : '') + '</td>' +
           '<td class="sender-responsible">' + senderResponsible + '</td>' +
           '<td>' + formatTime(data.duration_seconds) + '</td>' +
-          '<td><span class="drag-handle" style="cursor:move;font-size:18px;margin-right:6px;">&#9776;</span><button class="btn btn-xs btn-danger remove-row">&times;</button></td>' +
+          '<td class="plan-actions">' + actionsCellHtml(data.number, licenseId) + '</td>' +
           '</tr>');
         $row.data('is-live', isLive);
         $row.data('youth-protection', data.youth_protection || null);
@@ -1411,7 +1502,7 @@
 
           // Extract license number from link or text
           const numberCell = $row.find('td').eq(2);
-          let licenseNumber = numberCell.text().trim();
+          let licenseNumber = String($row.data('license-number') || numberCell.find('.license-number').text() || numberCell.text()).trim();
           // If it's a link, extract number from link text
           const linkText = numberCell.find('a').first().text();
           if (linkText) {
@@ -1638,7 +1729,7 @@
         const $input = $row.find('.start-time-input');
         const start = getInternalTime($input); // Get time with seconds
         const numberCell = $row.find('td').eq(2);
-        let licenseNumber = numberCell.text().trim();
+        let licenseNumber = String($row.data('license-number') || numberCell.find('.license-number').text() || numberCell.text()).trim();
         const linkText = numberCell.find('a').first().text();
         if (linkText) {
           licenseNumber = linkText.trim();

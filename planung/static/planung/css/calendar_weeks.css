@@ -751,3 +751,57 @@ html.dark .planning-toast { background: #0b0e13; }
   .planning-footer__group--export,
   .planning-footer__group--primary { margin-left: 0; }
 }
+
+/* Replace the license of a plan row in place */
+#licenseTable .license-number-cell { white-space: nowrap; }
+#licenseTable .replace-license-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: 4px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--plan-muted);
+  cursor: pointer;
+  vertical-align: middle;
+  opacity: .55;
+}
+#licenseTable tr:hover .replace-license-btn,
+#licenseTable .replace-license-btn:focus-visible { opacity: 1; }
+#licenseTable .replace-license-btn:hover {
+  border-color: var(--plan-border);
+  background: var(--plan-surface-2);
+  color: var(--ok-brand, #417690);
+}
+#licenseTable .license-number-input {
+  width: 92px;
+  height: 30px;
+  padding: 0 6px;
+  border: 1px solid var(--ok-brand, #417690);
+  border-radius: 5px;
+  background: var(--plan-surface);
+  color: var(--plan-text);
+  font-weight: 600;
+  box-shadow: 0 0 0 3px var(--plan-ring);
+  -moz-appearance: textfield;
+}
+#licenseTable .license-number-input::-webkit-outer-spin-button,
+#licenseTable .license-number-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+#licenseTable .plan-actions { white-space: nowrap; }
+#licenseTable .plan-action--contrib {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-right: 6px;
+  border-radius: 4px;
+  text-decoration: none;
+  vertical-align: middle;
+}
+#licenseTable .plan-action--contrib:hover { background: var(--plan-surface-2); }

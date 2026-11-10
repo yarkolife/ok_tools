@@ -426,3 +426,12 @@ msgstr ""
 "Jugendschutz: Diese Beiträge dürfen zur geplanten Zeit nicht gesendet werden, "
 "der Tag kann nicht gespeichert werden:"
 
+
+msgid "Replace license number"
+msgstr "Freistellungsnummer ersetzen"
+
+msgid "Replaced by license %s"
+msgstr "Ersetzt durch Freistellung %s"
+
+msgid "Enter: replace · Esc: cancel"
+msgstr "Enter: ersetzen · Esc: abbrechen"
