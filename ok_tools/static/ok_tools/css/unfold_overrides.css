@@ -182,16 +182,6 @@ ul.object-tools > li > a:not(.border):hover {
     --focus-color: var(--ok-brand);
 }
 
-/* Our date/time range filter (admin/filter_datetime_range.html) */
-.date-range-filter-container input[type=date],
-.date-range-filter-container input[type=time] {
-    min-height: 34px;
-    border-radius: var(--ok-radius) !important;
-}
-.date-range-filter-container .date-filter-btn {
-    border-radius: var(--ok-radius) !important;
-}
-
 /* ---- Brand bar: the top of the sidebar and the header row share the
    blue bar of the pages outside the admin (ok-topbar in ok_theme.css). ---- */
 .ok-brandbar,

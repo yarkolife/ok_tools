@@ -72,7 +72,9 @@
 </style>
 {% endblock %}
 
-{% block submit_buttons_bottom %}
+{% block after_field_sets %}
+{{ block.super }}
+    {% comment %}Inside the form in both admin themes (Unfold renders submit_buttons_bottom outside it).{% endcomment %}
     <div id="date-selection-container" style="display: none;">
         <label for="import_from_date_select">{% translate 'Import from date' %}:</label>
         <select name="import_from_date_select" id="import_from_date_select" size="1">
@@ -82,17 +84,8 @@
         <span id="dates-loading" style="display: none;">{% translate 'Loading dates...' %}</span>
         <div id="dates-error" style="display: none;"></div>
     </div>
-    
-    <div class="custom-submit-row">
-        <input form="{{ opts.model_name }}_form" type="submit" value="{% translate 'Save' %}" name="_save">
-        <input form="{{ opts.model_name }}_form" type="submit" value="{% translate 'Save and Import' %}" name="_import_disa">
-    </div>
-{% endblock %}
-
-{% block admin_change_form_document_ready %}
-{{ block.super }}
 <script>
-(function() {
+document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('id_file');
     const dateContainer = document.getElementById('date-selection-container');
     const dateSelect = document.getElementById('import_from_date_select');
@@ -211,6 +204,35 @@
         });
     })();
     {% endif %}
-})();
+});
 </script>
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+{% if ADMIN_UNFOLD_ENABLED %}
+    {{ block.super }}
+    <div class="submit-row ok-extra-submit">
+        <button form="{{ opts.model_name }}_form" type="submit" name="_import_disa" value="1"
+                class="ok-btn">
+            <span class="material-symbols-outlined" aria-hidden="true">upload</span>
+            {% translate 'Save and Import' %}
+        </button>
+    </div>
+    <script>
+    // Put "Save and Import" into Unfold's sticky submit bar.
+    (function () {
+        var row = document.currentScript.previousElementSibling;
+        var bar = document.querySelector('#submit-row .container');
+        var left = bar && bar.querySelector(':scope > .mr-auto');
+        if (!row || !bar) return;
+        row.classList.add('ok-extra-submit--in-bar');
+        if (left) { bar.insertBefore(row, left); } else { bar.appendChild(row); }
+    })();
+    </script>
+{% else %}
+    <div class="custom-submit-row">
+        <input form="{{ opts.model_name }}_form" type="submit" value="{% translate 'Save' %}" name="_save">
+        <input form="{{ opts.model_name }}_form" type="submit" value="{% translate 'Save and Import' %}" name="_import_disa">
+    </div>
+{% endif %}
 {% endblock %}

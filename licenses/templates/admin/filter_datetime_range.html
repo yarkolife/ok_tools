@@ -1,117 +1,129 @@
 {% load i18n %}
+{% comment %}Date/time range filter (ok_tools.admin_filters.DateTimeRangeListFilter). Colours from ok_theme.css.{% endcomment %}
+<div class="date-range-filter-container">
+    <h4 class="dtr-title">{% trans "Custom date range" %}</h4>
+    <form method="get" class="dtr-form">
+        {% for k, v in spec.other_params %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}
 
-<div class="date-range-filter-container" style="background: var(--body-bg); border: 1px solid var(--hairline-color); border-radius: 4px; padding: 15px; margin: 10px 0;">
+        <div class="dtr-group">
+            <div class="dtr-field">
+                <label for="{{ spec.parameter_name }}__gte_0">{% trans "Date from" %}</label>
+                <input type="date" id="{{ spec.parameter_name }}__gte_0" name="{{ spec.parameter_name }}__gte_0" value="{{ spec.values.gte_0 }}">
+            </div>
+            {% if spec.with_time %}
+            <div class="dtr-field">
+                <label for="{{ spec.parameter_name }}__gte_1">{% trans "Time from" %}</label>
+                <input type="time" id="{{ spec.parameter_name }}__gte_1" name="{{ spec.parameter_name }}__gte_1" value="{{ spec.values.gte_1 }}">
+            </div>
+            {% endif %}
+        </div>
+        <div class="dtr-group">
+            <div class="dtr-field">
+                <label for="{{ spec.parameter_name }}__lte_0">{% trans "Date to" %}</label>
+                <input type="date" id="{{ spec.parameter_name }}__lte_0" name="{{ spec.parameter_name }}__lte_0" value="{{ spec.values.lte_0 }}">
+            </div>
+            {% if spec.with_time %}
+            <div class="dtr-field">
+                <label for="{{ spec.parameter_name }}__lte_1">{% trans "Time to" %}</label>
+                <input type="time" id="{{ spec.parameter_name }}__lte_1" name="{{ spec.parameter_name }}__lte_1" value="{{ spec.values.lte_1 }}">
+            </div>
+            {% endif %}
+        </div>
 
-    <!-- Custom date range -->
-    <div class="custom-date-range">
-        <h4 style="margin: 0 0 10px 0; font-size: 13px; color: var(--body-fg);">{% trans "Custom date range" %}:</h4>
-        <form method="get" id="date-filter-form" style="display: flex; align-items: end; gap: 10px; flex-wrap: wrap;">
-
-            <!-- Hidden fields to save other parameters -->
-            {% for k, v in spec.form.data.items %}
-                {% if k != spec.parameter_name|add:"__gte_0" and k != spec.parameter_name|add:"__gte_1" and k != spec.parameter_name|add:"__lte_0" and k != spec.parameter_name|add:"__lte_1" %}
-                    <input type="hidden" name="{{ k }}" value="{{ v }}">
-                {% endif %}
+        <div class="dtr-actions">
+            <button type="submit" class="ok-btn date-filter-btn date-filter-submit">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+                {% trans "Search" %}
+            </button>
+            {% for choice in choices %}
+            <a href="{{ choice.query_string|iriencode }}" class="ok-btn ok-btn--secondary date-filter-btn date-filter-reset">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"></path><path d="M3 3v5h5"></path></svg>
+                {% trans "Reset" %}
+            </a>
             {% endfor %}
+        </div>
+    </form>
 
-            <div>
-                <label for="{{ spec.parameter_name }}__gte_0" style="display: block; font-size: 12px; margin-bottom: 3px; color: var(--body-fg);">{% trans "Date from" %}:</label>
-                <input type="date"
-                       id="{{ spec.parameter_name }}__gte_0"
-                       name="{{ spec.parameter_name }}__gte_0"
-                       value="{{ spec.form.gte_0.value|default:'' }}"
-                       style="padding: 6px; border: 1px solid var(--hairline-color); border-radius: 3px; font-size: 12px; background: var(--body-bg); color: var(--body-fg);">
-            </div>
-
-            <div>
-                <label for="{{ spec.parameter_name }}__gte_1" style="display: block; font-size: 12px; margin-bottom: 3px; color: var(--body-fg);">{% trans "Time from" %}:</label>
-                <input type="time"
-                       id="{{ spec.parameter_name }}__gte_1"
-                       name="{{ spec.parameter_name }}__gte_1"
-                       value="{{ spec.form.gte_1.value|default:'' }}"
-                       style="padding: 6px; border: 1px solid var(--hairline-color); border-radius: 3px; font-size: 12px; background: var(--body-bg); color: var(--body-fg);">
-            </div>
-
-            <div>
-                <label for="{{ spec.parameter_name }}__lte_0" style="display: block; font-size: 12px; margin-bottom: 3px; color: var(--body-fg);">{% trans "Date to" %}:</label>
-                <input type="date"
-                       id="{{ spec.parameter_name }}__lte_0"
-                       name="{{ spec.parameter_name }}__lte_0"
-                       value="{{ spec.form.lte_0.value|default:'' }}"
-                       style="padding: 6px; border: 1px solid var(--hairline-color); border-radius: 3px; font-size: 12px; background: var(--body-bg); color: var(--body-fg);">
-            </div>
-
-            <div>
-                <label for="{{ spec.parameter_name }}__lte_1" style="display: block; font-size: 12px; margin-bottom: 3px; color: var(--body-fg);">{% trans "Time to" %}:</label>
-                <input type="time"
-                       id="{{ spec.parameter_name }}__lte_1"
-                       name="{{ spec.parameter_name }}__lte_1"
-                       value="{{ spec.form.lte_1.value|default:'' }}"
-                       style="padding: 6px; border: 1px solid var(--hairline-color); border-radius: 3px; font-size: 12px; background: var(--body-bg); color: var(--body-fg);">
-            </div>
-
-            <div>
-                <button type="submit"
-                        class="date-filter-btn date-filter-submit"
-                        style="padding: 7px 14px;
-                               background: var(--button-bg);
-                               color: var(--button-fg);
-                               border: 1px solid var(--button-border);
-                               border-radius: 3px;
-                               cursor: pointer;
-                               font-size: 12px;">
-                    {% trans "Search" %}
-                </button>
-            </div>
-
-            <div>
-                <a href="?{% for k, v in spec.form.data.items %}{% if k != spec.parameter_name|add:'__gte_0' and k != spec.parameter_name|add:'__gte_1' and k != spec.parameter_name|add:'__lte_0' and k != spec.parameter_name|add:'__lte_1' %}{{ k }}={{ v }}&{% endif %}{% endfor %}"
-                   class="date-filter-btn date-filter-reset"
-                   style="display: inline-block;
-                          padding: 7px 14px;
-                          background: var(--button-bg);
-                          color: var(--button-fg);
-                          border: 1px solid var(--button-border);
-                          border-radius: 3px;
-                          text-decoration: none;
-                          font-size: 12px;
-                          cursor: pointer;">
-                    {% trans "Reset" %}
-                </a>
-            </div>
-        </form>
-    </div>
-
-    <!-- Display current filter -->
-    {% if spec.form.gte_0.value or spec.form.lte_0.value %}
-        <div style="margin-top: 10px; padding: 8px; background: var(--message-success-bg); border: 1px solid var(--message-success-border); border-radius: 3px;">
-            <small style="color: var(--message-success-fg);">
-                <strong>{% trans "Active filter" %}:</strong>
-                {% if spec.form.gte_0.value %}
-                    {% trans "from" %} {{ spec.form.gte_0.value }}{% if spec.form.gte_1.value %} {{ spec.form.gte_1.value }}{% endif %}
-                {% endif %}
-                {% if spec.form.gte_0.value and spec.form.lte_0.value %} — {% endif %}
-                {% if spec.form.lte_0.value %}
-                    {% trans "to" %} {{ spec.form.lte_0.value }}{% if spec.form.lte_1.value %} {{ spec.form.lte_1.value }}{% endif %}
-                {% endif %}
-            </small>
+    {% if spec.is_active %}
+        <div class="dtr-active">
+            <strong>{% trans "Active filter" %}:</strong>
+            {% if spec.label_from %}{% trans "from" %} {{ spec.label_from }}{% endif %}
+            {% if spec.label_from and spec.label_to %} — {% endif %}
+            {% if spec.label_to %}{% trans "to" %} {{ spec.label_to }}{% endif %}
         </div>
     {% endif %}
 </div>
 
 <style>
-.date-filter-btn:hover {
-    background: var(--button-hover-bg) !important;
-    border-color: var(--button-hover-border) !important;
+.date-range-filter-container {
+    margin: 10px 0;
+    padding: 14px;
+    border: 1px solid var(--ok-line, var(--hairline-color));
+    border-radius: var(--ok-radius, 6px);
+    background: var(--ok-surface, var(--body-bg));
+    color: var(--ok-ink, var(--body-fg));
 }
-
-.date-filter-btn:focus {
-    outline: 2px solid var(--focus-color);
-    outline-offset: 2px;
+.date-range-filter-container .dtr-title {
+    margin: 0 0 10px;
+    padding: 0;
+    background: none;
+    color: var(--ok-ink-2, var(--body-fg));
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    text-transform: uppercase;
 }
-
+.date-range-filter-container .dtr-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 10px 16px;
+    margin: 0;
+}
+.date-range-filter-container .dtr-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.date-range-filter-container .dtr-field label {
+    display: block;
+    margin: 0 0 4px;
+    padding: 0;
+    color: var(--ok-ink-3, var(--body-quiet-color));
+    font-size: 12px;
+    font-weight: 500;
+}
+.date-range-filter-container input[type=date],
+.date-range-filter-container input[type=time] {
+    box-sizing: border-box;
+    height: 34px;
+    min-height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--ok-line-2, var(--hairline-color));
+    border-radius: var(--ok-radius, 6px) !important;
+    background: var(--ok-surface, var(--body-bg));
+    color: var(--ok-ink, var(--body-fg));
+    font: inherit;
+    font-size: 13px;
+    color-scheme: light;
+}
+html.dark .date-range-filter-container input[type=date],
+html.dark .date-range-filter-container input[type=time] { color-scheme: dark; }
 .date-range-filter-container input:focus {
-    outline: 2px solid var(--focus-color);
+    border-color: var(--ok-brand, var(--focus-color));
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--ok-brand-rgb, 65, 118, 144), .2);
+}
+.date-range-filter-container .dtr-actions { display: flex; gap: 8px; }
+.date-range-filter-container .ok-btn { margin: 0; }
+.date-range-filter-container .ok-btn:focus-visible {
+    outline: 2px solid var(--ok-brand, var(--focus-color));
     outline-offset: 2px;
+}
+.date-range-filter-container .dtr-active {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 5px 10px;
+    border: 1px solid var(--ok-success-line, var(--message-success-border));
+    border-radius: 999px;
+    background: var(--ok-success-soft, var(--message-success-bg));
+    color: var(--ok-success-ink, var(--message-success-fg));
+    font-size: 12px;
 }
 </style>

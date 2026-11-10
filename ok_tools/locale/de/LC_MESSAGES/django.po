@@ -7417,3 +7417,10 @@ msgstr "weiter"
 #: unfold
 msgid "previous"
 msgstr "zurück"
+
+# projects: duration as hours:minutes
+msgid "Hours and minutes, e.g. 2:30"
+msgstr "Stunden und Minuten, z. B. 2:30"
+
+msgid "Enter the duration as hours:minutes, e.g. 2:30."
+msgstr "Bitte die Dauer als Stunden:Minuten eingeben, z. B. 2:30."
