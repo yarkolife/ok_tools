@@ -1,0 +1,215 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Programme mail" %} | {{ site_title|default:_("Django site admin") }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% trans "Home" %}</a>
+  &rsaquo; <a href="{{ calendar_url }}">{% trans "Calendar weeks" %}</a>
+  &rsaquo; {% trans "Programme mail" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<style>
+  .pm { max-width: 960px; display: grid; gap: 16px; }
+  .pm-card { background: var(--ok-surface, #fff); border: 1px solid var(--ok-line, #ddd);
+             border-radius: var(--ok-radius-lg, 8px); padding: 16px 18px; }
+  .pm-card h2 { margin: 0 0 12px; font-size: 1rem; font-weight: 600; color: var(--ok-ink, #222);
+                background: none; padding: 0; text-transform: none; letter-spacing: 0; }
+  .pm-period { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; }
+  .pm-field { display: flex; flex-direction: column; gap: 4px; }
+  .pm-field > span, .pm-field > label > span { font-size: 12px; font-weight: 600; color: var(--ok-ink-3, #666); }
+  .pm-period input[type=date], .pm-period select { min-height: 34px; }
+  .pm-check { display: flex; align-items: center; gap: 6px; min-height: 34px; }
+  .pm-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .pm-shift { display: flex; gap: 6px; }
+  .pm-notes { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .pm-note { padding: 8px 12px; border-radius: var(--ok-radius, 6px); border: 1px solid; font-size: 13px; }
+  .pm-note--warn { background: var(--ok-warning-soft, #fff7e6); border-color: var(--ok-warning-line, #f0c36d);
+                   color: var(--ok-warning-ink, #6b4a00); }
+  .pm-note--info { background: var(--ok-info-soft, #eef6ff); border-color: var(--ok-info-line, #b6d4fe);
+                   color: var(--ok-info-ink, #084298); }
+  .pm-subject { width: 100%; box-sizing: border-box; font-size: 14px; padding: 8px 10px; }
+  .pm-body { width: 100%; box-sizing: border-box; min-height: 480px; font-family: var(--ok-font-mono, monospace);
+             font-size: 13px; line-height: 1.45; padding: 10px; resize: vertical; }
+  .pm-row { display: flex; gap: 8px; align-items: center; }
+  .pm-row .pm-subject { flex: 1; }
+  .pm-status { font-size: 13px; color: var(--ok-success-ink, #0a6b2d); min-height: 1em; }
+  .pm-recipients { font-size: 13px; color: var(--ok-ink-2, #333); display: grid; gap: 4px; }
+  .pm-recipients code { font-size: 12px; }
+  .pm-muted { color: var(--ok-ink-3, #666); font-size: 13px; }
+  .pm-confirm { display: none; margin-top: 10px; padding: 12px; border-radius: var(--ok-radius, 6px);
+                border: 1px solid var(--ok-danger-line, #f1aeb5); background: var(--ok-danger-soft, #fdecee);
+                color: var(--ok-danger-ink, #6a1a21); }
+  .pm-confirm.is-open { display: block; }
+  .pm-confirm .pm-actions { margin-top: 8px; }
+  .pm .button.pm-primary, .pm input.pm-primary { background: var(--ok-brand, #417690); color: var(--ok-on-brand, #fff);
+                                                 border-color: var(--ok-brand, #417690); }
+  .pm .button.pm-danger { background: var(--ok-danger, #c62828); color: #fff; border-color: var(--ok-danger, #c62828); }
+</style>
+
+<div class="pm">
+  <form method="get" class="pm-card" aria-label="{% trans 'Period' %}">
+    <h2>{% trans "Period and source" %}</h2>
+    <div class="pm-period">
+      <label class="pm-field"><span>{% trans "From" %}</span>
+        <input type="date" name="von" value="{{ start|date:'Y-m-d' }}" required></label>
+      <label class="pm-field"><span>{% trans "To" %}</span>
+        <input type="date" name="bis" value="{{ end|date:'Y-m-d' }}" required></label>
+      <label class="pm-field"><span>{% trans "Source" %}</span>
+        <select name="quelle">
+          {% for value, label in source_choices %}
+          <option value="{{ value }}"{% if value == source %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select></label>
+      <label class="pm-check"><input type="checkbox" name="aenderung" value="1"{% if change %} checked{% endif %}>
+        {% trans "Change to a mail already sent" %}</label>
+      <div class="pm-actions">
+        <button type="submit" class="button pm-primary">{% trans "Build mail" %}</button>
+        <span class="pm-shift">
+          <a class="button" href="?von={{ prev_week.0|date:'Y-m-d' }}&amp;bis={{ prev_week.1|date:'Y-m-d' }}&amp;quelle={{ source }}{% if change %}&amp;aenderung=1{% endif %}">← {% trans "Week" %}</a>
+          <a class="button" href="?von={{ next_week.0|date:'Y-m-d' }}&amp;bis={{ next_week.1|date:'Y-m-d' }}&amp;quelle={{ source }}{% if change %}&amp;aenderung=1{% endif %}">{% trans "Week" %} →</a>
+        </span>
+      </div>
+    </div>
+  </form>
+
+  <ul class="pm-notes">
+    <li class="pm-note pm-note--info">
+      {% if program.source == "plan" %}{% trans "Programme taken from the day plans: every planned item is listed." %}
+      {% else %}{% trans "Programme taken from the contributions: premieres only (first broadcast of a license)." %}{% endif %}
+      {% blocktrans count counter=program.entry_count %}{{ counter }} broadcast.{% plural %}{{ counter }} broadcasts.{% endblocktrans %}
+    </li>
+    {% if period_note %}<li class="pm-note pm-note--warn">{{ period_note }}</li>{% endif %}
+    {% if program.empty_days %}
+    <li class="pm-note pm-note--warn">{% trans "No programme on:" %}
+      {% for d in program.empty_days %}{{ d|date:"D d.m." }}{% if not forloop.last %}, {% endif %}{% endfor %}</li>
+    {% endif %}
+    {% if program.draft_days %}
+    <li class="pm-note pm-note--warn">{% trans "Still a draft:" %}
+      {% for d in program.draft_days %}{{ d|date:"D d.m." }}{% if not forloop.last %}, {% endif %}{% endfor %}</li>
+    {% endif %}
+    {% if last_sent %}
+    <li class="pm-note pm-note--info">
+      {% blocktrans with when=last_sent.sent_at|date:"d.m.Y H:i" who=last_sent.sent_by|default:"–" %}A mail for this period was already sent on {{ when }} by {{ who }}.{% endblocktrans %}
+      {% if log_url %}<a href="{{ log_url }}">{% trans "Sent mails" %}</a>{% endif %}
+    </li>
+    {% endif %}
+  </ul>
+
+  <form method="post" class="pm-card" id="pmSendForm">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="send">
+    <input type="hidden" name="von" value="{{ start|date:'Y-m-d' }}">
+    <input type="hidden" name="bis" value="{{ end|date:'Y-m-d' }}">
+    <input type="hidden" name="quelle" value="{{ source }}">
+    {% if change %}<input type="hidden" name="aenderung" value="1">{% endif %}
+
+    <h2>{% trans "Mail" %}</h2>
+    <div class="pm-field"><label for="pmSubject"><span>{% trans "Subject" %}</span></label>
+      <div class="pm-row">
+        <input type="text" name="subject" id="pmSubject" class="vTextField pm-subject" value="{{ subject }}" required>
+        <button type="button" class="button" data-copy="pmSubject">{% trans "Copy" %}</button>
+      </div>
+    </div>
+    <div class="pm-field" style="margin-top:12px"><label for="pmBody"><span>{% trans "Text (can be edited before copying or sending)" %}</span></label>
+      <textarea name="body" id="pmBody" class="pm-body" spellcheck="true" required>{{ body }}</textarea>
+    </div>
+
+    <div class="pm-actions" style="margin-top:12px">
+      <button type="button" class="button pm-primary" data-copy="pmBody">{% trans "Copy text" %}</button>
+      <button type="button" class="button" id="pmMailto">{% trans "Open in mail program" %}</button>
+      {% if recipients_to or recipients_bcc %}
+      <button type="button" class="button pm-danger" id="pmSendOpen">{% trans "Send to the mailing list" %}</button>
+      {% endif %}
+      <span class="pm-status" id="pmStatus" role="status" aria-live="polite"></span>
+    </div>
+
+    {% if recipients_to or recipients_bcc %}
+    <div class="pm-confirm" id="pmConfirm">
+      <strong>{% trans "Send this mail now?" %}</strong>
+      <div class="pm-recipients">
+        {% if recipients_to %}<div>{% trans "To" %}: {% for a in recipients_to %}<code>{{ a }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+        {% if recipients_bcc %}<div>{% trans "BCC" %}: {% for a in recipients_bcc %}<code>{{ a }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+      </div>
+      <div class="pm-actions">
+        <button type="submit" class="button pm-danger">{% trans "Yes, send" %}</button>
+        <button type="button" class="button" id="pmSendCancel">{% trans "Cancel" %}</button>
+      </div>
+    </div>
+    {% endif %}
+  </form>
+
+  <div class="pm-card">
+    <h2>{% trans "Recipients" %}</h2>
+    {% if recipients_to or recipients_bcc %}
+    <div class="pm-recipients">
+      {% if recipients_to %}<div>{% trans "To" %}: {% for a in recipients_to %}<code>{{ a }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+      {% if recipients_bcc %}<div>{% trans "BCC" %}: {% for a in recipients_bcc %}<code>{{ a }}</code>{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+    </div>
+    {% else %}
+    <p class="pm-muted">{% trans "No recipients configured yet. You can still copy the text into your mail program." %}</p>
+    {% endif %}
+    <p class="pm-muted" style="margin-bottom:0">
+      {% if config_url %}<a href="{{ config_url }}#fieldset-programme-mail">{% trans "Edit recipients and texts" %}</a>{% else %}{% trans "Recipients and texts are set in the planning configuration." %}{% endif %}
+      {% if log_url %} · <a href="{{ log_url }}">{% trans "Sent mails" %}</a>{% endif %}
+    </p>
+  </div>
+</div>
+
+{{ recipients_to|json_script:"pm-to" }}
+{{ recipients_bcc|json_script:"pm-bcc" }}
+<script>
+(function () {
+  var status = document.getElementById('pmStatus');
+  var copiedText = "{{ _('Copied.')|escapejs }}";
+  var copyFailed = "{{ _('Copying failed - select the text and press Ctrl+C.')|escapejs }}";
+  var tooLong = "{{ _('The text is too long for the mail program link; copy it instead.')|escapejs }}";
+
+  function say(text) {
+    status.textContent = text;
+    clearTimeout(say.timer);
+    say.timer = setTimeout(function () { status.textContent = ''; }, 4000);
+  }
+
+  function copy(el) {
+    var value = el.value;
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(value).then(function () { say(copiedText); }, fallback);
+    } else {
+      fallback();
+    }
+    function fallback() {
+      el.focus();
+      el.select();
+      try { document.execCommand('copy') ? say(copiedText) : say(copyFailed); }
+      catch (e) { say(copyFailed); }
+    }
+  }
+
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () { copy(document.getElementById(btn.dataset.copy)); });
+  });
+
+  document.getElementById('pmMailto').addEventListener('click', function () {
+    var to = JSON.parse(document.getElementById('pm-to').textContent);
+    var bcc = JSON.parse(document.getElementById('pm-bcc').textContent);
+    var params = ['subject=' + encodeURIComponent(document.getElementById('pmSubject').value),
+                  'body=' + encodeURIComponent(document.getElementById('pmBody').value)];
+    if (bcc.length) params.unshift('bcc=' + encodeURIComponent(bcc.join(',')));
+    var url = 'mailto:' + to.map(encodeURIComponent).join(',') + '?' + params.join('&');
+    if (url.length > 30000) { say(tooLong); return; }
+    window.location.href = url;
+  });
+
+  var open = document.getElementById('pmSendOpen');
+  var box = document.getElementById('pmConfirm');
+  if (open && box) {
+    open.addEventListener('click', function () { box.classList.add('is-open'); box.querySelector('button[type=submit]').focus(); });
+    document.getElementById('pmSendCancel').addEventListener('click', function () { box.classList.remove('is-open'); open.focus(); });
+  }
+})();
+</script>
+{% endblock %}

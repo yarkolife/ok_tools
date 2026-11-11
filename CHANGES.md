@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+2026-11-11 (Version 4.68.0)
+==========================
+
+* **planung: Programme mail for newspapers**
+  * New page "Programm-Mail" (menu "Daily work", button in the Kalenderwochen toolbar, button above the contributions list) builds the weekly "TV Programm" mail for a freely chosen period (default: the seven days from tomorrow). It shows the subject and the full text, both editable, with "Copy text", "Copy" (subject), "Open in mail program" (mailto) and "Send to the mailing list" (asks for confirmation and lists the recipients first).
+  * Source: the day plans (every planned item, sorted by start time; days without a plan and draft days are pointed out) or the contributions (premieres only: a license whose first broadcast falls into the period; programme previews are left out). "Automatic" uses the day plans when the period has any. The contributions button takes the period from the broadcast date filter.
+  * Line format: ``18:00 Uhr Titel - Untertitel`` and ``(Autor)`` below, under ``Programm für Freitag, 13. November 2026``; German day and month names independent of the admin language.
+  * Settings in the Planning Configuration, section "Programme mail": recipients (To) and BCC, sender, Reply-To (default: the sending staff member), subject, text before and after the programme, and for changes a subject prefix (default ``ÄNDERUNG: ``) and its own text before the programme. Placeholders ``{von}``, ``{bis}`` and ``{name}`` (the sender; or write a fixed signature such as "Ihr OK-Team"). The checkbox "Änderung" on the page switches to the change texts, e.g. for a late correction before print.
+  * Sending is manual only. Every sent mail is stored in "Sent programme mails" (period, source, recipients, subject, text, who sent it); the page warns when a mail for the same period was already sent. Migration ``planung 0012``.
+
 2026-11-11 (Version 4.67.0)
 ==========================
 

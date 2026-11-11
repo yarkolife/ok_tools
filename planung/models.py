@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from planung.services import program_mail_service as mail_defaults
 
 
 class TagesPlan(models.Model):
@@ -206,6 +207,67 @@ class PlanungConfig(models.Model):
             "List of rules. Supported match values: live, title_prefix, title_contains. "
             "Each rule needs a video path; title_prefix rules also need prefix; "
             "title_contains rules also need contains."
+        ),
+    )
+    program_mail_to = models.TextField(
+        blank=True,
+        verbose_name=_("Programme mail: recipients"),
+        help_text=_("Addresses in the To field, one per line (commas also work)."),
+    )
+    program_mail_bcc = models.TextField(
+        blank=True,
+        verbose_name=_("Programme mail: BCC"),
+        help_text=_(
+            "Hidden recipients, one per line. Use this for a mailing list so the "
+            "recipients do not see each other's addresses."
+        ),
+    )
+    program_mail_from = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_("Programme mail: sender"),
+        help_text=_("Sender address. Empty: the server default (DEFAULT_FROM_EMAIL)."),
+    )
+    program_mail_reply_to = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_("Programme mail: reply to"),
+        help_text=_("Reply-To address. Empty: the e-mail of the staff member sending it."),
+    )
+    program_mail_subject = models.CharField(
+        max_length=255,
+        blank=True,
+        default=mail_defaults.DEFAULT_SUBJECT,
+        verbose_name=_("Programme mail: subject"),
+        help_text=_("Placeholders: {von}, {bis} (dates of the period), {name} (sender)."),
+    )
+    program_mail_change_prefix = models.CharField(
+        max_length=60,
+        blank=True,
+        default=mail_defaults.DEFAULT_CHANGE_PREFIX,
+        verbose_name=_("Programme mail: prefix for changes"),
+        help_text=_("Put in front of the subject when the mail is marked as a change."),
+    )
+    program_mail_intro = models.TextField(
+        blank=True,
+        default=mail_defaults.DEFAULT_INTRO,
+        verbose_name=_("Programme mail: text before the programme"),
+        help_text=_("Placeholders: {von}, {bis}, {name}."),
+    )
+    program_mail_change_intro = models.TextField(
+        blank=True,
+        default=mail_defaults.DEFAULT_CHANGE_INTRO,
+        verbose_name=_("Programme mail: text before the programme (change)"),
+        help_text=_("Used instead of the text above when the mail is marked as a change."),
+    )
+    program_mail_outro = models.TextField(
+        blank=True,
+        default=mail_defaults.DEFAULT_OUTRO,
+        verbose_name=_("Programme mail: text after the programme"),
+        help_text=_(
+            "Closing words and signature. {name} is the staff member sending the "
+            "mail; write a fixed signature (e.g. \"Ihr OK-Team\") to use the same "
+            "one for everybody."
         ),
     )
     webhook_hmac_secret = models.CharField(
@@ -419,3 +481,49 @@ class IncomingWebhookLog(models.Model):
 
     def __str__(self):
         return f"Webhook {self.pk} ({self.direction})"
+
+
+class ProgramMailProxy(TagesPlan):
+    """Virtual model for the menu entry that opens the programme mail page."""
+
+    class Meta:
+        """Meta options for the ProgramMailProxy class."""
+
+        verbose_name = _("Programme mail")
+        verbose_name_plural = _("Programme mail")
+        proxy = True
+
+
+class ProgramMailLog(models.Model):
+    """One programme mail that was sent."""
+
+    SOURCE_CHOICES = (
+        ("plan", _("Day plans")),
+        ("contributions", _("Contributions (premieres)")),
+    )
+
+    sent_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name=_("Sent at"))
+    sent_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="program_mails",
+        verbose_name=_("Sent by"),
+    )
+    period_start = models.DateField(verbose_name=_("From"))
+    period_end = models.DateField(verbose_name=_("To"))
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, verbose_name=_("Source"))
+    is_change = models.BooleanField(default=False, verbose_name=_("Change"))
+    recipients = models.TextField(verbose_name=_("Recipients"))
+    subject = models.CharField(max_length=255, verbose_name=_("Subject"))
+    body = models.TextField(verbose_name=_("Text"))
+
+    class Meta:
+        verbose_name = _("Sent programme mail")
+        verbose_name_plural = _("Sent programme mails")
+        ordering = ("-sent_at",)
+
+    def __str__(self):
+        """Return the subject."""
+        return self.subject

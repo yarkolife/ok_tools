@@ -724,8 +724,36 @@ class ContributionAdmin(ExportMixin, ModelAdmin):
         """Add API documentation to the changelist view."""
         extra_context = extra_context or {}
         extra_context['show_api_docs'] = True
+        extra_context['program_mail_url'] = self._program_mail_url(request)
         return super().changelist_view(request, extra_context=extra_context)
     
+    @staticmethod
+    def _program_mail_url(request):
+        """Link to the programme mail, preset to the filtered broadcast period."""
+        from django.conf import settings
+        if not getattr(settings, 'PLANUNG_ENABLED', False):
+            return ''
+        try:
+            from planung.program_mail_views import can_use_program_mail
+            from planung.program_mail_views import program_mail_url
+        except ImportError:
+            return ''
+        if not can_use_program_mail(request.user):
+            return ''
+        start = end = None
+        try:
+            if request.GET.get('broadcast_date__gte_0'):
+                start = dt.strptime(request.GET['broadcast_date__gte_0'], '%Y-%m-%d').date()
+            if request.GET.get('broadcast_date__lte_0'):
+                end = dt.strptime(request.GET['broadcast_date__lte_0'], '%Y-%m-%d').date()
+        except ValueError:
+            start = end = None
+        if start and not end:
+            end = start + datetime.timedelta(days=6)
+        if end and not start:
+            start = end - datetime.timedelta(days=6)
+        return program_mail_url(start, end, 'contributions')
+
     def export_action(self, request, *args, **kwargs):
         """Override export action to handle Mediathek parameters."""
         # Check if MediathekResource is selected and parameters are provided

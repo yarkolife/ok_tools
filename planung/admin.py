@@ -3,6 +3,8 @@ from .models import CalendarWeeksProxy
 from .models import PlanChangeLog
 from .models import PlanTemplate
 from .models import PlanungConfig
+from .models import ProgramMailLog
+from .models import ProgramMailProxy
 from .models import TagesPlan
 from datetime import date
 from datetime import timedelta
@@ -42,9 +44,19 @@ class TagesPlanAdmin(ModelAdmin):
                 "calendar-weeks/",
                 self.admin_site.admin_view(self.calendar_weeks_view),
                 name="calendar_weeks_view",
-            )
+            ),
+            path(
+                "program-mail/",
+                self.admin_site.admin_view(self.program_mail_view),
+                name="planung_program_mail",
+            ),
         ]
         return custom + urls
+
+    def program_mail_view(self, request):
+        """Build, copy and send the weekly programme mail."""
+        from .program_mail_views import program_mail_view
+        return program_mail_view(request, self.admin_site)
 
     def calendar_weeks_view(self, request):
         """Display a calendar view with 18 weeks of planning data.
@@ -395,6 +407,60 @@ class CalendarWeeksAdmin(ModelAdmin):
         return HttpResponseRedirect(url)
 
 
+@admin.register(ProgramMailProxy)
+class ProgramMailAdmin(ModelAdmin):
+    """Menu entry that opens the programme mail page."""
+
+    def has_module_permission(self, request):
+        """Show the entry to everybody who may use the page."""
+        from .program_mail_views import can_use_program_mail
+        return can_use_program_mail(request.user)
+
+    def has_view_permission(self, request, obj=None):
+        """Same rule as the page itself."""
+        from .program_mail_views import can_use_program_mail
+        return can_use_program_mail(request.user)
+
+    def has_add_permission(self, request):
+        """Nothing to add here."""
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Nothing to change here."""
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """Nothing to delete here."""
+        return False
+
+    def changelist_view(self, request, extra_context=None):
+        """Open the programme mail page."""
+        return HttpResponseRedirect(reverse("admin:planung_program_mail"))
+
+
+@admin.register(ProgramMailLog)
+class ProgramMailLogAdmin(ModelAdmin):
+    """Read-only list of the programme mails that were sent."""
+
+    list_display = ("sent_at", "subject", "period_start", "period_end", "source", "is_change", "sent_by")
+    list_filter = ("source", "is_change")
+    search_fields = ("subject", "recipients")
+    date_hierarchy = "sent_at"
+    readonly_fields = (
+        "sent_at", "sent_by", "period_start", "period_end", "source", "is_change",
+        "recipients", "subject", "body",
+    )
+    fields = readonly_fields
+
+    def has_add_permission(self, request):
+        """Entries are written when a mail is sent."""
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """The log is not edited."""
+        return False
+
+
 @admin.register(PlanTemplate)
 class PlanTemplateAdmin(ModelAdmin):
     """Admin for reusable day plan templates."""
@@ -435,6 +501,24 @@ class PlanungConfigAdmin(ModelAdmin):
                 'When configured, the Plan! action also sends the day\'s broadcast '
                 'schedule (day, start times, item kinds, filenames) to the external '
                 'playout schedule endpoint.'
+            ),
+        }),
+        (_('Programme mail'), {
+            'fields': (
+                'program_mail_to',
+                'program_mail_bcc',
+                'program_mail_from',
+                'program_mail_reply_to',
+                'program_mail_subject',
+                'program_mail_change_prefix',
+                'program_mail_intro',
+                'program_mail_change_intro',
+                'program_mail_outro',
+            ),
+            'description': _(
+                'Recipients and texts of the weekly programme mail (Planung → '
+                'Programme mail). The programme itself is inserted between the text '
+                'before and the text after it.'
             ),
         }),
         (_('Anchor Render'), {

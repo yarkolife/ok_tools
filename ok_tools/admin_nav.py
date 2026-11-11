@@ -41,6 +41,7 @@ MODEL_SECTIONS: dict[str, str] = {
     "licenses.License": "work",
     "contributions.Contribution": "work",
     "planung.CalendarWeeksProxy": "work",
+    "planung.ProgramMailProxy": "work",
     "rental.RentalProcessProxy": "work",
     "inventory.InventoryItem": "work",
     "austausch.ExchangeFeed": "work",
@@ -109,6 +110,7 @@ MODEL_SECTIONS: dict[str, str] = {
     "austausch.ExchangeImport": "system",
     "austausch.ExportToServerRun": "system",
     "planung.PlanChangeLog": "system",
+    "planung.ProgramMailLog": "system",
     # Only needed inside their parent record
     "rental.RentalItem": "hidden",
     "rental.RentalTransaction": "hidden",
@@ -131,6 +133,7 @@ MODEL_ICONS: dict[str, str] = {
     "licenses.License": "verified",
     "contributions.Contribution": "live_tv",
     "planung.CalendarWeeksProxy": "calendar_month",
+    "planung.ProgramMailProxy": "mail",
     "planung.TagesPlan": "today",
     "rental.RentalProcessProxy": "shopping_cart",
     "rental.RentalRequest": "assignment",

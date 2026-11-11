@@ -431,6 +431,11 @@ function showContributionsNotification(message) {
 
 {% block object-tools-items %}
 {{ block.super }}
+{% if program_mail_url %}
+<li>
+    <a href="{{ program_mail_url }}" class="button" title="{% trans 'Programme mail from the premieres in the filtered period' %}">{% trans "Programme mail" %}</a>
+</li>
+{% endif %}
 {% if show_api_docs %}
 <li>
     <a href="#" onclick="showContributionsApiModal(); return false;" class="button" style="background: var(--ok-brand, #007bff); color: white;">

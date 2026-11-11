@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.67.0
+**Current Version**: 4.68.0
 **Last Updated**: 11 November 2026
 
 Features
@@ -68,6 +68,7 @@ Features
   - Manual and automatic time positioning with overlap protection
   - Multi-day video support with day offset display
   - Draft and planned status tracking
+  - Programme mail ("Programm-Mail") for newspapers: weekly programme text from the day plans or the premieres in the contributions, editable, copy or send to configured recipients (To/BCC), configurable subject, intro, closing words and change notice
   - Time extraction from license data
   - JSON-based plan storage with comments
   - Optional playout metadata import: sends planned media metadata by filename to an external playout endpoint configured in the Planning Configuration admin UI when a plan is marked planned
