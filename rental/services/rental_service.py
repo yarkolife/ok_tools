@@ -6,6 +6,7 @@ separating it from views and models.
 """
 
 from datetime import datetime
+from datetime import timedelta
 from typing import Dict, List, Optional, Tuple, Any
 
 from django.db import transaction
@@ -20,6 +21,10 @@ from ..models import (
 )
 from ..working_hours import validate_working_hours_period
 from .inventory_service_interface import inventory_service
+
+
+# Same request again within this time counts as a double click, not a new booking.
+DUPLICATE_WINDOW_SECONDS = 120
 
 
 class RentalService:
@@ -244,6 +249,51 @@ class RentalService:
             return rental_request
     
     @staticmethod
+    def _find_recent_duplicate(user, created_by, project_name, purpose,
+                               start_date, end_date, action, items, rooms):
+        """Return a request with the same content created moments ago, if any.
+
+        Locks the user's row first, so parallel submits of one form wait for
+        each other instead of all passing the check at the same time.
+        """
+        from django.contrib.auth import get_user_model
+
+        get_user_model().objects.select_for_update().filter(pk=user.pk).first()
+        since = timezone.now() - timedelta(seconds=DUPLICATE_WINDOW_SECONDS)
+        candidates = RentalRequest.objects.filter(
+            user=user,
+            created_by=created_by,
+            project_name=project_name,
+            purpose=purpose,
+            requested_start_date=start_date,
+            requested_end_date=end_date,
+            status=action,
+            created_at__gte=since,
+        ).order_by('-id')
+
+        def wanted_items():
+            result = []
+            for item in items or []:
+                item_id = item.get('inventory_item_id') or item.get('inventory_id') or item.get('id')
+                if item_id:
+                    qty = item.get('quantity_requested') or item.get('quantity', 1)
+                    result.append((int(item_id), int(qty)))
+            return sorted(result)
+
+        def wanted_rooms():
+            return sorted(
+                int(r.get('room_id') or r.get('id'))
+                for r in rooms or [] if (r.get('room_id') or r.get('id')))
+
+        items_key, rooms_key = wanted_items(), wanted_rooms()
+        for candidate in candidates[:5]:
+            have_items = sorted(candidate.items.values_list('inventory_item_id', 'quantity_requested'))
+            have_rooms = sorted(candidate.room_rentals.values_list('room_id', flat=True))
+            if [tuple(i) for i in have_items] == items_key and list(have_rooms) == rooms_key:
+                return candidate
+        return None
+
+    @staticmethod
     @transaction.atomic
     def _create_rental_request_from_data(
         data: Dict[str, Any],
@@ -378,6 +428,19 @@ class RentalService:
                     # Mixed rental: create as reserved, equipment can be issued later
                     action = 'reserved'
             
+            # A repeated click on "Reserve" must not create the same request
+            # (and send the same approval mails) again.
+            duplicate = RentalService._find_recent_duplicate(
+                user, created_by, project_name, purpose, start_date, end_date,
+                action, items, rooms)
+            if duplicate:
+                return {
+                    'success': True,
+                    'rental_id': duplicate.id,
+                    'status': duplicate.status,
+                    'duplicate': True,
+                }
+
             # Create rental request
             rental_request = RentalRequest.objects.create(
                 user=user,

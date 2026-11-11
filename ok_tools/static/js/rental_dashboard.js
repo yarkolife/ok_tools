@@ -1380,7 +1380,9 @@ const status = (rental.status || '').toLowerCase();
             const reserveBtn = document.getElementById('reserveBtn');
             if (!reserveBtn) return;
 
-            if (this.selectedItems.length > 0 || this.selectedRooms.length > 0) {
+            if (this.isCreatingRental) {
+                reserveBtn.disabled = true;
+            } else if (this.selectedItems.length > 0 || this.selectedRooms.length > 0) {
                 reserveBtn.disabled = false;
             } else {
                 reserveBtn.disabled = true;
@@ -2404,6 +2406,27 @@ const status = (rental.status || '').toLowerCase();
         }
 
         async createRental(action = 'reserved') {
+            // Sending can take a few seconds (approval mails); a second click
+            // meanwhile used to create the same request again.
+            if (this.isCreatingRental) return;
+            const reserveBtn = document.getElementById('reserveBtn');
+            const reserveBtnHtml = reserveBtn ? reserveBtn.innerHTML : '';
+            this.isCreatingRental = true;
+            if (reserveBtn) {
+                reserveBtn.disabled = true;
+                reserveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>' + gettext('Sending…');
+            }
+            try {
+                await this._createRental(action);
+            } finally {
+                this.isCreatingRental = false;
+                if (reserveBtn) reserveBtn.innerHTML = reserveBtnHtml;
+                this.updateActionButtons();
+            }
+        }
+
+        async _createRental(action) {
+            let rentalData = null;
             try {
                 this.ensureDateTimeDefaults();
 
@@ -2445,7 +2468,7 @@ const status = (rental.status || '').toLowerCase();
                 }
 
                 // Prepare rental data
-                const rentalData = {
+                rentalData = {
                     user_id: parseInt(USER_ID), // Convert string to integer for Django comparison
                     project_name: projectName,
                     purpose: purpose,

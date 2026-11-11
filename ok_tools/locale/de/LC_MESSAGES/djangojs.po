@@ -4630,3 +4630,6 @@ msgstr "Die Endzeit liegt außerhalb der Öffnungszeiten (%(hours)s)."
 
 msgid "Staff can still book outside working hours."
 msgstr "Mitarbeitende können trotzdem außerhalb der Öffnungszeiten buchen."
+
+msgid "Sending…"
+msgstr "Wird gesendet…"
