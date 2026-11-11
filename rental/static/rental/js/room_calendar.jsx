@@ -450,4 +450,91 @@ function RoomBookingModal({ date, room, initialStart, initialEnd, onClose, onCre
   );
 }
 
-Object.assign(window, { RoomCalendar });
+/* Reserve dialog for the week and month views: they know only the room and
+   the day, so the day's slots are loaded first. window.openRoomBooking(roomId,
+   date) opens it; after a reservation the page reloads on close. */
+function RoomBookingLauncher() {
+  const [req, setReq] = useState(null);      // {roomId, date}
+  const [room, setRoom] = useState(null);
+  const [error, setError] = useState(null);
+  const [created, setCreated] = useState(false);
+
+  useEffect(() => {
+    window.openRoomBooking = (roomId, date) => {
+      setRoom(null);
+      setError(null);
+      setReq({ roomId: Number(roomId), date });
+    };
+    return () => { delete window.openRoomBooking; };
+  }, []);
+
+  useEffect(() => {
+    if (!req) return;
+    let cancelled = false;
+    const q = new URLSearchParams({ room_id: req.roomId, start_date: req.date, end_date: req.date });
+    apiGet(`${ROOM_CAL_CFG.urls.schedule}?${q}`)
+      .then(data => {
+        if (cancelled) return;
+        const found = (data.rooms || []).find(r => r.id === req.roomId);
+        if (!found) throw new Error(t('no_rooms', 'Room not found'));
+        setRoom(found);
+      })
+      .catch(err => { if (!cancelled) setError(err.message); });
+    return () => { cancelled = true; };
+  }, [req]);
+
+  if (!req) return null;
+
+  const close = () => {
+    setReq(null);
+    if (created) window.location.reload();
+  };
+  const slots = (room && room.schedule && room.schedule[0] && room.schedule[0].slots) || [];
+  const first = slots.findIndex(s => s.status === 'available');
+
+  if (room && first >= 0) {
+    // Suggest one hour from the first free slot, within the free run.
+    let end = first + 1;
+    while (end < first + 2 && end < slots.length && slots[end].status === 'available') end++;
+    return (
+      <RoomBookingModal
+        date={req.date}
+        room={room}
+        initialStart={first}
+        initialEnd={end}
+        onClose={close}
+        onCreated={() => setCreated(true)}
+      />
+    );
+  }
+
+  const dayUrl = `${ROOM_CAL_CFG.urls.day_view}?date=${req.date}`;
+  return (
+    <div className="rc-modal-bg" onMouseDown={close}>
+      <div className="rc-modal rc-modal-small" role="dialog" aria-modal="true" onMouseDown={e => e.stopPropagation()}>
+        <div className="rc-modal-head">
+          <h5>{t('room.reserve', 'Reserve room')}</h5>
+          <button type="button" className="btn btn-ghost btn-sm" onClick={close}
+                  aria-label={t('btn.close', 'Close')}><i className="fas fa-times"></i></button>
+        </div>
+        {error ? (
+          <div className="rc-error"><i className="fas fa-circle-exclamation me-1"></i>{error}</div>
+        ) : !room ? (
+          <div className="rc-modal-wait"><i className="fas fa-spinner fa-spin me-2"></i>{t('loading', 'Loading...')}</div>
+        ) : (
+          <div className="rc-modal-wait">
+            <i className="fas fa-ban me-2"></i>{room.name}: {t('cal.no_free', 'No free time left on this day.')}
+          </div>
+        )}
+        <div className="rc-modal-actions">
+          <a className="btn btn-ghost btn-sm" href={dayUrl}>
+            <i className="fas fa-calendar-day me-1"></i>{t('cal.open_day', 'Open day view')}
+          </a>
+          <button type="button" className="btn btn-primary btn-sm" onClick={close}>{t('btn.close', 'Close')}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+Object.assign(window, { RoomCalendar, RoomBookingLauncher });

@@ -1103,3 +1103,148 @@ html.dark .status-pill.reserved,
 html.dark .role-staff { color: oklch(0.84 0.07 240); background: oklch(0.58 0.1 240 / .18); border-color: oklch(0.58 0.1 240 / .45); }
 html.dark .role-user { color: var(--ink-2); background: var(--bg-hover); }
 html.dark .status-node.active .dot-lg { box-shadow: 0 0 0 4px rgba(92,146,172,.25); }
+
+/* =========================================================
+   Room calendar: "Reserve room" dialog (day, week, month)
+   ========================================================= */
+.rc-modal-bg {
+  position: fixed; inset: 0; z-index: 2000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px; background: rgba(15, 18, 24, .45);
+}
+.rc-modal {
+  width: 520px; max-width: 100%; max-height: calc(100vh - 32px); overflow-y: auto;
+  padding: 20px; border-radius: 12px;
+  background: var(--bg-elev, #fff); color: var(--ink, #111827);
+  border: 1px solid var(--line, #e5e7eb);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .25);
+}
+.rc-modal-small { width: 420px; }
+.rc-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.rc-modal-head h5 {
+  margin: 0 0 2px; font-size: 16px; font-weight: 600;
+  text-transform: none; letter-spacing: normal; color: inherit; background: none; padding: 0;
+}
+.rc-modal-sub { font-size: 13px; color: var(--ink-3, #6b7280); }
+.rc-modal-sub i { font-size: 12px; margin-right: 2px; }
+.rc-modal-wait { font-size: 13px; color: var(--ink-2); margin-bottom: 16px; }
+.rc-dot { margin: 0 6px; }
+.rc-grid { display: grid; grid-template-columns: 1fr 1fr 90px; gap: 10px; }
+.rc-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; min-width: 0; }
+.rc-field > span { font-size: 12px; font-weight: 500; color: var(--ink-3, #6b7280); }
+.rc-link { align-self: flex-start; margin-top: 2px; color: var(--brand, #417690); text-decoration: none; }
+.rc-error {
+  margin-bottom: 12px; padding: 8px 10px; border-radius: 8px; font-size: 13px;
+  background: var(--ok-danger-soft, #fee2e2); color: var(--ok-danger, #b91c1c);
+  border: 1px solid var(--ok-danger-line, #fca5a5);
+}
+.rc-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+.rc-done-line { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
+.rc-done-line > i { font-size: 26px; color: var(--ok-success, #15803d); }
+.rc-done-title { font-weight: 600; font-size: 15px; }
+@media (max-width: 520px) {
+  .rc-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* =========================================================
+   Room calendar: week and month grids
+   Theme tokens only, so both light and dark mode keep contrast.
+   ========================================================= */
+.rcal-room-head {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px; font-weight: 600; color: var(--ink); margin: 0 0 10px;
+}
+.rcal-room-head img {
+  width: 28px; height: 28px; object-fit: cover; border-radius: 5px;
+  border: 1px solid var(--line-2); cursor: zoom-in;
+}
+.rcal-room-head .fa-door-open { color: var(--ink-3); }
+.rcal-hint {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--ink-3); margin: -4px 0 12px;
+}
+.rcal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.rcal-head {
+  text-align: center; padding: 4px 0 2px;
+  font-size: 11px; font-weight: 600; letter-spacing: .03em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.rcal-head .rcal-head-date {
+  display: block; font-size: 12px; font-weight: 500; letter-spacing: 0;
+  text-transform: none; color: var(--ink-2);
+}
+.rcal-head.today { color: var(--brand); }
+.rcal-head a.rcal-head-date:link, .rcal-head a.rcal-head-date:visited { color: var(--ink-2); }
+.rcal-head.today a.rcal-head-date:link, .rcal-head.today a.rcal-head-date:visited,
+.rcal-head.today .rcal-head-date { color: var(--brand); font-weight: 700; }
+
+.rcal-cell {
+  position: relative; min-width: 0; min-height: 78px;
+  padding: 4px 5px 5px; border-radius: 6px;
+  background: var(--bg-elev); border: 1px solid var(--line-2);
+  transition: border-color .12s ease, box-shadow .12s ease;
+}
+.rcal-week .rcal-cell { min-height: 120px; }
+/* Tints mixed from the ink/brand colour work in both themes. */
+.rcal-cell.weekend { background: color-mix(in oklch, var(--brand) 7%, var(--bg-elev)); }
+.rcal-cell.past { background: color-mix(in oklch, var(--ink) 6%, var(--bg-elev)); border-color: var(--line); }
+.rcal-cell.past .rcal-bk { opacity: .7; }
+.rcal-cell.other {
+  background: transparent; border-style: dashed; border-color: var(--line);
+}
+.rcal-cell.today { border-color: var(--brand); box-shadow: inset 0 0 0 1px var(--brand); }
+.rcal-cell.bookable { cursor: pointer; }
+.rcal-cell.bookable:hover,
+.rcal-cell.bookable:focus-visible {
+  border-color: var(--brand); box-shadow: inset 0 0 0 1px var(--brand); outline: none;
+}
+
+.rcal-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 22px; height: 22px; padding: 0 4px; border-radius: 11px;
+  font-size: 12px; font-weight: 600; color: var(--ink);
+  text-decoration: none; font-variant-numeric: tabular-nums;
+}
+.rcal-cell a.rcal-num:link, .rcal-cell a.rcal-num:visited { color: var(--ink); }
+.rcal-cell a.rcal-num:hover { background: var(--bg-hover); color: var(--ink); text-decoration: none; }
+.rcal-cell.past a.rcal-num:link, .rcal-cell.past a.rcal-num:visited { color: var(--ink-3); font-weight: 500; }
+.rcal-cell.other a.rcal-num:link, .rcal-cell.other a.rcal-num:visited { color: var(--ink-4); font-weight: 500; }
+.rcal-cell.today a.rcal-num:link, .rcal-cell.today a.rcal-num:visited { background: var(--brand); color: #fff; }
+
+.rcal-add {
+  position: absolute; top: 4px; right: 4px;
+  width: 22px; height: 22px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--ok-brand-ink, var(--brand));
+  background: var(--brand-tint); border: 1px solid var(--brand-tint-line);
+  opacity: 0; transition: opacity .12s ease; pointer-events: none;
+}
+.rcal-cell.bookable:hover .rcal-add,
+.rcal-cell.bookable:focus-visible .rcal-add { opacity: 1; }
+@media (hover: none) { .rcal-cell.bookable .rcal-add { opacity: 1; } }
+
+.rcal-bk {
+  display: block; margin-top: 3px; padding: 2px 5px;
+  border-radius: 4px; border-left: 3px solid var(--ok-danger);
+  background: var(--ok-danger-soft); color: var(--ok-danger-ink);
+  font-size: 11px; line-height: 1.35; text-decoration: none;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rcal-cell a.rcal-bk:link, .rcal-cell a.rcal-bk:visited { color: var(--ok-danger-ink); }
+.rcal-cell a.rcal-bk:hover { color: var(--ok-danger-ink); border-left-color: var(--ok-danger-ink); text-decoration: underline; }
+.rcal-bk .rcal-bk-time { font-weight: 600; font-variant-numeric: tabular-nums; margin-right: 4px; }
+.rcal-week .rcal-bk { padding: 3px 6px; }
+.rcal-week .rcal-bk .rcal-bk-user { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.rcal-week .rcal-bk .rcal-bk-time { display: block; font-weight: 500; margin: 0; }
+.rcal-cell a.rcal-more:link, .rcal-cell a.rcal-more:visited { color: var(--ink-2); text-decoration: none; }
+.rcal-more { display: block; margin-top: 3px; font-size: 11px; font-weight: 500; color: var(--ink-2); }
+.rcal-free { margin-top: 10px; text-align: center; font-size: 11px; color: var(--ink-3); }
+
+@media (max-width: 768px) {
+  .rcal-grid { gap: 2px; }
+  .rcal-cell { padding: 3px; min-height: 56px; }
+  .rcal-week .rcal-cell { min-height: 90px; }
+  .rcal-bk { font-size: 10px; padding: 1px 3px; }
+  .rcal-bk .rcal-bk-time { display: none; }
+  .rcal-week .rcal-bk .rcal-bk-time { display: block; }
+}

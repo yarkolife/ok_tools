@@ -11,31 +11,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-        .week-col { min-width: 0; }
-        .week-col-header { text-align: center; padding: 8px 4px; border-radius: 6px; margin-bottom: 6px; font-size: 12px; }
-        .week-col-header .wday { font-weight: 600; color: var(--ink-2); }
-        .week-col-header .wdate { font-size: 11px; color: var(--ink-5); }
-        .week-col-header.today { background: var(--brand); }
-        .week-col-header.today .wday, .week-col-header.today .wdate { color: #fff; }
-        .week-col-body { min-height: 120px; background: oklch(0.97 0.03 150); border-radius: 6px; padding: 4px; }
-        .week-booking {
-            background: oklch(0.78 0.13 25); color: #fff;
-            border-radius: 4px; padding: 4px 6px; margin: 2px 0;
-            font-size: 10px; line-height: 1.3;
-            cursor: pointer; overflow: hidden;
-            white-space: nowrap; text-overflow: ellipsis;
-        }
-        .week-booking .wb-user { font-weight: 600; }
-        .week-booking .wb-time { font-size: 9px; opacity: .85; }
-        .week-closed { text-align: center; padding: 16px 8px; font-size: 11px; color: var(--ink-5); }
-        @media (max-width: 768px) { .week-grid { grid-template-columns: repeat(4, 1fr); } }
-    </style>
     {% include "ok_tools/_theme_head.html" %}
 </head>
 <body>
     {% url 'rental:list' as rental_home %}
+    {% url 'rental:room_calendar_day' as day_url %}
     {% translate "Rental Management" as rental_title %}
     {% include "ok_tools/_topbar.html" with title=rental_title home_url=rental_home %}
     <div class="page">
@@ -46,50 +26,68 @@
                 <span class="sub">{% trans "Week" %} {{ ref_day|date:"W, Y" }}</span>
                 <div class="page-actions">
                     <a href="?date={{ prev_week|date:'Y-m-d' }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-left"></i></a>
-                    <a href="{% url 'rental:room_calendar_day' %}?date={{ ref_day|date:'Y-m-d' }}" class="btn btn-primary btn-sm">{% trans "Day" %}</a>
+                    <a href="?date={{ today|date:'Y-m-d' }}" class="btn btn-ghost btn-sm">{% trans "Today" %}</a>
+                    <a href="{{ day_url }}?date={{ ref_day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm">{% trans "Day" %}</a>
                     <a href="{% url 'rental:room_calendar_month' %}?date={{ ref_day|date:'Y-m-d' }}" class="btn btn-ghost btn-sm">{% trans "Month" %}</a>
                     <a href="?date={{ next_week|date:'Y-m-d' }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-right"></i></a>
                 </div>
             </div>
 
+            {% if rooms_data %}
+            <div class="rcal-hint"><i class="fas fa-hand-pointer"></i>{% trans "Click a day to reserve the room." %}</div>
+            {% endif %}
+
             {% for rd in rooms_data %}
-            <div class="surface p-3 mb-3">
-                <h6 style="font-size: 13px; margin: 0 0 10px; display:flex; align-items:center; gap:8px;">
+            <div class="surface p-3 mb-3 rcal-week">
+                <div class="rcal-room-head">
                     {% if rd.image_url %}
                     <img src="{{ rd.image_url }}" alt="" loading="lazy"
-                         data-lightbox='{{ rd.image_urls_json }}' title="{% trans 'Click to enlarge' %}"
-                         style="width:28px;height:28px;object-fit:cover;border-radius:5px;border:1px solid var(--line, #ccc);cursor:zoom-in;">
+                         data-lightbox='{{ rd.image_urls_json }}' title="{% trans 'Click to enlarge' %}">
                     {% else %}
-                    <i class="fas fa-door-open muted"></i>
+                    <i class="fas fa-door-open"></i>
                     {% endif %}
                     {{ rd.name }}
-                </h6>
-                <div class="week-grid">
+                </div>
+                <div class="rcal-grid">
                     {% for day in rd.days %}
-                    <div class="week-col">
-                        <div class="week-col-header {% if day.date == today %}today{% endif %}">
-                            <div class="wday">{{ day.date|date:"D" }}</div>
-                            <div class="wdate">{{ day.date|date:"d.m" }}</div>
-                        </div>
-                        <div class="week-col-body">
-                            {% if day.bookings %}
-                                {% for bk in day.bookings %}
-                                <div class="week-booking" title="{{ bk.project }}">
-                                    <div class="wb-user">{{ bk.user|truncatechars:12 }}</div>
-                                    <div class="wb-time">{{ bk.time }}</div>
-                                </div>
-                                {% endfor %}
-                            {% else %}
-                                <div class="week-closed muted">—</div>
-                            {% endif %}
-                        </div>
+                    <div class="rcal-head{% if day.date == today %} today{% endif %}">
+                        {{ day.date|date:"D" }}
+                        <a class="rcal-head-date" href="{{ day_url }}?date={{ day.date|date:'Y-m-d' }}" style="text-decoration:none"
+                           title="{% trans 'Open day view' %}">{{ day.date|date:"d.m." }}</a>
+                    </div>
+                    {% endfor %}
+                    {% for day in rd.days %}
+                    <div class="rcal-cell{% if day.is_weekend %} weekend{% endif %}{% if day.is_past %} past{% else %} bookable{% endif %}{% if day.date == today %} today{% endif %}"
+                         {% if not day.is_past %}data-book-room="{{ rd.id }}" data-book-date="{{ day.date|date:'Y-m-d' }}" tabindex="0" role="button"
+                         title="{% trans 'Reserve room' %} · {{ rd.name }} · {{ day.date|date:'D d.m.' }}"{% endif %}>
+                        {% if not day.is_past %}<span class="rcal-add" aria-hidden="true"><i class="fas fa-plus"></i></span>{% endif %}
+                        {% for bk in day.bookings %}
+                        <a class="rcal-bk" href="{{ bk.url }}" title="{{ bk.user }} · {{ bk.time }}{% if bk.project %} · {{ bk.project }}{% endif %}">
+                            <span class="rcal-bk-user">{{ bk.user }}</span>
+                            <span class="rcal-bk-time">{{ bk.time }}</span>
+                        </a>
+                        {% empty %}
+                        <div class="rcal-free">—</div>
+                        {% endfor %}
                     </div>
                     {% endfor %}
                 </div>
             </div>
+            {% empty %}
+            <div class="surface p-4 muted text-center">{% trans "No rooms configured. Add rooms in admin." %}</div>
             {% endfor %}
         </div>
     </div>
+
+    <div id="room-booking-root"></div>
+    {{ i18n_strings|json_script:"rr-i18n" }}
+    {{ room_cal_config|json_script:"room-cal-config" }}
+
+    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
     <script src="{% static 'rental/js/lightbox.js' %}"></script>
+    <script src="{% static 'rental/js/build/shared.js' %}"></script>
+    <script src="{% static 'rental/js/build/room_calendar.js' %}"></script>
+    <script src="{% static 'rental/js/build/entries/room-booking-entry.js' %}"></script>
 </body>
 </html>

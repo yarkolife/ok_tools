@@ -498,6 +498,8 @@ def _i18n_bundle():
         'cal.creating': _('Reserving…'),
         'cal.created': _('Room reserved'),
         'cal.open_rental': _('Open rental'),
+        'cal.no_free': _('No free time left on this day.'),
+        'cal.open_day': _('Open day view'),
         'rooms.none': _('No rooms booked in this rental.'),
         # Tags
         'tag.booked': _('Booked'),
@@ -3866,15 +3868,49 @@ class RoomCalendarDayView(StaffRequiredMixin, TemplateView):
         context['i18n_strings'] = _i18n_bundle()
         context['flags_json'] = _frontend_flags()
         # Free slots can be reserved right from the day view (room_calendar.jsx).
-        context['room_cal_config'] = {
-            'urls': {
-                'create': reverse('rental:create_submit'),
-                'users_search': reverse('rental:api_users_search'),
-                'new_user': reverse('admin:registration_okuser_add'),
-            },
-        }
+        context['room_cal_config'] = _room_booking_config()
         _add_sidebar_counts(context)
         return context
+
+
+def _room_booking_config():
+    """URLs for the "Reserve room" dialog of the room calendar views."""
+    return {
+        'urls': {
+            'create': reverse('rental:create_submit'),
+            'users_search': reverse('rental:api_users_search'),
+            'new_user': reverse('admin:registration_okuser_add'),
+            'schedule': reverse('rental:api_room_schedule'),
+            'day_view': reverse('rental:room_calendar_day'),
+        },
+    }
+
+
+def _room_calendar_bookings(rooms, range_start, range_end):
+    """Bookings per room and start day: {room_id: {date: [booking, ...]}}."""
+    from django.utils import timezone
+
+    out = {}
+    bookings = RoomRental.objects.filter(
+        room__in=rooms,
+        rental_request__status__in=['reserved', 'issued'],
+    ).select_related('rental_request__user__profile', 'room').order_by('requested_start_date')
+    for b in bookings:
+        start = b.get_start_date()
+        end = b.get_end_date()
+        if not (start and end and start < range_end and end > range_start):
+            continue
+        start = timezone.localtime(start)
+        end = timezone.localtime(end)
+        r = b.rental_request
+        out.setdefault(b.room_id, {}).setdefault(start.date(), []).append({
+            'user': _user_display_name(r.user) if r and r.user else '—',
+            'project': (r.project_name if r else '') or '',
+            'start': start.strftime('%H:%M'),
+            'time': f"{start.strftime('%H:%M')} – {end.strftime('%H:%M')}",
+            'url': reverse('rental:rental_detail', args=[r.pk]) if r else '',
+        })
+    return out
 
 
 class RoomCalendarWeekView(StaffRequiredMixin, TemplateView):
@@ -3882,7 +3918,6 @@ class RoomCalendarWeekView(StaffRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         from .models import Room
-        from .models import RoomRental
         from datetime import timedelta
         from django.utils import timezone
         context = super().get_context_data(**kwargs)
@@ -3904,47 +3939,30 @@ class RoomCalendarWeekView(StaffRequiredMixin, TemplateView):
 
         week_start = timezone.make_aware(timezone.datetime.combine(week_days[0], timezone.datetime.min.time()))
         week_end = week_start + timedelta(days=7)
-
-        all_bookings = RoomRental.objects.filter(
-            room__in=rooms,
-            rental_request__status__in=['reserved', 'issued'],
-        ).select_related('rental_request__user__profile', 'room').order_by('requested_start_date')
-
-        bookings_by_room_date = {}
-        for b in all_bookings:
-            start = b.get_start_date()
-            end = b.get_end_date()
-            if start and end and start < week_end and end > week_start:
-                d = start.date()
-                if b.room_id not in bookings_by_room_date:
-                    bookings_by_room_date[b.room_id] = {}
-                if d not in bookings_by_room_date[b.room_id]:
-                    bookings_by_room_date[b.room_id][d] = []
-                bookings_by_room_date[b.room_id][d].append({
-                    'user': _user_display_name(b.rental_request.user) if b.rental_request and b.rental_request.user else '—',
-                    'time': f"{start.strftime('%H:%M')} – {end.strftime('%H:%M')}",
-                    'project': b.rental_request.project_name or '',
-                })
+        bookings_by_room_date = _room_calendar_bookings(rooms, week_start, week_end)
+        today = context['today']
 
         rooms_data = []
         for room in rooms:
             room_bookings = bookings_by_room_date.get(room.id, {})
-            days_data = []
-            for d in week_days:
-                days_data.append({
-                    'date': d,
-                    'bookings': room_bookings.get(d, []),
-                })
             rooms_data.append({
+                'id': room.id,
                 'name': room.name,
                 'image_url': _room_thumb_url(room),
                 'image_urls_json': json.dumps(_room_photo_urls(room)),
-                'days': days_data,
+                'days': [{
+                    'date': d,
+                    'is_past': d < today,
+                    'is_weekend': d.weekday() >= 5,
+                    'bookings': room_bookings.get(d, []),
+                } for d in week_days],
             })
 
         context['rooms_data'] = rooms_data
         context['week_days'] = week_days
         context['sidebar_active'] = 'room_calendar'
+        context['i18n_strings'] = _i18n_bundle()
+        context['room_cal_config'] = _room_booking_config()
         _add_sidebar_counts(context)
         return context
 
@@ -3954,7 +3972,6 @@ class RoomCalendarMonthView(StaffRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         from .models import Room
-        from .models import RoomRental
         from datetime import timedelta
         from django.utils import timezone
         import calendar
@@ -3994,33 +4011,25 @@ class RoomCalendarMonthView(StaffRequiredMixin, TemplateView):
             month_days[-1][-1] + timedelta(days=1), timezone.datetime.min.time()
         ))
 
-        all_bookings = RoomRental.objects.filter(
-            room__in=rooms,
-            rental_request__status__in=['reserved', 'issued'],
-        ).select_related('rental_request__user__profile', 'room').order_by('requested_start_date')
+        bookings_by_room_date = _room_calendar_bookings(rooms, month_start, month_end)
+        today = context['today']
 
-        bookings_by_room_date = {}
-        for b in all_bookings:
-            start = b.get_start_date()
-            end = b.get_end_date()
-            if not (start and end and start < month_end and end > month_start):
-                continue
-            r_id = b.room_id
-            d = start.date()
-            if r_id not in bookings_by_room_date:
-                bookings_by_room_date[r_id] = {}
-            if d not in bookings_by_room_date[r_id]:
-                bookings_by_room_date[r_id][d] = []
-            bookings_by_room_date[r_id][d].append({
-                'user': _user_display_name(b.rental_request.user) if b.rental_request and b.rental_request.user else '—',
-                'project': b.rental_request.project_name or '',
-                'time': start.strftime('%H:%M'),
-            })
+        for room in rooms:
+            room_bookings = bookings_by_room_date.get(room.id, {})
+            room.weeks = [[{
+                'date': d,
+                'in_month': d.month == month,
+                'is_past': d < today,
+                'is_weekend': d.weekday() >= 5,
+                # Only days of this month list their bookings.
+                'bookings': room_bookings.get(d, []) if d.month == month else [],
+            } for d in week] for week in month_days]
 
         context['rooms'] = rooms
         context['month_days'] = month_days
-        context['bookings_by_room_date'] = bookings_by_room_date
         context['sidebar_active'] = 'room_calendar'
+        context['i18n_strings'] = _i18n_bundle()
+        context['room_cal_config'] = _room_booking_config()
         _add_sidebar_counts(context)
         return context
 

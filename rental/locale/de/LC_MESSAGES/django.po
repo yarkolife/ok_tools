@@ -4994,3 +4994,13 @@ msgstr "Raum reserviert"
 
 msgid "Open rental"
 msgstr "Ausleihe öffnen"
+
+# Room calendar: reserve from the week and month views
+msgid "No free time left on this day."
+msgstr "An diesem Tag ist keine Zeit mehr frei."
+
+msgid "Open day view"
+msgstr "Tagesansicht öffnen"
+
+msgid "Click a day to reserve the room."
+msgstr "Auf einen Tag klicken, um den Raum zu reservieren."
