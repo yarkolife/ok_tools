@@ -47,6 +47,8 @@ TERMINATE_GRACE = 10.0
 DIR_SCAN_LIMIT = 200
 # probe_directory(): the folder answered but holds no file to read.
 EMPTY = 'empty'
+# OS cache files: small, and say nothing about the share (lower case).
+_SKIP_SAMPLE_NAMES = frozenset({'thumbs.db', 'desktop.ini', 'ehthumbs.db'})
 
 
 def mp_context():
@@ -115,14 +117,19 @@ def _probe_worker(path, sample_bytes, result):
 
 
 def _find_sample_in_dir(root, limit=DIR_SCAN_LIMIT):
-    """Return the first non-empty regular file under ``root``, or ``''``.
+    """Return the largest regular file among the first entries under ``root``.
 
-    Breadth first and bounded by ``limit`` entries. Raises ``OSError`` when
-    ``root`` itself cannot be listed; unreadable subfolders are skipped.
+    Breadth first and bounded by ``limit`` entries; ``''`` when there is no
+    file. The largest one, because on a small file the latency of the first
+    open (share connection, automount) outweighs the transfer: a 73 KB
+    Thumbs.db read cold at 0.5 MB/s from a share doing 30 MB/s. Hidden and
+    OS cache files are skipped. Raises ``OSError`` when ``root`` itself
+    cannot be listed; unreadable subfolders are skipped.
     """
     queue = [root]
     seen = 0
-    while queue:
+    best, best_size = '', 0
+    while queue and seen < limit:
         folder = queue.pop(0)
         try:
             entries = os.scandir(folder)
@@ -134,18 +141,20 @@ def _find_sample_in_dir(root, limit=DIR_SCAN_LIMIT):
             for entry in entries:
                 seen += 1
                 if seen > limit:
-                    return ''
-                if entry.name.startswith('.'):
-                    # .DS_Store, .thumbnails: tiny files say nothing about speed.
+                    break
+                name = entry.name.lower()
+                if name.startswith('.') or name in _SKIP_SAMPLE_NAMES:
                     continue
                 try:
-                    if entry.is_file(follow_symlinks=False) and entry.stat().st_size > 0:
-                        return entry.path
-                    if entry.is_dir(follow_symlinks=False):
+                    if entry.is_file(follow_symlinks=False):
+                        size = entry.stat().st_size
+                        if size > best_size:
+                            best, best_size = entry.path, size
+                    elif entry.is_dir(follow_symlinks=False):
                         queue.append(entry.path)
                 except OSError:
                     continue
-    return ''
+    return best
 
 
 def _dir_probe_worker(root, sample_bytes, result):

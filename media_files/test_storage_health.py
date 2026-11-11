@@ -94,8 +94,20 @@ def test_probes_work_inside_a_daemonic_worker(daemonic_process):
         assert probe_read_speed(path, timeout=10) > 0
 
 
-def test_probe_directory_skips_hidden_files():
+def test_probe_directory_skips_hidden_and_cache_files():
     with tempfile.TemporaryDirectory() as root:
-        with open(os.path.join(root, '.DS_Store'), 'wb') as handle:
-            handle.write(b'x' * 1024)
+        for name in ('.DS_Store', 'Thumbs.db', 'desktop.ini'):
+            with open(os.path.join(root, name), 'wb') as handle:
+                handle.write(b'x' * 1024)
         assert probe_directory(root, timeout=10) == EMPTY
+
+
+def test_sample_is_the_largest_file():
+    """A tiny file measures latency, not speed (Thumbs.db case, 11.11.2026)."""
+    from media_files.storage_health import _find_sample_in_dir
+    with tempfile.TemporaryDirectory() as root:
+        os.mkdir(os.path.join(root, '483'))
+        for rel, size in (('small.jpg', 10), ('483/big.jpg', 5000), ('mid.jpg', 100)):
+            with open(os.path.join(root, rel), 'wb') as handle:
+                handle.write(b'x' * size)
+        assert _find_sample_in_dir(root).endswith('big.jpg')
