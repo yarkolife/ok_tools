@@ -14,9 +14,13 @@ instead of only during an incident.
 The read itself happens in a child process. A watchdog thread cannot interrupt
 a ``read()`` stuck on CIFS — only killing the process holding it works — so
 every timeout in this module is enforced by ``terminate()``/``kill()``.
+Celery's prefork pool runs tasks in daemonic processes, which multiprocessing
+forbids to start children; ``_children_allowed()`` lifts that for the probe,
+which always joins or kills its child before returning.
 """
 
 from django.utils import timezone
+import contextlib
 import ctypes
 import logging
 import multiprocessing
@@ -54,6 +58,25 @@ def mp_context():
     """
     methods = multiprocessing.get_all_start_methods()
     return multiprocessing.get_context('fork' if 'fork' in methods else 'spawn')
+
+
+@contextlib.contextmanager
+def _children_allowed():
+    """Let a daemonic process (a Celery pool worker) start a probe child.
+
+    multiprocessing refuses ``start()`` in a daemonic process because such a
+    process may die without reaping its children. The probe never leaves a
+    child behind (it joins or kills it), so the flag is cleared for the call.
+    """
+    config = multiprocessing.current_process()._config
+    daemon = config.get('daemon')
+    if daemon:
+        config['daemon'] = False
+    try:
+        yield
+    finally:
+        if daemon:
+            config['daemon'] = daemon
 
 
 def kill_child(proc):
@@ -112,6 +135,9 @@ def _find_sample_in_dir(root, limit=DIR_SCAN_LIMIT):
                 seen += 1
                 if seen > limit:
                     return ''
+                if entry.name.startswith('.'):
+                    # .DS_Store, .thumbnails: tiny files say nothing about speed.
+                    continue
                 try:
                     if entry.is_file(follow_symlinks=False) and entry.stat().st_size > 0:
                         return entry.path
@@ -149,10 +175,20 @@ def probe_directory(root, sample_bytes=PROBE_SAMPLE_BYTES, timeout=PROBE_TIMEOUT
     result = context.Array(ctypes.c_double, 2)
     try:
         proc = context.Process(target=_dir_probe_worker, args=(root, sample_bytes, result))
-        proc.start()
+        with _children_allowed():
+            proc.start()
     except Exception:
-        logger.warning('Cannot fork a probe process for %s', root, exc_info=True)
-        return None
+        logger.warning(
+            'Cannot fork a probe process; probing %s in-process without a timeout',
+            root, exc_info=True)
+        try:
+            path = _find_sample_in_dir(root)
+            if not path:
+                return EMPTY
+            read, elapsed = _read_sample(path, sample_bytes)
+        except OSError:
+            return None
+        return (read / MB) / elapsed if read > 0 else None
 
     proc.join(timeout)
     if proc.is_alive():
@@ -179,7 +215,8 @@ def probe_read_speed(path, sample_bytes=PROBE_SAMPLE_BYTES, timeout=PROBE_TIMEOU
     result = context.Array(ctypes.c_double, 2)
     try:
         proc = context.Process(target=_probe_worker, args=(path, sample_bytes, result))
-        proc.start()
+        with _children_allowed():
+            proc.start()
     except Exception:
         logger.warning(
             'Cannot fork a probe process; reading %s in-process without a timeout',

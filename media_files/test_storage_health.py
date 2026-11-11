@@ -63,3 +63,39 @@ def test_probe_directory_states():
             handle.write(b'x' * 1024)
         assert probe_directory(root, timeout=10) > 0
     assert probe_directory('/nonexistent/oktools-share', timeout=10) is None
+
+
+@pytest.fixture
+def daemonic_process():
+    """Run the test as if inside a Celery prefork worker (daemonic process)."""
+    import multiprocessing
+    config = multiprocessing.current_process()._config
+    before = config.get('daemon')
+    config['daemon'] = True
+    yield
+    if before is None:
+        config.pop('daemon', None)
+    else:
+        config['daemon'] = before
+
+
+def test_probes_work_inside_a_daemonic_worker(daemonic_process):
+    """Celery pool workers are daemonic; the probe must still start its child.
+
+    Without that the folder probe reported "did not answer" for every share
+    without known videos (case 11.11.2026, Fotos Inventar).
+    """
+    from media_files.storage_health import probe_read_speed
+    with tempfile.TemporaryDirectory() as root:
+        path = os.path.join(root, 'a.jpg')
+        with open(path, 'wb') as handle:
+            handle.write(b'x' * 1024)
+        assert probe_directory(root, timeout=10) > 0
+        assert probe_read_speed(path, timeout=10) > 0
+
+
+def test_probe_directory_skips_hidden_files():
+    with tempfile.TemporaryDirectory() as root:
+        with open(os.path.join(root, '.DS_Store'), 'wb') as handle:
+            handle.write(b'x' * 1024)
+        assert probe_directory(root, timeout=10) == EMPTY
