@@ -1,6 +1,29 @@
 CHANGELOG
 =========
 
+2026-11-11 (Version 4.67.0)
+==========================
+
+* **rental: Reserve rooms straight from the room calendar**
+  * Day view: click a free slot or drag across several to open a "Raum reservieren" dialog (start and end time, people, user, project, purpose). It creates the same room-only rental as the wizard (status "reserved"); the server checks working hours and conflicts again. The user picker is shared with the wizard (``shared.jsx``).
+  * Week and month views: click a day to open the same dialog for that room and day. It loads the day's free slots and suggests the first free hour; a full or closed day links to the day view instead. The page reloads after a reservation.
+  * Bookings in the week and month views link to their rental, day numbers to the day view; past days and days of the neighbouring months are not clickable.
+  * Month and week grids use the theme colours instead of fixed light greens (and the undefined ``--ink-5``), so both light and dark mode stay readable: past, weekend, other-month and today cells are distinct, booking chips are larger. Month and weekday names follow the active language. Bookings are grouped by their local start day.
+* **planung: Replace a planned license in place**
+  * A pencil next to the number in the day plan turns it into a field: Enter loads the new license (number, title, responsible, duration) and keeps the start time, Esc cancels, an unknown number keeps the field open. The contributions link moved to the "Aktionen" column.
+  * Clearer day plan dialog in Kalenderwochen: broadcast block info as a calm panel, license number and "Hinzufügen" on one prominent line, notes over the full width, footer in two rows (preparation and export tools; delete left, close/save/plan right).
+* **licenses: Download license PDFs from the list**
+  * New list action "PDF herunterladen": one license as PDF, several as a ZIP; licenses without a profile are skipped with a message.
+  * The print and PDF buttons of the license form look like the other buttons; with Unfold they sit in the sticky submit bar.
+* **admin: Fixes**
+  * DISA import: the "Import ab Datum" picker works again in the Unfold admin (it was rendered outside the form), "Speichern und importieren" sits in the submit bar.
+  * Date range filter for contributions and projects (``ok_tools/admin_filters.py``): the inputs and the "active filter" chip show again under Django 5, search and other filters are kept; projects filter by date only.
+  * Project duration is entered and shown as hours:minutes ("2:30" = 2 h 30 min).
+* **media_files: Storage health check without known videos**
+  * A storage location without a known video (e.g. inventory photos) is probed by reading any file in its folder; an empty but reachable folder is "unknown" instead of "did not answer".
+* **dashboard: Deleting rentals and contributions works again**
+  * Migration ``dashboard 0004`` drops leftover foreign key constraints on ``UserJourney`` (``rental_request_id``, ``license_id``, ``contribution_id``) that blocked deleting rentals and contributions that appear in a user's journey.
+
 2026-11-09 (Version 4.66.0)
 ==========================
 

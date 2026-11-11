@@ -4,8 +4,8 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.65.1
-**Last Updated**: 6 November 2026
+**Current Version**: 4.67.0
+**Last Updated**: 11 November 2026
 
 Features
 ========
@@ -26,6 +26,7 @@ Features
   - Archive media (``ArchiveMedium``): DVD, master DVD, VHS, master VHS, Sendeband, RAID carriers with number and note, edited inline on the license; shelf view "which licenses are on DVD/tape no. X"
   - Legacy archive fields on licenses: old contribution number (``legacy_number``), staff-only internal note, external production (Fremdbeitrag) flag, all searchable and filterable in the admin
   - Import of legacy archives (old OK Stendal database, OK Merseburg Sendearchiv DVD/tape numbers)
+  - Download license PDFs from the admin list (one as PDF, several as ZIP)
   - Multi-method digital signatures (draw on page or sign via phone QR)
   - Signature payload v2 support (SVG, biometric points, metadata)
   - Nextcloud video file integration
@@ -61,7 +62,7 @@ Features
 - **Planning Tools** - Calendar weeks and scheduling functionality with time extraction
   - Daily broadcast plan management (TagesPlan)
   - Calendar week view
-  - License integration for broadcast planning
+  - License integration for broadcast planning; a planned license can be replaced in place by entering another number
   - Service-layer architecture for planning workflows (plan, validation, notifications, auto-copy)
   - Reusable plan templates and change log tracking for schedule updates
   - Manual and automatic time positioning with overlap protection
@@ -157,7 +158,8 @@ Features
   - REST API endpoints for rental operations
   - Calendar view for rental scheduling
   - Week and month calendar views for room booking schedules
-  - Past room slots are disabled and visually separated; occupied day-calendar blocks open the corresponding rental detail
+  - Rooms can be reserved straight from the room calendar: free slots in the day view (click or drag), any day in the week and month views
+  - Past room slots are disabled and visually separated; occupied calendar blocks open the corresponding rental detail
   - Period edits reject room or inventory conflicts and atomically synchronize linked room reservations
   - Automatic rental expiration management via cron jobs
   - Issued and overdue rentals can be extended from the detail page (button and "…" menu)
