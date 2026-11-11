@@ -162,7 +162,7 @@
     <p class="pm-muted">{% trans "No recipients configured yet. You can still copy the text into your mail program." %}</p>
     {% endif %}
     <p class="pm-muted" style="margin-bottom:0">
-      {% if config_url %}<a href="{{ config_url }}#fieldset-programme-mail">{% trans "Edit recipients and texts" %}</a>{% else %}{% trans "Recipients and texts are set in the planning configuration." %}{% endif %}
+      {% if config_url %}<a href="{{ config_url }}#id_program_mail_to">{% trans "Edit recipients and texts" %}</a>{% else %}{% trans "Recipients and texts are set in the planning configuration." %}{% endif %}
       {% if log_url %} · <a href="{{ log_url }}">{% trans "Sent mails" %}</a>{% endif %}
     </p>
   </div>
