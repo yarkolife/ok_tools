@@ -34,6 +34,11 @@
   .pm-subject { width: 100%; box-sizing: border-box; font-size: 14px; padding: 8px 10px; }
   .pm-body { width: 100%; box-sizing: border-box; min-height: 480px; font-family: var(--ok-font-mono, monospace);
              font-size: 13px; line-height: 1.45; padding: 10px; resize: vertical; }
+  .pm-preview-box { margin-top: 10px; }
+  .pm-preview-box > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--ok-ink-3, #666); }
+  .pm-preview { margin-top: 8px; max-height: 420px; overflow: auto; padding: 12px 14px;
+                border: 1px solid var(--ok-line, #ddd); border-radius: var(--ok-radius, 6px);
+                background: var(--ok-surface-2, #f8f9fa); color: var(--ok-ink, #222); }
   .pm-row { display: flex; gap: 8px; align-items: center; }
   .pm-row .pm-subject { flex: 1; }
   .pm-status { font-size: 13px; color: var(--ok-success-ink, #0a6b2d); min-height: 1em; }
@@ -117,9 +122,13 @@
     <div class="pm-field" style="margin-top:12px"><label for="pmBody"><span>{% trans "Text (can be edited before copying or sending)" %}</span></label>
       <textarea name="body" id="pmBody" class="pm-body" spellcheck="true" required>{{ body }}</textarea>
     </div>
+    <details class="pm-preview-box" open>
+      <summary>{% trans "Preview as the mail looks (day headings in bold)" %}</summary>
+      <div id="pmPreview" class="pm-preview" aria-live="off"></div>
+    </details>
 
     <div class="pm-actions" style="margin-top:12px">
-      <button type="button" class="button pm-primary" data-copy="pmBody">{% trans "Copy text" %}</button>
+      <button type="button" class="button pm-primary" id="pmCopyBody">{% trans "Copy text" %}</button>
       <button type="button" class="button" id="pmMailto">{% trans "Open in mail program" %}</button>
       {% if recipients_to or recipients_bcc %}
       <button type="button" class="button pm-danger" id="pmSendOpen">{% trans "Send to the mailing list" %}</button>
@@ -191,6 +200,57 @@
 
   document.querySelectorAll('[data-copy]').forEach(function (btn) {
     btn.addEventListener('click', function () { copy(document.getElementById(btn.dataset.copy)); });
+  });
+
+  // Same rule as text_to_html() in program_mail_service.py.
+  var weekdays = {{ weekdays_json|safe }};
+  var headingPrefix = "{{ day_heading_prefix|escapejs }}";
+  function isDayHeading(line) {
+    if (line.indexOf(headingPrefix) !== 0) return false;
+    return weekdays.indexOf(line.slice(headingPrefix.length).split(',')[0]) !== -1;
+  }
+  function escapeHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  function textToHtml(text) {
+    var lines = text.replace(/\s+$/, '').split('\n').map(function (line) {
+      var html = escapeHtml(line.replace(/\r$/, ''));
+      return isDayHeading(line.trim()) ? '<strong>' + html + '</strong>' : html;
+    });
+    return '<div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px;">' + lines.join('<br>\n') + '</div>';
+  }
+
+  var body = document.getElementById('pmBody');
+  var preview = document.getElementById('pmPreview');
+  function updatePreview() { preview.innerHTML = textToHtml(body.value); }
+  body.addEventListener('input', updatePreview);
+  updatePreview();
+
+  // Copy with formatting (bold days) for Outlook/Thunderbird, plain text as well.
+  document.getElementById('pmCopyBody').addEventListener('click', function () {
+    var text = body.value;
+    if (navigator.clipboard && window.isSecureContext && window.ClipboardItem) {
+      var item = new ClipboardItem({
+        'text/html': new Blob([textToHtml(text)], {type: 'text/html'}),
+        'text/plain': new Blob([text], {type: 'text/plain'})
+      });
+      navigator.clipboard.write([item]).then(function () { say(copiedText); }, fallback);
+    } else {
+      fallback();
+    }
+    function fallback() {
+      // Selecting the rendered preview copies it with formatting.
+      var details = preview.closest('details');
+      if (details) details.open = true;
+      var range = document.createRange();
+      range.selectNodeContents(preview);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      try { document.execCommand('copy') ? say(copiedText) : say(copyFailed); }
+      catch (e) { say(copyFailed); }
+      sel.removeAllRanges();
+    }
   });
 
   document.getElementById('pmMailto').addEventListener('click', function () {

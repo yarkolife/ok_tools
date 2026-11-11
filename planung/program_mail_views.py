@@ -14,6 +14,7 @@ from django.utils.dateparse import parse_date
 from django.utils.http import urlencode
 from django.utils.translation import gettext as _
 from planung.services import program_mail_service as mail
+import json
 import logging
 
 
@@ -149,7 +150,9 @@ def program_mail_view(request, admin_site):
             (mail.SOURCE_PLAN, _("Day plans")),
             (mail.SOURCE_CONTRIBUTIONS, _("Contributions (premieres)")),
         ),
-        "prev_week": (start - timedelta(days=7), end - timedelta(days=7)),
+        "weekdays_json": json.dumps(mail.WEEKDAYS_DE),
+        "day_heading_prefix": mail.DAY_HEADING_PREFIX,
+        "prev_week":(start - timedelta(days=7), end - timedelta(days=7)),
         "next_week": (start + timedelta(days=7), end + timedelta(days=7)),
     }
     return TemplateResponse(request, "admin/planung/program_mail.html", context)

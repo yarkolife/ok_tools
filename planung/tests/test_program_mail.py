@@ -155,6 +155,17 @@ def test_auto_falls_back_to_contributions_without_a_plan(user):
     assert program.entry_count == 1
 
 
+def test_html_version_sets_day_headings_in_bold():
+    html = pm.text_to_html(
+        "Hallo <Team>,\n\nProgramm für Freitag, 13. November 2026\n\n"
+        "18:00 Uhr Programm für Kinder\n(A & B)\n")
+    assert "<strong>Programm für Freitag, 13. November 2026</strong>" in html
+    assert "Hallo &lt;Team&gt;,<br>" in html
+    # Only real day headings: a title starting with the same words stays plain.
+    assert "18:00 Uhr Programm für Kinder<br>" in html
+    assert "(A &amp; B)" in html
+
+
 @pytest.mark.django_db
 def test_page_builds_the_mail(client, staff_user, plan_week):
     client.force_login(staff_user)
@@ -204,6 +215,9 @@ def test_send_uses_the_edited_text_and_logs_it(client, staff_user, plan_week, se
     assert sent.to == ["redaktion@example.org"]
     assert sent.bcc == ["a@example.org", "b@example.org", "c@example.org"]
     assert sent.reply_to == [staff_user.email]
+    html, mimetype = sent.alternatives[0]
+    assert mimetype == "text/html"
+    assert "Hallo,<br>" in html
     log = ProgramMailLog.objects.get()
     assert (log.period_start, log.period_end, log.source, log.is_change) == (START, END, "plan", True)
     assert log.sent_by == staff_user

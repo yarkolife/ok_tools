@@ -1524,3 +1524,6 @@ msgstr "Benutzerprofil fehlt"
 
 #~ msgid "API keys are managed in the admin token list:"
 #~ msgstr "API-Schlüssel werden in der Admin-Tokenliste verwaltet:"
+
+msgid "Preview as the mail looks (day headings in bold)"
+msgstr "Vorschau, wie die Mail aussieht (Tage fett)"

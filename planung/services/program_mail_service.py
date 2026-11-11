@@ -30,6 +30,7 @@ SOURCE_AUTO = "auto"
 WEEKDAYS_DE = (
     "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag",
 )
+DAY_HEADING_PREFIX = "Programm für "
 MONTHS_DE = (
     "Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August",
     "September", "Oktober", "November", "Dezember",
@@ -297,11 +298,38 @@ def render_mail(program: Program, config=None, user=None, change: bool = False) 
 
     blocks = [_fill(intro_tpl, values).strip()]
     for day in program.days:
-        blocks.append(f"Programm für {format_long_date(day.day)}")
+        blocks.append(f"{DAY_HEADING_PREFIX}{format_long_date(day.day)}")
         blocks.extend(entry.as_text() for entry in day.entries)
     blocks.append(_fill(outro_tpl, values).strip())
     body = "\n\n".join(b for b in blocks if b) + "\n"
     return subject, body
+
+
+def is_day_heading(line: str) -> bool:
+    """Return whether ``line`` is a day heading such as "Programm für Freitag, …"."""
+    return line.startswith(DAY_HEADING_PREFIX) and line[len(DAY_HEADING_PREFIX):].split(",")[0] in WEEKDAYS_DE
+
+
+def text_to_html(text: str) -> str:
+    """Return the HTML version of the (possibly hand edited) mail text.
+
+    The text stays the source: line breaks are kept and the day headings are
+    set in bold. Same rule as ``textToHtml`` in program_mail.html.
+    """
+    from django.utils.html import escape
+
+    lines = []
+    for line in text.rstrip("\n").split("\n"):
+        line = line.rstrip("\r")
+        html = escape(line)
+        if is_day_heading(line.strip()):
+            html = f"<strong>{html}</strong>"
+        lines.append(html)
+    return (
+        '<div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px;">'
+        + "<br>\n".join(lines)
+        + "</div>"
+    )
 
 
 def split_addresses(value: str) -> list[str]:
@@ -318,7 +346,7 @@ def send_program_mail(*, subject: str, body: str, config, user) -> list[str]:
     mail goes to the sender itself so that the recipients stay hidden.
     """
     from django.conf import settings
-    from django.core.mail import EmailMessage
+    from django.core.mail import EmailMultiAlternatives
 
     to = split_addresses(config.program_mail_to)
     bcc = split_addresses(config.program_mail_bcc)
@@ -328,7 +356,7 @@ def send_program_mail(*, subject: str, body: str, config, user) -> list[str]:
     reply_to = split_addresses(config.program_mail_reply_to)
     if not reply_to and getattr(user, "email", ""):
         reply_to = [user.email]
-    message = EmailMessage(
+    message = EmailMultiAlternatives(
         subject=subject,
         body=body,
         from_email=from_email,
@@ -336,5 +364,7 @@ def send_program_mail(*, subject: str, body: str, config, user) -> list[str]:
         bcc=bcc,
         reply_to=reply_to,
     )
+    # Day headings in bold; mail programs without HTML show the text part.
+    message.attach_alternative(text_to_html(body), "text/html")
     message.send(fail_silently=False)
     return to + bcc
