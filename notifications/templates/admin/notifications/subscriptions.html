@@ -2,65 +2,110 @@
 {% load i18n %}
 
 {% block content %}
-<div id="content-main" class="notifications-page">
+<style>
+  .ns { max-width: 1100px; display: grid; gap: 16px; }
+  .ns-card { background: var(--ok-surface, #fff); border: 1px solid var(--ok-line, #ddd);
+             border-radius: var(--ok-radius-lg, 8px); padding: 14px 18px; color: var(--ok-ink, #222); }
+  .ns-card h2 { margin: 0 0 10px; font-size: 1rem; font-weight: 600; color: var(--ok-ink, #222);
+                background: none; padding: 0; text-transform: none; letter-spacing: 0; }
+  .ns-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+  .ns-help { margin: 0; color: var(--ok-ink-3, #666); font-size: 13px; max-width: 70ch; }
+  .ns-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ns-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 6px 14px;
+            border-radius: var(--ok-radius, 6px); border: 1px solid var(--ok-line, #ccc);
+            background: var(--ok-surface, #fff); color: var(--ok-ink, #222); font-size: 13px; font-weight: 500;
+            cursor: pointer; text-decoration: none; line-height: 1.2; }
+  .ns-btn:hover { border-color: var(--ok-brand, #417690); color: var(--ok-brand, #417690); }
+  .ns-btn--primary { background: var(--ok-brand, #417690); border-color: var(--ok-brand, #417690);
+                     color: var(--ok-on-brand, #fff); font-weight: 600; }
+  .ns-btn--primary:hover { filter: brightness(1.08); color: var(--ok-on-brand, #fff); }
+  .ns-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+  .ns-module { margin: 0 0 8px; padding-bottom: 8px; border-bottom: 1px solid var(--ok-line, #ddd); }
+  .ns-check { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; cursor: pointer; }
+  .ns-check input { margin-top: 2px; accent-color: var(--ok-brand, #417690); width: 16px; height: 16px; flex: none; }
+  .ns-module .ns-check { font-weight: 600; font-size: 14px; }
+  .ns-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .ns-list .is-covered { color: var(--ok-ink-3, #666); }
+  .ns-save { position: sticky; bottom: 0; z-index: 5; display: flex; align-items: center; gap: 12px;
+             padding: 12px 18px; background: var(--ok-surface, #fff); border: 1px solid var(--ok-line, #ddd);
+             border-radius: var(--ok-radius-lg, 8px); box-shadow: 0 -4px 12px rgba(0,0,0,.06); }
+  .ns-save .ns-help { flex: 1; }
+  .ns-empty { color: var(--ok-ink-3, #666); }
+</style>
 
-  <p class="notifications-toolbar">
-    <a href="{{ feed_url }}" class="button">{% translate "My notifications" %}</a>
-  </p>
-
-  <p class="help">
-    {% blocktranslate %}You only see event types your account may see anyway. A
-    subscription decides what reaches you, never what you have access to.{% endblocktranslate %}
-  </p>
-
-  <div class="module">
-    <h2>{% translate "Apply a ready-made set:" %}</h2>
-    <div class="notifications-summary-body">
-      <form method="post" class="notifications-presets">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="preset">
-        {% for name, label in presets %}
-          <button type="submit" name="preset" value="{{ name }}" class="button">{{ label }}</button>
-        {% endfor %}
-      </form>
-    </div>
+<div class="ns">
+  <div class="ns-card ns-head">
+    <p class="ns-help">
+      {% blocktranslate trimmed %}You only see event types your account may see anyway. A subscription decides what reaches you, never what you have access to.{% endblocktranslate %}
+    </p>
+    <a href="{{ feed_url }}" class="ns-btn">{% translate "My notifications" %}</a>
   </div>
 
-  <form method="post">
+  {% if presets %}
+  <form method="post" class="ns-card">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="preset">
+    <h2>{% translate "Apply a ready-made set:" %}</h2>
+    <div class="ns-row">
+      {% for name, label in presets %}
+        <button type="submit" name="preset" value="{{ name }}" class="ns-btn">{{ label }}</button>
+      {% endfor %}
+    </div>
+  </form>
+  {% endif %}
+
+  <form method="post" class="ns">
     {% csrf_token %}
     <input type="hidden" name="action" value="subscriptions">
-    {% for group in matrix %}
-      <div class="module">
-        <h2>
-          <label>
-            <input type="checkbox" name="modules" value="{{ group.module }}"
-                   {% if group.whole_module %}checked{% endif %}>
-            {{ group.module_label }}
-          </label>
-        </h2>
-        <div class="notifications-summary-body">
-          <ul class="notifications-list">
-            {% for entry in group.types %}
-              <li>
-                <label>
-                  <input type="checkbox" name="codes" value="{{ entry.code }}"
-                         {% if entry.subscribed and not group.whole_module %}checked{% endif %}>
-                  {{ entry.label }}
-                </label>
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
+    {% if matrix %}
+      <div class="ns-grid">
+        {% for group in matrix %}
+          <fieldset class="ns-card" data-module="{{ group.module }}">
+            <div class="ns-module">
+              <label class="ns-check">
+                <input type="checkbox" name="modules" value="{{ group.module }}" data-whole
+                       {% if group.whole_module %}checked{% endif %}>
+                <span>{{ group.module_label }} <small class="ns-help">({% translate "All" %})</small></span>
+              </label>
+            </div>
+            <ul class="ns-list">
+              {% for entry in group.types %}
+                <li>
+                  <label class="ns-check">
+                    <input type="checkbox" name="codes" value="{{ entry.code }}"
+                           {% if entry.subscribed and not group.whole_module %}checked{% endif %}>
+                    <span>{{ entry.label }}</span>
+                  </label>
+                </li>
+              {% endfor %}
+            </ul>
+          </fieldset>
+        {% endfor %}
       </div>
-    {% empty %}
-      <p class="notifications-empty">
-        {% translate "No event type is available for your account." %}
-      </p>
-    {% endfor %}
-    <p class="submit-row">
-      <button type="submit" class="default">{% translate "Save subscriptions" %}</button>
-    </p>
+    {% else %}
+      <p class="ns-card ns-empty">{% translate "No event type is available for your account." %}</p>
+    {% endif %}
+    {% if matrix %}
+    <div class="ns-save">
+      <span class="ns-help">{% translate "A ticked module covers all its event types, including new ones." %}</span>
+      <button type="submit" class="ns-btn ns-btn--primary">{% translate "Save subscriptions" %}</button>
+    </div>
+    {% endif %}
   </form>
-
 </div>
+
+<script>
+  // A whole module covers its event types: grey them out while it is ticked.
+  document.querySelectorAll('.ns fieldset[data-module]').forEach(function (box) {
+    var whole = box.querySelector('input[data-whole]');
+    var update = function () {
+      box.querySelectorAll('.ns-list li').forEach(function (li) {
+        li.classList.toggle('is-covered', whole.checked);
+        li.querySelector('input').disabled = whole.checked;
+      });
+    };
+    whole.addEventListener('change', update);
+    update();
+  });
+</script>
 {% endblock %}

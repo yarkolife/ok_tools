@@ -1031,11 +1031,11 @@ msgstr "nie"
 
 #: templates/admin/notifications/subscriptions.html:12
 msgid ""
-"You only see event types your account may see anyway. A\n"
-"    subscription decides what reaches you, never what you have access to."
+"You only see event types your account may see anyway. A subscription "
+"decides what reaches you, never what you have access to."
 msgstr ""
-"Sie sehen nur Ereignistypen, die Ihr Konto ohnehin sehen darf. Ein\n"
-"    Abonnement entscheidet, was Sie erreicht, nie worauf Sie Zugriff haben."
+"Sie sehen nur Ereignistypen, die Ihr Konto ohnehin sehen darf. Ein "
+"Abonnement entscheidet, was Sie erreicht, nie worauf Sie Zugriff haben."
 
 #: templates/admin/notifications/subscriptions.html:17
 msgid "Apply a ready-made set:"
@@ -1677,3 +1677,6 @@ msgstr ""
 "Eine Premiere ist eine Freistellung, zu der es noch keinen Beitrag gibt. "
 "Eine Wiederholung ohne Mediathek-URL wird nie gemeldet, weil das Reel dann "
 "kein Ziel hätte."
+
+msgid "A ticked module covers all its event types, including new ones."
+msgstr "Ein angehakter Bereich umfasst alle seine Ereignisarten, auch neue."
