@@ -2471,7 +2471,7 @@ admin.site.register(License, LicenseAdmin)
 class ArchiveMediumAdmin(ModelAdmin):
     """Shelf view: which licenses are on DVD/tape no. X."""
 
-    list_display = ('medium_type', 'number', 'license_number', 'license', 'note')
+    list_display = ('medium_type', 'number', 'license_number', 'license_title', 'note')
     list_display_links = ('number',)
     list_filter = ('medium_type',)
     search_fields = ('=number', 'license__title', 'license__number',
@@ -2496,10 +2496,20 @@ class ArchiveMediumAdmin(ModelAdmin):
                 | Q(license__legacy_number=number)), False
         return super().get_search_results(request, queryset, search_term)
 
+    def _license_link(self, obj, text):
+        """Open the license itself; the carrier row is only the shelf entry."""
+        url = reverse('admin:licenses_license_change', args=[obj.license_id])
+        return format_html('<a href="{}">{}</a>', url, text)
+
     @admin.display(description=_('Number'), ordering='license__number')
     def license_number(self, obj):
-        """Show the license number next to the carrier."""
-        return obj.license.number
+        """The license number, linked to the license."""
+        return self._license_link(obj, obj.license.number)
+
+    @admin.display(description=_('License'), ordering='license__title')
+    def license_title(self, obj):
+        """The license title, linked to the license."""
+        return self._license_link(obj, str(obj.license))
 
 
 class CategoryAdmin(ModelAdmin):

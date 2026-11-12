@@ -2,6 +2,7 @@ from __future__ import annotations
 from django.apps import apps as django_apps
 from django.contrib import admin
 from django.contrib.admin.sites import site as default_site
+from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import path
 from django.urls import reverse
@@ -44,43 +45,116 @@ ADMIN_MODEL_ORDER: Dict[str, List[str]] = {
 }
 
 
+def _is_config_model(model) -> bool:
+    """Configuration models keep exactly one row, reached through ``get_config()``."""
+    return callable(getattr(model, "get_config", None))
+
+
+def configuration_entries(request) -> List[Dict[str, Any]]:
+    """Every settings form the user may open, for the one configuration page."""
+    from django.utils.text import capfirst
+
+    entries = []
+    for model, model_admin in default_site._registry.items():
+        if not _is_config_model(model):
+            continue
+        if not model_admin.has_module_permission(request):
+            continue
+        if not (model_admin.has_view_permission(request)
+                or model_admin.has_change_permission(request)):
+            continue
+        opts = model._meta
+        entries.append({
+            "title": capfirst(opts.verbose_name),
+            "app": capfirst(opts.app_config.verbose_name),
+            "url": reverse(f"admin:{opts.app_label}_{opts.model_name}_changelist"),
+        })
+    if django_apps.is_installed("notifications") and request.user.is_superuser:
+        entries.append({
+            "title": _("Notification settings"),
+            "app": _("Notifications"),
+            "url": reverse("admin:notifications_settings"),
+        })
+    entries.sort(key=lambda entry: (str(entry["app"]), str(entry["title"])))
+    return entries
+
+
 def configuration_index_view(request):
-    """Render a single entry point for configuration models."""
+    """One page with all settings forms; each card opens its form directly."""
     context = {
         **default_site.each_context(request),
         "title": _("Configuration"),
-        "config_links": [
-            {
-                "title": _("Organization Configuration"),
-                "url": reverse("admin:registration_organizationconfig_changelist"),
-            },
-            {
-                "title": _("Registration Configuration"),
-                "url": reverse("admin:registration_registrationconfig_changelist"),
-            },
-        ],
+        "config_links": configuration_entries(request),
     }
     return TemplateResponse(request, "admin/configuration_index.html", context)
 
 
-def _reorder_app_list(app_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    for app in app_list:
-        if app.get("app_label") == "registration":
-            config_model = {
-                "name": _("Configuration"),
-                "object_name": "Configuration",
-                "admin_url": reverse("admin:configuration"),
-                "add_url": None,
-                "view_only": True,
-            }
-            app["models"] = [
-                model
-                for model in app.get("models", [])
-                if model.get("object_name")
-                not in ("OrganizationConfig", "RegistrationConfig")
-            ]
-            app["models"].insert(0, config_model)
+def _open_singleton_form(model_admin):
+    """Make the list of a one-row configuration model open its form instead.
 
+    Every ``*Config`` model keeps exactly one row (``get_config()``); a list
+    with that single row is only a detour on the way to the settings.
+    """
+    original = model_admin.changelist_view
+
+    def changelist_view(request, extra_context=None):
+        if not (model_admin.has_view_permission(request)
+                or model_admin.has_change_permission(request)):
+            return original(request, extra_context)
+        config = model_admin.model.get_config()
+        opts = model_admin.model._meta
+        return HttpResponseRedirect(
+            reverse(f"admin:{opts.app_label}_{opts.model_name}_change", args=[config.pk]))
+
+    model_admin.changelist_view = changelist_view
+
+
+def _install_singleton_forms(site: admin.AdminSite) -> None:
+    for model, model_admin in site._registry.items():
+        if _is_config_model(model) and not getattr(
+                model_admin, "_opens_singleton_form", False):
+            _open_singleton_form(model_admin)
+            model_admin._opens_singleton_form = True
+
+
+def _reorder_app_list(app_list: List[Dict[str, Any]], request=None) -> List[Dict[str, Any]]:
+    if request is None:
+        return _sort_models(app_list)
+    # All settings forms are reached through the one configuration page.
+    config_names = {
+        model.__name__ for model in default_site._registry if _is_config_model(model)
+    } | {"NotificationsSettings"}
+    for app in app_list:
+        app["models"] = [
+            model for model in app.get("models", [])
+            if model.get("object_name") not in config_names
+        ]
+    if configuration_entries(request):
+        hub = {
+            "name": _("Configuration"),
+            "object_name": "Configuration",
+            "admin_url": reverse("admin:configuration"),
+            "add_url": None,
+            "view_only": True,
+        }
+        registration = next(
+            (app for app in app_list if app.get("app_label") == "registration"), None)
+        if registration is None:
+            registration = {
+                "name": _("Configuration"),
+                "app_label": "registration",
+                "app_url": reverse("admin:configuration"),
+                "has_module_perms": True,
+                "models": [],
+            }
+            app_list.append(registration)
+        registration["models"].insert(0, hub)
+    app_list = [app for app in app_list if app.get("models")]
+    return _sort_models(app_list)
+
+
+def _sort_models(app_list: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    for app in app_list:
         desired = ADMIN_MODEL_ORDER.get(app.get("app_label"))
         if not desired:
             continue
@@ -209,13 +283,15 @@ def _custom_get_app_list(self: admin.AdminSite, request, app_label=None):  # typ
                     app['models'].insert(0, tools_model)
                     break
 
-    return _reorder_app_list(app_list)
+    return _reorder_app_list(app_list, request if app_label is None else None)
 
 
 _original_get_urls = default_site.get_urls
 
 
 def _custom_get_urls(self: admin.AdminSite):  # type: ignore[override]
+    # Before the model URLs are built, so they point at the redirecting views.
+    _install_singleton_forms(self)
     urls = _original_get_urls()
     custom_urls = [
         path(

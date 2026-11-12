@@ -4,6 +4,11 @@ CHANGELOG
 2026-11-12 (Version 4.69.0)
 ==========================
 
+* **admin: One configuration page**
+  * "Configuration" in the settings menu is now the only entry for settings: one page with a card for every settings form the user may open (organization, registration, notifications, rental, licenses, inventory photos, media files, planning, tools, exchange). Modules switched off in the environment are not installed and have no card. The separate menu entries of the configuration models are gone.
+  * Each card, and any old link to a configuration list, opens the form directly instead of a list with one row.
+* **licenses: Archive carriers link to their license**
+  * In "Archive carriers" the license number and title open the license; the carrier number still opens the carrier.
 * **tools: Post reels on Instagram from OK-Tools**
   * Every reel rendered in the Reel Studio becomes a draft in the new list "Instagram-Posts" (menu "Daily work"): caption from a template (title, description, broadcast day and time, Mediathek link, hashtags from the license tags; lines with only empty placeholders are left out), publishing time = morning of the broadcast day at the time of the daily reel reminder mail, and the collab accounts of matching partners. The post page shows the reel, the caption length and the hashtag count.
   * Nothing is published without an approval: "Approve (publish at its time)" or "Publish now" needs the new permission "Can approve and publish Instagram posts". Editing an approved post makes it a draft again.
