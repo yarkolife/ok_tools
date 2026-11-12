@@ -37,7 +37,7 @@ SECTIONS: list[tuple[str, Any, str, bool, bool]] = [
 # the object_name of the custom links added in ok_tools/admin.py.
 MODEL_SECTIONS: dict[str, str] = {
     # Daily work
-    "dashboard.Dashboard": "work",
+    "projects.Project": "work",
     "licenses.License": "work",
     "contributions.Contribution": "work",
     "planung.CalendarWeeksProxy": "work",
@@ -47,6 +47,7 @@ MODEL_SECTIONS: dict[str, str] = {
     "contributions.DisaImport": "work",
     "tools.ToolsInterface": "work",
     "notifications.NotificationsFeed": "work",
+    "dashboard.Dashboard": "work",
     # Background jobs (video render, imports): checked after starting one
     "django_celery_results.TaskResult": "work",
     # Archive & media
@@ -62,7 +63,6 @@ MODEL_SECTIONS: dict[str, str] = {
     "registration.Profile": "people",
     "registration.MediaAuthority": "people",
     "auth.Group": "people",
-    "projects.Project": "people",
     "projects.ProjectLeader": "people",
     "projects.MediaEducationSupervisor": "people",
     # Rental & inventory
