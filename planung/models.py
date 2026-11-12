@@ -242,11 +242,15 @@ class PlanungConfig(models.Model):
         help_text=_("Placeholders: {von}, {bis} (dates of the period), {name} (sender)."),
     )
     program_mail_change_prefix = models.CharField(
-        max_length=60,
+        max_length=255,
         blank=True,
         default=mail_defaults.DEFAULT_CHANGE_PREFIX,
-        verbose_name=_("Programme mail: prefix for changes"),
-        help_text=_("Put in front of the subject when the mail is marked as a change."),
+        verbose_name=_("Programme mail: subject for changes"),
+        help_text=_(
+            "Subject when the mail is marked as a change. Placeholders: {von}, {bis}, "
+            "{name} and {betreff} (the normal subject). Text without placeholders, "
+            "such as \"ÄNDERUNG: \", is put in front of the normal subject."
+        ),
     )
     program_mail_intro = models.TextField(
         blank=True,
@@ -285,6 +289,20 @@ class PlanungConfig(models.Model):
     def __str__(self):
         """Return string representation."""
         return str(_("Planning Configuration"))
+
+    def clean(self):
+        """Reject programme mail address fields that hold no valid address."""
+        from django.core.exceptions import ValidationError
+
+        errors = {}
+        for field in ("program_mail_to", "program_mail_bcc",
+                      "program_mail_from", "program_mail_reply_to"):
+            bad = mail_defaults.invalid_addresses(getattr(self, field))
+            if bad:
+                errors[field] = _("Not a valid e-mail address: %(entries)s") % {
+                    "entries": ", ".join(bad)}
+        if errors:
+            raise ValidationError(errors)
 
     def save(self, *args, **kwargs):
         """Ensure only one config instance exists."""

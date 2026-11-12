@@ -466,12 +466,18 @@ msgid "Placeholders: {von}, {bis} (dates of the period), {name} (sender)."
 msgstr "Platzhalter: {von}, {bis} (Daten des Zeitraums), {name} (Absender)."
 
 #: models.py:248
-msgid "Programme mail: prefix for changes"
-msgstr "Programm-Mail: Vorsatz bei Änderungen"
+msgid "Programme mail: subject for changes"
+msgstr "Programm-Mail: Betreff bei Änderungen"
 
 #: models.py:249
-msgid "Put in front of the subject when the mail is marked as a change."
-msgstr "Wird vor den Betreff gesetzt, wenn die Mail als Änderung markiert ist."
+msgid ""
+"Subject when the mail is marked as a change. Placeholders: {von}, {bis}, "
+"{name} and {betreff} (the normal subject). Text without placeholders, such "
+"as \"ÄNDERUNG: \", is put in front of the normal subject."
+msgstr ""
+"Betreff, wenn die Mail als Änderung markiert ist. Platzhalter: {von}, {bis}, "
+"{name} und {betreff} (der normale Betreff). Text ohne Platzhalter, z. B. "
+"\"ÄNDERUNG: \", wird vor den normalen Betreff gesetzt."
 
 #: models.py:254
 msgid "Programme mail: text before the programme"
@@ -1527,3 +1533,6 @@ msgstr "Benutzerprofil fehlt"
 
 msgid "Preview as the mail looks (day headings in bold)"
 msgstr "Vorschau, wie die Mail aussieht (Tage fett)"
+
+msgid "Not a valid e-mail address: %(entries)s"
+msgstr "Keine gültige E-Mail-Adresse: %(entries)s"

@@ -234,3 +234,62 @@ def test_send_without_recipients_sends_nothing(client, staff_user, plan_week, se
     assert response.status_code == 200
     assert django_mail.outbox == []
     assert not ProgramMailLog.objects.exists()
+
+
+def test_addresses_keep_their_names():
+    assert pm.split_addresses(
+        "Redaktion Merseburg <redaktion.merseburg@mz.de>\n<franz.ruch@mz.de>; "
+        "a@example.org, b@example.org\r\n\"Müller, Anna\" <anna@example.org>"
+    ) == [
+        "Redaktion Merseburg <redaktion.merseburg@mz.de>",
+        "franz.ruch@mz.de",
+        "a@example.org",
+        "b@example.org",
+        '"Müller, Anna" <anna@example.org>',
+    ]
+    assert pm.invalid_addresses("ok@example.org\nkeine Adresse") != []
+
+
+@pytest.mark.django_db
+def test_config_rejects_invalid_addresses():
+    from django.core.exceptions import ValidationError
+
+    config = PlanungConfig.get_config()
+    config.program_mail_to = "Redaktion <redaktion@example.org>"
+    config.full_clean()
+    config.program_mail_bcc = "redaktion at example"
+    with pytest.raises(ValidationError) as exc:
+        config.full_clean()
+    assert "program_mail_bcc" in exc.value.message_dict
+
+
+@pytest.mark.django_db
+def test_change_subject_written_as_whole_subject_and_windows_line_ends(plan_week):
+    config = PlanungConfig.get_config()
+    config.program_mail_subject = "TV Programm des Offenen Kanals MQ vom {von} bis {bis}"
+    config.program_mail_change_prefix = "ÄNDERUNG: TV Programm des OKMQ vom {von} bis {bis}"
+    config.program_mail_change_intro = "Hallo,\r\n\r\nes gibt eine Änderung ({von})."
+    config.program_mail_outro = "Viele Grüße\r\n{name}"
+    config.save()
+
+    subject, body = pm.render_mail(pm.collect_program(START, END), config=config, change=True)
+
+    assert subject == "ÄNDERUNG: TV Programm des OKMQ vom 13.11.2026 bis 19.11.2026"
+    assert "\r" not in body
+    assert body.startswith("Hallo,\n\nes gibt eine Änderung (13.11.2026).\n\nProgramm für Freitag")
+    assert body.endswith("Viele Grüße\n")
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("template, expected", [
+    ("ÄNDERUNG: ", "ÄNDERUNG: TV Programm vom 13.11.2026 bis 19.11.2026"),
+    ("{betreff} (korrigiert)", "TV Programm vom 13.11.2026 bis 19.11.2026 (korrigiert)"),
+    ("Korrektur OKMQ {von}", "Korrektur OKMQ 13.11.2026"),
+    ("", "TV Programm vom 13.11.2026 bis 19.11.2026"),
+])
+def test_change_subject_is_a_free_template(plan_week, template, expected):
+    config = PlanungConfig.get_config()
+    config.program_mail_change_prefix = template
+    config.save()
+    subject, _ = pm.render_mail(pm.collect_program(START, END), config=config, change=True)
+    assert subject == expected

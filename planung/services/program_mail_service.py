@@ -292,10 +292,17 @@ def render_mail(program: Program, config=None, user=None, change: bool = False) 
 
     subject = _fill(subject_tpl, values).strip()
     if change:
-        prefix = getattr(config, "program_mail_change_prefix", None)
-        prefix = DEFAULT_CHANGE_PREFIX if prefix is None else prefix
-        subject = f"{prefix}{subject}"
+        change_tpl = getattr(config, "program_mail_change_prefix", None)
+        change_tpl = DEFAULT_CHANGE_PREFIX if change_tpl is None else change_tpl
+        if any("{" + key + "}" in change_tpl for key in (*values, "betreff")):
+            # A whole subject of its own; {betreff} inserts the normal subject.
+            subject = _fill(change_tpl, {**values, "betreff": subject}).strip()
+        else:
+            # Plain text such as "ÄNDERUNG: " goes in front of the normal subject.
+            subject = f"{change_tpl}{subject}"
 
+    # Texts typed in the admin arrive with Windows line ends.
+    intro_tpl, outro_tpl = (t.replace("\r\n", "\n").replace("\r", "\n") for t in (intro_tpl, outro_tpl))
     blocks = [_fill(intro_tpl, values).strip()]
     for day in program.days:
         blocks.append(f"{DAY_HEADING_PREFIX}{format_long_date(day.day)}")
@@ -333,10 +340,43 @@ def text_to_html(text: str) -> str:
 
 
 def split_addresses(value: str) -> list[str]:
-    """Split a recipient field on new lines, commas and semicolons."""
+    """Split a recipient field on new lines, commas and semicolons.
+
+    Accepts ``a@b.de``, ``<a@b.de>`` and ``Name <a@b.de>`` (also with a
+    quoted name); a name stays with its address.
+    """
+    from email.utils import getaddresses
     import re
 
-    return [a.strip() for a in re.split(r"[\s,;]+", value or "") if a.strip()]
+    parts = [p for p in re.split(r"[\r\n;]+", value or "") if p.strip()]
+    result = []
+    for name, address in getaddresses(parts):
+        address, name = address.strip(), name.strip()
+        if not address:
+            continue
+        if not name:
+            result.append(address)
+        elif any(c in name for c in ',;:"()<>@[]\\'):
+            escaped = name.replace("\\", "\\\\").replace('"', '\\"')
+            result.append(f'"{escaped}" <{address}>')
+        else:
+            result.append(f"{name} <{address}>")
+    return result
+
+
+def invalid_addresses(value: str) -> list[str]:
+    """Return the entries of a recipient field that are no e-mail address."""
+    from django.core.exceptions import ValidationError
+    from django.core.validators import validate_email
+    from email.utils import parseaddr
+
+    bad = []
+    for entry in split_addresses(value):
+        try:
+            validate_email(parseaddr(entry)[1])
+        except ValidationError:
+            bad.append(entry)
+    return bad
 
 
 def send_program_mail(*, subject: str, body: str, config, user) -> list[str]:

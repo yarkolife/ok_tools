@@ -41,7 +41,6 @@ MODEL_SECTIONS: dict[str, str] = {
     "licenses.License": "work",
     "contributions.Contribution": "work",
     "planung.CalendarWeeksProxy": "work",
-    "planung.ProgramMailProxy": "work",
     "rental.RentalProcessProxy": "work",
     "inventory.InventoryItem": "work",
     "austausch.ExchangeFeed": "work",
@@ -79,6 +78,7 @@ MODEL_SECTIONS: dict[str, str] = {
     # More: used now and then
     "planung.TagesPlan": "more",
     "planung.PlanTemplate": "more",
+    "planung.ProgramMailProxy": "more",
     "notifications.ManualReminder": "more",
     "tools.SlideshowProject": "more",
     "tools.AudioNormalizeJob": "more",
