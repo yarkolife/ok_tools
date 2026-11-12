@@ -1356,7 +1356,7 @@ class VideoFileAdmin(ModelAdmin):
                 logger.error(f'Cleanup skipped for storage {video.storage_location.name}: {problem}')
         return bool(storage_problems[storage_id])
 
-    @admin.action(description=_('Delete selected records without video'))
+    @admin.action(description=_('Delete selected records without video'), permissions=['delete'])
     def delete_records_without_video_action(self, request, queryset):
         """
         Delete VideoFile records for selected entries where the video file does not exist on disk.
@@ -2547,7 +2547,7 @@ class VideoFileAdmin(ModelAdmin):
                 level='success'
             )
     
-    @admin.action(description=_('Delete duplicate versions (keep best quality)'))
+    @admin.action(description=_('Delete duplicate versions (keep best quality)'), permissions=['delete'])
     def delete_duplicates_action(self, request, queryset):
         """Delete duplicate versions, keeping the best quality one."""
         # Get unique numbers from selection
@@ -2590,7 +2590,7 @@ class VideoFileAdmin(ModelAdmin):
             level='success'
         )
 
-    @admin.action(description=_('Delete archive duplicate versions (keep best archive)'))
+    @admin.action(description=_('Delete archive duplicate versions (keep best archive)'), permissions=['delete'])
     def delete_archive_duplicates_action(self, request, queryset):
         """Delete duplicate versions inside ARCHIVE only, keeping the best ARCHIVE version per number."""
         if _is_archive_protected():
@@ -2909,7 +2909,7 @@ class VideoFileAdmin(ModelAdmin):
                 level='warning'
             )
 
-    @admin.action(description=_('Force delete archive duplicates (keep best archive) [requires confirmation]'))
+    @admin.action(description=_('Force delete archive duplicates (keep best archive) [requires confirmation]'), permissions=['delete'])
     def force_delete_archive_duplicates_keep_best_action(self, request, queryset):
         return self._force_archive_cleanup_delete_with_confirmation(
             request,
@@ -2919,7 +2919,7 @@ class VideoFileAdmin(ModelAdmin):
             title=_('Force delete ARCHIVE duplicates (keep best archive)'),
         )
 
-    @admin.action(description=_('Force delete archive duplicates (keep newest archive) [requires confirmation]'))
+    @admin.action(description=_('Force delete archive duplicates (keep newest archive) [requires confirmation]'), permissions=['delete'])
     def force_delete_archive_duplicates_keep_newest_action(self, request, queryset):
         return self._force_archive_cleanup_delete_with_confirmation(
             request,
@@ -2929,7 +2929,7 @@ class VideoFileAdmin(ModelAdmin):
             title=_('Force delete ARCHIVE duplicates (keep newest archive)'),
         )
 
-    @admin.action(description=_('Force delete archive duplicates (keep largest archive file) [requires confirmation]'))
+    @admin.action(description=_('Force delete archive duplicates (keep largest archive file) [requires confirmation]'), permissions=['delete'])
     def force_delete_archive_duplicates_keep_largest_action(self, request, queryset):
         return self._force_archive_cleanup_delete_with_confirmation(
             request,
@@ -2939,7 +2939,7 @@ class VideoFileAdmin(ModelAdmin):
             title=_('Force delete ARCHIVE duplicates (keep largest archive file)'),
         )
 
-    @admin.action(description=_('Delete archive duplicate versions (keep newest archive)'))
+    @admin.action(description=_('Delete archive duplicate versions (keep newest archive)'), permissions=['delete'])
     def delete_archive_duplicates_keep_newest_action(self, request, queryset):
         """Delete duplicate versions inside ARCHIVE only, keeping the newest ARCHIVE version per number."""
         if _is_archive_protected():
@@ -2987,7 +2987,7 @@ class VideoFileAdmin(ModelAdmin):
                 level='info'
             )
 
-    @admin.action(description=_('Delete archive duplicate versions (keep largest archive file)'))
+    @admin.action(description=_('Delete archive duplicate versions (keep largest archive file)'), permissions=['delete'])
     def delete_archive_duplicates_keep_largest_action(self, request, queryset):
         """Delete duplicate versions inside ARCHIVE only, keeping the largest ARCHIVE file per number."""
         if _is_archive_protected():
@@ -3088,7 +3088,7 @@ class VideoFileAdmin(ModelAdmin):
         if error_count > 0:
             self.message_user(request, f'{error_count} video(s) failed to move', level='error')
     
-    @admin.action(description=_('Cleanup records for files missing from disk'))
+    @admin.action(description=_('Cleanup records for files missing from disk'), permissions=['delete'])
     def cleanup_missing_files_action(self, request, queryset):
         """Delete VideoFile records for files that no longer exist on disk.
         

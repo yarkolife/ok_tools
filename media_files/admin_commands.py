@@ -144,6 +144,14 @@ def system_management_view(request):
             if number:
                 options['number'] = int(number)
         
+        # Commands that remove video records or files need the right to delete
+        # videos; staff without it may still run scans and dry runs.
+        deletes = options.get('delete_missing') or (
+            command in ('cleanup_playout', 'cleanup_duplicates') and not options.get('dry_run'))
+        if deletes and not request.user.has_perm('media_files.delete_videofile'):
+            messages.error(request, _('You do not have permission to delete videos.'))
+            return redirect('admin:media_files_system_management')
+
         # Execute command via Celery task
         try:
             task = None
