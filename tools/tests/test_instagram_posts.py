@@ -276,3 +276,105 @@ def test_publish_now_does_not_wait_for_the_link(config, home_license, user):
             mock.patch('tools.services.instagram.requests.post',
                        return_value=_response(payload={'id': 'C1'})):
         assert reel_posts.start_publishing(reel_posts.claim(post.pk))
+
+
+@pytest.mark.django_db
+def test_morning_mail_shows_the_post_and_an_approval_link(config, home_license):
+    post = ReelPost.objects.create(filename=FILENAME, license=home_license, caption='Hallo')
+    info = reel_posts.reminder_info(FILENAME, 19082)
+    assert info['status'] == ReelPost.STATUS_DRAFT
+    assert info['approve_url'].startswith('https://portal.example.org/tools/reel-posts/freigeben/')
+
+    post.status = ReelPost.STATUS_PUBLISHED
+    post.permalink = 'https://www.instagram.com/reel/abc/'
+    post.save()
+    info = reel_posts.reminder_info(FILENAME, 19082)
+    assert (info['approve_url'], info['permalink']) == ('', 'https://www.instagram.com/reel/abc/')
+
+
+@pytest.mark.django_db
+def test_morning_mail_creates_missing_drafts(config, home_license):
+    assert reel_posts.reminder_info(FILENAME, 19082)['status'] == ReelPost.STATUS_DRAFT
+    assert ReelPost.objects.filter(filename=FILENAME).exists()
+
+
+@pytest.mark.django_db
+def test_mail_link_shows_the_post_and_publishes_only_on_the_button(client, config, home_license):
+    post = ReelPost.objects.create(filename=FILENAME, license=home_license, caption='Hallo Welt')
+    url = reverse('tools:reel_post_approve', args=[reel_posts.approval_token(post)])
+
+    page = client.get(url, secure=True)
+    assert page.status_code == 200
+    assert 'Hallo Welt' in page.content.decode()
+    post.refresh_from_db()
+    assert post.status == ReelPost.STATUS_DRAFT  # opening the link changes nothing
+
+    with mock.patch('tools.tasks.publish_due_reel_posts.delay') as publish:
+        client.post(url, secure=True)
+    post.refresh_from_db()
+    assert post.status == ReelPost.STATUS_APPROVED
+    assert post.approved_by is None
+    publish.assert_called_once()
+
+    # A second click does nothing.
+    assert 'Hallo Welt' not in client.post(url, secure=True).content.decode()
+
+
+@pytest.mark.django_db
+def test_mail_link_with_a_wrong_token_is_refused(client, config):
+    response = client.get(reverse('tools:reel_post_approve', args=['nonsense']), secure=True)
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_story_reminder_half_an_hour_after_publishing(config, home_license, settings):
+    settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+    from django.core import mail
+    config.reel_reminder_recipient_email = 'social@example.org'
+    config.save()
+    post = ReelPost.objects.create(
+        filename=FILENAME, license=home_license, status=ReelPost.STATUS_PUBLISHING,
+        container_id='C1', container_created_at=timezone.now())
+
+    from tools.tasks import check_reel_post
+    with mock.patch('tools.services.instagram.requests.get', side_effect=[
+            _response(payload={'status_code': 'FINISHED'}),
+            _response(payload={'permalink': 'https://www.instagram.com/reel/abc/'})]), \
+            mock.patch('tools.services.instagram.requests.post',
+                       return_value=_response(payload={'id': 'M1'})), \
+            mock.patch('tools.tasks.send_reel_story_reminder.apply_async') as later:
+        check_reel_post(post.pk)
+    assert later.call_args.kwargs == {'args': [post.pk], 'countdown': 30 * 60}
+
+    from tools.tasks import send_reel_story_reminder
+    with mock.patch('notifications.services.emit') as emit:
+        send_reel_story_reminder(post.pk)
+    assert emit.call_args.args[0] == 'tools.instagram_story_reminder'
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].to == ['social@example.org']
+    assert 'https://mediathek.example/v/1' in mail.outbox[0].body
+    assert 'https://www.instagram.com/reel/abc/' in mail.outbox[0].body
+
+
+@pytest.mark.parametrize('ig, expected, absent', [
+    ({'status': 'draft', 'approve_url': 'https://x/approve'},
+     ['Approve and publish now: https://x/approve'], ['Reel download']),
+    ({'status': 'published', 'permalink': 'https://www.instagram.com/reel/abc/'},
+     ['Instagram: published - https://www.instagram.com/reel/abc/'], ['Approve']),
+    (None, ['Reel download: https://x/file.mp4'], ['Instagram']),
+])
+def test_morning_mail_text(ig, expected, absent):
+    from django.template.loader import render_to_string
+    from django.utils import translation
+
+    reel = {'number': 19082, 'title': 'HoMe live', 'instagram': ig,
+            'download_url': '' if ig else 'https://x/file.mp4',
+            'mediathek_url': 'https://mediathek.example/v/1'}
+    with translation.override('en'):
+        text = render_to_string('email/daily_reel_reminder_body.txt',
+                                {'date': date(2026, 11, 13), 'reels': [reel]})
+    for part in expected:
+        assert part in text
+    for part in absent:
+        assert part not in text
+    assert 'Mediathek: https://mediathek.example/v/1' in text

@@ -1,0 +1,7 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate %}The reel "{{ title }}" (#{{ number }}) was published on Instagram half an hour ago.{% endblocktranslate %}
+
+{% trans "Please share it as a story now and add the Mediathek link as a link sticker." %}
+
+{% trans "Instagram post" %}: {{ permalink|default:"-" }}
+{% trans "Mediathek link for the sticker" %}: {{ mediathek_url|default:"-" }}
+{% endautoescape %}

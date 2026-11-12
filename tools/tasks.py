@@ -279,6 +279,12 @@ def build_daily_reel_reminder_context(
             warnings.append(_('No Mediathek URL is available yet. Please check the publication link.'))
 
         filename = Path(str(video.filename or video.file_path)).name
+        instagram = None
+        try:
+            from .reel_posts import reminder_info
+            instagram = reminder_info(filename, number)
+        except Exception:
+            logger.exception('Instagram status for the reel reminder failed: %s', filename)
         reels.append({
             'number': number,
             'filename': filename,
@@ -289,7 +295,9 @@ def build_daily_reel_reminder_context(
             'other_times': other_times,
             'tags': _license_tags(license_obj),
             'mediathek_url': getattr(license_obj, 'mediathek_url', '') or '',
-            'download_url': _reel_public_download_url(filename),
+            # With Instagram posting the file is published by OK-Tools itself.
+            'download_url': '' if instagram else _reel_public_download_url(filename),
+            'instagram': instagram,
             'warnings': warnings,
             'sort_key': (
                 0 if start_time else 1,
@@ -1160,7 +1168,22 @@ def check_reel_post(post_id):
     outcome = check_and_publish(post)
     if outcome == 'wait':
         check_reel_post.apply_async(args=[post_id], countdown=STATUS_CHECK_INTERVAL)
+    elif outcome == 'published':
+        from .reel_posts import STORY_REMINDER_DELAY
+        send_reel_story_reminder.apply_async(args=[post_id], countdown=STORY_REMINDER_DELAY)
     return {'status': outcome}
+
+
+@shared_task(name='tools.tasks.send_reel_story_reminder')
+def send_reel_story_reminder(post_id):
+    """Half an hour after publishing: share the reel as a story with the link."""
+    from .models import ReelPost
+    from .reel_posts import send_story_reminder
+    post = ReelPost.objects.filter(pk=post_id, status=ReelPost.STATUS_PUBLISHED).first()
+    if post is None:
+        return {'status': 'skipped'}
+    send_story_reminder(post)
+    return {'status': 'sent'}
 
 
 @shared_task(name='tools.tasks.refresh_instagram_token')

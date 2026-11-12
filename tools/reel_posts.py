@@ -375,3 +375,106 @@ def renew_token() -> bool:
     ToolsConfig.objects.filter(pk=config.pk).update(
         instagram_access_token=token, instagram_token_refreshed_at=timezone.now())
     return True
+
+
+# ---------------------------------------------------------------------------
+# Mail links: approve from the morning reminder, story reminder afterwards
+# ---------------------------------------------------------------------------
+
+APPROVAL_SALT = 'tools.reel_post_approval'
+# The link in the morning mail stays valid for the broadcast day and the night.
+APPROVAL_MAX_AGE = 36 * 60 * 60
+# Reposting the reel as a story follows half an hour after publishing.
+STORY_REMINDER_DELAY = 30 * 60
+
+
+def approval_token(post: ReelPost) -> str:
+    from django.core import signing
+    return signing.dumps({'post': post.pk}, salt=APPROVAL_SALT)
+
+
+def post_from_token(token: str) -> ReelPost | None:
+    from django.core import signing
+    try:
+        data = signing.loads(token, salt=APPROVAL_SALT, max_age=APPROVAL_MAX_AGE)
+    except signing.BadSignature:
+        return None
+    return ReelPost.objects.select_related('license').filter(pk=data.get('post')).first()
+
+
+def approval_url(post: ReelPost) -> str:
+    from .tasks import _absolute_url
+    from django.urls import reverse
+    return _absolute_url(reverse('tools:reel_post_approve', args=[approval_token(post)]))
+
+
+def reminder_info(filename: str, number=None) -> dict | None:
+    """What the morning mail says about the Instagram post of a reel."""
+    config = ToolsConfig.get_config()
+    if not config.is_instagram_configured():
+        return None
+    post = ReelPost.objects.filter(filename=Path(str(filename)).name).first()
+    if post is None:
+        # Reels rendered before posting was switched on get their draft now.
+        post = create_draft(filename, number)
+    if post is None:
+        return None
+    info = {
+        'status': post.status,
+        'status_label': str(post.get_status_display()),
+        'scheduled_at': post.scheduled_at,
+        'permalink': post.permalink,
+        'error': post.error_message,
+        'approve_url': '',
+    }
+    if post.status in (ReelPost.STATUS_DRAFT, ReelPost.STATUS_FAILED):
+        info['approve_url'] = approval_url(post)
+    return info
+
+
+def approve_from_mail(post: ReelPost) -> None:
+    """Approval through the mail link: publish right away."""
+    approve(post, None, now=True)
+    from .tasks import publish_due_reel_posts
+    publish_due_reel_posts.delay()
+
+
+def send_story_reminder(post: ReelPost) -> None:
+    """Remind staff to share the published reel as a story with the link sticker."""
+    from django.conf import settings
+    from django.utils import translation
+
+    config = ToolsConfig.get_config()
+    license_obj = post.license
+    context = {
+        'post': post,
+        'title': getattr(license_obj, 'title', '') or post.filename,
+        'number': getattr(license_obj, 'number', ''),
+        'permalink': post.permalink,
+        'mediathek_url': mediathek_url(license_obj),
+    }
+    try:
+        from notifications.services import emit
+        emit('tools.instagram_story_reminder', obj=post,
+             payload={'title': context['title'], 'mediathek': context['mediathek_url']},
+             dedup_key=f'tools.instagram_story_reminder|{post.pk}')
+    except Exception:
+        logger.exception('Could not raise the story reminder for post %s', post.pk)
+
+    if not config.reel_reminder_recipient_email:
+        return
+    try:
+        from registration.email import send_mail
+        language = (getattr(settings, 'LANGUAGE_CODE', 'de') or 'de').split('-')[0]
+        with translation.override(language):
+            send_mail(
+                subject_template_name='email/reel_story_reminder_subject.txt',
+                email_template_name='email/reel_story_reminder_body.txt',
+                html_email_template_name='email/reel_story_reminder_body.html',
+                context=context,
+                from_email=(getattr(settings, 'DEFAULT_FROM_EMAIL', '')
+                            or getattr(settings, 'EMAIL_HOST_USER', '') or ''),
+                to_email=config.reel_reminder_recipient_email,
+            )
+    except Exception:
+        logger.exception('Could not send the story reminder for post %s', post.pk)

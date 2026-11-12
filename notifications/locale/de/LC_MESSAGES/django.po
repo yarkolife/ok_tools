@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-12 12:57+0000\n"
+"POT-Creation-Date: 2026-11-12 13:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -184,7 +184,7 @@ msgstr "Sendeerlaubnis zu lange ohne Genehmigung"
 msgid "The license has been waiting for confirmation for a while."
 msgstr "Die Sendeerlaubnis wartet schon eine Weile auf die Genehmigung."
 
-#: event_types.py:190 event_types.py:727
+#: event_types.py:190 event_types.py:742
 msgid "Days to wait"
 msgstr "Wartetage"
 
@@ -192,11 +192,11 @@ msgstr "Wartetage"
 msgid "Report a license once it has waited this many days."
 msgstr "Eine Sendeerlaubnis melden, sobald sie so viele Tage gewartet hat."
 
-#: event_types.py:196 event_types.py:733
+#: event_types.py:196 event_types.py:748
 msgid "Maximum pending age (days)"
 msgstr "Maximales Alter offener Einträge (Tage)"
 
-#: event_types.py:199 event_types.py:736
+#: event_types.py:199 event_types.py:751
 msgid ""
 "Ignore legacy records older than this instead of turning the notification "
 "centre into an archive cleanup list."
@@ -630,10 +630,29 @@ msgid "{post}: {error}"
 msgstr "{post}: {error}"
 
 #: event_types.py:662
+msgid "Share the reel as a story"
+msgstr "Reel als Story teilen"
+
+#: event_types.py:664
+msgid ""
+"Half an hour after a reel was published on Instagram: share it as a story "
+"and add the Mediathek link as a link sticker. Instagram does not allow "
+"stickers through its API, so this step stays manual."
+msgstr ""
+"Eine halbe Stunde nach der Veröffentlichung eines Reels auf Instagram: als "
+"Story teilen und den Mediathek-Link als Link-Sticker einfügen. Instagram "
+"erlaubt Sticker nicht über seine API, deshalb bleibt dieser Schritt manuell."
+
+#: event_types.py:667
+#, python-brace-format
+msgid "{title}: {mediathek}"
+msgstr "{title}: {mediathek}"
+
+#: event_types.py:677
 msgid "Instagram token could not be renewed"
 msgstr "Instagram-Token konnte nicht erneuert werden"
 
-#: event_types.py:664
+#: event_types.py:679
 msgid ""
 "The Instagram access token expires 60 days after its last renewal. Enter a "
 "new token in the Tools configuration before it runs out."
@@ -641,16 +660,16 @@ msgstr ""
 "Der Instagram-Zugriffstoken läuft 60 Tage nach der letzten Erneuerung ab. "
 "Vorher einen neuen Token in der Werkzeuge-Konfiguration eintragen."
 
-#: event_types.py:666
+#: event_types.py:681
 #, python-brace-format
 msgid "{error}"
 msgstr "{error}"
 
-#: event_types.py:681
+#: event_types.py:696
 msgid "Background tasks are failing"
 msgstr "Hintergrundaufgaben schlagen fehl"
 
-#: event_types.py:683
+#: event_types.py:698
 msgid ""
 "Celery recorded failed tasks, for example a database backup that did not "
 "run."
@@ -658,41 +677,41 @@ msgstr ""
 "Celery hat fehlgeschlagene Aufgaben erfasst, zum Beispiel ein nicht "
 "ausgeführtes Datenbank-Backup."
 
-#: event_types.py:685
+#: event_types.py:700
 #, python-brace-format
 msgid "{task}: {count} failures"
 msgstr "{task}: {count} Fehlschläge"
 
-#: event_types.py:692
+#: event_types.py:707
 msgid "Look back (hours)"
 msgstr "Rückblick (Stunden)"
 
-#: event_types.py:694
+#: event_types.py:709
 msgid "How far back failed tasks are counted."
 msgstr "Wie weit zurück fehlgeschlagene Aufgaben gezählt werden."
 
-#: event_types.py:707
+#: event_types.py:722
 msgid "New registration waiting for verification"
 msgstr "Neue Registrierung wartet auf Überprüfung"
 
-#: event_types.py:708
+#: event_types.py:723
 msgid "Somebody registered and the profile is not verified yet."
 msgstr "Jemand hat sich registriert und das Profil ist noch nicht überprüft."
 
-#: event_types.py:709 event_types.py:720
+#: event_types.py:724 event_types.py:735
 #, python-brace-format
 msgid "{name} ({email})"
 msgstr "{name} ({email})"
 
-#: event_types.py:718
+#: event_types.py:733
 msgid "Profile unverified for too long"
 msgstr "Profil zu lange nicht überprüft"
 
-#: event_types.py:719
+#: event_types.py:734
 msgid "The profile has been waiting for verification for a while."
 msgstr "Das Profil wartet schon eine Weile auf die Überprüfung."
 
-#: event_types.py:729
+#: event_types.py:744
 msgid "Report a profile once it has waited this many days."
 msgstr "Ein Profil melden, sobald es so viele Tage gewartet hat."
 

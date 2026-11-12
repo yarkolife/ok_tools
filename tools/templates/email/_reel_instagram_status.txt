@@ -1,0 +1,7 @@
+{% load i18n %}{% if ig.status == "published" %}{% trans "Instagram: published" %}{% if ig.permalink %} - {{ ig.permalink }}{% endif %}
+{% elif ig.status == "approved" or ig.status == "publishing" %}{% blocktranslate with time=ig.scheduled_at|time:"H:i" %}Instagram: approved, published at {{ time }}{% endblocktranslate %}
+{% elif ig.status == "failed" %}{% trans "Instagram: failed" %} - {{ ig.error }}
+{% trans "Approve again and publish" %}: {{ ig.approve_url }}
+{% else %}{% trans "Instagram: not approved yet" %}
+{% trans "Approve and publish now" %}: {{ ig.approve_url }}
+{% endif %}

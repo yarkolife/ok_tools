@@ -1,0 +1,7 @@
+{% load i18n %}
+<p>{% blocktranslate %}The reel "{{ title }}" (#{{ number }}) was published on Instagram half an hour ago.{% endblocktranslate %}</p>
+<p><strong>{% trans "Please share it as a story now and add the Mediathek link as a link sticker." %}</strong></p>
+<p>
+  {% trans "Instagram post" %}: {% if permalink %}<a href="{{ permalink }}">{{ permalink }}</a>{% else %}-{% endif %}<br>
+  {% trans "Mediathek link for the sticker" %}: {% if mediathek_url %}<a href="{{ mediathek_url }}">{{ mediathek_url }}</a>{% else %}-{% endif %}
+</p>

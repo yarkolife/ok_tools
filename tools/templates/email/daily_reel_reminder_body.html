@@ -14,8 +14,24 @@
     {% for warning in reel.warnings %}{% trans "Note" %}: {{ warning }}<br>{% endfor %}
     {% if reel.tags %}{% trans "Tags" %}: {{ reel.tags|join:", " }}{% endif %}
   </p>
+  {% with ig=reel.instagram %}{% if ig %}
   <p>
-    {% trans "Reel download" %}: <a href="{{ reel.download_url }}">{{ reel.download_url }}</a><br>
+    {% if ig.status == "published" %}
+      <strong style="color:#0a6b2d">{% trans "Instagram: published" %}</strong>
+      {% if ig.permalink %} – <a href="{{ ig.permalink }}">{{ ig.permalink }}</a>{% endif %}
+    {% elif ig.status == "approved" or ig.status == "publishing" %}
+      <strong style="color:#1d5d7a">{% blocktranslate with time=ig.scheduled_at|time:"H:i" %}Instagram: approved, published at {{ time }}{% endblocktranslate %}</strong>
+    {% elif ig.status == "failed" %}
+      <strong style="color:#c62828">{% trans "Instagram: failed" %}</strong> – {{ ig.error }}<br>
+      <a href="{{ ig.approve_url }}" style="display:inline-block;margin-top:6px;padding:8px 14px;border-radius:6px;background:#1d5d7a;color:#fff;text-decoration:none;font-weight:600">{% trans "Approve again and publish" %}</a>
+    {% else %}
+      <strong style="color:#8a5a00">{% trans "Instagram: not approved yet" %}</strong><br>
+      <a href="{{ ig.approve_url }}" style="display:inline-block;margin-top:6px;padding:8px 14px;border-radius:6px;background:#1d5d7a;color:#fff;text-decoration:none;font-weight:600">{% trans "Approve and publish now" %}</a>
+    {% endif %}
+  </p>
+  {% endif %}{% endwith %}
+  <p>
+    {% if reel.download_url %}{% trans "Reel download" %}: <a href="{{ reel.download_url }}">{{ reel.download_url }}</a><br>{% endif %}
     {% if reel.mediathek_url %}{% trans "Mediathek" %}: <a href="{{ reel.mediathek_url }}">{{ reel.mediathek_url }}</a>{% endif %}
   </p>
 {% endfor %}

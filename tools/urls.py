@@ -1,6 +1,7 @@
 """URL configuration for Tools module."""
 
 from . import api
+from . import reel_post_views
 from . import views
 from django.urls import path
 
@@ -26,6 +27,7 @@ urlpatterns = [
     path('reel-studio/', views.ReelStudioView.as_view(), name='reel_studio'),
     path('reel-studio/output/<str:filename>/', views.reel_output_stream, name='reel_output_stream'),
     path('reel-studio/public-output/<str:filename>/', views.reel_public_output_stream, name='reel_public_output_stream'),
+    path('reel-posts/freigeben/<str:token>/', reel_post_views.reel_post_approve, name='reel_post_approve'),
 
     # Video render tool (select + deep link)
     path('video-render/', views.VideoRenderSelectView.as_view(), name='video_render_select'),

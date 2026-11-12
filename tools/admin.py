@@ -790,10 +790,13 @@ class ReelPostAdmin(ModelAdmin):
         import re
 
         caption = (obj.caption if obj else '') or ''
-        return _('%(chars)s of %(max_chars)s characters, %(tags)s of %(max_tags)s hashtags') % {
+        text = _('%(chars)s of %(max_chars)s characters, %(tags)s of %(max_tags)s hashtags') % {
             'chars': len(caption), 'max_chars': ReelPost.CAPTION_MAX_LENGTH,
             'tags': len(re.findall(r'#\w', caption)), 'max_tags': ReelPost.MAX_HASHTAGS,
         }
+        if '{mediathek}' in caption:
+            text += '. ' + str(_('{mediathek} is replaced by the Mediathek link when the post is published.'))
+        return text
 
     def _may_publish(self, request):
         if request.user.has_perm('tools.publish_reelpost'):

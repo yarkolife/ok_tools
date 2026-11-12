@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-12 13:17+0000\n"
+"POT-Creation-Date: 2026-11-12 13:26+0000\n"
 "PO-Revision-Date: 2026-01-15 23:36+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -265,34 +265,41 @@ msgid ""
 msgstr ""
 "%(chars)s von %(max_chars)s Zeichen, %(tags)s von %(max_tags)s Hashtags"
 
-#: admin.py:801
+#: admin.py:798
+#, python-brace-format
+msgid ""
+"{mediathek} is replaced by the Mediathek link when the post is published."
+msgstr ""
+"{mediathek} wird beim Veröffentlichen durch den Mediathek-Link ersetzt."
+
+#: admin.py:804
 msgid "You may not approve or publish Instagram posts."
 msgstr "Sie dürfen keine Instagram-Posts freigeben oder veröffentlichen."
 
-#: admin.py:826
+#: admin.py:829
 #, python-format
 msgid "%(count)s post(s) are being published now."
 msgstr "%(count)s Post(s) werden jetzt veröffentlicht."
 
-#: admin.py:828
+#: admin.py:831
 #, python-format
 msgid "%(count)s post(s) approved; they are published at their time."
 msgstr ""
 "%(count)s Post(s) freigegeben; sie werden zu ihrer Zeit veröffentlicht."
 
-#: admin.py:831
+#: admin.py:834
 msgid "Approve (publish at its time)"
 msgstr "Freigeben (zur geplanten Zeit veröffentlichen)"
 
-#: admin.py:835
+#: admin.py:838
 msgid "Publish now"
 msgstr "Jetzt veröffentlichen"
 
-#: admin.py:839
+#: admin.py:842
 msgid "Back to draft"
 msgstr "Zurück zum Entwurf"
 
-#: admin.py:846
+#: admin.py:849
 #, python-format
 msgid "%(count)s post(s) are drafts again."
 msgstr "%(count)s Post(s) sind wieder Entwürfe."
@@ -1725,7 +1732,7 @@ msgstr ""
 "(aus den Tags der Freistellung). Eine Zeile, deren Platzhalter alle leer "
 "sind, entfällt."
 
-#: models.py:1099 models.py:1364
+#: models.py:1099 models.py:1364 templates/tools/reel_post_approve.html:45
 msgid "Also show in the feed"
 msgstr "Auch im Feed zeigen"
 
@@ -1804,7 +1811,7 @@ msgstr "Instagram-Partner"
 msgid "Instagram partners"
 msgstr "Instagram-Partner"
 
-#: models.py:1331
+#: models.py:1331 reel_post_views.py:45
 msgid "Approved"
 msgstr "Freigegeben"
 
@@ -1828,7 +1835,7 @@ msgstr "Fertiges Reel im Reel-Ausgabeordner."
 msgid "Caption"
 msgstr "Bildunterschrift"
 
-#: models.py:1361
+#: models.py:1361 templates/tools/reel_post_approve.html:44
 msgid "Collab accounts"
 msgstr "Collab-Konten"
 
@@ -1888,7 +1895,8 @@ msgstr "Erstellt am"
 msgid "Updated at"
 msgstr "Aktualisiert am"
 
-#: models.py:1402
+#: models.py:1402 templates/email/reel_story_reminder_body.html:5
+#: templates/email/reel_story_reminder_body.txt:5
 msgid "Instagram post"
 msgstr "Instagram-Post"
 
@@ -2093,6 +2101,42 @@ msgstr "Audio-Normalisierungsauftrag"
 #: templates/tools/audio_normalize_job_list.html:11
 msgid "Audio Normalize Jobs"
 msgstr "Audio-Normalisierungsaufträge"
+
+#: reel_post_views.py:25
+msgid "Invalid or expired link"
+msgstr "Ungültiger oder abgelaufener Link"
+
+#: reel_post_views.py:26
+msgid ""
+"This link is invalid or has expired. Approve the post in OK-Tools instead."
+msgstr ""
+"Dieser Link ist ungültig oder abgelaufen. Bitte den Post in OK-Tools "
+"freigeben."
+
+#: reel_post_views.py:34
+msgid "[Mediathek link is added when publishing]"
+msgstr "[Mediathek-Link wird beim Veröffentlichen eingefügt]"
+
+#: reel_post_views.py:42
+msgid "The post cannot be published"
+msgstr "Der Post kann nicht veröffentlicht werden"
+
+#: reel_post_views.py:46
+msgid "The reel is being published on Instagram now."
+msgstr "Das Reel wird jetzt auf Instagram veröffentlicht."
+
+#: reel_post_views.py:50
+msgid "Nothing to do"
+msgstr "Nichts zu tun"
+
+#: reel_post_views.py:51
+#, python-format
+msgid "This post is already %(status)s."
+msgstr "Dieser Post ist bereits: %(status)s."
+
+#: reel_post_views.py:55
+msgid "Publish the reel on Instagram?"
+msgstr "Reel auf Instagram veröffentlichen?"
 
 #: services/audio_normalizer.py:855
 #, python-brace-format
@@ -2545,6 +2589,38 @@ msgstr "Abbrechen"
 msgid "Import"
 msgstr "Importieren"
 
+#: templates/email/_reel_instagram_status.txt:1
+#: templates/email/daily_reel_reminder_body.html:20
+msgid "Instagram: published"
+msgstr "Instagram: veröffentlicht"
+
+#: templates/email/_reel_instagram_status.txt:2
+#: templates/email/daily_reel_reminder_body.html:23
+#, python-format
+msgid "Instagram: approved, published at %(time)s"
+msgstr "Instagram: freigegeben, wird um %(time)s Uhr veröffentlicht"
+
+#: templates/email/_reel_instagram_status.txt:3
+#: templates/email/daily_reel_reminder_body.html:25
+msgid "Instagram: failed"
+msgstr "Instagram: fehlgeschlagen"
+
+#: templates/email/_reel_instagram_status.txt:4
+#: templates/email/daily_reel_reminder_body.html:26
+msgid "Approve again and publish"
+msgstr "Erneut freigeben und veröffentlichen"
+
+#: templates/email/_reel_instagram_status.txt:5
+#: templates/email/daily_reel_reminder_body.html:28
+msgid "Instagram: not approved yet"
+msgstr "Instagram: noch nicht freigegeben"
+
+#: templates/email/_reel_instagram_status.txt:6
+#: templates/email/daily_reel_reminder_body.html:29
+#: templates/tools/reel_post_approve.html:48
+msgid "Approve and publish now"
+msgstr "Jetzt freigeben und veröffentlichen"
+
 #: templates/email/daily_reel_reminder_body.html:2
 #: templates/email/daily_reel_reminder_body.txt:1
 #, python-format
@@ -2567,12 +2643,12 @@ msgstr "Weitere Sendezeiten"
 msgid "Note"
 msgstr "Hinweis"
 
-#: templates/email/daily_reel_reminder_body.html:18
+#: templates/email/daily_reel_reminder_body.html:34
 #: templates/email/daily_reel_reminder_body.txt:10
 msgid "Reel download"
 msgstr "Reel-Download"
 
-#: templates/email/daily_reel_reminder_body.html:19
+#: templates/email/daily_reel_reminder_body.html:35
 #: templates/email/daily_reel_reminder_body.txt:11
 #, fuzzy
 #| msgid "Media deleted"
@@ -2585,6 +2661,34 @@ msgid "Reel reminder for today: %(counter)s reel"
 msgid_plural "Reel reminder for today: %(counter)s reels"
 msgstr[0] "Reel-Erinnerung für heute: %(counter)s Reel"
 msgstr[1] "Reel-Erinnerung für heute: %(counter)s Reels"
+
+#: templates/email/reel_story_reminder_body.html:2
+#: templates/email/reel_story_reminder_body.txt:1
+#, python-format
+msgid ""
+"The reel \"%(title)s\" (#%(number)s) was published on Instagram half an hour"
+" ago."
+msgstr ""
+"Das Reel „%(title)s“ (#%(number)s) wurde vor einer halben Stunde auf "
+"Instagram veröffentlicht."
+
+#: templates/email/reel_story_reminder_body.html:3
+#: templates/email/reel_story_reminder_body.txt:3
+msgid ""
+"Please share it as a story now and add the Mediathek link as a link sticker."
+msgstr ""
+"Bitte jetzt als Story teilen und den Mediathek-Link als Link-Sticker "
+"einfügen."
+
+#: templates/email/reel_story_reminder_body.html:6
+#: templates/email/reel_story_reminder_body.txt:6
+msgid "Mediathek link for the sticker"
+msgstr "Mediathek-Link für den Sticker"
+
+#: templates/email/reel_story_reminder_subject.txt:1
+#, python-format
+msgid "Reel is online – share it as a story now: %(title)s"
+msgstr "Reel ist online – jetzt als Story teilen: %(title)s"
 
 #: templates/tools/audio_normalize.html:4
 #: templates/tools/audio_normalize.html:5

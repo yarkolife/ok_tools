@@ -656,6 +656,21 @@ TOOLS_INSTAGRAM_POST_FAILED = register(EventType(
     settings_flag='TOOLS_ENABLED',
 ))
 
+TOOLS_INSTAGRAM_STORY_REMINDER = register(EventType(
+    code='tools.instagram_story_reminder',
+    module='tools',
+    label=_('Share the reel as a story'),
+    description=_(
+        'Half an hour after a reel was published on Instagram: share it as a '
+        'story and add the Mediathek link as a link sticker. Instagram does '
+        'not allow stickers through its API, so this step stays manual.'),
+    message=_('{title}: {mediathek}'),
+    category=CATEGORY_ACTION_REQUIRED,
+    source=SOURCE_SIGNAL,
+    model='tools.ReelPost',
+    settings_flag='TOOLS_ENABLED',
+))
+
 TOOLS_INSTAGRAM_TOKEN_FAILED = register(EventType(
     code='tools.instagram_token_failed',
     module='tools',

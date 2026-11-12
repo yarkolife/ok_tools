@@ -7,7 +7,7 @@
 {% if reel.other_times %}{% trans "Additional broadcast times" %}: {{ reel.other_times|join:", " }}{% endif %}
 {% for warning in reel.warnings %}{% trans "Note" %}: {{ warning }}
 {% endfor %}{% if reel.tags %}{% trans "Tags" %}: {{ reel.tags|join:", " }}{% endif %}
-{% trans "Reel download" %}: {{ reel.download_url }}
-{% if reel.mediathek_url %}{% trans "Mediathek" %}: {{ reel.mediathek_url }}{% endif %}
+{% if reel.instagram %}{% include "email/_reel_instagram_status.txt" with ig=reel.instagram %}{% endif %}{% if reel.download_url %}{% trans "Reel download" %}: {{ reel.download_url }}
+{% endif %}{% if reel.mediathek_url %}{% trans "Mediathek" %}: {{ reel.mediathek_url }}{% endif %}
 
 {% endfor %}{% endautoescape %}
