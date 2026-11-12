@@ -903,7 +903,6 @@ class VideoFileAdmin(ModelAdmin):
     form = VideoFileAdminForm
     change_form_template = 'admin/media_files/videofile/change_form.html'
     change_list_template = 'admin/media_files/videofile/change_list.html'
-    delete_selected_confirmation_template = 'admin/media_files/videofile/delete_selected_confirmation.html'
     
     list_display = [
         'duplicates_indicator', 'filename', 'storage_location', 'number', 'resolution_display',
