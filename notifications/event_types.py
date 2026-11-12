@@ -329,6 +329,7 @@ MEDIA_MISSING_REEL = register(EventType(
     source=SOURCE_SCAN,
     model='licenses.License',
     settings_flag='MEDIA_FILES_ENABLED',
+    feature_check='tools.reel_posts.reel_studio_active',
     params=(
         ParamSpec(
             name='horizon_days',
@@ -458,6 +459,7 @@ MEDIA_REEL_POST_TODAY = register(EventType(
     source=SOURCE_SCAN,
     model='licenses.License',
     settings_flag='MEDIA_FILES_ENABLED',
+    feature_check='tools.reel_posts.reel_studio_active',
     params=(REEL_SCOPE_PARAM,),
 ))
 
@@ -654,6 +656,7 @@ TOOLS_INSTAGRAM_POST_FAILED = register(EventType(
     source=SOURCE_SIGNAL,
     model='tools.ReelPost',
     settings_flag='TOOLS_ENABLED',
+    feature_check='tools.reel_posts.instagram_active',
 ))
 
 TOOLS_INSTAGRAM_STORY_REMINDER = register(EventType(
@@ -669,6 +672,7 @@ TOOLS_INSTAGRAM_STORY_REMINDER = register(EventType(
     source=SOURCE_SIGNAL,
     model='tools.ReelPost',
     settings_flag='TOOLS_ENABLED',
+    feature_check='tools.reel_posts.instagram_active',
 ))
 
 TOOLS_INSTAGRAM_TOKEN_FAILED = register(EventType(
@@ -683,6 +687,7 @@ TOOLS_INSTAGRAM_TOKEN_FAILED = register(EventType(
     source=SOURCE_SIGNAL,
     model='tools.ToolsConfig',
     settings_flag='TOOLS_ENABLED',
+    feature_check='tools.reel_posts.instagram_active',
 ))
 
 

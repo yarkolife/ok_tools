@@ -1220,10 +1220,14 @@ class ToolsConfig(models.Model):
             # Configuration must remain saveable during setup and migrations.
             return
 
+    def is_instagram_switched_on(self) -> bool:
+        """Instagram posting is part of the Reel Studio: without it, it does not exist."""
+        return bool(self.instagram_enabled and self.is_reel_configured())
+
     def is_instagram_configured(self) -> bool:
         """True when posting is switched on and the account can be reached."""
         return bool(
-            self.instagram_enabled
+            self.is_instagram_switched_on()
             and self.instagram_account_id
             and self.instagram_access_token
         )

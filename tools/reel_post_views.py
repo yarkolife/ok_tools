@@ -18,6 +18,10 @@ from django.views.decorators.http import require_http_methods
 
 @require_http_methods(['GET', 'POST'])
 def reel_post_approve(request, token: str):
+    from .models import ToolsConfig
+    from django.http import Http404
+    if not ToolsConfig.get_config().is_instagram_configured():
+        raise Http404()
     post = post_from_token(token)
     if post is None:
         return render(request, 'tools/reel_post_approve.html', {

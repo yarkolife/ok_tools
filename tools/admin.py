@@ -201,6 +201,13 @@ class ToolsConfigAdmin(ModelAdmin):
     )
     readonly_fields = ('instagram_token_refreshed_at', 'instagram_connection')
 
+    def get_fieldsets(self, request, obj=None):
+        """Instagram belongs to the Reel Studio; without it the section is not shown."""
+        fieldsets = super().get_fieldsets(request, obj)
+        if obj is None or not obj.is_reel_configured():
+            fieldsets = [fs for fs in fieldsets if str(fs[0]) != str(_('Instagram'))]
+        return fieldsets
+
     def get_form(self, request, obj=None, **kwargs):
         """Never send the stored token back to the browser."""
         from django import forms
@@ -695,8 +702,34 @@ class PresetOverlayAdmin(ModelAdmin):
     timing.short_description = _("Timing")
 
 
+class InstagramOnlyMixin:
+    """Hidden and closed unless the Reel Studio works and Instagram posting is on."""
+
+    @staticmethod
+    def _instagram_on() -> bool:
+        try:
+            return ToolsConfig.get_config().is_instagram_switched_on()
+        except Exception:
+            return False
+
+    def has_module_permission(self, request):
+        return self._instagram_on() and super().has_module_permission(request)
+
+    def has_view_permission(self, request, obj=None):
+        return self._instagram_on() and super().has_view_permission(request, obj)
+
+    def has_add_permission(self, request):
+        return self._instagram_on() and super().has_add_permission(request)
+
+    def has_change_permission(self, request, obj=None):
+        return self._instagram_on() and super().has_change_permission(request, obj)
+
+    def has_delete_permission(self, request, obj=None):
+        return self._instagram_on() and super().has_delete_permission(request, obj)
+
+
 @admin.register(InstagramPartner)
-class InstagramPartnerAdmin(ModelAdmin):
+class InstagramPartnerAdmin(InstagramOnlyMixin, ModelAdmin):
     """Partners whose reels are posted as an Instagram collab."""
 
     list_display = ['name', 'keywords', 'match_in', 'usernames', 'is_active']
@@ -705,7 +738,7 @@ class InstagramPartnerAdmin(ModelAdmin):
 
 
 @admin.register(ReelPost)
-class ReelPostAdmin(ModelAdmin):
+class ReelPostAdmin(InstagramOnlyMixin, ModelAdmin):
     """Instagram posts of rendered reels: check, approve, follow up."""
 
     list_display = ['filename', 'license_title', 'scheduled_at', 'status_badge',

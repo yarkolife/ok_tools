@@ -76,6 +76,10 @@ class EventType:
     model: str = ''
     # Settings flag that must be truthy for this type to exist at all.
     settings_flag: str = ''
+    # Dotted path of a function without arguments; when it returns False the
+    # feature is switched off in this installation and the type does not exist
+    # (e.g. reels where no Reel Studio is configured).
+    feature_check: str = ''
     # Only superusers may see events of this type.
     superuser_only: bool = False
     # Scan types only: results are recomputed on every render instead of

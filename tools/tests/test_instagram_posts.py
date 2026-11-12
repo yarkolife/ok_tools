@@ -378,3 +378,42 @@ def test_morning_mail_text(ig, expected, absent):
     for part in absent:
         assert part not in text
     assert 'Mediathek: https://mediathek.example/v/1' in text
+
+
+@pytest.mark.django_db
+def test_without_reel_studio_nothing_of_it_exists(client, config, admin_user):
+    from notifications import config as notification_config
+
+    config.reel_studio_enabled = False
+    config.save()
+    client.force_login(admin_user)
+
+    assert not config.is_instagram_configured()
+    assert reel_posts.create_draft(FILENAME, 19082) is None
+    assert client.get(reverse('admin:tools_reelpost_changelist'), secure=True).status_code == 403
+    assert client.get(reverse('admin:tools_instagrampartner_changelist'), secure=True).status_code == 403
+    page = client.get(reverse('admin:tools_toolsconfig_change', args=[config.pk]), secure=True)
+    assert 'id_instagram_enabled' not in page.content.decode()
+    for code in ('media_files.missing_reel', 'media_files.reel_post_today',
+                 'tools.instagram_post_failed', 'tools.instagram_story_reminder'):
+        assert not notification_config.is_enabled(code), code
+
+    config.reel_studio_enabled = True
+    config.save()
+    assert client.get(reverse('admin:tools_reelpost_changelist'), secure=True).status_code == 200
+    assert notification_config.is_enabled('media_files.missing_reel')
+    assert notification_config.is_enabled('tools.instagram_story_reminder')
+
+
+@pytest.mark.django_db
+def test_instagram_off_hides_posts_but_keeps_reel_features(client, config, admin_user):
+    from notifications import config as notification_config
+
+    config.instagram_enabled = False
+    config.save()
+    client.force_login(admin_user)
+    assert client.get(reverse('admin:tools_reelpost_changelist'), secure=True).status_code == 403
+    page = client.get(reverse('admin:tools_toolsconfig_change', args=[config.pk]), secure=True)
+    assert 'id_instagram_enabled' in page.content.decode()  # the switch stays reachable
+    assert notification_config.is_enabled('media_files.missing_reel')
+    assert not notification_config.is_enabled('tools.instagram_story_reminder')

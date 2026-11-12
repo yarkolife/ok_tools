@@ -38,6 +38,22 @@ MEDIATHEK_WAIT = timedelta(hours=1)
 _PLACEHOLDER = re.compile(r'\{(\w+)\}')
 
 
+def reel_studio_active() -> bool:
+    """Reel features exist only where the Reel Studio is switched on and set up."""
+    try:
+        return ToolsConfig.get_config().is_reel_configured()
+    except Exception:
+        return False
+
+
+def instagram_active() -> bool:
+    """Instagram posting is switched on (inside a working Reel Studio)."""
+    try:
+        return ToolsConfig.get_config().is_instagram_switched_on()
+    except Exception:
+        return False
+
+
 # ---------------------------------------------------------------------------
 # Drafts
 # ---------------------------------------------------------------------------

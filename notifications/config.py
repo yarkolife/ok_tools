@@ -39,9 +39,15 @@ def sync_event_type_configs() -> Dict[str, int]:
 
 def module_flag_enabled(event_type: registry.EventType) -> bool:
     """Return whether the settings flag of the owning module is on."""
-    if not event_type.settings_flag:
-        return True
-    return bool(getattr(settings, event_type.settings_flag, False))
+    if event_type.settings_flag and not getattr(settings, event_type.settings_flag, False):
+        return False
+    if event_type.feature_check:
+        from django.utils.module_loading import import_string
+        try:
+            return bool(import_string(event_type.feature_check)())
+        except Exception:
+            return False
+    return True
 
 
 def get_type_config(code: str) -> Optional[NotificationEventTypeConfig]:

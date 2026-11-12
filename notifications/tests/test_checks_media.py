@@ -354,15 +354,13 @@ def test_missing_reel_hands_over_the_prefilled_reel_studio(
     assert row['actionLabel']
 
 
-def test_missing_reel_offers_no_link_without_a_reel_studio(
+def test_missing_reel_is_not_reported_without_a_reel_studio(
         synced, license, own_authority, storage, client, admin_user):
-    """An unconfigured renderer must not produce a dead button."""
+    """Where no Reel Studio is set up, reels are not part of the work at all."""
     _configure_reel_studio(enabled=False)
 
-    row = _reel_feed_row(client, license, own_authority, storage, admin_user)
-
-    assert row['actionUrl'] == ''
-    assert row['actionLabel'] == ''
+    with pytest.raises(StopIteration):
+        _reel_feed_row(client, license, own_authority, storage, admin_user)
 
 
 def test_missing_assets_wait_for_confirmation_and_full_video(
@@ -639,6 +637,7 @@ def test_committed_plan_emits_missing_asset_events_immediately(
     from media_files.models import VideoFile
     from planung.models import TagesPlan
 
+    _configure_reel_studio()
     profile = license.profile
     profile.media_authority = own_authority
     profile.save()
