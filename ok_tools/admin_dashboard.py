@@ -141,7 +141,6 @@ def quick_links(request) -> list[dict[str, Any]]:
     """Shortcuts to the daily work; only those the user may open."""
     candidates = [
         (_("Projects"), "school", "admin:projects_project_changelist", "projects.view_project"),
-        (_("New license"), "add_circle", "admin:licenses_license_add", "licenses.add_license"),
         (_("Licenses"), "verified", "admin:licenses_license_changelist", "licenses.view_license"),
         (_("Calendar weeks"), "calendar_month", "admin:calendar_weeks_view", "planung.view_tagesplan"),
         (_("New rental"), "shopping_cart", "rental:admin_rental_process", "rental.view_rentalrequest"),
