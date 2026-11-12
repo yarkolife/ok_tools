@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.69.0
+**Current Version**: 4.70.0
 **Last Updated**: 12 November 2026
 
 Features
@@ -231,6 +231,7 @@ Features
   - Inline editing for related models
   - Optional new admin theme (Unfold, ``ADMIN_UNFOLD_ENABLED=true``): side menu grouped by task (Tagesgeschäft, Archiv & Medien, Nutzer & Projekte, Ausleihe & Inventar, Weitere, Einstellungen & Stammdaten, System) instead of by app; new models are placed by ``ModelAdmin.menu_section`` or the table in ``ok_tools/admin_nav.py``
   - Start page of the new theme: quick links, "Heute zu tun" counters (licenses to approve, rentals overdue / due today, open rental requests, notifications), running and recently finished background tasks (render, imports, scans; refreshed every 10 s), problems (contributions of the next days without a usable video, unreachable storage locations, failed exchange imports), fill rate of this and next broadcast week, new exchange items since the last visit
+  - One "Configuration" page with a card for every settings form the user may open; settings forms open directly, without a one-row list
   - ModelAdmins import their base classes and filter helpers from ``ok_tools.admin_base``, which resolves to Unfold or to the classic Django classes depending on the flag
   - One top bar with the organisation logo, notification bell and light/dark switch on the admin, rental pages, admin dashboard and notification centre; the light/dark choice is shared by all staff pages
   - Brand colour per installation (``BRAND_COLOR``); the palette for both themes is derived from it
