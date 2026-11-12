@@ -16,6 +16,8 @@ from django.utils.html import format_html
 
 from .models import (
     AudioNormalizeJob,
+    InstagramPartner,
+    ReelPost,
     PresetOverlay,
     POSITION_PRESET_CHOICES,
     SlideshowProject,
@@ -177,7 +179,87 @@ class ToolsConfigAdmin(ModelAdmin):
                 'are only shown when "Reel Studio enabled" is on AND URL + API key are set.'
             ),
         }),
+        (_('Instagram'), {
+            'fields': (
+                'instagram_enabled',
+                'instagram_api_host',
+                'instagram_api_version',
+                'instagram_account_id',
+                'instagram_access_token',
+                'instagram_token_refreshed_at',
+                'instagram_post_time',
+                'instagram_caption_template',
+                'instagram_share_to_feed',
+                'instagram_connection',
+            ),
+            'description': _(
+                'Every rendered reel gets an Instagram post draft. Approved posts are '
+                'published at their time. Instagram downloads the video from '
+                'SITE_BASE_URL, so it must be a public https address.'
+            ),
+        }),
     )
+    readonly_fields = ('instagram_token_refreshed_at', 'instagram_connection')
+
+    def get_form(self, request, obj=None, **kwargs):
+        """Never send the stored token back to the browser."""
+        from django import forms
+
+        form = super().get_form(request, obj, **kwargs)
+        field = form.base_fields.get('instagram_access_token')
+        if field is not None:
+            field.widget = forms.PasswordInput(render_value=False, attrs={'autocomplete': 'off'})
+            field.required = False
+            if obj and obj.instagram_access_token:
+                field.help_text = _('A token is stored. Leave empty to keep it; enter a new one to replace it.')
+        return form
+
+    def save_model(self, request, obj, form, change):
+        from django.utils import timezone
+
+        if not form.cleaned_data.get('instagram_access_token'):
+            # An empty password field means "keep the stored token".
+            obj.instagram_access_token = ToolsConfig.objects.filter(pk=obj.pk).values_list(
+                'instagram_access_token', flat=True).first() or ''
+        elif 'instagram_access_token' in form.changed_data:
+            obj.instagram_token_refreshed_at = timezone.now()
+        super().save_model(request, obj, form, change)
+
+    @admin.display(description=_('Connection'))
+    def instagram_connection(self, obj):
+        if not obj or not obj.is_instagram_configured():
+            return _('Switch posting on and enter account ID and token first.')
+        return format_html(
+            '<a class="button" href="{}">{}</a>',
+            reverse('admin:tools_toolsconfig_instagram_test'),
+            _('Test connection'),
+        )
+
+    def get_urls(self):
+        return [
+            path('instagram-test/', self.admin_site.admin_view(self.instagram_test_view),
+                 name='tools_toolsconfig_instagram_test'),
+        ] + super().get_urls()
+
+    def instagram_test_view(self, request):
+        from .services import instagram
+
+        if not request.user.is_superuser:
+            messages.error(request, _('Only superusers may test the Instagram connection.'))
+            return redirect('admin:index')
+        config = ToolsConfig.get_config()
+        try:
+            info = instagram.account_info(config)
+        except instagram.InstagramError as exc:
+            messages.error(request, _('Instagram connection failed: %(error)s') % {'error': exc})
+        else:
+            text = _('Connected to Instagram account @%(username)s.') % {
+                'username': info.get('username') or '?'}
+            if info.get('quota_total'):
+                text += ' ' + _('Posts in the last 24 hours: %(used)s of %(total)s.') % {
+                    'used': info.get('quota_usage') or 0, 'total': info['quota_total']}
+            messages.success(request, text)
+        return redirect('admin:tools_toolsconfig_change', config.pk)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         storage_fields = (
@@ -611,3 +693,154 @@ class PresetOverlayAdmin(ModelAdmin):
         return f"{obj.start_time}s - {obj.end_time}s"
 
     timing.short_description = _("Timing")
+
+
+@admin.register(InstagramPartner)
+class InstagramPartnerAdmin(ModelAdmin):
+    """Partners whose reels are posted as an Instagram collab."""
+
+    list_display = ['name', 'keywords', 'match_in', 'usernames', 'is_active']
+    list_filter = ['is_active', 'match_in']
+    search_fields = ['name', 'keywords', 'usernames']
+
+
+@admin.register(ReelPost)
+class ReelPostAdmin(ModelAdmin):
+    """Instagram posts of rendered reels: check, approve, follow up."""
+
+    list_display = ['filename', 'license_title', 'scheduled_at', 'status_badge',
+                    'collaborators', 'instagram_link']
+    list_filter = ['status', 'scheduled_at']
+    search_fields = ['filename', 'caption', 'license__title', 'license__number']
+    date_hierarchy = 'scheduled_at'
+    raw_id_fields = ['license']
+    actions = ['approve_action', 'publish_now_action', 'back_to_draft_action']
+    readonly_fields = ['status', 'reel_preview', 'caption_info', 'approved_by', 'approved_at',
+                       'instagram_link', 'published_at', 'media_id', 'container_id',
+                       'error_message', 'created_at', 'updated_at']
+    fieldsets = (
+        (None, {
+            'fields': ('status', 'error_message', 'filename', 'license', 'reel_preview'),
+        }),
+        (_('Post'), {
+            'fields': ('caption', 'caption_info', 'collaborators', 'share_to_feed',
+                       'thumb_offset_ms', 'scheduled_at'),
+        }),
+        (_('Instagram'), {
+            'fields': ('approved_by', 'approved_at', 'instagram_link', 'published_at',
+                       'media_id', 'container_id', 'created_at', 'updated_at'),
+        }),
+    )
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = list(super().get_readonly_fields(request, obj))
+        if obj and obj.status in (ReelPost.STATUS_PUBLISHING, ReelPost.STATUS_PUBLISHED):
+            # What is on Instagram (or on the way) can no longer be edited here.
+            fields += ['filename', 'license', 'caption', 'collaborators', 'share_to_feed',
+                       'thumb_offset_ms', 'scheduled_at']
+        elif obj:
+            fields.append('filename')
+        return fields
+
+    def save_model(self, request, obj, form, change):
+        # An edited approved post needs a new approval.
+        if change and obj.status == ReelPost.STATUS_APPROVED and form.changed_data:
+            obj.status = ReelPost.STATUS_DRAFT
+            obj.approved_by = None
+            obj.approved_at = None
+            messages.warning(request, _('The post was changed and is a draft again; approve it once more.'))
+        super().save_model(request, obj, form, change)
+
+    @admin.display(description=_('License'), ordering='license__number')
+    def license_title(self, obj):
+        if not obj.license:
+            return '-'
+        return f'{obj.license.number} {obj.license.title}'
+
+    @admin.display(description=_('Status'), ordering='status')
+    def status_badge(self, obj):
+        colours = {
+            ReelPost.STATUS_DRAFT: 'var(--ok-ink-3, #666)',
+            ReelPost.STATUS_APPROVED: 'var(--ok-brand, #417690)',
+            ReelPost.STATUS_PUBLISHING: 'var(--ok-warning-ink, #8a5a00)',
+            ReelPost.STATUS_PUBLISHED: 'var(--ok-success-ink, #0a6b2d)',
+            ReelPost.STATUS_FAILED: 'var(--ok-danger, #c62828)',
+        }
+        return format_html('<strong style="color:{}">{}</strong>',
+                           colours.get(obj.status, 'inherit'), obj.get_status_display())
+
+    @admin.display(description=_('Instagram link'))
+    def instagram_link(self, obj):
+        if not obj.permalink:
+            return '-'
+        return format_html('<a href="{}" target="_blank" rel="noopener">{}</a>',
+                           obj.permalink, _('Open'))
+
+    @admin.display(description=_('Reel'))
+    def reel_preview(self, obj):
+        if not obj or not obj.filename:
+            return '-'
+        url = reverse('tools:reel_output_stream', args=[obj.filename])
+        return format_html(
+            '<video src="{}" controls preload="metadata" style="max-height:420px;max-width:100%;'
+            'border-radius:8px;background:#000"></video>', url)
+
+    @admin.display(description=_('Length'))
+    def caption_info(self, obj):
+        import re
+
+        caption = (obj.caption if obj else '') or ''
+        return _('%(chars)s of %(max_chars)s characters, %(tags)s of %(max_tags)s hashtags') % {
+            'chars': len(caption), 'max_chars': ReelPost.CAPTION_MAX_LENGTH,
+            'tags': len(re.findall(r'#\w', caption)), 'max_tags': ReelPost.MAX_HASHTAGS,
+        }
+
+    def _may_publish(self, request):
+        if request.user.has_perm('tools.publish_reelpost'):
+            return True
+        self.message_user(request, _('You may not approve or publish Instagram posts.'),
+                          level=messages.ERROR)
+        return False
+
+    def _approve(self, request, queryset, *, now):
+        from django.core.exceptions import ValidationError
+
+        from .reel_posts import approve
+        if not self._may_publish(request):
+            return
+        done = 0
+        for post in queryset.filter(status__in=[ReelPost.STATUS_DRAFT, ReelPost.STATUS_FAILED,
+                                                ReelPost.STATUS_APPROVED]):
+            try:
+                approve(post, request.user, now=now)
+            except ValidationError as exc:
+                self.message_user(request, '%s: %s' % (post, '; '.join(exc.messages)),
+                                  level=messages.ERROR)
+                continue
+            done += 1
+        if not done:
+            return
+        if now:
+            from .tasks import publish_due_reel_posts
+            publish_due_reel_posts.delay()
+            self.message_user(request, _('%(count)s post(s) are being published now.') % {'count': done})
+        else:
+            self.message_user(request, _('%(count)s post(s) approved; they are published at their time.') % {
+                'count': done})
+
+    @admin.action(description=_('Approve (publish at its time)'))
+    def approve_action(self, request, queryset):
+        self._approve(request, queryset, now=False)
+
+    @admin.action(description=_('Publish now'))
+    def publish_now_action(self, request, queryset):
+        self._approve(request, queryset, now=True)
+
+    @admin.action(description=_('Back to draft'))
+    def back_to_draft_action(self, request, queryset):
+        from .reel_posts import back_to_draft
+        count = 0
+        for post in queryset.filter(status__in=[ReelPost.STATUS_APPROVED, ReelPost.STATUS_FAILED]):
+            back_to_draft(post)
+            count += 1
+        self.message_user(request, _('%(count)s post(s) are drafts again.') % {'count': count})

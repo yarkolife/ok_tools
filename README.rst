@@ -4,8 +4,8 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.68.0
-**Last Updated**: 11 November 2026
+**Current Version**: 4.69.0
+**Last Updated**: 12 November 2026
 
 Features
 ========
@@ -126,6 +126,8 @@ Features
     - Browse library by media type
     - Add library media to any project without re-uploading
     - Staff-only library management
+  - **Instagram posting**: every rendered reel becomes a post draft (caption template, broadcast time, collab accounts of
+    matching partners); approved posts are published through the Instagram Graph API at their time
   - Optional module (enabled via TOOLS_ENABLED setting)
 
 - **Inventory Management** - Track equipment and resources with serial numbers

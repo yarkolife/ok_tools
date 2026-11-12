@@ -1010,7 +1010,26 @@ def okmq_render_reel_task(self, *, payload):
     from .services import okmq_reel
     result = okmq_reel.render_reel_blocking(**payload)
     _record_rendered_reel_video(payload, result)
+    _create_reel_post_draft(result)
     return result
+
+
+def _create_reel_post_draft(result: dict) -> None:
+    """Prepare the Instagram post for a finished reel, if posting is on."""
+    filename = Path(str((result or {}).get('file') or '')).name
+    if not filename:
+        return
+    try:
+        from media_files.utils import extract_number_from_filename
+        number = extract_number_from_filename(filename)
+    except Exception:
+        number = None
+    try:
+        from .reel_posts import create_draft
+        create_draft(filename, number)
+    except Exception:
+        # The reel itself is fine; a missing draft can be added by hand.
+        logger.exception('Could not create the Instagram post draft for %s', filename)
 
 
 @shared_task(
@@ -1098,3 +1117,64 @@ def send_daily_reel_reminder(self, target_date_iso=None):
         'reel_count': context['reel_count'],
         'missing_mediathek_numbers': missing_mediathek_numbers,
     }
+
+
+# ---- Instagram posting -------------------------------------------------------
+
+@shared_task(name='tools.tasks.publish_due_reel_posts')
+def publish_due_reel_posts():
+    """Start publishing every approved post whose time has come."""
+    from .reel_posts import due_posts
+    started = 0
+    for post_id in due_posts().values_list('pk', flat=True):
+        publish_reel_post.delay(post_id)
+        started += 1
+    return {'started': started}
+
+
+@shared_task(name='tools.tasks.publish_reel_post')
+def publish_reel_post(post_id):
+    """Create the Instagram container for one approved post, then check it."""
+    from .reel_posts import STATUS_CHECK_INTERVAL
+    from .reel_posts import claim
+    from .reel_posts import start_publishing
+    post = claim(post_id)
+    if post is None:
+        return {'status': 'skipped'}
+    if start_publishing(post):
+        check_reel_post.apply_async(args=[post_id], countdown=STATUS_CHECK_INTERVAL)
+        return {'status': 'container', 'container_id': post.container_id}
+    return {'status': 'failed'}
+
+
+@shared_task(name='tools.tasks.check_reel_post')
+def check_reel_post(post_id):
+    """Check the container; publish it when Instagram has processed the video."""
+    from .models import ReelPost
+    from .reel_posts import STATUS_CHECK_INTERVAL
+    from .reel_posts import check_and_publish
+    post = ReelPost.objects.filter(pk=post_id, status=ReelPost.STATUS_PUBLISHING).first()
+    if post is None or not post.container_id:
+        return {'status': 'skipped'}
+    outcome = check_and_publish(post)
+    if outcome == 'wait':
+        check_reel_post.apply_async(args=[post_id], countdown=STATUS_CHECK_INTERVAL)
+    return {'status': outcome}
+
+
+@shared_task(name='tools.tasks.refresh_instagram_token')
+def refresh_instagram_token():
+    """Renew the Instagram Login token before its 60 days run out."""
+    from .reel_posts import renew_token
+    from .services.instagram import InstagramError
+    try:
+        return {'renewed': renew_token()}
+    except InstagramError as exc:
+        logger.error('Instagram token could not be renewed: %s', exc)
+        try:
+            from notifications.services import emit
+            emit('tools.instagram_token_failed', payload={'error': str(exc)[:200]},
+                 dedup_key=f'tools.instagram_token_failed|{timezone.localdate():%Y%m%d}')
+        except Exception:
+            logger.exception('Could not report the Instagram token problem')
+        return {'renewed': False, 'error': str(exc)}

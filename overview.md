@@ -37,6 +37,7 @@
 
 ### Recent Updates
 
+- **Instagram posting for reels (4.69.0)**: `tools.ReelPost` holds one post per rendered reel; `tools/reel_posts.py` builds the draft (caption template, broadcast day from the reel name, collab accounts from `tools.InstagramPartner` keyword rules), approves it and runs the publishing steps; `tools/services/instagram.py` is the Graph API client (container, status, publish, permalink, token refresh). Celery tasks `publish_due_reel_posts` (every 5 minutes), `publish_reel_post`, `check_reel_post` and `refresh_instagram_token` are scheduled by `ToolsConfig.sync_instagram_periodic_tasks`. Publishing always needs an approval by someone with `tools.publish_reelpost`, because a post cannot be taken back quietly; failures raise `tools.instagram_post_failed`.
 - **Programme mail for newspapers (4.68.0)**: A Planung admin page (`admin:planung_program_mail`, `planung/program_mail_views.py`) builds the weekly "TV Programm" mail for a chosen period from the day plans or from the premieres among the contributions (`planung/services/program_mail_service.py`), lets staff edit, copy or send it, and logs every sent mail in `ProgramMailLog`. Recipients and texts live in `PlanungConfig` (`program_mail_*`, placeholders `{von}`, `{bis}`, `{name}`), so each channel sets its own wording; a change mode uses its own subject template (or a prefix such as "ÄNDERUNG: ") and intro for late corrections. Opened from the Kalenderwochen toolbar, the contributions list (with the filtered period) and the "More" menu next to the day plans (`ProgramMailProxy`).
 - **Reserving rooms from the room calendar (4.67.0)**: The day view of the room calendar turns a click or a drag over free slots into a "Reserve room" dialog; the week and month views open the same dialog for a room and day, loading that day's slots from `api/room-schedule/` first (`RoomBookingLauncher` in `rental/static/rental/js/room_calendar.jsx`, wired by `data-book-room` / `data-book-date` attributes). The dialog posts to the wizard's `create_submit`, so a room-only rental is created with the same working-hour and conflict checks. Week and month share one booking query (`_room_calendar_bookings`) that groups bookings by local start day, and their grids use the theme tokens so light and dark mode stay readable.
 - **Planning, licenses and admin fixes (4.67.0)**: A planned license can be replaced in place from the day plan (new number, same start time); the Kalenderwochen day plan dialog was reorganised. Licenses get a "Download PDF" list action (ZIP for several). One shared `DateTimeRangeListFilter` (`ok_tools/admin_filters.py`) serves contributions and projects under Django 5; the DISA import date picker works in the Unfold admin; project duration is entered as h:mm. Migration `dashboard 0004` removes stale `UserJourney` foreign keys that blocked deleting rentals and contributions.
@@ -329,6 +330,13 @@ graph TB
   - Multi-day video support with day offset display
   - Asynchronous playout copy tracking and anchor programme preview rendering
   - Weekly programme mail (build, copy, send, log) from day plans or contribution premieres
+
+#### `tools`
+- **Purpose**: Production helpers (optional, `TOOLS_ENABLED`)
+- **Key Features**:
+  - Video slideshow generator and audio normalisation (Celery jobs)
+  - Reel Studio front end for the external reel renderer, daily reel reminder
+  - Instagram posting: post drafts for rendered reels, approval, publishing through the Graph API, collab partners
 
 ---
 

@@ -46,6 +46,7 @@ MODEL_SECTIONS: dict[str, str] = {
     "austausch.ExchangeFeed": "work",
     "contributions.DisaImport": "work",
     "tools.ToolsInterface": "work",
+    "tools.ReelPost": "work",
     "notifications.NotificationsFeed": "work",
     "dashboard.Dashboard": "work",
     # Background jobs (video render, imports): checked after starting one
@@ -99,6 +100,7 @@ MODEL_SECTIONS: dict[str, str] = {
     "tools.VideoEncodePreset": "settings",
     "tools.VideoPreset": "settings",
     "tools.PresetOverlay": "settings",
+    "tools.InstagramPartner": "settings",
     # System: logs, imports, background jobs
     "notifications.NotificationsStats": "system",
     "notifications.NotificationEvent": "system",
@@ -164,6 +166,8 @@ MODEL_ICONS: dict[str, str] = {
     "inventory.Manufacturer": "factory",
     "inventory.Organization": "corporate_fare",
     "tools.ToolsInterface": "handyman",
+    "tools.ReelPost": "smart_display",
+    "tools.InstagramPartner": "handshake",
     "tools.SlideshowProject": "slideshow",
     "tools.AudioNormalizeJob": "graphic_eq",
     "planung.PlanTemplate": "view_timeline",

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-07-06 20:50+0200\n"
+"POT-Creation-Date: 2026-11-12 12:59+0000\n"
 "PO-Revision-Date: 2026-01-15 23:36+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,39 +18,39 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: tools/admin.py:123 tools/templates/tools/audio_normalize.html:670
+#: admin.py:127 templates/tools/audio_normalize.html:671
 msgid "Storage"
 msgstr "Speicherort"
 
-#: tools/admin.py:132
+#: admin.py:136
 msgid ""
 "Storage Location (optional): when set, overrides the path below. Storage "
 "Path and Output Path are required when no Storage Location is selected."
 msgstr ""
 "Speicherort (optional): Wenn gesetzt, überschreibt der Speicherort den Pfad "
-"unten. Speicherpfad und Ausgabepfad sind erforderlich, wenn kein Speicherort "
-"ausgewählt ist."
+"unten. Speicherpfad und Ausgabepfad sind erforderlich, wenn kein Speicherort"
+" ausgewählt ist."
 
-#: tools/admin.py:136
+#: admin.py:140
 msgid "Allowed formats"
 msgstr "Erlaubte Formate"
 
-#: tools/admin.py:139
+#: admin.py:143
 msgid "FFmpeg"
 msgstr "FFmpeg"
 
-#: tools/admin.py:142
+#: admin.py:146
 msgid "Audio normalize"
 msgstr "Audio-Normalisierung"
 
-#: tools/admin.py:153
+#: admin.py:157
 msgid ""
 "Storage Location (optional): when set, overrides the path below; output can "
 "be outside MEDIA_ROOT. Path fields are used when no storage is selected. "
 "Output path can be empty (output next to input). ARNNDN Model Path: default "
 "path to RNN model (.rnnn) for AI-based denoising. System automatically "
-"detects and uses recommended models (std.rnnn, bd.rnnn, lq.rnnn) from tools/"
-"rnn_models/ directory. Leave empty to use FFT-based denoising."
+"detects and uses recommended models (std.rnnn, bd.rnnn, lq.rnnn) from "
+"tools/rnn_models/ directory. Leave empty to use FFT-based denoising."
 msgstr ""
 "Speicherort (optional): Wenn gesetzt, überschreibt der Speicherort den Pfad "
 "unten; die Ausgabe kann außerhalb von MEDIA_ROOT erfolgen. Die Pfadfelder "
@@ -58,17 +58,16 @@ msgstr ""
 "leer sein (Ausgabe neben Eingabe). ARNNDN-Modellpfad: Standardpfad zum RNN-"
 "Modell (.rnnn) für KI-basierte Entrauschung. Das System erkennt und "
 "verwendet automatisch empfohlene Modelle (std.rnnn, bd.rnnn, lq.rnnn) aus "
-"dem Verzeichnis tools/rnn_models/. Leer lassen, um FFT-basierte Entrauschung "
-"zu verwenden."
+"dem Verzeichnis tools/rnn_models/. Leer lassen, um FFT-basierte Entrauschung"
+" zu verwenden."
 
-#: tools/admin.py:158 tools/templates/tools/index.html:163
-#: tools/templates/tools/reel_studio.html:14
-#: tools/templates/tools/reel_studio.html:20
-#: tools/templates/tools/reel_studio.html:56
+#: admin.py:162 templates/tools/index.html:164
+#: templates/tools/reel_studio.html:14 templates/tools/reel_studio.html:15
+#: templates/tools/reel_studio.html:21 templates/tools/reel_studio.html:57
 msgid "Reel Studio"
 msgstr "Reel-Studio"
 
-#: tools/admin.py:174
+#: admin.py:178
 msgid ""
 "External reel renderer. The tool card, page and license admin action are "
 "only shown when \"Reel Studio enabled\" is on AND URL + API key are set."
@@ -77,307 +76,440 @@ msgstr ""
 "werden nur angezeigt, wenn „Reel-Studio aktiviert“ an ist UND URL + API-"
 "Schlüssel gesetzt sind."
 
-#: tools/admin.py:294 tools/templates/tools/slideshow_creator.html:484
-#: tools/templates/tools/slideshow_detail.html:129
+#: admin.py:182 admin.py:729
+msgid "Instagram"
+msgstr "Instagram"
+
+#: admin.py:196
+msgid ""
+"Every rendered reel gets an Instagram post draft. Approved posts are "
+"published at their time. Instagram downloads the video from SITE_BASE_URL, "
+"so it must be a public https address."
+msgstr ""
+"Jedes gerenderte Reel bekommt einen Instagram-Post-Entwurf. Freigegebene "
+"Posts werden zu ihrer Zeit veröffentlicht. Instagram lädt das Video über "
+"SITE_BASE_URL herunter, das muss daher eine öffentliche https-Adresse sein."
+
+#: admin.py:214
+msgid ""
+"A token is stored. Leave empty to keep it; enter a new one to replace it."
+msgstr ""
+"Ein Token ist gespeichert. Leer lassen, um ihn zu behalten; einen neuen "
+"eingeben, um ihn zu ersetzen."
+
+#: admin.py:228
+msgid "Connection"
+msgstr "Verbindung"
+
+#: admin.py:231
+msgid "Switch posting on and enter account ID and token first."
+msgstr "Zuerst das Posten einschalten und Konto-ID und Token eintragen."
+
+#: admin.py:235
+msgid "Test connection"
+msgstr "Verbindung testen"
+
+#: admin.py:248
+msgid "Only superusers may test the Instagram connection."
+msgstr "Nur Superuser dürfen die Instagram-Verbindung testen."
+
+#: admin.py:254
+#, python-format
+msgid "Instagram connection failed: %(error)s"
+msgstr "Instagram-Verbindung fehlgeschlagen: %(error)s"
+
+#: admin.py:256
+#, python-format
+msgid "Connected to Instagram account @%(username)s."
+msgstr "Verbunden mit dem Instagram-Konto @%(username)s."
+
+#: admin.py:259
+#, python-format
+msgid "Posts in the last 24 hours: %(used)s of %(total)s."
+msgstr "Posts in den letzten 24 Stunden: %(used)s von %(total)s."
+
+#: admin.py:378 templates/tools/slideshow_creator.html:485
+#: templates/tools/slideshow_detail.html:130
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: tools/admin.py:306
+#: admin.py:390
 msgid "Ownership"
 msgstr "Besitz"
 
-#: tools/admin.py:307 tools/admin.py:557
+#: admin.py:391 admin.py:641
 msgid "Information"
 msgstr "Information"
 
-#: tools/admin.py:350
+#: admin.py:434
 msgid "You do not have permission to edit this preset."
 msgstr "Sie haben keine Berechtigung, dieses Preset zu bearbeiten."
 
-#: tools/admin.py:357 tools/templates/admin/tools/preset_editor.html:4
+#: admin.py:441 templates/admin/tools/preset_editor.html:4
 msgid "Edit Preset"
 msgstr "Preset bearbeiten"
 
-#: tools/admin.py:480 tools/templates/admin/tools/preset_editor.html:1065
+#: admin.py:564 templates/admin/tools/preset_editor.html:1065
 msgid "Preset saved successfully"
 msgstr "Preset erfolgreich gespeichert"
 
-#: tools/admin.py:491
+#: admin.py:575
 msgid "Overlays"
 msgstr "Überlagerungen"
 
-#: tools/admin.py:497
+#: admin.py:581
 msgid "Visual Editor"
 msgstr "Visueller Editor"
 
-#: tools/admin.py:500
+#: admin.py:584
 msgid "Editor"
 msgstr "Editor"
 
-#: tools/admin.py:522
+#: admin.py:606
 msgid "All presets imported successfully"
 msgstr "Alle Presets wurden erfolgreich importiert"
 
-#: tools/admin.py:524
+#: admin.py:608
 #, python-format
 msgid "Error importing presets: %s"
 msgstr "Fehler beim Importieren der Presets: %s"
 
-#: tools/admin.py:534
+#: admin.py:618
 #, python-format
 msgid "Preset \"%s\" imported successfully"
 msgstr "Preset \"%s\" wurde erfolgreich importiert"
 
-#: tools/admin.py:536
+#: admin.py:620
 #, python-format
 msgid "Error importing preset \"%s\": %s"
 msgstr "Fehler beim Importieren des Presets \"%s\": %s"
 
-#: tools/admin.py:553
+#: admin.py:637
 msgid "Video Settings"
 msgstr "Videoeinstellungen"
 
-#: tools/admin.py:556
+#: admin.py:640
 msgid "Audio Settings"
 msgstr "Audioeinstellungen"
 
-#: tools/admin.py:587 tools/admin.py:605
+#: admin.py:671 admin.py:689
 msgid "Content"
 msgstr "Inhalt"
 
-#: tools/admin.py:588 tools/templates/admin/tools/preset_editor.html:833
+#: admin.py:672 templates/admin/tools/preset_editor.html:833
 msgid "Position"
 msgstr "Position"
 
-#: tools/admin.py:589 tools/templates/admin/tools/preset_editor.html:860
+#: admin.py:673 templates/admin/tools/preset_editor.html:860
 msgid "Timing & Animation"
 msgstr "Timing & Animation"
 
-#: tools/admin.py:591
+#: admin.py:675
 msgid "Text Styling"
 msgstr "Textstil"
 
-#: tools/admin.py:611
+#: admin.py:695
 msgid "Timing"
 msgstr "Timing"
 
-#: tools/api.py:94
+#: admin.py:725
+msgid "Post"
+msgstr "Post"
+
+#: admin.py:751
+msgid "The post was changed and is a draft again; approve it once more."
+msgstr ""
+"Der Post wurde geändert und ist wieder ein Entwurf; bitte erneut freigeben."
+
+#: admin.py:754 models.py:1357 templates/tools/video_render.html:135
+msgid "License"
+msgstr "Freistellung"
+
+#: admin.py:760 models.py:155 models.py:1382 models.py:1476
+#: templates/tools/audio_normalize.html:247
+#: templates/tools/audio_normalize.html:349
+#: templates/tools/audio_normalize_job_detail.html:50
+#: templates/tools/audio_normalize_job_list.html:58
+#: templates/tools/audio_normalize_job_list.html:74
+#: templates/tools/slideshow_detail.html:92
+#: templates/tools/slideshow_list.html:67
+#: templates/tools/slideshow_list.html:82
+#: templates/tools/video_render_job_list.html:68
+#: templates/tools/video_render_job_list.html:85
+msgid "Status"
+msgstr "Status"
+
+#: admin.py:772 models.py:1397
+msgid "Instagram link"
+msgstr "Instagram-Link"
+
+#: admin.py:777 templates/tools/video_render.html:116
+msgid "Open"
+msgstr "Öffnen"
+
+#: admin.py:779
+msgid "Reel"
+msgstr "Reel"
+
+#: admin.py:788
+msgid "Length"
+msgstr "Länge"
+
+#: admin.py:793
+#, python-format
+msgid ""
+"%(chars)s of %(max_chars)s characters, %(tags)s of %(max_tags)s hashtags"
+msgstr ""
+"%(chars)s von %(max_chars)s Zeichen, %(tags)s von %(max_tags)s Hashtags"
+
+#: admin.py:801
+msgid "You may not approve or publish Instagram posts."
+msgstr "Sie dürfen keine Instagram-Posts freigeben oder veröffentlichen."
+
+#: admin.py:826
+#, python-format
+msgid "%(count)s post(s) are being published now."
+msgstr "%(count)s Post(s) werden jetzt veröffentlicht."
+
+#: admin.py:828
+#, python-format
+msgid "%(count)s post(s) approved; they are published at their time."
+msgstr ""
+"%(count)s Post(s) freigegeben; sie werden zu ihrer Zeit veröffentlicht."
+
+#: admin.py:831
+msgid "Approve (publish at its time)"
+msgstr "Freigeben (zur geplanten Zeit veröffentlichen)"
+
+#: admin.py:835
+msgid "Publish now"
+msgstr "Jetzt veröffentlichen"
+
+#: admin.py:839
+msgid "Back to draft"
+msgstr "Zurück zum Entwurf"
+
+#: admin.py:846
+#, python-format
+msgid "%(count)s post(s) are drafts again."
+msgstr "%(count)s Post(s) sind wieder Entwürfe."
+
+#: api.py:94
 msgid "You do not have permission to access this project."
 msgstr "Sie haben keine Berechtigung, auf dieses Projekt zuzugreifen."
 
-#: tools/api.py:102 tools/views.py:47
+#: api.py:102 views.py:47
 msgid "Tools module is disabled. Set TOOLS_ENABLED=true to enable."
 msgstr ""
 "Das Tools-Modul ist deaktiviert. Setzen Sie TOOLS_ENABLED=true, um es zu "
 "aktivieren."
 
-#: tools/api.py:108
+#: api.py:108
 msgid "Only staff members can access this tool."
 msgstr "Nur Mitarbeiter können dieses Tool verwenden."
 
-#: tools/api.py:114
+#: api.py:114
 msgid "You do not have permission to access this job."
 msgstr "Sie haben keine Berechtigung, auf diesen Auftrag zuzugreifen."
 
-#: tools/api.py:131
+#: api.py:131
 msgid "Untitled Slideshow"
 msgstr "Unbenannte Diashow"
 
-#: tools/api.py:164 tools/api.py:260 tools/api.py:352 tools/api.py:381
-#: tools/api.py:656 tools/api.py:708 tools/api.py:737 tools/api.py:874
-#: tools/api.py:993 tools/api.py:1034 tools/api.py:1104 tools/api.py:1166
+#: api.py:164 api.py:260 api.py:352 api.py:381 api.py:656 api.py:708
+#: api.py:737 api.py:874 api.py:993 api.py:1034 api.py:1104 api.py:1166
 msgid "Cannot modify project while processing"
 msgstr "Das Projekt kann während der Verarbeitung nicht geändert werden"
 
-#: tools/api.py:170 tools/api.py:824
+#: api.py:170 api.py:824
 msgid "No files provided"
 msgstr "Keine Dateien bereitgestellt"
 
-#: tools/api.py:266 tools/api.py:1655 tools/api.py:1762
+#: api.py:266 api.py:1640 api.py:1747
 msgid "No file provided"
 msgstr "Keine Datei bereitgestellt"
 
-#: tools/api.py:360
+#: api.py:360
 #, python-brace-format
 msgid "Deleted {count} audio file(s)"
 msgstr "{count} Audiodatei(en) gelöscht"
 
-#: tools/api.py:400
+#: api.py:400
 msgid "Settings updated"
 msgstr "Einstellungen aktualisiert"
 
-#: tools/api.py:423
+#: api.py:423
 msgid "Project is already being processed"
 msgstr "Das Projekt wird bereits verarbeitet"
 
-#: tools/api.py:429
+#: api.py:429
 msgid "No media files in project"
 msgstr "Keine Mediendateien im Projekt"
 
-#: tools/api.py:434
+#: api.py:434
 msgid "No audio file in project"
 msgstr "Keine Audiodatei im Projekt"
 
-#: tools/api.py:444
+#: api.py:444
 msgid "Generation started"
 msgstr "Generierung gestartet"
 
-#: tools/api.py:492
+#: api.py:492
 msgid "Video not generated yet"
 msgstr "Video wurde noch nicht generiert"
 
-#: tools/api.py:497 tools/api.py:499
+#: api.py:497 api.py:499
 msgid "Video file not found"
 msgstr "Videodatei nicht gefunden"
 
-#: tools/api.py:525
+#: api.py:525
 msgid "Cannot delete project while processing"
 msgstr "Projekt kann während der Verarbeitung nicht gelöscht werden"
 
-#: tools/api.py:535
+#: api.py:535
 msgid "Project deleted"
 msgstr "Projekt gelöscht"
 
-#: tools/api.py:556
+#: api.py:556
 msgid "Cannot copy project while processing"
 msgstr "Projekt kann während der Verarbeitung nicht kopiert werden"
 
-#: tools/api.py:561
+#: api.py:561
 #, python-brace-format
 msgid "Copy of {name}"
 msgstr "Kopie von {name}"
 
-#: tools/api.py:662
+#: api.py:662
 msgid "Invalid order format"
 msgstr "Ungültiges Reihenfolge-Format"
 
-#: tools/api.py:686
+#: api.py:686
 msgid "Order updated"
 msgstr "Reihenfolge aktualisiert"
 
-#: tools/api.py:716
+#: api.py:716
 msgid "Media deleted"
 msgstr "Medien gelöscht"
 
-#: tools/api.py:750
+#: api.py:750
 #, fuzzy
 #| msgid "Media {media_id} not found in library"
 msgid "Media already in library"
 msgstr "Medium {media_id} in der Bibliothek nicht gefunden"
 
-#: tools/api.py:765 tools/templates/tools/slideshow_creator.html:858
+#: api.py:765 templates/tools/slideshow_creator.html:859
 #, fuzzy
 #| msgid "Media added to project"
 msgid "Media added to library"
 msgstr "Medium zum Projekt hinzugefügt"
 
-#: tools/api.py:819
+#: api.py:819
 msgid "Only staff members can upload to library."
 msgstr "Nur Mitarbeiter können Dateien in die Bibliothek hochladen."
 
-#: tools/api.py:880 tools/api.py:999 tools/api.py:1040
+#: api.py:880 api.py:999 api.py:1040
 msgid "No media IDs provided"
 msgstr "Keine Medien-IDs bereitgestellt"
 
-#: tools/api.py:914
+#: api.py:914
 #, python-brace-format
 msgid "Media {media_id} not found in library"
 msgstr "Medium {media_id} in der Bibliothek nicht gefunden"
 
-#: tools/api.py:917
+#: api.py:917
 #, python-brace-format
 msgid "Media {media_id}: {error}"
 msgstr "Medium {media_id}: {error}"
 
-#: tools/api.py:940 tools/api.py:965
+#: api.py:940 api.py:965
 msgid "Only staff members can delete library files."
 msgstr "Nur Mitarbeiter können Bibliotheksdateien löschen."
 
-#: tools/api.py:947
+#: api.py:947
 msgid "Library media deleted"
 msgstr "Bibliotheksmedien gelöscht"
 
-#: tools/api.py:972
+#: api.py:972
 msgid "Library audio deleted"
 msgstr "Bibliotheksaudio gelöscht"
 
-#: tools/api.py:1012
+#: api.py:1012
 #, python-brace-format
 msgid "Deleted {count} media file(s)"
 msgstr "{count} Mediendatei(en) gelöscht"
 
-#: tools/api.py:1079
+#: api.py:1079
 #, python-brace-format
 msgid "Added {added} file(s) to library, {skipped} already existed"
 msgstr ""
-"{added} Datei(en) zur Bibliothek hinzugefügt, {skipped} existierte(n) bereits"
+"{added} Datei(en) zur Bibliothek hinzugefügt, {skipped} existierte(n) "
+"bereits"
 
-#: tools/api.py:1110
+#: api.py:1110
 msgid "No audio ID provided"
 msgstr "Keine Audio-ID angegeben"
 
-#: tools/api.py:1140
+#: api.py:1140
 #, python-brace-format
 msgid "Audio {audio_id} not found in library"
 msgstr "Audio {audio_id} in der Bibliothek nicht gefunden"
 
-#: tools/api.py:1179
+#: api.py:1179
 #, fuzzy
 #| msgid "Audio Library"
 msgid "Audio already in library"
 msgstr "Audio-Bibliothek"
 
-#: tools/api.py:1193 tools/templates/tools/slideshow_creator.html:1000
+#: api.py:1193 templates/tools/slideshow_creator.html:1001
 #, fuzzy
 #| msgid "Audio added to project"
 msgid "Audio added to library"
 msgstr "Audio zum Projekt hinzugefügt"
 
-#: tools/api.py:1239 tools/api.py:1249 tools/api.py:1319 tools/api.py:1329
-#: tools/api.py:1368 tools/api.py:1374 tools/api.py:1635 tools/api.py:1641
-#: tools/views.py:471 tools/views.py:603 tools/views.py:832
+#: api.py:1239 api.py:1249 api.py:1319 api.py:1329 api.py:1368 api.py:1374
+#: api.py:1620 api.py:1626 views.py:471 views.py:603 views.py:833
 msgid "Media files module is not available"
 msgstr "Das Modul für Mediendateien ist nicht verfügbar"
 
-#: tools/api.py:1243 tools/api.py:1323 tools/api.py:1645
+#: api.py:1243 api.py:1323 api.py:1630
 msgid "Invalid number"
 msgstr "Ungültige Nummer"
 
-#: tools/api.py:1378
+#: api.py:1378
 msgid "Missing required parameters: video_id"
 msgstr "Fehlende erforderliche Parameter: video_id"
 
-#: tools/api.py:1384
+#: api.py:1384
 msgid "Video not found"
 msgstr "Video nicht gefunden"
 
-#: tools/api.py:1388 tools/views.py:622
+#: api.py:1388 views.py:622
 msgid "License not found for this video"
 msgstr "Freistellung für dieses Video nicht gefunden"
 
-#: tools/api.py:1399
+#: api.py:1399
 msgid "Invalid intro overlay text color."
 msgstr "Ungültige Textfarbe für Intro-Overlays."
 
-#: tools/api.py:1404
+#: api.py:1404
 msgid "Invalid outro overlay text color."
 msgstr "Ungültige Textfarbe für Outro-Overlays."
 
-#: tools/api.py:1428
+#: api.py:1428
 msgid "Please select at least one element to show"
 msgstr "Bitte wählen Sie mindestens ein Element zum Anzeigen aus"
 
-#: tools/api.py:1438
+#: api.py:1438
 msgid "Please select styles for each selected element."
 msgstr "Bitte wählen Sie für jedes ausgewählte Element einen Stil aus."
 
-#: tools/api.py:1453
+#: api.py:1453
 #, python-brace-format
 msgid "Intro/outro mode requested but required files are missing: {files}"
 msgstr ""
 "Intro-/Outro-Modus angefordert, aber erforderliche Dateien fehlen: {files}"
 
-#: tools/api.py:1484
+#: api.py:1469
 msgid ""
 "Source video file not found. Please ensure there is an original (non-"
 "rendered) video file available."
@@ -385,893 +517,861 @@ msgstr ""
 "Quellvideodatei nicht gefunden. Bitte stellen Sie sicher, dass eine "
 "originale (nicht gerenderte) Videodatei vorhanden ist."
 
-#: tools/api.py:1517
+#: api.py:1502
 msgid "Invalid output filename"
 msgstr "Ungültiger Ausgabedateiname"
 
-#: tools/api.py:1541 tools/api.py:1551
+#: api.py:1526 api.py:1536
 msgid "Could not find a free output filename (too many versions exist)."
 msgstr "Kein freier Ausgabedateiname gefunden (zu viele Versionen vorhanden)."
 
-#: tools/api.py:1614
+#: api.py:1599
 msgid "Video rendering started. You can track progress in File Operations."
 msgstr ""
 "Video-Rendering gestartet. Den Fortschritt finden Sie unter Dateivorgänge."
 
-#: tools/api.py:1651
+#: api.py:1636
 msgid "License not found"
 msgstr "Freistellung nicht gefunden"
 
-#: tools/api.py:1786 tools/api.py:1788 tools/api.py:1791 tools/api.py:1799
-#: tools/api.py:2014
+#: api.py:1771 api.py:1773 api.py:1776 api.py:1784 api.py:1999
 msgid "Input file not found"
 msgstr "Eingabedatei nicht gefunden"
 
-#: tools/api.py:1864 tools/api.py:1890
+#: api.py:1849 api.py:1875
 msgid "Job is already running"
 msgstr "Auftrag läuft bereits"
 
-#: tools/api.py:1870
+#: api.py:1855
 msgid "Analysis started"
 msgstr "Analyse gestartet"
 
-#: tools/api.py:1915
+#: api.py:1900
 msgid "Normalization started"
 msgstr "Normalisierung gestartet"
 
-#: tools/api.py:2005
+#: api.py:1990
 msgid "Invalid kind"
 msgstr "Ungültiger Typ"
 
-#: tools/api.py:2022 tools/api.py:2064 tools/api.py:2067 tools/api.py:2149
-#: tools/api.py:2161
+#: api.py:2007 api.py:2049 api.py:2052 api.py:2134 api.py:2146
 msgid "Output file not found"
 msgstr "Ausgabedatei nicht gefunden"
 
-#: tools/api.py:2159
+#: api.py:2144
 msgid "Output file not generated yet"
 msgstr "Ausgabedatei wurde noch nicht erzeugt"
 
-#: tools/api.py:2185
+#: api.py:2170
 msgid "Cannot delete job while processing"
 msgstr "Auftrag kann während der Verarbeitung nicht gelöscht werden"
 
-#: tools/api.py:2201
+#: api.py:2186
 msgid "Job deleted"
 msgstr "Auftrag gelöscht"
 
-#: tools/api.py:2210 tools/views.py:500 tools/views.py:575
+#: api.py:2195 views.py:500 views.py:575
 msgid "Reel Studio is not enabled"
 msgstr "Reel-Studio ist nicht aktiviert"
 
-#: tools/api.py:2243
+#: api.py:2228
 msgid "title and a valid hook_type are required"
 msgstr "Titel und ein gültiger hook_type sind erforderlich"
 
-#: tools/api.py:2297
+#: api.py:2282
 #, python-format
 msgid "required: %(fields)s"
 msgstr "Erforderlich: %(fields)s"
 
-#: tools/api.py:2302
+#: api.py:2287
 msgid "invalid hook_type"
 msgstr "Ungültiger hook_type"
 
-#: tools/apps.py:12 tools/templates/tools/audio_normalize.html:9
-#: tools/templates/tools/audio_normalize_job_detail.html:9
-#: tools/templates/tools/audio_normalize_job_list.html:9
-#: tools/templates/tools/index.html:5 tools/templates/tools/index.html:10
-#: tools/templates/tools/index.html:75
-#: tools/templates/tools/reel_studio.html:19
-#: tools/templates/tools/slideshow_creator.html:11
-#: tools/templates/tools/slideshow_detail.html:10
-#: tools/templates/tools/slideshow_list.html:10
-#: tools/templates/tools/video_render.html:9
-#: tools/templates/tools/video_render_job_list.html:9
+#: apps.py:12 templates/tools/audio_normalize.html:10
+#: templates/tools/audio_normalize_job_detail.html:10
+#: templates/tools/audio_normalize_job_list.html:10
+#: templates/tools/index.html:5 templates/tools/index.html:6
+#: templates/tools/index.html:11 templates/tools/index.html:76
+#: templates/tools/reel_studio.html:20
+#: templates/tools/slideshow_creator.html:12
+#: templates/tools/slideshow_detail.html:11
+#: templates/tools/slideshow_list.html:11 templates/tools/video_render.html:10
+#: templates/tools/video_render_job_list.html:10
 msgid "Tools"
 msgstr "Tools"
 
-#: tools/models.py:15 tools/templates/admin/tools/preset_editor.html:872
+#: models.py:15 templates/admin/tools/preset_editor.html:872
 msgid "None"
 msgstr "Keine"
 
-#: tools/models.py:16 tools/models.py:109
-#: tools/templates/admin/tools/preset_editor.html:873
+#: models.py:16 models.py:109 templates/admin/tools/preset_editor.html:873
 msgid "Fade"
 msgstr "Einblenden"
 
-#: tools/models.py:17 tools/models.py:118
-#: tools/templates/admin/tools/preset_editor.html:874
+#: models.py:17 models.py:118 templates/admin/tools/preset_editor.html:874
 msgid "Slide Up"
 msgstr "Nach oben schieben"
 
-#: tools/models.py:18 tools/models.py:116
-#: tools/templates/admin/tools/preset_editor.html:875
+#: models.py:18 models.py:116 templates/admin/tools/preset_editor.html:875
 msgid "Slide Left"
 msgstr "Nach links schieben"
 
-#: tools/models.py:19 tools/models.py:117
-#: tools/templates/admin/tools/preset_editor.html:876
+#: models.py:19 models.py:117 templates/admin/tools/preset_editor.html:876
 msgid "Slide Right"
 msgstr "Nach rechts schieben"
 
-#: tools/models.py:20 tools/models.py:119
-#: tools/templates/admin/tools/preset_editor.html:877
+#: models.py:20 models.py:119 templates/admin/tools/preset_editor.html:877
 msgid "Slide Down"
 msgstr "Nach unten schieben"
 
-#: tools/models.py:21
+#: models.py:21
 msgid "Zoom In"
 msgstr "Hineinzoomen"
 
-#: tools/models.py:22
+#: models.py:22
 msgid "Zoom Out"
 msgstr "Herauszoomen"
 
-#: tools/models.py:26 tools/templates/admin/tools/preset_editor.html:761
+#: models.py:26 templates/admin/tools/preset_editor.html:761
 msgid "Text"
 msgstr "Text"
 
-#: tools/models.py:27 tools/models.py:315
-#: tools/templates/admin/tools/preset_editor.html:762
-#: tools/templates/admin/tools/preset_editor.html:814
+#: models.py:27 models.py:315 templates/admin/tools/preset_editor.html:762
+#: templates/admin/tools/preset_editor.html:814
 msgid "Image"
 msgstr "Bild"
 
-#: tools/models.py:31 tools/templates/admin/tools/preset_editor.html:837
+#: models.py:31 templates/admin/tools/preset_editor.html:837
 msgid "Custom"
 msgstr "Benutzerdefiniert"
 
-#: tools/models.py:32 tools/templates/admin/tools/preset_editor.html:838
+#: models.py:32 templates/admin/tools/preset_editor.html:838
 msgid "Center"
 msgstr "Zentriert"
 
-#: tools/models.py:33 tools/templates/admin/tools/preset_editor.html:839
+#: models.py:33 templates/admin/tools/preset_editor.html:839
 msgid "Top Left"
 msgstr "Oben links"
 
-#: tools/models.py:34 tools/templates/admin/tools/preset_editor.html:840
+#: models.py:34 templates/admin/tools/preset_editor.html:840
 msgid "Top Center"
 msgstr "Oben zentriert"
 
-#: tools/models.py:35 tools/templates/admin/tools/preset_editor.html:841
+#: models.py:35 templates/admin/tools/preset_editor.html:841
 msgid "Top Right"
 msgstr "Oben rechts"
 
-#: tools/models.py:36 tools/templates/admin/tools/preset_editor.html:842
+#: models.py:36 templates/admin/tools/preset_editor.html:842
 msgid "Bottom Left"
 msgstr "Unten links"
 
-#: tools/models.py:37 tools/templates/admin/tools/preset_editor.html:843
+#: models.py:37 templates/admin/tools/preset_editor.html:843
 msgid "Bottom Center"
 msgstr "Unten zentriert"
 
-#: tools/models.py:38 tools/templates/admin/tools/preset_editor.html:844
+#: models.py:38 templates/admin/tools/preset_editor.html:844
 msgid "Bottom Right"
 msgstr "Unten rechts"
 
-#: tools/models.py:39 tools/templates/admin/tools/preset_editor.html:845
+#: models.py:39 templates/admin/tools/preset_editor.html:845
 msgid "Lower Third Left"
 msgstr "Unteres Drittel links"
 
-#: tools/models.py:40 tools/templates/admin/tools/preset_editor.html:846
+#: models.py:40 templates/admin/tools/preset_editor.html:846
 msgid "Lower Third Right"
 msgstr "Unteres Drittel rechts"
 
-#: tools/models.py:102 tools/templates/tools/slideshow_list.html:69
+#: models.py:102 models.py:1332 templates/tools/slideshow_list.html:70
 msgid "Draft"
 msgstr "Entwurf"
 
-#: tools/models.py:103 tools/models.py:1156
-#: tools/templates/tools/audio_normalize.html:432
-#: tools/templates/tools/audio_normalize_job_list.html:62
-#: tools/templates/tools/slideshow_list.html:70
+#: models.py:103 models.py:1450 templates/tools/audio_normalize.html:433
+#: templates/tools/audio_normalize_job_list.html:63
+#: templates/tools/slideshow_list.html:71
 msgid "Processing"
 msgstr "Wird verarbeitet"
 
-#: tools/models.py:104 tools/models.py:1157
-#: tools/templates/tools/audio_normalize.html:433
-#: tools/templates/tools/audio_normalize_job_list.html:63
-#: tools/templates/tools/slideshow_detail.html:120
-#: tools/templates/tools/slideshow_list.html:71
+#: models.py:104 models.py:1451 templates/tools/audio_normalize.html:434
+#: templates/tools/audio_normalize_job_list.html:64
+#: templates/tools/slideshow_detail.html:121
+#: templates/tools/slideshow_list.html:72
 msgid "Completed"
 msgstr "Abgeschlossen"
 
-#: tools/models.py:105 tools/models.py:1158
-#: tools/templates/tools/audio_normalize.html:434
-#: tools/templates/tools/audio_normalize_job_list.html:64
-#: tools/templates/tools/slideshow_list.html:72
-#: tools/templates/tools/video_render_job_list.html:72
+#: models.py:105 models.py:1336 models.py:1452
+#: templates/tools/audio_normalize.html:435
+#: templates/tools/audio_normalize_job_list.html:65
+#: templates/tools/slideshow_list.html:73
+#: templates/tools/video_render_job_list.html:73
 msgid "Failed"
 msgstr "Fehlgeschlagen"
 
-#: tools/models.py:110
+#: models.py:110
 msgid "Fade to Black"
 msgstr "Zu Schwarz ausblenden"
 
-#: tools/models.py:111
+#: models.py:111
 msgid "Fade to White"
 msgstr "Zu Weiß ausblenden"
 
-#: tools/models.py:112
+#: models.py:112
 msgid "Wipe Left"
 msgstr "Nach links wischen"
 
-#: tools/models.py:113
+#: models.py:113
 msgid "Wipe Right"
 msgstr "Nach rechts wischen"
 
-#: tools/models.py:114
+#: models.py:114
 msgid "Wipe Up"
 msgstr "Nach oben wischen"
 
-#: tools/models.py:115
+#: models.py:115
 msgid "Wipe Down"
 msgstr "Nach unten wischen"
 
-#: tools/models.py:120
+#: models.py:120
 msgid "Smooth Left"
 msgstr "Sanft nach links"
 
-#: tools/models.py:121
+#: models.py:121
 msgid "Smooth Right"
 msgstr "Sanft nach rechts"
 
-#: tools/models.py:122
+#: models.py:122
 msgid "Circle Open"
 msgstr "Kreis öffnen"
 
-#: tools/models.py:123
+#: models.py:123
 msgid "Circle Close"
 msgstr "Kreis schließen"
 
-#: tools/models.py:124
+#: models.py:124
 msgid "Radial"
 msgstr "Radial"
 
-#: tools/models.py:125
+#: models.py:125
 msgid "Random"
 msgstr "Zufällig"
 
-#: tools/models.py:129 tools/models.py:249
-#: tools/templates/tools/slideshow_creator.html:540
+#: models.py:129 models.py:249 templates/tools/slideshow_creator.html:541
 msgid "By Music Duration"
 msgstr "Nach Musikdauer"
 
-#: tools/models.py:130 tools/models.py:250
-#: tools/templates/tools/slideshow_creator.html:541
+#: models.py:130 models.py:250 templates/tools/slideshow_creator.html:542
 msgid "By Image Duration"
 msgstr "Nach Bilddauer"
 
-#: tools/models.py:134 tools/models.py:260
+#: models.py:134 models.py:260
 #, fuzzy
 #| msgid "Fade Out (s)"
 msgid "Fade Out"
 msgstr "Ausblenden (s)"
 
-#: tools/models.py:135 tools/models.py:261
+#: models.py:135 models.py:261
 msgid "Trim to Fit"
 msgstr ""
 
-#: tools/models.py:141 tools/templates/tools/slideshow_creator.html:313
+#: models.py:141 templates/tools/slideshow_creator.html:314
 msgid "Project Name"
 msgstr "Projektname"
 
-#: tools/models.py:142
+#: models.py:142
 msgid "Name of the slideshow project"
 msgstr "Name des Diashow-Projekts"
 
-#: tools/models.py:148 tools/models.py:535 tools/models.py:1175
+#: models.py:148 models.py:535 models.py:1469
 msgid "Created By"
 msgstr "Erstellt von"
 
-#: tools/models.py:155 tools/models.py:1182
-#: tools/templates/tools/audio_normalize.html:246
-#: tools/templates/tools/audio_normalize.html:348
-#: tools/templates/tools/audio_normalize_job_detail.html:49
-#: tools/templates/tools/audio_normalize_job_list.html:57
-#: tools/templates/tools/audio_normalize_job_list.html:73
-#: tools/templates/tools/slideshow_detail.html:91
-#: tools/templates/tools/slideshow_list.html:66
-#: tools/templates/tools/slideshow_list.html:81
-#: tools/templates/tools/video_render_job_list.html:67
-#: tools/templates/tools/video_render_job_list.html:84
-msgid "Status"
-msgstr "Status"
-
-#: tools/models.py:161
+#: models.py:161
 msgid "Slide Duration (seconds)"
 msgstr "Foliendauer (Sekunden)"
 
-#: tools/models.py:162
+#: models.py:162
 msgid "Duration of each slide in seconds"
 msgstr "Dauer jeder Folie in Sekunden"
 
-#: tools/models.py:166 tools/models.py:714
-#: tools/templates/tools/slideshow_creator.html:499
-#: tools/templates/tools/slideshow_detail.html:136
+#: models.py:166 models.py:714 templates/tools/slideshow_creator.html:500
+#: templates/tools/slideshow_detail.html:137
 msgid "FPS"
 msgstr "FPS"
 
-#: tools/models.py:167 tools/models.py:714
+#: models.py:167 models.py:714
 msgid "Frames per second"
 msgstr "Bilder pro Sekunde"
 
-#: tools/models.py:171 tools/models.py:712
-#: tools/templates/admin/tools/preset_editor.html:820
+#: models.py:171 models.py:712 templates/admin/tools/preset_editor.html:820
 msgid "Width"
 msgstr "Breite"
 
-#: tools/models.py:172 tools/models.py:712
+#: models.py:172 models.py:712
 msgid "Video width in pixels"
 msgstr "Videobreite in Pixeln"
 
-#: tools/models.py:176 tools/models.py:713
-#: tools/templates/admin/tools/preset_editor.html:824
+#: models.py:176 models.py:713 templates/admin/tools/preset_editor.html:824
 msgid "Height"
 msgstr "Höhe"
 
-#: tools/models.py:177 tools/models.py:713
+#: models.py:177 models.py:713
 msgid "Video height in pixels"
 msgstr "Videohöhe in Pixeln"
 
-#: tools/models.py:183 tools/templates/tools/slideshow_creator.html:519
+#: models.py:183 templates/tools/slideshow_creator.html:520
 msgid "Use Transitions"
 msgstr "Übergänge verwenden"
 
-#: tools/models.py:184
+#: models.py:184
 msgid "Enable transitions between slides"
 msgstr "Übergänge zwischen Folien aktivieren"
 
-#: tools/models.py:190 tools/templates/tools/slideshow_creator.html:523
+#: models.py:190 templates/tools/slideshow_creator.html:524
 msgid "Transition Type"
 msgstr "Übergangstyp"
 
-#: tools/models.py:194
+#: models.py:194
 msgid "Transition Duration (seconds)"
 msgstr "Übergangsdauer (Sekunden)"
 
-#: tools/models.py:195
+#: models.py:195
 msgid "Duration of transitions in seconds"
 msgstr "Dauer der Übergänge in Sekunden"
 
-#: tools/models.py:202
+#: models.py:202
 msgid "Video Bitrate"
 msgstr "Video-Bitrate"
 
-#: tools/models.py:203
+#: models.py:203
 msgid "Video bitrate (e.g., 5M, 10M)"
 msgstr "Video-Bitrate (z.B. 5M, 10M)"
 
-#: tools/models.py:208 tools/models.py:1245
+#: models.py:208 models.py:1539
 msgid "Audio Bitrate"
 msgstr "Audio-Bitrate"
 
-#: tools/models.py:209
+#: models.py:209
 msgid "Audio bitrate (e.g., 128k, 256k)"
 msgstr "Audio-Bitrate (z.B. 128k, 256k)"
 
-#: tools/models.py:214 tools/models.py:719
+#: models.py:214 models.py:719
 msgid "Video Codec"
 msgstr "Video-Codec"
 
-#: tools/models.py:215
+#: models.py:215
 msgid "Video codec (auto-detect if empty)"
 msgstr "Video-Codec (automatisch erkennen, wenn leer)"
 
-#: tools/models.py:223 tools/models.py:256
+#: models.py:223 models.py:256
 #, fuzzy
 #| msgid "Duration"
 msgid "Duration Mode"
 msgstr "Dauer"
 
-#: tools/models.py:224
+#: models.py:224
 msgid "Calculate video length by music or by image duration"
 msgstr ""
 
-#: tools/models.py:230 tools/models.py:267
+#: models.py:230 models.py:267
 #, fuzzy
 #| msgid "Audio Codec"
 msgid "Audio Trim Mode"
 msgstr "Audio-Codec"
 
-#: tools/models.py:231
+#: models.py:231
 #, fuzzy
 #| msgid "When images shorter than music"
 msgid "How to handle audio when images are shorter than music"
 msgstr "Wenn Bilder kürzer als Musik sind"
 
-#: tools/models.py:239
+#: models.py:239
 msgid "Output Video File"
 msgstr "Ausgabe-Videodatei"
 
-#: tools/models.py:243 tools/models.py:1284
+#: models.py:243 models.py:1578
 msgid "Error Message"
 msgstr "Fehlermeldung"
 
-#: tools/models.py:244
+#: models.py:244
 msgid "Error message if generation failed"
 msgstr "Fehlermeldung, falls die Erstellung fehlgeschlagen ist"
 
-#: tools/models.py:257
+#: models.py:257
 msgid "How to calculate video duration"
 msgstr ""
 
-#: tools/models.py:268
+#: models.py:268
 #, fuzzy
 #| msgid "When images shorter than music"
 msgid "What to do when images are shorter than music"
 msgstr "Wenn Bilder kürzer als Musik sind"
 
-#: tools/models.py:275 tools/models.py:446 tools/models.py:1294
+#: models.py:275 models.py:446 models.py:1588
 msgid "Created At"
 msgstr "Erstellt am"
 
-#: tools/models.py:279
+#: models.py:279
 msgid "Updated At"
 msgstr "Aktualisiert am"
 
-#: tools/models.py:284 tools/models.py:1304
+#: models.py:284 models.py:1598
 msgid "Completed At"
 msgstr "Abgeschlossen am"
 
-#: tools/models.py:288
+#: models.py:288
 msgid "Slideshow Project"
 msgstr "Diashow-Projekt"
 
-#: tools/models.py:289 tools/templates/tools/slideshow_creator.html:12
-#: tools/templates/tools/slideshow_detail.html:11
-#: tools/templates/tools/slideshow_list.html:5
-#: tools/templates/tools/slideshow_list.html:10
+#: models.py:289 templates/tools/slideshow_creator.html:13
+#: templates/tools/slideshow_detail.html:12
+#: templates/tools/slideshow_list.html:5 templates/tools/slideshow_list.html:6
+#: templates/tools/slideshow_list.html:11
 msgid "Slideshow Projects"
 msgstr "Diashow-Projekte"
 
-#: tools/models.py:316 tools/templates/tools/slideshow_creator.html:359
-#: tools/templates/tools/slideshow_creator.html:406
-#: tools/templates/tools/slideshow_detail.html:160
-#: tools/templates/tools/video_render_job_list.html:86
+#: models.py:316 templates/tools/slideshow_creator.html:360
+#: templates/tools/slideshow_creator.html:407
+#: templates/tools/slideshow_detail.html:161
+#: templates/tools/video_render_job_list.html:87
 msgid "Video"
 msgstr "Video"
 
-#: tools/models.py:325 tools/models.py:416
+#: models.py:325 models.py:416
 msgid "Project"
 msgstr "Projekt"
 
-#: tools/models.py:326
+#: models.py:326
 msgid "Project this media belongs to (null for library files)"
 msgstr "Projekt, zu dem dieses Medium gehört (null für Bibliotheksdateien)"
 
-#: tools/models.py:330
+#: models.py:330
 msgid "Media File"
 msgstr "Mediendatei"
 
-#: tools/models.py:340 tools/models.py:430
-#: tools/templates/tools/slideshow_list.html:80
+#: models.py:340 models.py:430 models.py:1286
+#: templates/tools/slideshow_list.html:81
 msgid "Name"
 msgstr "Name"
 
-#: tools/models.py:341
+#: models.py:341
 msgid "Name of the media file"
 msgstr "Name der Mediendatei"
 
-#: tools/models.py:346
+#: models.py:346
 msgid "Media Type"
 msgstr "Medientyp"
 
-#: tools/models.py:350 tools/models.py:590
+#: models.py:350 models.py:590
 msgid "Order"
 msgstr "Reihenfolge"
 
-#: tools/models.py:351
+#: models.py:351
 msgid "Order in slideshow sequence"
 msgstr "Reihenfolge in der Diashow-Sequenz"
 
-#: tools/models.py:356
+#: models.py:356
 msgid "Duration Override (seconds)"
 msgstr "Dauer überschreiben (Sekunden)"
 
-#: tools/models.py:357
+#: models.py:357
 msgid "Override default slide duration for this file"
 msgstr "Standard-Foliendauer für diese Datei überschreiben"
 
-#: tools/models.py:361 tools/models.py:441
+#: models.py:361 models.py:441
 msgid "Library File"
 msgstr "Bibliotheksdatei"
 
-#: tools/models.py:362
+#: models.py:362
 msgid "Is this a library media file available to all projects?"
 msgstr ""
 "Ist dies eine Bibliotheks-Mediendatei, die für alle Projekte verfügbar ist?"
 
-#: tools/models.py:366
+#: models.py:366
 msgid "Uploaded At"
 msgstr "Hochgeladen am"
 
-#: tools/models.py:370 tools/models.py:371
+#: models.py:370 models.py:371
 msgid "Slideshow Media"
 msgstr "Diashow-Medien"
 
-#: tools/models.py:417
+#: models.py:417
 msgid "Project this audio belongs to (null for library files)"
 msgstr "Projekt, zu dem diese Audiodatei gehört (null für Bibliotheksdateien)"
 
-#: tools/models.py:421
+#: models.py:421
 msgid "Audio File"
 msgstr "Audiodatei"
 
-#: tools/models.py:431
+#: models.py:431
 msgid "Name of the audio track"
 msgstr "Name des Audiotracks"
 
-#: tools/models.py:436
+#: models.py:436
 msgid "Duration (seconds)"
 msgstr "Dauer (Sekunden)"
 
-#: tools/models.py:437
+#: models.py:437
 msgid "Duration of audio in seconds"
 msgstr "Dauer des Audios in Sekunden"
 
-#: tools/models.py:442
+#: models.py:442
 msgid "Is this a library audio file available to all projects?"
 msgstr ""
 "Ist dies eine Bibliotheks-Audiodatei, die für alle Projekte verfügbar ist?"
 
-#: tools/models.py:450 tools/models.py:451
+#: models.py:450 models.py:451
 msgid "Slideshow Audio"
 msgstr "Diashow-Audio"
 
-#: tools/models.py:482 tools/models.py:697
-#: tools/templates/admin/tools/preset_editor.html:335
+#: models.py:482 models.py:697 templates/admin/tools/preset_editor.html:335
 msgid "Preset Name"
 msgstr "Preset-Name"
 
-#: tools/models.py:483
+#: models.py:483
 msgid "Unique name for this preset (e.g., \"my_custom_lower_third\")"
 msgstr ""
 "Eindeutiger Name für dieses Preset (z.B. "
 "\"mein_benutzerdefiniertes_Lower_Third\")"
 
-#: tools/models.py:487 tools/models.py:703
-#: tools/templates/admin/tools/preset_editor.html:336
+#: models.py:487 models.py:703 templates/admin/tools/preset_editor.html:336
 msgid "Display Name"
 msgstr "Anzeigename"
 
-#: tools/models.py:488
+#: models.py:488
 msgid "Human-readable name shown in UI"
 msgstr ""
 "Für Menschen lesbarer Name, der in der Benutzeroberfläche angezeigt wird"
 
-#: tools/models.py:492 tools/models.py:708
-#: tools/templates/tools/reel_studio.html:121
+#: models.py:492 models.py:708 templates/email/daily_reel_reminder_body.txt:5
+#: templates/tools/reel_studio.html:122
 msgid "Description"
 msgstr "Beschreibung"
 
-#: tools/models.py:493
+#: models.py:493
 msgid "Optional description of this preset"
 msgstr "Optionale Beschreibung dieses Presets"
 
-#: tools/models.py:498
+#: models.py:498
 msgid "Is Template"
 msgstr "Ist Vorlage"
 
-#: tools/models.py:499
+#: models.py:499
 msgid "If true, this preset serves as a starting template for new presets"
 msgstr "Falls ausgewählt, dient dieses Preset als Vorlage für neue Presets"
 
-#: tools/models.py:507
+#: models.py:507
 msgid "Based On"
 msgstr "Basiert auf"
 
-#: tools/models.py:508
+#: models.py:508
 msgid "Original preset this was copied from"
 msgstr "Ursprüngliches Preset, von dem dieses kopiert wurde"
 
-#: tools/models.py:513
+#: models.py:513
 msgid "Segment Duration (seconds)"
 msgstr "Segmentdauer (Sekunden)"
 
-#: tools/models.py:514
+#: models.py:514
 msgid "Duration for intro/outro overlay segments"
 msgstr "Dauer der Intro-/Outro-Overlay-Segmente"
 
-#: tools/models.py:519
+#: models.py:519
 msgid "Intro Clip Path"
 msgstr "Pfad zum Intro-Clip"
 
-#: tools/models.py:520
+#: models.py:520
 msgid "Optional path to intro video clip"
 msgstr "Optionaler Pfad zum Intro-Videoclip"
 
-#: tools/models.py:525
+#: models.py:525
 msgid "Outro Clip Path"
 msgstr "Pfad zum Outro-Clip"
 
-#: tools/models.py:526
+#: models.py:526
 msgid "Optional path to outro video clip"
 msgstr "Optionaler Pfad zum Outro-Videoclip"
 
-#: tools/models.py:539
+#: models.py:539
 msgid "Public"
 msgstr "Öffentlich"
 
-#: tools/models.py:540
+#: models.py:540
 msgid "If true, this preset is available to all users"
 msgstr "Falls ausgewählt, ist dieses Preset für alle Benutzer verfügbar"
 
-#: tools/models.py:547
+#: models.py:547
 msgid "Video Preset"
 msgstr "Video-Preset"
 
-#: tools/models.py:548
+#: models.py:548
 msgid "Video Presets"
 msgstr "Video-Presets"
 
-#: tools/models.py:564 tools/templates/admin/tools/preset_editor.html:355
+#: models.py:564 templates/admin/tools/preset_editor.html:355
 msgid "Intro"
 msgstr "Intro"
 
-#: tools/models.py:565 tools/templates/admin/tools/preset_editor.html:358
+#: models.py:565 templates/admin/tools/preset_editor.html:358
 msgid "Outro"
 msgstr "Outro"
 
-#: tools/models.py:572 tools/models.py:1188
-#: tools/templates/tools/audio_normalize.html:211
-#: tools/templates/tools/audio_normalize.html:1155
-#: tools/templates/tools/audio_normalize_job_detail.html:67
-#: tools/templates/tools/audio_normalize_job_list.html:75
+#: models.py:572 models.py:1482 templates/tools/audio_normalize.html:212
+#: templates/tools/audio_normalize.html:1156
+#: templates/tools/audio_normalize_job_detail.html:68
+#: templates/tools/audio_normalize_job_list.html:76
 msgid "Preset"
 msgstr "Preset"
 
-#: tools/models.py:579 tools/templates/admin/tools/preset_editor.html:759
+#: models.py:579 templates/admin/tools/preset_editor.html:759
 msgid "Type"
 msgstr "Typ"
 
-#: tools/models.py:585
+#: models.py:585
 msgid "Segment"
 msgstr "Segment"
 
-#: tools/models.py:586
+#: models.py:586
 msgid "Apply this overlay to intro or outro segment"
 msgstr "Dieses Overlay im Intro- oder Outro-Segment anwenden"
 
-#: tools/models.py:591
+#: models.py:591
 msgid "Rendering order (lower number = rendered first/bottom layer)"
-msgstr "Render-Reihenfolge (kleinere Nummer = zuerst/unterste Ebene gerendert)"
+msgstr ""
+"Render-Reihenfolge (kleinere Nummer = zuerst/unterste Ebene gerendert)"
 
-#: tools/models.py:596
+#: models.py:596
 msgid "Text Template"
 msgstr "Textvorlage"
 
-#: tools/models.py:597
+#: models.py:597
 #, python-brace-format
 msgid "Template with variables like {license.title}, {profile.display}"
 msgstr "Vorlage mit Variablen wie {license.title}, {profile.display}"
 
-#: tools/models.py:603 tools/templates/admin/tools/preset_editor.html:816
+#: models.py:603 templates/admin/tools/preset_editor.html:816
 msgid "Image Path"
 msgstr "Bildpfad"
 
-#: tools/models.py:604
+#: models.py:604
 msgid "Path to image file (relative to assets/ or absolute)"
 msgstr "Pfad zur Bilddatei (relativ zu assets/ oder absolut)"
 
-#: tools/models.py:606
+#: models.py:606
 msgid "Image Width"
 msgstr "Bildbreite"
 
-#: tools/models.py:607
+#: models.py:607
 msgid "Image Height"
 msgstr "Bildhöhe"
 
-#: tools/models.py:613 tools/templates/admin/tools/preset_editor.html:835
+#: models.py:613 templates/admin/tools/preset_editor.html:835
 msgid "Position Preset"
 msgstr "Positionsvorgabe"
 
-#: tools/models.py:618 tools/templates/admin/tools/preset_editor.html:850
+#: models.py:618 templates/admin/tools/preset_editor.html:850
 msgid "X Position"
 msgstr "X-Position"
 
-#: tools/models.py:619
+#: models.py:619
 msgid "X coordinate or expression (e.g., \"(w-text_w)/2\", \"40\")"
 msgstr "X-Koordinate oder Ausdruck (z.B. \"(w-text_w)/2\", \"40\")"
 
-#: tools/models.py:624 tools/templates/admin/tools/preset_editor.html:854
+#: models.py:624 templates/admin/tools/preset_editor.html:854
 msgid "Y Position"
 msgstr "Y-Position"
 
-#: tools/models.py:625
+#: models.py:625
 msgid "Y coordinate or expression (e.g., \"h-140\", \"(h-text_h)/2\")"
 msgstr "Y-Koordinate oder Ausdruck (z.B. \"h-140\", \"(h-text_h)/2\")"
 
-#: tools/models.py:630
+#: models.py:630
 msgid "Start Time (seconds)"
 msgstr "Startzeit (Sekunden)"
 
-#: tools/models.py:631
+#: models.py:631
 msgid "When to show this overlay (relative to segment start)"
 msgstr "Wann dieses Overlay angezeigt wird (relativ zum Segmentbeginn)"
 
-#: tools/models.py:635
+#: models.py:635
 msgid "End Time (seconds)"
 msgstr "Endzeit (Sekunden)"
 
-#: tools/models.py:636
+#: models.py:636
 msgid "When to hide this overlay (relative to segment start)"
 msgstr "Wann dieses Overlay ausgeblendet wird (relativ zum Segmentbeginn)"
 
-#: tools/models.py:643 tools/templates/admin/tools/preset_editor.html:870
+#: models.py:643 templates/admin/tools/preset_editor.html:870
 msgid "Animation"
 msgstr "Animation"
 
-#: tools/models.py:645
+#: models.py:645
 msgid "Fade In Duration (seconds)"
 msgstr "Einblenddauer (Sekunden)"
 
-#: tools/models.py:646
+#: models.py:646
 msgid "Fade Out Duration (seconds)"
 msgstr "Ausblenddauer (Sekunden)"
 
-#: tools/models.py:651
+#: models.py:651
 msgid "Font File"
 msgstr "Schriftdatei"
 
-#: tools/models.py:652
+#: models.py:652
 msgid "Path relative to assets/ (e.g., \"fonts/Roboto-Bold.ttf\")"
 msgstr "Pfad relativ zu assets/ (z.B. \"fonts/Roboto-Bold.ttf\")"
 
-#: tools/models.py:654 tools/templates/admin/tools/preset_editor.html:785
+#: models.py:654 templates/admin/tools/preset_editor.html:785
 msgid "Font Size"
 msgstr "Schriftgröße"
 
-#: tools/models.py:658 tools/templates/admin/tools/preset_editor.html:789
+#: models.py:658 templates/admin/tools/preset_editor.html:789
 msgid "Font Color"
 msgstr "Schriftfarbe"
 
-#: tools/models.py:659
+#: models.py:659
 msgid "Color name or hex (e.g., \"white\", \"#FFFFFF\")"
 msgstr "Farbname oder Hex-Wert (z.B. \"white\", \"#FFFFFF\")"
 
-#: tools/models.py:662
+#: models.py:662
 msgid "Has Background Box"
 msgstr "Mit Hintergrundfeld"
 
-#: tools/models.py:666 tools/templates/admin/tools/preset_editor.html:802
+#: models.py:666 templates/admin/tools/preset_editor.html:802
 msgid "Box Color"
 msgstr "Farbe des Feldes"
 
-#: tools/models.py:667
+#: models.py:667
 msgid "Color with opacity (e.g., \"black@0.5\")"
 msgstr "Farbe mit Transparenz (z.B. \"black@0.5\")"
 
-#: tools/models.py:669
+#: models.py:669
 msgid "Box Border Width"
 msgstr "Feld-Rahmenbreite"
 
-#: tools/models.py:675
+#: models.py:675
 msgid "Preset Overlay"
 msgstr "Preset-Overlay"
 
-#: tools/models.py:676
+#: models.py:676
 msgid "Preset Overlays"
 msgstr "Preset-Overlays"
 
-#: tools/models.py:698
+#: models.py:698
 msgid "Unique name for this encoding preset (e.g., \"1080p25_9000k\")"
 msgstr "Eindeutiger Name für dieses Kodierungspreset (z.B. \"1080p25_9000k\")"
 
-#: tools/models.py:704
+#: models.py:704
 msgid "Human-readable name shown in UI (auto-generated if empty)"
 msgstr "Anzeigename in der Oberfläche (automatisch generiert, wenn leer)"
 
-#: tools/models.py:709
+#: models.py:709
 msgid "Optional description of this encoding preset"
 msgstr "Optionale Beschreibung dieses Kodierungspresets"
 
-#: tools/models.py:720
+#: models.py:720
 msgid "Video codec (e.g., \"libx264\")"
 msgstr "Videocodec (z.B. \"libx264\")"
 
-#: tools/models.py:724
+#: models.py:724
 msgid "Video Bitrate (kbps)"
 msgstr "Video-Bitrate (kbps)"
 
-#: tools/models.py:725
+#: models.py:725
 msgid "Video bitrate in kilobits per second"
 msgstr "Video-Bitrate in Kilobit pro Sekunde"
 
-#: tools/models.py:731
+#: models.py:731
 msgid "Audio Codec"
 msgstr "Audio-Codec"
 
-#: tools/models.py:732
+#: models.py:732
 msgid "Audio codec (e.g., \"aac\")"
 msgstr "Audio-Codec (z.B. \"aac\")"
 
-#: tools/models.py:736
+#: models.py:736
 msgid "Audio Bitrate (kbps)"
 msgstr "Audio-Bitrate (kbps)"
 
-#: tools/models.py:737
+#: models.py:737
 msgid "Audio bitrate in kilobits per second"
 msgstr "Audio-Bitrate in Kilobit pro Sekunde"
 
-#: tools/models.py:741
+#: models.py:741
 msgid "Audio Sample Rate (Hz)"
 msgstr "Audio-Abtastrate (Hz)"
 
-#: tools/models.py:742
+#: models.py:742
 msgid "Audio sample rate in Hz"
 msgstr "Audio-Abtastrate in Hz"
 
-#: tools/models.py:746
+#: models.py:746
 msgid "Audio Channels"
 msgstr "Audiokanäle"
 
-#: tools/models.py:747
+#: models.py:747
 msgid "Number of audio channels"
 msgstr "Anzahl der Audiokanäle"
 
-#: tools/models.py:753
+#: models.py:753
 msgid "Pixel Format"
 msgstr "Pixelformat"
 
-#: tools/models.py:754
+#: models.py:754
 msgid "Pixel format (e.g., \"yuv420p\")"
 msgstr "Pixelformat (z.B. \"yuv420p\")"
 
-#: tools/models.py:759
+#: models.py:759
 msgid "x264 Preset"
 msgstr "x264-Preset"
 
-#: tools/models.py:760
+#: models.py:760
 msgid "x264 encoding preset (e.g., \"veryfast\", \"medium\", \"slow\")"
 msgstr "x264-Kodierungspreset (z.B. \"veryfast\", \"medium\", \"slow\")"
 
-#: tools/models.py:765
+#: models.py:765
 msgid "x264 Profile"
 msgstr "x264-Profil"
 
-#: tools/models.py:766
+#: models.py:766
 msgid "x264 profile (e.g., \"baseline\", \"main\", \"high\")"
 msgstr "x264-Profil (z.B. \"baseline\", \"main\", \"high\")"
 
-#: tools/models.py:773
+#: models.py:773
 msgid "Video Encode Preset"
 msgstr "Video-Kodierungspreset"
 
-#: tools/models.py:774
+#: models.py:774
 msgid "Video Encode Presets"
 msgstr "Video-Kodierungspresets"
 
 # Storage and Output Path (Storage Location) - ToolsConfig
-#: tools/models.py:819
+#: models.py:819
 msgid "Storage Path (Storage Location)"
 msgstr "Speicherpfad (Speicherort)"
 
-#: tools/models.py:820
+#: models.py:820
 msgid ""
 "Optional. Storage location for uploads. Overrides the path below when set."
 msgstr ""
 "Optional. Speicherort für Uploads. Überschreibt den unten stehenden Pfad, "
 "wenn gesetzt."
 
-#: tools/models.py:824
+#: models.py:824
 msgid "Storage Path"
 msgstr "Speicherpfad"
 
-#: tools/models.py:825
+#: models.py:825
 msgid ""
 "Required when no Storage Location is selected. Base path for storing "
 "uploaded media files."
 msgstr ""
-"Erforderlich, wenn kein Speicherort ausgewählt ist. Basis-Pfad zum Speichern "
-"hochgeladener Mediendateien."
+"Erforderlich, wenn kein Speicherort ausgewählt ist. Basis-Pfad zum Speichern"
+" hochgeladener Mediendateien."
 
-#: tools/models.py:833
+#: models.py:833
 msgid "Output Path (Storage Location)"
 msgstr "Ausgabepfad (Speicherort)"
 
-#: tools/models.py:834
+#: models.py:834
 msgid ""
 "Optional. Storage location for generated videos. Overrides the path below "
 "when set."
@@ -1279,72 +1379,72 @@ msgstr ""
 "Optional. Speicherort für generierte Videos. Überschreibt den unten "
 "stehenden Pfad, wenn gesetzt."
 
-#: tools/models.py:838
+#: models.py:838
 msgid "Output Path"
 msgstr "Ausgabepfad"
 
-#: tools/models.py:839
+#: models.py:839
 msgid ""
 "Required when no Storage Location is selected. Base path for storing "
 "generated videos."
 msgstr ""
-"Erforderlich, wenn kein Speicherort ausgewählt ist. Basis-Pfad zum Speichern "
-"generierter Videos."
+"Erforderlich, wenn kein Speicherort ausgewählt ist. Basis-Pfad zum Speichern"
+" generierter Videos."
 
-#: tools/models.py:845
+#: models.py:845
 msgid "Max Upload Size (MB)"
 msgstr "Maximale Upload-Größe (MB)"
 
-#: tools/models.py:846
+#: models.py:846
 msgid "Maximum file upload size in megabytes"
 msgstr "Maximale Dateiuploadgröße in Megabyte"
 
-#: tools/models.py:853
+#: models.py:853
 msgid "Allowed Image Formats"
 msgstr "Erlaubte Bildformate"
 
-#: tools/models.py:854
+#: models.py:854
 msgid "Comma-separated list of allowed image extensions"
 msgstr "Kommagetrennte Liste erlaubter Bild-Erweiterungen"
 
-#: tools/models.py:859
+#: models.py:859
 msgid "Allowed Video Formats"
 msgstr "Erlaubte Videoformate"
 
-#: tools/models.py:860
+#: models.py:860
 msgid "Comma-separated list of allowed video extensions"
 msgstr "Kommagetrennte Liste erlaubter Video-Erweiterungen"
 
-#: tools/models.py:865
+#: models.py:865
 msgid "Allowed Audio Formats"
 msgstr "Erlaubte Audioformate"
 
-#: tools/models.py:866
+#: models.py:866
 msgid "Comma-separated list of allowed audio extensions"
 msgstr "Kommagetrennte Liste erlaubter Audio-Erweiterungen"
 
-#: tools/models.py:873
+#: models.py:873
 msgid "FFmpeg Path"
 msgstr "FFmpeg-Pfad"
 
-#: tools/models.py:874
+#: models.py:874
 msgid "Path to ffmpeg executable"
 msgstr "Pfad zur ffmpeg-Programmdatei"
 
-#: tools/models.py:879
+#: models.py:879
 msgid "FFprobe Path"
 msgstr "FFprobe-Pfad"
 
-#: tools/models.py:880
+#: models.py:880
 msgid "Path to ffprobe executable"
 msgstr "Pfad zur ffprobe-Programmdatei"
 
 # Audio normalize - Storage and paths
-#: tools/models.py:890
+#: models.py:890
 msgid "Audio Normalize Input Storage"
 msgstr "Audio-Normalisierungs Eingabe-Speicherort"
 
-#: tools/models.py:891
+#: models.py:891
 msgid ""
 "Optional. Storage location for input base path. Overrides the path below "
 "when set."
@@ -1352,11 +1452,11 @@ msgstr ""
 "Optional. Speicherort für den Eingabe-Basis-Pfad. Überschreibt den unten "
 "stehenden Pfad, wenn gesetzt."
 
-#: tools/models.py:897
+#: models.py:897
 msgid "Audio Normalize Input Path"
 msgstr "Audio-Normalisierungs-Eingabepfad"
 
-#: tools/models.py:898
+#: models.py:898
 msgid ""
 "Base path when no storage is selected. Used for upload dedup and similar. "
 "Can be empty."
@@ -1364,11 +1464,11 @@ msgstr ""
 "Basis-Pfad, wenn kein Speicherort ausgewählt ist. Wird für Upload-"
 "Deduplizierung usw. verwendet. Kann leer sein."
 
-#: tools/models.py:906
+#: models.py:906
 msgid "Audio Normalize Output Storage"
 msgstr "Audio-Normalisierungs Ausgabe-Speicherort"
 
-#: tools/models.py:907
+#: models.py:907
 msgid ""
 "Optional. Storage location for output directory. Overrides the path below "
 "when set."
@@ -1376,11 +1476,11 @@ msgstr ""
 "Optional. Speicherort für das Ausgabeverzeichnis. Überschreibt den unten "
 "stehenden Pfad, wenn gesetzt."
 
-#: tools/models.py:913
+#: models.py:913
 msgid "Audio Normalize Output Path"
 msgstr "Audio-Normalisierungs-Ausgabepfad"
 
-#: tools/models.py:915
+#: models.py:915
 msgid ""
 "Base path when no storage is selected. Empty = next to input. Can be left "
 "empty. If storage is set, output can be outside MEDIA_ROOT."
@@ -1389,82 +1489,84 @@ msgstr ""
 "Kann leer bleiben. Wenn ein Speicherort gesetzt ist, kann die Ausgabe "
 "außerhalb von MEDIA_ROOT liegen."
 
-#: tools/models.py:922
+#: models.py:922
 msgid "Audio Normalize Default Preset"
 msgstr "Standard-Preset für Audio-Normalisierung"
 
-#: tools/models.py:923
+#: models.py:923
 msgid "Default audio normalize preset ID"
 msgstr "Standard-Preset-ID für die Audio-Normalisierung"
 
-#: tools/models.py:928
+#: models.py:928
 msgid "Audio Normalize Default Bitrate"
 msgstr "Standard-Bitrate für Audio-Normalisierung"
 
-#: tools/models.py:929
+#: models.py:929
 msgid "Default audio bitrate for normalized files (e.g., 192k)"
 msgstr "Standard-Audio-Bitrate für normalisierte Dateien (z. B. 192k)"
 
-#: tools/models.py:935
+#: models.py:935
 msgid "ARNNDN Model Path"
 msgstr "ARNNDN-Modell-Pfad"
 
-#: tools/models.py:936
+#: models.py:936
 msgid ""
 "Default path to RNN model file (.rnnn) for neural network denoising (arnndn "
-"filter). System automatically detects and uses recommended models (std.rnnn, "
-"bd.rnnn, lq.rnnn) from tools/rnn_models/ directory. Leave empty to use FFT-"
+"filter). System automatically detects and uses recommended models (std.rnnn,"
+" bd.rnnn, lq.rnnn) from tools/rnn_models/ directory. Leave empty to use FFT-"
 "based denoising (afftdn)."
 msgstr ""
 "Standard-Pfad zur RNN-Modell-Datei (.rnnn) für neuronale Netzwerk-"
 "Entrauschung (arnndn-Filter). Das System erkennt und verwendet automatisch "
-"empfohlene Modelle (std.rnnn, bd.rnnn, lq.rnnn) aus dem Verzeichnis tools/"
-"rnn_models/. Leer lassen, um FFT-basierte Entrauschung (afftdn) zu verwenden."
+"empfohlene Modelle (std.rnnn, bd.rnnn, lq.rnnn) aus dem Verzeichnis "
+"tools/rnn_models/. Leer lassen, um FFT-basierte Entrauschung (afftdn) zu "
+"verwenden."
 
-#: tools/models.py:942
+#: models.py:942
 msgid "Reel Studio enabled"
 msgstr "Reel-Studio aktiviert"
 
-#: tools/models.py:944
+#: models.py:944
 msgid ""
 "Master switch for the Reel Studio tool. When off, the tool card, page and "
 "the license admin action are hidden and disabled."
 msgstr ""
-"Hauptschalter für das Reel-Studio. Wenn deaktiviert, werden Werkzeug-Kachel, "
-"Seite und die Lizenz-Admin-Aktion ausgeblendet und deaktiviert."
+"Hauptschalter für das Reel-Studio. Wenn deaktiviert, werden Werkzeug-Kachel,"
+" Seite und die Lizenz-Admin-Aktion ausgeblendet und deaktiviert."
 
-#: tools/models.py:951
+#: models.py:951
 msgid "Reel render URL"
 msgstr "Reel-Render-URL"
 
-#: tools/models.py:952
-msgid "Base URL of the external reel renderer, e.g. http://192.168.122.14:8011"
+#: models.py:952
+msgid ""
+"Base URL of the external reel renderer, e.g. http://192.168.122.14:8011"
 msgstr ""
 "Basis-URL des externen Reel-Renderers, z. B. http://192.168.122.14:8011"
 
-#: tools/models.py:958
+#: models.py:958
 msgid "Reel render API key"
 msgstr "Reel-Render-API-Schlüssel"
 
-#: tools/models.py:959
+#: models.py:959
 msgid "Sent as X-API-Key header to the reel renderer."
 msgstr "Wird als X-API-Key-Header an den Reel-Renderer gesendet."
 
-#: tools/models.py:963
+#: models.py:963
 msgid "Reel render timeout (seconds)"
 msgstr "Reel-Render-Timeout (Sekunden)"
 
-#: tools/models.py:965
+#: models.py:965
 msgid ""
 "HTTP read timeout for reel render/start and hook requests. Must be generous "
 "(e.g. 360) so a cold AI model is not cut off before the renderer responds."
 msgstr ""
 
-#: tools/models.py:974
+#: models.py:974
 msgid "Reel output filename pattern"
 msgstr "Reel-Ausgabedateinamen-Muster"
 
-#: tools/models.py:976
+#: models.py:976
 msgid ""
 "Python format string with {number} and {date} used to prefill the output "
 "name, e.g. {number}_Programmvorschau_Reel_{date:%y%m%d}."
@@ -1472,130 +1574,413 @@ msgstr ""
 "Python-Formatstring mit {number} und {date} zum Vorbefüllen des "
 "Ausgabenamens, z. B. {number}_Programmvorschau_Reel_{date:%y%m%d}."
 
-#: tools/models.py:984
+#: models.py:984
 msgid "Reel mediathek line 1"
 msgstr "Reel-Mediathek-Zeile 1"
 
-#: tools/models.py:985
+#: models.py:985
 msgid "Default first line of the mediathek badge."
 msgstr "Standard-erste Zeile der Mediathek-Plakette."
 
-#: tools/models.py:991
+#: models.py:991
 msgid "Reel mediathek line 2"
 msgstr "Reel-Mediathek-Zeile 2"
 
-#: tools/models.py:992
+#: models.py:992
 msgid "Default second line of the mediathek badge."
 msgstr "Standard-zweite Zeile der Mediathek-Plakette."
 
-#: tools/models.py:1000
+#: models.py:1000
 msgid "Reel output storage"
 msgstr "Reel-Ausgabespeicher"
 
-#: tools/models.py:1002
+#: models.py:1002
 msgid ""
 "Storage location where the renderer writes finished reels. When empty, the "
 "first Playout storage is used. Needed for preview/download."
 msgstr ""
-"Speicherort, an den der Renderer fertige Reels schreibt. Wenn leer, wird der "
-"erste Playout-Speicher verwendet. Nötig für Vorschau/Download."
+"Speicherort, an den der Renderer fertige Reels schreibt. Wenn leer, wird der"
+" erste Playout-Speicher verwendet. Nötig für Vorschau/Download."
 
-#: tools/models.py:1010
+#: models.py:1010
 msgid "Reel output subdirectory"
 msgstr "Reel-Ausgabe-Unterverzeichnis"
 
-#: tools/models.py:1011
+#: models.py:1011
 msgid "Subdirectory inside the output storage where reels are written."
 msgstr "Unterverzeichnis im Ausgabespeicher, in das Reels geschrieben werden."
 
-#: tools/models.py:1015
+#: models.py:1015
 msgid "Daily reel reminder enabled"
 msgstr "Tägliche Reel-Erinnerung aktiviert"
 
-#: tools/models.py:1016
+#: models.py:1016
 msgid "Send one daily email with today's reel download links."
 msgstr ""
 "Sendet täglich eine E-Mail mit den Download-Links für die heutigen Reels."
 
-#: tools/models.py:1021
+#: models.py:1021
 msgid "Daily reel reminder recipient"
 msgstr "Empfänger der täglichen Reel-Erinnerung"
 
-#: tools/models.py:1022
+#: models.py:1022
 msgid "Email address that receives the daily reel reminder."
 msgstr "E-Mail-Adresse, die die tägliche Reel-Erinnerung erhält."
 
-#: tools/models.py:1026
+#: models.py:1026
 msgid "Daily reel reminder time"
 msgstr "Uhrzeit der täglichen Reel-Erinnerung"
 
-#: tools/models.py:1027
+#: models.py:1027
 msgid "Local time when Celery Beat should send the daily reminder."
 msgstr ""
 "Lokale Uhrzeit, zu der Celery Beat die tägliche Erinnerung senden soll."
 
-#: tools/models.py:1031 tools/models.py:1032
+#: models.py:1033
+msgid "Instagram posting enabled"
+msgstr "Instagram-Posting aktiviert"
+
+#: models.py:1035
+msgid ""
+"Creates a post draft for every rendered reel and publishes approved posts at"
+" their time. Needs the account ID and an access token."
+msgstr ""
+"Legt für jedes gerenderte Reel einen Post-Entwurf an und veröffentlicht "
+"freigegebene Posts zu ihrer Zeit. Braucht die Konto-ID und einen "
+"Zugriffstoken."
+
+#: models.py:1042
+msgid "Instagram Login (graph.instagram.com)"
+msgstr "Instagram-Login (graph.instagram.com)"
+
+#: models.py:1043
+msgid "Facebook Login (graph.facebook.com)"
+msgstr "Facebook-Login (graph.facebook.com)"
+
+#: models.py:1046
+msgid "Instagram API"
+msgstr "Instagram-API"
+
+#: models.py:1048
+msgid ""
+"Instagram Login needs no Facebook page; its token lasts 60 days and is "
+"renewed automatically. Facebook Login uses a page or system user token."
+msgstr ""
+"Instagram-Login braucht keine Facebook-Seite; der Token gilt 60 Tage und "
+"wird automatisch erneuert. Facebook-Login nutzt einen Seiten- oder System-"
+"User-Token."
+
+#: models.py:1055
+msgid "Instagram API version"
+msgstr "Instagram-API-Version"
+
+#: models.py:1056
+msgid "Graph API version in the URL, e.g. v27.0."
+msgstr "Graph-API-Version in der URL, z. B. v27.0."
+
+#: models.py:1062
+msgid "Instagram account ID"
+msgstr "Instagram-Konto-ID"
+
+#: models.py:1063
+msgid "Numeric ID of the professional Instagram account (IG user ID)."
+msgstr "Numerische ID des professionellen Instagram-Kontos (IG-User-ID)."
+
+#: models.py:1068
+msgid "Instagram access token"
+msgstr "Instagram-Zugriffstoken"
+
+#: models.py:1070
+msgid ""
+"Long-lived token with the content publishing permission. Kept on the server "
+"only; it is never shown in a page."
+msgstr ""
+"Langlebiger Token mit der Berechtigung zum Veröffentlichen. Bleibt nur auf "
+"dem Server und wird nie auf einer Seite angezeigt."
+
+#: models.py:1077
+msgid "Instagram token renewed at"
+msgstr "Instagram-Token erneuert am"
+
+#: models.py:1081
+msgid "Instagram post time"
+msgstr "Instagram-Postzeit"
+
+#: models.py:1082
+msgid "Default local time on the broadcast day for a new post draft."
+msgstr "Standard-Uhrzeit am Sendetag für einen neuen Post-Entwurf."
+
+#: models.py:1091
+msgid "Instagram caption template"
+msgstr "Instagram-Bildunterschrift (Vorlage)"
+
+#: models.py:1093
+#, python-brace-format
+msgid ""
+"Placeholders: {titel}, {untertitel}, {beschreibung}, {autor}, {sendetermin} "
+"(day, date and the time if planned), {uhrzeit}, {mediathek}, {hashtags} "
+"(from the license tags). A line whose placeholders are all empty is left "
+"out."
+msgstr ""
+"Platzhalter: {titel}, {untertitel}, {beschreibung}, {autor}, {sendetermin} "
+"(Tag, Datum und Uhrzeit, falls geplant), {uhrzeit}, {mediathek}, {hashtags} "
+"(aus den Tags der Freistellung). Eine Zeile, deren Platzhalter alle leer "
+"sind, entfällt."
+
+#: models.py:1101 models.py:1366
+msgid "Also show in the feed"
+msgstr "Auch im Feed zeigen"
+
+#: models.py:1102
+msgid "Off: the reel only appears in the Reels tab."
+msgstr "Aus: Das Reel erscheint nur im Reels-Tab."
+
+#: models.py:1106 models.py:1107
 msgid "Tools Configuration"
 msgstr "Werkzeuge-Konfiguration"
 
-#: tools/models.py:1137
+#: models.py:1213
 msgid "Tools: send daily reel reminder"
 msgstr "Tools: tägliche Reel-Erinnerung senden"
 
-#: tools/models.py:1154 tools/templates/tools/audio_normalize.html:430
-#: tools/templates/tools/audio_normalize_job_list.html:60
+#: models.py:1247
+msgid "Tools: publish due Instagram posts"
+msgstr "Werkzeuge: fällige Instagram-Posts veröffentlichen"
+
+#: models.py:1261
+msgid "Tools: renew Instagram token"
+msgstr "Werkzeuge: Instagram-Token erneuern"
+
+#: models.py:1280
+msgid "Title, subtitle, tags, description, further persons or author"
+msgstr "Titel, Untertitel, Tags, Beschreibung, weitere Personen oder Autor"
+
+#: models.py:1281
+msgid "Title or subtitle"
+msgstr "Titel oder Untertitel"
+
+#: models.py:1282 templates/email/daily_reel_reminder_body.html:15
+#: templates/email/daily_reel_reminder_body.txt:9
+msgid "Tags"
+msgstr "Tags"
+
+#: models.py:1283
+msgid "Author (profile) or further persons"
+msgstr "Autor (Profil) oder weitere Personen"
+
+#: models.py:1289
+msgid "Keywords"
+msgstr "Stichwörter"
+
+#: models.py:1291
+msgid ""
+"Comma separated; whole words, upper/lower case does not matter. E.g. \"HoMe,"
+" Hochschule Merseburg\"."
+msgstr ""
+"Durch Kommas getrennt; ganze Wörter, Groß-/Kleinschreibung egal. Z. B. "
+"„HoMe, Hochschule Merseburg“."
+
+#: models.py:1299
+msgid "Search in"
+msgstr "Suchen in"
+
+#: models.py:1303
+msgid "Instagram accounts"
+msgstr "Instagram-Konten"
+
+#: models.py:1304
+msgid "Usernames invited as collaborators, comma separated, without @."
+msgstr ""
+"Benutzernamen, die als Collab eingeladen werden, durch Kommas getrennt, ohne"
+" @."
+
+#: models.py:1306
+msgid "Active"
+msgstr "Aktiv"
+
+#: models.py:1309
+msgid "Instagram partner"
+msgstr "Instagram-Partner"
+
+#: models.py:1310
+msgid "Instagram partners"
+msgstr "Instagram-Partner"
+
+#: models.py:1333
+msgid "Approved"
+msgstr "Freigegeben"
+
+#: models.py:1334
+msgid "Publishing"
+msgstr "Wird veröffentlicht"
+
+#: models.py:1335
+msgid "Published"
+msgstr "Veröffentlicht"
+
+#: models.py:1348
+msgid "Reel file"
+msgstr "Reel-Datei"
+
+#: models.py:1349
+msgid "Finished reel in the reel output folder."
+msgstr "Fertiges Reel im Reel-Ausgabeordner."
+
+#: models.py:1359
+msgid "Caption"
+msgstr "Bildunterschrift"
+
+#: models.py:1363
+msgid "Collab accounts"
+msgstr "Collab-Konten"
+
+#: models.py:1364
+msgid ""
+"Up to 3 Instagram usernames, comma separated, without @. They get a collab "
+"invitation."
+msgstr ""
+"Bis zu 3 Instagram-Benutzernamen, durch Kommas getrennt, ohne @. Sie "
+"erhalten eine Collab-Einladung."
+
+#: models.py:1369
+msgid "Cover frame (ms)"
+msgstr "Titelbild-Frame (ms)"
+
+#: models.py:1370
+msgid "Position of the cover frame in milliseconds; 0 is the first frame."
+msgstr "Position des Titelbilds in Millisekunden; 0 ist der erste Frame."
+
+#: models.py:1375
+msgid "Publish at"
+msgstr "Veröffentlichen am"
+
+#: models.py:1390
+msgid "Approved by"
+msgstr "Freigegeben von"
+
+#: models.py:1392
+msgid "Approved at"
+msgstr "Freigegeben am"
+
+#: models.py:1393
+msgid "Instagram container"
+msgstr "Instagram-Container"
+
+#: models.py:1396
+msgid "Instagram media ID"
+msgstr "Instagram-Medien-ID"
+
+#: models.py:1398
+msgid "Published at"
+msgstr "Veröffentlicht am"
+
+#: models.py:1399 templates/tools/audio_normalize_job_detail.html:55
+#: templates/tools/audio_normalize_job_list.html:96
+#: templates/tools/reel_studio.html:363 templates/tools/reel_studio.html:413
+#: templates/tools/slideshow_detail.html:98
+#: templates/tools/video_render_job_list.html:107
+msgid "Error"
+msgstr "Fehler"
+
+#: models.py:1400
+msgid "Created at"
+msgstr "Erstellt am"
+
+#: models.py:1401
+msgid "Updated at"
+msgstr "Aktualisiert am"
+
+#: models.py:1404
+msgid "Instagram post"
+msgstr "Instagram-Post"
+
+#: models.py:1405
+msgid "Instagram posts"
+msgstr "Instagram-Posts"
+
+#: models.py:1408
+msgid "Can approve and publish Instagram posts"
+msgstr "Kann Instagram-Posts freigeben und veröffentlichen"
+
+#: models.py:1429
+#, python-format
+msgid "At most %(max)s characters (now %(count)s)."
+msgstr "Höchstens %(max)s Zeichen (jetzt %(count)s)."
+
+#: models.py:1432
+#, python-format
+msgid "At most %(max)s hashtags."
+msgstr "Höchstens %(max)s Hashtags."
+
+#: models.py:1434
+#, python-format
+msgid "At most %(max)s @ mentions."
+msgstr "Höchstens %(max)s @-Erwähnungen."
+
+#: models.py:1437
+#, python-format
+msgid "At most %(max)s collab accounts."
+msgstr "Höchstens %(max)s Collab-Konten."
+
+#: models.py:1439
+msgid "Only Instagram usernames: letters, digits, dot and underscore."
+msgstr ""
+"Nur Instagram-Benutzernamen: Buchstaben, Ziffern, Punkt und Unterstrich."
+
+#: models.py:1448 templates/tools/audio_normalize.html:431
+#: templates/tools/audio_normalize_job_list.html:61
 msgid "Pending"
 msgstr "Ausstehend"
 
-#: tools/models.py:1155 tools/templates/tools/audio_normalize.html:431
-#: tools/templates/tools/audio_normalize_job_list.html:61
+#: models.py:1449 templates/tools/audio_normalize.html:432
+#: templates/tools/audio_normalize_job_list.html:62
 msgid "Analyzing"
 msgstr "Analysiere"
 
-#: tools/models.py:1162
+#: models.py:1456
 msgid "TV (R128)"
 msgstr "TV (R128)"
 
-#: tools/models.py:1163
+#: models.py:1457
 msgid "Web"
 msgstr "Web"
 
-#: tools/models.py:1167
+#: models.py:1461
 msgid "192 kbps"
 msgstr "192 kbps"
 
-#: tools/models.py:1168
+#: models.py:1462
 msgid "256 kbps"
 msgstr "256 kbps"
 
-#: tools/models.py:1189
+#: models.py:1483
 msgid "Audio normalize preset ID"
 msgstr "Preset-ID für Audio-Normalisierung"
 
-#: tools/models.py:1195 tools/templates/tools/audio_normalize.html:347
+#: models.py:1489 templates/tools/audio_normalize.html:348
 msgid "Target"
 msgstr "Ziel"
 
-#: tools/models.py:1196
+#: models.py:1490
 msgid "Target loudness profile"
 msgstr "Ziel-Lautheitsprofil"
 
-#: tools/models.py:1201
+#: models.py:1495
 msgid "Input File"
 msgstr "Eingabedatei"
 
 # AudioNormalizeJob - output_path_external
-#: tools/models.py:1212
+#: models.py:1506
 #, fuzzy
 #| msgid "Output Path (external)"
 msgid "Input path (external)"
 msgstr "Eingabepfad (extern)"
 
-#: tools/models.py:1213
+#: models.py:1507
 #, fuzzy
 #| msgid ""
-#| "Absolute path when output was written outside MEDIA_ROOT (e.g. to a "
-#| "storage location)."
+#| "Absolute path when output was written outside MEDIA_ROOT (e.g. to a storage "
+#| "location)."
 msgid ""
 "Absolute path when input is outside MEDIA_ROOT (e.g. from a storage "
 "location)."
@@ -1603,13 +1988,13 @@ msgstr ""
 "Absoluter Pfad, wenn die Eingabe außerhalb von MEDIA_ROOT liegt (z. B. von "
 "einem Speicherort)."
 
-#: tools/models.py:1218
+#: models.py:1512
 #, fuzzy
 #| msgid "No media files"
 msgid "Input media file ID"
 msgstr "ID der Eingabedatei"
 
-#: tools/models.py:1219
+#: models.py:1513
 msgid ""
 "media_files.VideoFile ID when input was chosen by media number (for stream "
 "URL)."
@@ -1617,16 +2002,16 @@ msgstr ""
 "media_files.VideoFile-ID, wenn die Eingabe nach Mediennummer (Nummer) "
 "ausgewählt wurde (für Stream-URL)."
 
-#: tools/models.py:1225
+#: models.py:1519
 msgid "Output File"
 msgstr "Ausgabedatei"
 
 # AudioNormalizeJob - output_path_external
-#: tools/models.py:1230
+#: models.py:1524
 msgid "Output Path (external)"
 msgstr "Ausgabepfad (extern)"
 
-#: tools/models.py:1231
+#: models.py:1525
 msgid ""
 "Absolute path when output was written outside MEDIA_ROOT (e.g. to a storage "
 "location)."
@@ -1634,120 +2019,122 @@ msgstr ""
 "Absoluter Pfad, wenn die Ausgabe außerhalb von MEDIA_ROOT geschrieben wurde "
 "(z. B. in einen Speicherort)."
 
-#: tools/models.py:1237
+#: models.py:1531
 msgid "Output Filename"
 msgstr "Ausgabedateiname"
 
-#: tools/models.py:1238
+#: models.py:1532
 msgid "If empty, will default to <input>_R128.mp4"
 msgstr "Wenn leer, wird standardmäßig <input>_R128.mp4 verwendet"
 
-#: tools/models.py:1249
+#: models.py:1543
 msgid "Sample Rate"
 msgstr "Abtastrate"
 
-#: tools/models.py:1253
+#: models.py:1547
 msgid "Force Stereo"
 msgstr "Stereo erzwingen"
 
-#: tools/models.py:1254
+#: models.py:1548
 msgid "If enabled, audio will be forced to 2 channels"
 msgstr "Wenn aktiviert, wird das Audio auf 2 Kanäle erzwungen"
 
-#: tools/models.py:1260
+#: models.py:1554
 msgid "Input Metadata"
 msgstr "Eingabe-Metadaten"
 
-#: tools/models.py:1261
+#: models.py:1555
 msgid "ffprobe JSON output"
 msgstr "ffprobe-JSON-Ausgabe"
 
-#: tools/models.py:1266
+#: models.py:1560
 msgid "Analysis Before"
 msgstr "Analyse vorher"
 
-#: tools/models.py:1267
+#: models.py:1561
 msgid "loudnorm analysis JSON from pass 1"
 msgstr "loudnorm-Analyse-JSON aus Durchgang 1"
 
-#: tools/models.py:1272
+#: models.py:1566
 msgid "Analysis After"
 msgstr "Analyse nachher"
 
-#: tools/models.py:1273
+#: models.py:1567
 msgid "loudnorm analysis JSON from after-processing verification pass"
 msgstr ""
 "loudnorm-Analyse-JSON aus dem Verifikationsdurchgang nach der Verarbeitung"
 
-#: tools/models.py:1278
+#: models.py:1572
 msgid "Progress (%)"
 msgstr "Fortschritt (%)"
 
-#: tools/models.py:1279
+#: models.py:1573
 msgid "Processing progress 0..100"
 msgstr "Verarbeitungsfortschritt 0..100"
 
-#: tools/models.py:1288
+#: models.py:1582
 msgid "FFmpeg Log"
 msgstr "FFmpeg-Protokoll"
 
-#: tools/models.py:1299
+#: models.py:1593
 #, fuzzy
 #| msgid "Created At"
 msgid "Started At"
 msgstr "Gestartet am"
 
-#: tools/models.py:1308 tools/templates/tools/audio_normalize_job_detail.html:4
-#: tools/templates/tools/audio_normalize_job_detail.html:37
+#: models.py:1602 templates/tools/audio_normalize_job_detail.html:4
+#: templates/tools/audio_normalize_job_detail.html:5
+#: templates/tools/audio_normalize_job_detail.html:38
 msgid "Audio Normalize Job"
 msgstr "Audio-Normalisierungsauftrag"
 
-#: tools/models.py:1309 tools/templates/tools/audio_normalize.html:10
-#: tools/templates/tools/audio_normalize_job_detail.html:10
-#: tools/templates/tools/audio_normalize_job_list.html:4
-#: tools/templates/tools/audio_normalize_job_list.html:10
+#: models.py:1603 templates/tools/audio_normalize.html:11
+#: templates/tools/audio_normalize_job_detail.html:11
+#: templates/tools/audio_normalize_job_list.html:4
+#: templates/tools/audio_normalize_job_list.html:5
+#: templates/tools/audio_normalize_job_list.html:11
 msgid "Audio Normalize Jobs"
 msgstr "Audio-Normalisierungsaufträge"
 
-#: tools/services/audio_normalizer.py:855
+#: services/audio_normalizer.py:855
 #, python-brace-format
 msgid "LUFS too high ({input_i:.1f} LUFS, target {target_i:.1f})"
 msgstr "LUFS zu hoch ({input_i:.1f} LUFS, Ziel {target_i:.1f})"
 
-#: tools/services/audio_normalizer.py:857
+#: services/audio_normalizer.py:857
 #, python-brace-format
 msgid "high LRA ({input_lra:.1f} LU, target ≤{target_lra})"
 msgstr "hohe LRA ({input_lra:.1f} LU, Ziel ≤{target_lra})"
 
-#: tools/services/audio_normalizer.py:859
+#: services/audio_normalizer.py:859
 msgid "high peak levels"
 msgstr "hohe Spitzenpegel"
 
-#: tools/services/audio_normalizer.py:861
+#: services/audio_normalizer.py:861
 msgid "continuous background noise"
 msgstr "kontinuierliches Hintergrundrauschen"
 
-#: tools/services/audio_normalizer.py:863
+#: services/audio_normalizer.py:863
 #, python-brace-format
 msgid "high background noise ({noise_level:.1f} dB)"
 msgstr "hohes Hintergrundrauschen ({noise_level:.1f} dB)"
 
-#: tools/services/audio_normalizer.py:866
+#: services/audio_normalizer.py:866
 msgid " and "
 msgstr " und "
 
-#: tools/services/audio_normalizer.py:877
+#: services/audio_normalizer.py:877
 msgid ""
 " WARNING: AI denoising is optimized for speech and may damage music. For "
 "mixed content (speech + music), use tv_mixed instead."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:883
+#: services/audio_normalizer.py:883
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Multiple issues detected: {issues}. Recommended: {preset} combines "
-#| "aggressive processing, AI denoising, and speech optimization to address "
-#| "all problems. For a softer option, use {speech_preset}."
+#| "aggressive processing, AI denoising, and speech optimization to address all "
+#| "problems. For a softer option, use {speech_preset}."
 msgid ""
 "Multiple issues detected: {issues}. Recommended for SPEECH-ONLY content: "
 "{preset} combines aggressive processing with AI denoising.{warning}"
@@ -1757,55 +2144,54 @@ msgstr ""
 "Probleme zu beseitigen. Für eine sanftere Option verwenden Sie "
 "{speech_preset}."
 
-#: tools/services/audio_normalizer.py:892
+#: services/audio_normalizer.py:892
 msgid ""
 "Alternative for MIXED content (speech + music): tv_mixed preserves musical "
 "quality without AI processing."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:898
+#: services/audio_normalizer.py:898
 #, python-brace-format
 msgid ""
 "High peak levels and continuous background noise detected. For SPEECH-ONLY: "
 "{preset}.{warning}"
 msgstr ""
 
-#: tools/services/audio_normalizer.py:905
+#: services/audio_normalizer.py:905
 msgid "For MIXED content (speech + music): tv_mixed with strong limiter."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:912
+#: services/audio_normalizer.py:912
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Very high background noise ({noise_level:.1f} dB). Consider aggressive AI "
 #| "denoising."
 msgid ""
-"Very high background noise ({noise_level:.1f} dB). For SPEECH-ONLY: {preset}."
-"{warning}"
+"Very high background noise ({noise_level:.1f} dB). For SPEECH-ONLY: "
+"{preset}.{warning}"
 msgstr ""
 "Sehr starkes Hintergrundrauschen ({noise_level:.1f} dB). Aggressive KI-"
 "Entrauschung in Betracht ziehen."
 
-#: tools/services/audio_normalizer.py:921
+#: services/audio_normalizer.py:921
 #, python-brace-format
 msgid "High noise ({noise_level:.1f} dB). For SPEECH-ONLY: {preset}.{warning}"
 msgstr ""
 
-#: tools/services/audio_normalizer.py:929
+#: services/audio_normalizer.py:929
 msgid "For MIXED content: tv_mixed preserves music quality."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:935
+#: services/audio_normalizer.py:935
 #, python-brace-format
 msgid "Noise detected. For SPEECH-ONLY: {preset}.{warning}"
 msgstr ""
 
-#: tools/services/audio_normalizer.py:942
-#: tools/services/audio_normalizer.py:1051
+#: services/audio_normalizer.py:942 services/audio_normalizer.py:1051
 msgid "For MIXED content: tv_mixed is safer for music."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:949
+#: services/audio_normalizer.py:949
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Multiple issues detected: {issues}. Strong preset recommended. Consider "
@@ -1815,15 +2201,15 @@ msgid ""
 "content."
 msgstr ""
 "Mehrere Probleme erkannt: {issues}. Starkes Preset empfohlen. Erwägen Sie, "
-"das RNN-Modell für KI-Entrauschung zu installieren, um bessere Ergebnisse zu "
-"erzielen."
+"das RNN-Modell für KI-Entrauschung zu installieren, um bessere Ergebnisse zu"
+" erzielen."
 
-#: tools/services/audio_normalizer.py:955
+#: services/audio_normalizer.py:955
 msgid ""
 "For mixed content (speech + music): tv_mixed preserves musical dynamics."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:963
+#: services/audio_normalizer.py:963
 #, python-brace-format
 msgid ""
 "LUFS too high ({input_i:.1f} LUFS, target {target_i:.1f}). Strong preset "
@@ -1832,7 +2218,7 @@ msgstr ""
 "LUFS zu hoch ({input_i:.1f} LUFS, Ziel {target_i:.1f}). Starkes Preset "
 "empfohlen zur Lautstärkereduzierung."
 
-#: tools/services/audio_normalizer.py:973
+#: services/audio_normalizer.py:973
 #, python-brace-format
 msgid ""
 "Very high dynamics (LRA {input_lra:.1f} LU, target ≤{target_lra}). Strong "
@@ -1841,7 +2227,7 @@ msgstr ""
 "Sehr hohe Dynamik (LRA {input_lra:.1f} LU, Ziel ≤{target_lra}). Starkes "
 "Preset empfohlen."
 
-#: tools/services/audio_normalizer.py:980
+#: services/audio_normalizer.py:980
 #, python-brace-format
 msgid ""
 "High dynamics (LRA {input_lra:.1f} LU, target ≤{target_lra}). Strong preset "
@@ -1850,42 +2236,41 @@ msgstr ""
 "Hohe Dynamik (LRA {input_lra:.1f} LU, Ziel ≤{target_lra}). Starkes Preset "
 "empfohlen."
 
-#: tools/services/audio_normalizer.py:994
+#: services/audio_normalizer.py:994
 msgid ""
 " WARNING: AI denoising may damage music. Use tv_mixed for mixed content."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:1004
+#: services/audio_normalizer.py:1004
 msgid "standard (std.rnnn)"
 msgstr "Standard (std.rnnn)"
 
-#: tools/services/audio_normalizer.py:1005
+#: services/audio_normalizer.py:1005
 msgid "balloon/directional (bd.rnnn) - optimized for wind noise"
 msgstr "Ballon/Richtungsbezogen (bd.rnnn) – optimiert für Windgeräusche"
 
-#: tools/services/audio_normalizer.py:1006
+#: services/audio_normalizer.py:1006
 msgid "low quality (lq.rnnn) - optimized for degraded audio"
 msgstr "Niedrige Qualität (lq.rnnn) – optimiert für verschlechterte Audios"
 
-#: tools/services/audio_normalizer.py:1013
+#: services/audio_normalizer.py:1013
 #, python-brace-format
 msgid "Wind noise detected. For SPEECH-ONLY: model {model_name}.{warning}"
 msgstr ""
 
-#: tools/services/audio_normalizer.py:1013
-#: tools/services/audio_normalizer.py:1039
+#: services/audio_normalizer.py:1013 services/audio_normalizer.py:1039
 #, fuzzy
 #| msgid "Continuous background noise detected. Denoising recommended."
 msgid "Wind noise detected. Strong denoising recommended."
 msgstr "Ständiges Hintergrundrauschen erkannt. Entrauschung empfohlen."
 
-#: tools/services/audio_normalizer.py:1019
+#: services/audio_normalizer.py:1019
 #, python-brace-format
 msgid ""
 "Low quality audio detected. For SPEECH-ONLY: model {model_name}.{warning}"
 msgstr ""
 
-#: tools/services/audio_normalizer.py:1019
+#: services/audio_normalizer.py:1019
 #, fuzzy
 #| msgid ""
 #| "Low quality audio detected. Strong denoising recommended. Consider "
@@ -1895,19 +2280,19 @@ msgstr ""
 "Niedrige Audioqualität erkannt. Starke Entrauschung empfohlen. Erwägen Sie, "
 "das RNN-Modell für KI-Entrauschung zu installieren."
 
-#: tools/services/audio_normalizer.py:1025
+#: services/audio_normalizer.py:1025
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Background noise detected ({noise_level:.1f} dB). Recommended model: "
 #| "{model_name} for best results."
 msgid ""
-"Background noise ({noise_level:.1f} dB). For SPEECH-ONLY: model {model_name}."
-"{warning}"
+"Background noise ({noise_level:.1f} dB). For SPEECH-ONLY: model "
+"{model_name}.{warning}"
 msgstr ""
 "Hintergrundrauschen erkannt ({noise_level:.1f} dB). Empfohlenes Modell: "
 "{model_name} für beste Ergebnisse."
 
-#: tools/services/audio_normalizer.py:1025
+#: services/audio_normalizer.py:1025
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Background noise detected ({noise_level:.1f} dB). Strong denoising "
@@ -1917,21 +2302,21 @@ msgstr ""
 "Hintergrundrauschen erkannt ({noise_level:.1f} dB). Starke Entrauschung "
 "empfohlen. Erwägen Sie, das RNN-Modell für KI-Entrauschung zu installieren."
 
-#: tools/services/audio_normalizer.py:1032
+#: services/audio_normalizer.py:1032
 msgid "For MIXED content (speech + music): tv_mixed preserves music quality."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:1039
+#: services/audio_normalizer.py:1039
 #, python-brace-format
 msgid "Wind noise detected. For SPEECH-ONLY: consider bd.rnnn model.{warning}"
 msgstr ""
 
-#: tools/services/audio_normalizer.py:1045
+#: services/audio_normalizer.py:1045
 #, python-brace-format
 msgid "Low quality audio. For SPEECH-ONLY: consider lq.rnnn model.{warning}"
 msgstr ""
 
-#: tools/services/audio_normalizer.py:1045
+#: services/audio_normalizer.py:1045
 #, fuzzy
 #| msgid ""
 #| "Low quality audio detected. Strong denoising recommended. Consider "
@@ -1941,7 +2326,7 @@ msgstr ""
 "Niedrige Audioqualität erkannt. Starke Entrauschung empfohlen. Erwägen Sie, "
 "das RNN-Modell für KI-Entrauschung zu installieren."
 
-#: tools/services/audio_normalizer.py:1060
+#: services/audio_normalizer.py:1060
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Very high background noise ({noise_level:.1f} dB). Consider aggressive AI "
@@ -1953,7 +2338,7 @@ msgstr ""
 "Sehr starkes Hintergrundrauschen ({noise_level:.1f} dB). Aggressive KI-"
 "Entrauschung in Betracht ziehen."
 
-#: tools/services/audio_normalizer.py:1065
+#: services/audio_normalizer.py:1065
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Very high background noise ({noise_level:.1f} dB). Consider aggressive AI "
@@ -1964,11 +2349,11 @@ msgstr ""
 "Sehr starkes Hintergrundrauschen ({noise_level:.1f} dB). Aggressive KI-"
 "Entrauschung in Betracht ziehen."
 
-#: tools/services/audio_normalizer.py:1069
+#: services/audio_normalizer.py:1069
 msgid "For MIXED content: tv_mixed preserves music."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:1074
+#: services/audio_normalizer.py:1074
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "Very high peak levels ({peak_level:.1f} dB). Strong limiter recommended."
@@ -1976,265 +2361,259 @@ msgid "High noise ({noise_level:.1f} dB). Strong denoising recommended."
 msgstr ""
 "Sehr hohe Spitzenpegel ({peak_level:.1f} dB). Starker Limiter empfohlen."
 
-#: tools/services/audio_normalizer.py:1082
+#: services/audio_normalizer.py:1082
 #, python-brace-format
 msgid "Continuous noise detected. For SPEECH-ONLY: AI denoiser.{warning}"
 msgstr ""
 
-#: tools/services/audio_normalizer.py:1086
+#: services/audio_normalizer.py:1086
 msgid "For MIXED content: tv_mixed is music-safe."
 msgstr ""
 
-#: tools/services/audio_normalizer.py:1091
+#: services/audio_normalizer.py:1091
 #, fuzzy
 #| msgid "Continuous background noise detected. Denoising recommended."
 msgid "Continuous noise detected. Denoising recommended."
 msgstr "Ständiges Hintergrundrauschen erkannt. Entrauschung empfohlen."
 
-#: tools/services/audio_normalizer.py:1098
+#: services/audio_normalizer.py:1098
 #, python-brace-format
 msgid ""
 "Very high peak levels ({peak_level:.1f} dB). Strong limiter recommended."
 msgstr ""
 "Sehr hohe Spitzenpegel ({peak_level:.1f} dB). Starker Limiter empfohlen."
 
-#: tools/tasks.py:264
+#: tasks.py:270
 msgid ""
-"No planning entry was found for this day. Please check the broadcast time or "
-"the reel."
+"No planning entry was found for this day. Please check the broadcast time or"
+" the reel."
 msgstr ""
 "Für diesen Tag wurde kein Planungseintrag gefunden. Bitte Sendezeit oder "
 "Reel prüfen."
 
-#: tools/tasks.py:268
+#: tasks.py:274
 msgid "This license has additional broadcast times on this day."
 msgstr "Diese Freistellung hat an diesem Tag weitere Sendezeiten."
 
-#: tools/tasks.py:271
+#: tasks.py:277
 msgid "No license was found for this reel number."
 msgstr "Für diese Reel-Nummer wurde keine Freistellung gefunden."
 
-#: tools/tasks.py:273
+#: tasks.py:279
 msgid "No Mediathek URL is available yet. Please check the publication link."
 msgstr ""
 "Es ist noch keine Mediathek-URL verfügbar. Bitte den Veröffentlichungslink "
 "prüfen."
 
-#: tools/templates/admin/tools/preset_editor.html:4
+#: templates/admin/tools/preset_editor.html:4
 msgid "New Preset"
 msgstr "Neues Preset"
 
-#: tools/templates/admin/tools/preset_editor.html:338
+#: templates/admin/tools/preset_editor.html:338
 msgid "Save"
 msgstr "Speichern"
 
-#: tools/templates/admin/tools/preset_editor.html:341
-#: tools/templates/tools/audio_normalize.html:392
-#: tools/templates/tools/video_render.html:231
-#: tools/templates/tools/video_render.html:326
-#: tools/templates/tools/video_render.html:391
-#: tools/templates/tools/video_render.html:454
-#: tools/templates/tools/video_render_job_list.html:98
+#: templates/admin/tools/preset_editor.html:341
+#: templates/tools/audio_normalize.html:393
+#: templates/tools/video_render.html:246 templates/tools/video_render.html:341
+#: templates/tools/video_render.html:406 templates/tools/video_render.html:469
+#: templates/tools/video_render_job_list.html:99
 msgid "Preview"
 msgstr "Vorschau"
 
-#: tools/templates/admin/tools/preset_editor.html:344
+#: templates/admin/tools/preset_editor.html:344
 msgid "Back"
 msgstr "Zurück"
 
-#: tools/templates/admin/tools/preset_editor.html:375
+#: templates/admin/tools/preset_editor.html:375
 msgid "Add Text Overlay"
 msgstr "Text-Overlay hinzufügen"
 
-#: tools/templates/admin/tools/preset_editor.html:378
+#: templates/admin/tools/preset_editor.html:378
 msgid "Add Image Overlay"
 msgstr "Bild-Overlay hinzufügen"
 
-#: tools/templates/admin/tools/preset_editor.html:386
-#: tools/templates/admin/tools/preset_editor.html:750
+#: templates/admin/tools/preset_editor.html:386
+#: templates/admin/tools/preset_editor.html:750
 msgid "Select an overlay to edit properties"
 msgstr "Wählen Sie ein Overlay aus, um die Eigenschaften zu bearbeiten"
 
-#: tools/templates/admin/tools/preset_editor.html:757
+#: templates/admin/tools/preset_editor.html:757
 msgid "Overlay Type"
 msgstr "Overlay-Typ"
 
-#: tools/templates/admin/tools/preset_editor.html:771
+#: templates/admin/tools/preset_editor.html:771
 msgid "Text Content"
 msgstr "Textinhalt"
 
-#: tools/templates/admin/tools/preset_editor.html:773
+#: templates/admin/tools/preset_editor.html:773
 msgid "Template"
 msgstr "Vorlage"
 
-#: tools/templates/admin/tools/preset_editor.html:777
+#: templates/admin/tools/preset_editor.html:777
 msgid "Quick Insert"
 msgstr "Schnelleinfügen"
 
-#: tools/templates/admin/tools/preset_editor.html:783
+#: templates/admin/tools/preset_editor.html:783
 msgid "Text Style"
 msgstr "Textstil"
 
-#: tools/templates/admin/tools/preset_editor.html:798
+#: templates/admin/tools/preset_editor.html:798
 msgid "Background Box"
 msgstr "Hintergrundbox"
 
-#: tools/templates/admin/tools/preset_editor.html:806
+#: templates/admin/tools/preset_editor.html:806
 msgid "Box Padding"
 msgstr "Box-Abstand"
 
-#: tools/templates/admin/tools/preset_editor.html:862
+#: templates/admin/tools/preset_editor.html:862
 msgid "Start Time (s)"
 msgstr "Startzeit (s)"
 
-#: tools/templates/admin/tools/preset_editor.html:866
+#: templates/admin/tools/preset_editor.html:866
 msgid "End Time (s)"
 msgstr "Endzeit (s)"
 
-#: tools/templates/admin/tools/preset_editor.html:881
+#: templates/admin/tools/preset_editor.html:881
 msgid "Fade In (s)"
 msgstr "Einblenden (s)"
 
-#: tools/templates/admin/tools/preset_editor.html:885
+#: templates/admin/tools/preset_editor.html:885
 msgid "Fade Out (s)"
 msgstr "Ausblenden (s)"
 
-#: tools/templates/admin/tools/preset_editor.html:892
+#: templates/admin/tools/preset_editor.html:892
 msgid "Delete Overlay"
 msgstr "Overlay löschen"
 
-#: tools/templates/admin/tools/preset_editor.html:1005
+#: templates/admin/tools/preset_editor.html:1005
 msgid "Delete this overlay?"
 msgstr "Dieses Overlay löschen?"
 
-#: tools/templates/admin/tools/preset_editor.html:1039
+#: templates/admin/tools/preset_editor.html:1039
 msgid "Please enter preset name and display name"
 msgstr "Bitte geben Sie den Namen des Presets und den Anzeigenamen ein"
 
-#: tools/templates/admin/tools/preset_editor.html:1067
-#: tools/templates/tools/slideshow_creator.html:812
-#: tools/templates/tools/slideshow_creator.html:861
-#: tools/templates/tools/slideshow_creator.html:936
-#: tools/templates/tools/slideshow_creator.html:969
-#: tools/templates/tools/slideshow_creator.html:1003
-#: tools/templates/tools/slideshow_creator.html:1078
-#: tools/templates/tools/slideshow_creator.html:1118
-#: tools/templates/tools/slideshow_creator.html:1205
-#: tools/templates/tools/slideshow_creator.html:1274
-#: tools/templates/tools/slideshow_creator.html:1335
+#: templates/admin/tools/preset_editor.html:1067
+#: templates/tools/slideshow_creator.html:813
+#: templates/tools/slideshow_creator.html:862
+#: templates/tools/slideshow_creator.html:937
+#: templates/tools/slideshow_creator.html:970
+#: templates/tools/slideshow_creator.html:1004
+#: templates/tools/slideshow_creator.html:1079
+#: templates/tools/slideshow_creator.html:1119
+#: templates/tools/slideshow_creator.html:1206
+#: templates/tools/slideshow_creator.html:1275
+#: templates/tools/slideshow_creator.html:1336
 msgid "Unknown error"
 msgstr "Unbekannter Fehler"
 
-#: tools/templates/admin/tools/videopreset/change_form.html:10
+#: templates/admin/tools/videopreset/change_form.html:10
 msgid "Edit in Visual Editor"
 msgstr "Im Visual Editor bearbeiten"
 
-#: tools/templates/admin/tools/videopreset/change_list.html:7
+#: templates/admin/tools/videopreset/change_list.html:7
 msgid "Import all JSON presets from video_presets/style directory?"
-msgstr "Alle JSON-Presets aus dem Verzeichnis video_presets/style importieren?"
+msgstr ""
+"Alle JSON-Presets aus dem Verzeichnis video_presets/style importieren?"
 
-#: tools/templates/admin/tools/videopreset/change_list.html:8
+#: templates/admin/tools/videopreset/change_list.html:8
 msgid "Import All Presets"
 msgstr "Alle Presets importieren"
 
-#: tools/templates/admin/tools/videopreset/change_list.html:13
-#: tools/templates/admin/tools/videopreset/change_list.html:120
+#: templates/admin/tools/videopreset/change_list.html:13
+#: templates/admin/tools/videopreset/change_list.html:120
 msgid "Import Single Preset"
 msgstr "Einzelnes Preset importieren"
 
-#: tools/templates/admin/tools/videopreset/change_list.html:97
+#: templates/admin/tools/videopreset/change_list.html:97
 msgid "Please select a preset"
 msgstr "Bitte wählen Sie ein Preset aus"
 
-#: tools/templates/admin/tools/videopreset/change_list.html:121
+#: templates/admin/tools/videopreset/change_list.html:121
 msgid "Select a preset to import from JSON files:"
 msgstr "Wählen Sie ein Preset zum Importieren aus den JSON-Dateien:"
 
-#: tools/templates/admin/tools/videopreset/change_list.html:123
+#: templates/admin/tools/videopreset/change_list.html:123
 msgid "-- Select Preset --"
 msgstr "-- Preset wählen --"
 
-#: tools/templates/admin/tools/videopreset/change_list.html:129
-#: tools/templates/tools/slideshow_creator.html:562
+#: templates/admin/tools/videopreset/change_list.html:129
+#: templates/tools/slideshow_creator.html:563
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: tools/templates/admin/tools/videopreset/change_list.html:130
+#: templates/admin/tools/videopreset/change_list.html:130
 msgid "Import"
 msgstr "Importieren"
 
-#: tools/templates/email/daily_reel_reminder_body.html:2
-#: tools/templates/email/daily_reel_reminder_body.txt:1
+#: templates/email/daily_reel_reminder_body.html:2
+#: templates/email/daily_reel_reminder_body.txt:1
 #, python-format
 msgid "Please do not forget to publish today's stories for %(date)s:"
 msgstr ""
 "Bitte heute nicht vergessen, die Storys für %(date)s zu veröffentlichen:"
 
-#: tools/templates/email/daily_reel_reminder_body.html:11
-#: tools/templates/email/daily_reel_reminder_body.txt:5
+#: templates/email/daily_reel_reminder_body.html:12
+#: templates/email/daily_reel_reminder_body.txt:6
 msgid "Broadcast responsibility"
 msgstr "Sendeverantwortung"
 
-#: tools/templates/email/daily_reel_reminder_body.html:12
-#: tools/templates/email/daily_reel_reminder_body.txt:6
+#: templates/email/daily_reel_reminder_body.html:13
+#: templates/email/daily_reel_reminder_body.txt:7
 msgid "Additional broadcast times"
 msgstr "Weitere Sendezeiten"
 
-#: tools/templates/email/daily_reel_reminder_body.html:13
-#: tools/templates/email/daily_reel_reminder_body.txt:7
+#: templates/email/daily_reel_reminder_body.html:14
+#: templates/email/daily_reel_reminder_body.txt:8
 msgid "Note"
 msgstr "Hinweis"
 
-#: tools/templates/email/daily_reel_reminder_body.html:14
-#: tools/templates/email/daily_reel_reminder_body.txt:8
-msgid "Tags"
-msgstr ""
-
-#: tools/templates/email/daily_reel_reminder_body.html:17
-#: tools/templates/email/daily_reel_reminder_body.txt:9
+#: templates/email/daily_reel_reminder_body.html:18
+#: templates/email/daily_reel_reminder_body.txt:10
 msgid "Reel download"
 msgstr "Reel-Download"
 
-#: tools/templates/email/daily_reel_reminder_body.html:18
-#: tools/templates/email/daily_reel_reminder_body.txt:10
+#: templates/email/daily_reel_reminder_body.html:19
+#: templates/email/daily_reel_reminder_body.txt:11
 #, fuzzy
 #| msgid "Media deleted"
 msgid "Mediathek"
 msgstr "Medien gelöscht"
 
-#: tools/templates/email/daily_reel_reminder_subject.txt:1
+#: templates/email/daily_reel_reminder_subject.txt:1
 #, python-format
 msgid "Reel reminder for today: %(counter)s reel"
 msgid_plural "Reel reminder for today: %(counter)s reels"
 msgstr[0] "Reel-Erinnerung für heute: %(counter)s Reel"
 msgstr[1] "Reel-Erinnerung für heute: %(counter)s Reels"
 
-#: tools/templates/tools/audio_normalize.html:4
-#: tools/templates/tools/audio_normalize.html:172
-#: tools/templates/tools/audio_normalize_job_list.html:47
-#: tools/templates/tools/index.html:129
+#: templates/tools/audio_normalize.html:4
+#: templates/tools/audio_normalize.html:5
+#: templates/tools/audio_normalize.html:173
+#: templates/tools/audio_normalize_job_list.html:48
+#: templates/tools/index.html:130
 msgid "Audio Broadcast Normalize (R128)"
 msgstr "Audio-Broadcast-Normalisierung (R128)"
 
-#: tools/templates/tools/audio_normalize.html:8
-#: tools/templates/tools/audio_normalize_job_detail.html:8
-#: tools/templates/tools/audio_normalize_job_list.html:8
-#: tools/templates/tools/index.html:9 tools/templates/tools/reel_studio.html:18
-#: tools/templates/tools/slideshow_creator.html:10
-#: tools/templates/tools/slideshow_detail.html:9
-#: tools/templates/tools/slideshow_list.html:9
-#: tools/templates/tools/video_render.html:8
-#: tools/templates/tools/video_render_job_list.html:8
+#: templates/tools/audio_normalize.html:9
+#: templates/tools/audio_normalize_job_detail.html:9
+#: templates/tools/audio_normalize_job_list.html:9
+#: templates/tools/index.html:10 templates/tools/reel_studio.html:19
+#: templates/tools/slideshow_creator.html:11
+#: templates/tools/slideshow_detail.html:10
+#: templates/tools/slideshow_list.html:10 templates/tools/video_render.html:9
+#: templates/tools/video_render_job_list.html:9
 msgid "Home"
 msgstr "Start"
 
-#: tools/templates/tools/audio_normalize.html:11
-#: tools/templates/tools/audio_normalize_job_list.html:51
-#: tools/templates/tools/index.html:135
+#: templates/tools/audio_normalize.html:12
+#: templates/tools/audio_normalize_job_list.html:52
+#: templates/tools/index.html:136
 msgid "New Job"
 msgstr "Neuer Auftrag"
 
-#: tools/templates/tools/audio_normalize.html:173
+#: templates/tools/audio_normalize.html:174
 msgid ""
 "Normalizes loudness using a broadcast-safe EBU R128 pipeline (2-pass "
 "loudnorm when applicable). Video is copied, only audio is re-encoded."
@@ -2243,55 +2622,52 @@ msgstr ""
 "(zweifacher loudnorm, falls zutreffend). Video wird kopiert, nur das Audio "
 "wird neu kodiert."
 
-#: tools/templates/tools/audio_normalize.html:179
-#: tools/templates/tools/video_render.html:83
+#: templates/tools/audio_normalize.html:180
+#: templates/tools/video_render.html:84
 msgid "Input / Output"
 msgstr "Eingabe / Ausgabe"
 
-#: tools/templates/tools/audio_normalize.html:187
-#: tools/templates/tools/reel_studio.html:65
-#: tools/templates/tools/video_render.html:86
+#: templates/tools/audio_normalize.html:188
+#: templates/tools/reel_studio.html:66 templates/tools/video_render.html:87
 msgid "Media number"
 msgstr "Mediennummer"
 
-#: tools/templates/tools/audio_normalize.html:190
+#: templates/tools/audio_normalize.html:191
 msgid "Suche"
 msgstr "Suche"
 
-#: tools/templates/tools/audio_normalize.html:192
-#: tools/templates/tools/reel_studio.html:70
-#: tools/templates/tools/video_render.html:91
+#: templates/tools/audio_normalize.html:193
+#: templates/tools/reel_studio.html:71 templates/tools/video_render.html:92
 msgid "Find an existing video file by number (from Media Files)."
 msgstr "Vorhandene Videodatei nach Nummer suchen (aus Mediendateien)."
 
-#: tools/templates/tools/audio_normalize.html:197
-#: tools/templates/tools/video_render.html:96
+#: templates/tools/audio_normalize.html:198
+#: templates/tools/video_render.html:97
 msgid "Source file"
 msgstr "Quelldatei"
 
-#: tools/templates/tools/audio_normalize.html:199
+#: templates/tools/audio_normalize.html:200
 msgid "Select a local file to upload for processing."
 msgstr "Wählen Sie eine lokale Datei zum Hochladen für die Verarbeitung aus."
 
-#: tools/templates/tools/audio_normalize.html:203
-#: tools/templates/tools/reel_studio.html:95
-#: tools/templates/tools/video_render.html:106
+#: templates/tools/audio_normalize.html:204
+#: templates/tools/reel_studio.html:96 templates/tools/video_render.html:107
 msgid "Output filename"
 msgstr "Ausgabe-Dateiname"
 
-#: tools/templates/tools/audio_normalize.html:204
+#: templates/tools/audio_normalize.html:205
 msgid "Leave empty for *_R128.mp4"
 msgstr "Leer lassen für *_R128.mp4"
 
-#: tools/templates/tools/audio_normalize.html:205
+#: templates/tools/audio_normalize.html:206
 msgid "If empty, output will default to <input>_R128.mp4"
 msgstr "Wenn leer, wird die Ausgabe standardmäßig <input>_R128.mp4 verwendet"
 
-#: tools/templates/tools/audio_normalize.html:214
+#: templates/tools/audio_normalize.html:215
 msgid "Processing profile"
 msgstr "Verarbeitungsprofil"
 
-#: tools/templates/tools/audio_normalize.html:220
+#: templates/tools/audio_normalize.html:221
 msgid ""
 "Choose a preset. Natural/Strong use 2-pass loudnorm; Fast Auto uses dynamic "
 "loudnorm. AI presets (tv_ai_speech, tv_ai_strong) use neural network "
@@ -2300,375 +2676,366 @@ msgstr ""
 "Wählen Sie ein Preset. Natural/Strong verwenden 2-Pass-loudnorm; Fast Auto "
 "verwendet dynamisches loudnorm. KI-Presets (tv_ai_speech, tv_ai_strong) "
 "verwenden neuronales Netz zur Entrauschung für bessere Sprachklarheit. Das "
-"System wählt automatisch das optimale Modell basierend auf der Rauschanalyse."
+"System wählt automatisch das optimale Modell basierend auf der "
+"Rauschanalyse."
 
-#: tools/templates/tools/audio_normalize.html:223
+#: templates/tools/audio_normalize.html:224
 msgid "Bitrate"
 msgstr "Bitrate"
 
-#: tools/templates/tools/audio_normalize.html:230
+#: templates/tools/audio_normalize.html:231
 msgid "Channels"
 msgstr "Kanäle"
 
-#: tools/templates/tools/audio_normalize.html:233
+#: templates/tools/audio_normalize.html:234
 msgid "Force stereo (2 channels)"
 msgstr "Stereo erzwingen (2 Kanäle)"
 
-#: tools/templates/tools/audio_normalize.html:235
+#: templates/tools/audio_normalize.html:236
 msgid "Default keeps original channels."
 msgstr "Standard behält die ursprünglichen Kanäle bei."
 
-#: tools/templates/tools/audio_normalize.html:241
+#: templates/tools/audio_normalize.html:242
 msgid "Run"
 msgstr "Start"
 
-#: tools/templates/tools/audio_normalize.html:243
+#: templates/tools/audio_normalize.html:244
 msgid "New job"
 msgstr "Neuer Auftrag"
 
-#: tools/templates/tools/audio_normalize.html:244
+#: templates/tools/audio_normalize.html:245
 msgid "Analyze (no output)"
 msgstr "Analysieren (keine Ausgabe)"
 
-#: tools/templates/tools/audio_normalize.html:245
+#: templates/tools/audio_normalize.html:246
 msgid "Generate (job)"
 msgstr "Erzeugen (Auftrag)"
 
-#: tools/templates/tools/audio_normalize.html:247
-#: tools/templates/tools/audio_normalize_job_detail.html:51
-#: tools/templates/tools/audio_normalize_job_list.html:76
+#: templates/tools/audio_normalize.html:248
+#: templates/tools/audio_normalize_job_detail.html:52
+#: templates/tools/audio_normalize_job_list.html:77
 msgid "Progress"
 msgstr "Fortschritt"
 
-#: tools/templates/tools/audio_normalize.html:254
-#: tools/templates/tools/audio_normalize_job_detail.html:85
+#: templates/tools/audio_normalize.html:255
+#: templates/tools/audio_normalize_job_detail.html:86
 msgid "Report"
 msgstr "Bericht"
 
-#: tools/templates/tools/audio_normalize.html:257
-#: tools/templates/tools/audio_normalize_job_detail.html:77
+#: templates/tools/audio_normalize.html:258
+#: templates/tools/audio_normalize_job_detail.html:78
 msgid "Input"
 msgstr "Eingabe"
 
-#: tools/templates/tools/audio_normalize.html:261
-#: tools/templates/tools/audio_normalize_job_detail.html:88
+#: templates/tools/audio_normalize.html:262
+#: templates/tools/audio_normalize_job_detail.html:89
 msgid "Measured (before)"
 msgstr "Gemessen (vorher)"
 
-#: tools/templates/tools/audio_normalize.html:265
-#: tools/templates/tools/audio_normalize_job_detail.html:92
+#: templates/tools/audio_normalize.html:266
+#: templates/tools/audio_normalize_job_detail.html:93
 msgid "Measured (after)"
 msgstr "Gemessen (nachher)"
 
 # Audio normalization - noise analysis and model recommendations
-#: tools/templates/tools/audio_normalize.html:269
+#: templates/tools/audio_normalize.html:270
 msgid "Noise Analysis"
 msgstr "Rauschanalyse"
 
-#: tools/templates/tools/audio_normalize.html:273
+#: templates/tools/audio_normalize.html:274
 msgid "Result"
 msgstr "Ergebnis"
 
-#: tools/templates/tools/audio_normalize.html:279
-#: tools/templates/tools/audio_normalize.html:1184
+#: templates/tools/audio_normalize.html:280
+#: templates/tools/audio_normalize.html:1185
 msgid "Recommendations"
 msgstr "Empfehlungen"
 
-#: tools/templates/tools/audio_normalize.html:283
+#: templates/tools/audio_normalize.html:284
 msgid "Click on a recommendation to apply it as the selected preset."
 msgstr ""
 "Klicken Sie auf eine Empfehlung, um sie als ausgewähltes Preset anzuwenden."
 
-#: tools/templates/tools/audio_normalize.html:288
-#: tools/templates/tools/audio_normalize.html:353
+#: templates/tools/audio_normalize.html:289
+#: templates/tools/audio_normalize.html:354
 msgid "Integrated LUFS"
 msgstr "Integrierte LUFS"
 
-#: tools/templates/tools/audio_normalize.html:305
-#: tools/templates/tools/audio_normalize.html:360
+#: templates/tools/audio_normalize.html:306
+#: templates/tools/audio_normalize.html:361
 msgid "True Peak"
 msgstr "True Peak"
 
-#: tools/templates/tools/audio_normalize.html:322
-#: tools/templates/tools/audio_normalize.html:367
+#: templates/tools/audio_normalize.html:323
+#: templates/tools/audio_normalize.html:368
 msgid "LRA"
 msgstr "LRA"
 
-#: tools/templates/tools/audio_normalize.html:344
+#: templates/tools/audio_normalize.html:345
 msgid "Metric"
 msgstr "Messwert"
 
-#: tools/templates/tools/audio_normalize.html:345
-#: tools/templates/tools/audio_normalize.html:381
+#: templates/tools/audio_normalize.html:346
+#: templates/tools/audio_normalize.html:382
 msgid "Before"
 msgstr "Vorher"
 
-#: tools/templates/tools/audio_normalize.html:346
-#: tools/templates/tools/audio_normalize.html:385
+#: templates/tools/audio_normalize.html:347
+#: templates/tools/audio_normalize.html:386
 msgid "After"
 msgstr "Nachher"
 
-#: tools/templates/tools/audio_normalize.html:378
+#: templates/tools/audio_normalize.html:379
 msgid "Waveform (before / after)"
 msgstr "Wellenform (vorher / nachher)"
 
-#: tools/templates/tools/audio_normalize.html:396
+#: templates/tools/audio_normalize.html:397
 msgid "Sync playback"
 msgstr "Synchronisierte Wiedergabe"
 
-#: tools/templates/tools/audio_normalize.html:398
-msgid "When enabled, seeking and play/pause are mirrored to the other preview."
+#: templates/tools/audio_normalize.html:399
+msgid ""
+"When enabled, seeking and play/pause are mirrored to the other preview."
 msgstr ""
-"Wenn aktiviert, werden Spulen sowie Wiedergabe/Pause auf die andere Vorschau "
-"übertragen."
+"Wenn aktiviert, werden Spulen sowie Wiedergabe/Pause auf die andere Vorschau"
+" übertragen."
 
-#: tools/templates/tools/audio_normalize.html:402
+#: templates/tools/audio_normalize.html:403
 msgid "Original"
 msgstr "Original"
 
-#: tools/templates/tools/audio_normalize.html:406
+#: templates/tools/audio_normalize.html:407
 msgid "Processed"
 msgstr "Verarbeitet"
 
-#: tools/templates/tools/audio_normalize.html:413
-#: tools/templates/tools/audio_normalize_job_detail.html:97
+#: templates/tools/audio_normalize.html:414
+#: templates/tools/audio_normalize_job_detail.html:98
 msgid "FFmpeg log (tail)"
 msgstr "FFmpeg-Protokoll (Ende)"
 
-#: tools/templates/tools/audio_normalize.html:422
+#: templates/tools/audio_normalize.html:423
 msgid "OK"
 msgstr "OK"
 
-#: tools/templates/tools/audio_normalize.html:593
+#: templates/tools/audio_normalize.html:594
 msgid "Please select an input file first."
 msgstr "Bitte wählen Sie zuerst eine Eingabedatei aus."
 
-#: tools/templates/tools/audio_normalize.html:624
+#: templates/tools/audio_normalize.html:625
 msgid "Failed to create job."
 msgstr "Auftrag konnte nicht erstellt werden."
 
-#: tools/templates/tools/audio_normalize.html:649
-#: tools/templates/tools/reel_studio.html:260
-#: tools/templates/tools/video_render.html:540
+#: templates/tools/audio_normalize.html:650
+#: templates/tools/reel_studio.html:261 templates/tools/video_render.html:555
 msgid "Searching..."
 msgstr "Suche..."
 
-#: tools/templates/tools/audio_normalize.html:651
+#: templates/tools/audio_normalize.html:652
 msgid "Enter a number to search."
 msgstr "Geben Sie eine Nummer ein, um zu suchen."
 
-#: tools/templates/tools/audio_normalize.html:657
+#: templates/tools/audio_normalize.html:658
 msgid "Search failed."
 msgstr "Suche fehlgeschlagen."
 
-#: tools/templates/tools/audio_normalize.html:662
+#: templates/tools/audio_normalize.html:663
 msgid "No matching files found."
 msgstr "Keine passenden Dateien gefunden."
 
-#: tools/templates/tools/audio_normalize.html:670
+#: templates/tools/audio_normalize.html:671
 msgid "External"
 msgstr "Extern"
 
-#: tools/templates/tools/audio_normalize.html:683
+#: templates/tools/audio_normalize.html:684
 msgid "Use"
 msgstr "Verwenden"
 
-#: tools/templates/tools/audio_normalize.html:703
+#: templates/tools/audio_normalize.html:704
 msgid "Using existing file"
 msgstr "Vorhandene Datei wird verwendet"
 
-#: tools/templates/tools/audio_normalize.html:719
+#: templates/tools/audio_normalize.html:720
 msgid "Using existing file (from storage)"
 msgstr "Vorhandene Datei (vom Speicherort) wird verwendet"
 
-#: tools/templates/tools/audio_normalize.html:739
+#: templates/tools/audio_normalize.html:740
 msgid "Failed to start analysis."
 msgstr "Analyse konnte nicht gestartet werden."
 
-#: tools/templates/tools/audio_normalize.html:764
+#: templates/tools/audio_normalize.html:765
 msgid "Failed to start normalization."
 msgstr "Normalisierung konnte nicht gestartet werden."
 
-#: tools/templates/tools/audio_normalize.html:839
+#: templates/tools/audio_normalize.html:840
 msgid "Wind noise"
 msgstr "Windgeräusche"
 
-#: tools/templates/tools/audio_normalize.html:840
+#: templates/tools/audio_normalize.html:841
 msgid "Low quality"
 msgstr "Niedrige Qualität"
 
-#: tools/templates/tools/audio_normalize.html:841
+#: templates/tools/audio_normalize.html:842
 msgid "General noise"
 msgstr "Allgemeines Rauschen"
 
-#: tools/templates/tools/audio_normalize.html:842
+#: templates/tools/audio_normalize.html:843
 msgid "Minimal noise"
 msgstr "Minimales Rauschen"
 
-#: tools/templates/tools/audio_normalize.html:848
+#: templates/tools/audio_normalize.html:849
 msgid "standard"
 msgstr "Standard"
 
-#: tools/templates/tools/audio_normalize.html:849
+#: templates/tools/audio_normalize.html:850
 msgid "wind noise"
 msgstr "Windgeräusche"
 
-#: tools/templates/tools/audio_normalize.html:850
+#: templates/tools/audio_normalize.html:851
 msgid "low quality"
 msgstr "niedrige Qualität"
 
-#: tools/templates/tools/audio_normalize.html:852
+#: templates/tools/audio_normalize.html:853
 msgid "Recommended model"
 msgstr "Empfohlenes Modell"
 
-#: tools/templates/tools/audio_normalize.html:946
+#: templates/tools/audio_normalize.html:947
 msgid "Waveform preview will appear here"
 msgstr "Die Wellenform-Vorschau erscheint hier"
 
-#: tools/templates/tools/audio_normalize.html:1043
+#: templates/tools/audio_normalize.html:1044
 msgid "Failed to fetch waveform."
 msgstr "Wellenform konnte nicht abgerufen werden."
 
-#: tools/templates/tools/audio_normalize.html:1071
+#: templates/tools/audio_normalize.html:1072
 msgid "Failed to fetch status."
 msgstr "Status konnte nicht abgerufen werden."
 
-#: tools/templates/tools/audio_normalize.html:1107
+#: templates/tools/audio_normalize.html:1108
 msgid "Loudnorm mode"
 msgstr ""
 
-#: tools/templates/tools/audio_normalize.html:1119
-#: tools/templates/tools/audio_normalize_job_detail.html:78
+#: templates/tools/audio_normalize.html:1120
+#: templates/tools/audio_normalize_job_detail.html:79
 msgid "Output"
 msgstr "Ausgabe"
 
 # Templates
-#: tools/templates/tools/audio_normalize.html:1120
-#: tools/templates/tools/audio_normalize_job_detail.html:78
+#: templates/tools/audio_normalize.html:1121
+#: templates/tools/audio_normalize_job_detail.html:79
 msgid "Output (on disk)"
 msgstr "Ausgabe (auf Datenträger)"
 
-#: tools/templates/tools/audio_normalize.html:1146
+#: templates/tools/audio_normalize.html:1147
 msgid "Preset changed to"
 msgstr "Preset geändert zu"
 
-#: tools/templates/tools/audio_normalize.html:1155
+#: templates/tools/audio_normalize.html:1156
 msgid "not found in available presets"
 msgstr "nicht in den verfügbaren Presets gefunden"
 
-#: tools/templates/tools/audio_normalize.html:1169
-#: tools/templates/tools/audio_normalize.html:1180
+#: templates/tools/audio_normalize.html:1170
+#: templates/tools/audio_normalize.html:1181
 msgid "Model"
 msgstr "Modell"
 
-#: tools/templates/tools/audio_normalize_job_detail.html:39
-#: tools/templates/tools/audio_normalize_job_list.html:107
-#: tools/templates/tools/video_render_job_list.html:128
+#: templates/tools/audio_normalize_job_detail.html:40
+#: templates/tools/audio_normalize_job_list.html:108
+#: templates/tools/video_render_job_list.html:129
 msgid "Open Tool"
 msgstr "Tool öffnen"
 
-#: tools/templates/tools/audio_normalize_job_detail.html:42
-#: tools/templates/tools/audio_normalize_job_list.html:110
-#: tools/templates/tools/reel_studio.html:376
-#: tools/templates/tools/slideshow_list.html:107
+#: templates/tools/audio_normalize_job_detail.html:43
+#: templates/tools/audio_normalize_job_list.html:111
+#: templates/tools/reel_studio.html:377
+#: templates/tools/slideshow_list.html:108
 msgid "Download"
 msgstr "Herunterladen"
 
-#: tools/templates/tools/audio_normalize_job_detail.html:54
-#: tools/templates/tools/audio_normalize_job_list.html:95
-#: tools/templates/tools/reel_studio.html:362
-#: tools/templates/tools/reel_studio.html:412
-#: tools/templates/tools/slideshow_detail.html:97
-#: tools/templates/tools/video_render_job_list.html:106
-msgid "Error"
-msgstr "Fehler"
-
-#: tools/templates/tools/audio_normalize_job_detail.html:60
+#: templates/tools/audio_normalize_job_detail.html:61
 msgid "Job Information"
 msgstr "Auftragsinformationen"
 
-#: tools/templates/tools/audio_normalize_job_detail.html:63
-#: tools/templates/tools/audio_normalize_job_list.html:74
-#: tools/templates/tools/slideshow_detail.html:107
-#: tools/templates/tools/slideshow_list.html:82
-#: tools/templates/tools/video_render_job_list.html:85
+#: templates/tools/audio_normalize_job_detail.html:64
+#: templates/tools/audio_normalize_job_list.html:75
+#: templates/tools/slideshow_detail.html:108
+#: templates/tools/slideshow_list.html:83
+#: templates/tools/video_render_job_list.html:86
 msgid "Created"
 msgstr "Erstellt"
 
-#: tools/templates/tools/audio_normalize_job_detail.html:71
+#: templates/tools/audio_normalize_job_detail.html:72
 msgid "Audio settings"
 msgstr "Audio-Einstellungen"
 
-#: tools/templates/tools/audio_normalize_job_detail.html:75
+#: templates/tools/audio_normalize_job_detail.html:76
 msgid "Files"
 msgstr "Dateien"
 
-#: tools/templates/tools/audio_normalize_job_list.html:48
+#: templates/tools/audio_normalize_job_list.html:49
 msgid "Queue and history of audio normalization jobs."
 msgstr "Warteschlange und Verlauf der Audio-Normalisierungsaufträge."
 
-#: tools/templates/tools/audio_normalize_job_list.html:59
-#: tools/templates/tools/slideshow_creator.html:343
-#: tools/templates/tools/slideshow_list.html:68
-#: tools/templates/tools/video_render_job_list.html:69
+#: templates/tools/audio_normalize_job_list.html:60
+#: templates/tools/slideshow_creator.html:344
+#: templates/tools/slideshow_list.html:69
+#: templates/tools/video_render_job_list.html:70
 msgid "All"
 msgstr "Alle"
 
-#: tools/templates/tools/audio_normalize_job_list.html:72
+#: templates/tools/audio_normalize_job_list.html:73
 msgid "Job"
 msgstr "Auftrag"
 
-#: tools/templates/tools/audio_normalize_job_list.html:77
-#: tools/templates/tools/slideshow_list.html:84
-#: tools/templates/tools/video_render_job_list.html:88
+#: templates/tools/audio_normalize_job_list.html:78
+#: templates/tools/slideshow_list.html:85
+#: templates/tools/video_render_job_list.html:89
 msgid "Actions"
 msgstr "Aktionen"
 
-#: tools/templates/tools/audio_normalize_job_list.html:106
-#: tools/templates/tools/reel_studio.html:375
-#: tools/templates/tools/slideshow_list.html:103
+#: templates/tools/audio_normalize_job_list.html:107
+#: templates/tools/reel_studio.html:376
+#: templates/tools/slideshow_list.html:104
 msgid "View"
 msgstr "Ansehen"
 
-#: tools/templates/tools/audio_normalize_job_list.html:118
-#: tools/templates/tools/video_render_job_list.html:137
+#: templates/tools/audio_normalize_job_list.html:119
+#: templates/tools/video_render_job_list.html:138
 msgid "No jobs found"
 msgstr "Keine Aufträge gefunden"
 
-#: tools/templates/tools/audio_normalize_job_list.html:128
-#: tools/templates/tools/slideshow_list.html:124
-#: tools/templates/tools/video_render_job_list.html:147
+#: templates/tools/audio_normalize_job_list.html:129
+#: templates/tools/slideshow_list.html:125
+#: templates/tools/video_render_job_list.html:148
 msgid "Previous"
 msgstr "Zurück"
 
-#: tools/templates/tools/audio_normalize_job_list.html:130
-#: tools/templates/tools/slideshow_list.html:126
-#: tools/templates/tools/video_render_job_list.html:149
+#: templates/tools/audio_normalize_job_list.html:131
+#: templates/tools/slideshow_list.html:127
+#: templates/tools/video_render_job_list.html:150
 msgid "Page"
 msgstr "Seite"
 
-#: tools/templates/tools/audio_normalize_job_list.html:130
-#: tools/templates/tools/slideshow_list.html:126
-#: tools/templates/tools/video_render_job_list.html:149
+#: templates/tools/audio_normalize_job_list.html:131
+#: templates/tools/slideshow_list.html:127
+#: templates/tools/video_render_job_list.html:150
 msgid "of"
 msgstr "von"
 
-#: tools/templates/tools/audio_normalize_job_list.html:132
-#: tools/templates/tools/slideshow_list.html:128
-#: tools/templates/tools/video_render_job_list.html:151
+#: templates/tools/audio_normalize_job_list.html:133
+#: templates/tools/slideshow_list.html:129
+#: templates/tools/video_render_job_list.html:152
 msgid "Next"
 msgstr "Weiter"
 
-#: tools/templates/tools/index.html:77
+#: templates/tools/index.html:78
 msgid "Available tools and utilities for content creation"
 msgstr "Verfügbare Werkzeuge und Hilfsprogramme zur Inhaltserstellung"
 
-#: tools/templates/tools/index.html:98
-#: tools/templates/tools/slideshow_list.html:57
+#: templates/tools/index.html:99 templates/tools/slideshow_list.html:58
 msgid "Video Slideshow Generator"
 msgstr "Video-Diashow-Generator"
 
-#: tools/templates/tools/index.html:100
+#: templates/tools/index.html:101
 msgid ""
 "Create professional video slideshows from images and videos with background "
 "music, customizable transitions, and quality settings"
@@ -2676,16 +3043,15 @@ msgstr ""
 "Erstellen Sie professionelle Video-Diashows aus Bildern und Videos mit "
 "Hintergrundmusik, anpassbaren Übergängen und Qualitätseinstellungen"
 
-#: tools/templates/tools/index.html:104
-#: tools/templates/tools/slideshow_list.html:59
+#: templates/tools/index.html:105 templates/tools/slideshow_list.html:60
 msgid "Create New Project"
 msgstr "Neues Projekt erstellen"
 
-#: tools/templates/tools/index.html:107
+#: templates/tools/index.html:108
 msgid "My Projects"
 msgstr "Meine Projekte"
 
-#: tools/templates/tools/index.html:131
+#: templates/tools/index.html:132
 msgid ""
 "Normalize loudness to EBU R128 using ffprobe + ffmpeg loudnorm (2-pass), "
 "with before/after report and safe video passthrough"
@@ -2694,11 +3060,11 @@ msgstr ""
 "normalisieren, einschließlich Vorher/Nachher-Bericht und sicherem Video-"
 "Passthrough"
 
-#: tools/templates/tools/index.html:138 tools/templates/tools/index.html:203
+#: templates/tools/index.html:139 templates/tools/index.html:204
 msgid "My Jobs"
 msgstr "Meine Aufträge"
 
-#: tools/templates/tools/index.html:165
+#: templates/tools/index.html:166
 msgid ""
 "Generate AI hooks and render short vertical reels for social media via the "
 "external reel renderer"
@@ -2706,16 +3072,16 @@ msgstr ""
 "KI-Hooks generieren und kurze vertikale Reels für Social Media über den "
 "externen Reel-Renderer rendern"
 
-#: tools/templates/tools/index.html:169
+#: templates/tools/index.html:170
 msgid "New Reel"
 msgstr "Neues Reel"
 
-#: tools/templates/tools/index.html:197
-#: tools/templates/tools/video_render.html:4
+#: templates/tools/index.html:198 templates/tools/video_render.html:4
+#: templates/tools/video_render.html:5
 msgid "Video Render (Overlays)"
 msgstr "Video-Rendering (Overlays)"
 
-#: tools/templates/tools/index.html:199
+#: templates/tools/index.html:200
 msgid ""
 "Render videos with overlay presets (title, subtitle, broadcast "
 "responsibility, media authority) and encoding presets"
@@ -2723,645 +3089,639 @@ msgstr ""
 "Videos mit Overlay-Vorlagen (Titel, Untertitel, Sendeverantwortung, "
 "Medienanstalt) und Kodierungsvorlagen rendern"
 
-#: tools/templates/tools/index.html:206
-#: tools/templates/tools/video_render_job_list.html:61
+#: templates/tools/index.html:207
+#: templates/tools/video_render_job_list.html:62
 msgid "New Render"
 msgstr "Neues Rendering"
 
-#: tools/templates/tools/reel_studio.html:60
+#: templates/tools/reel_studio.html:61
 msgid "Contribution"
 msgstr "Beitrag"
 
-#: tools/templates/tools/reel_studio.html:61
+#: templates/tools/reel_studio.html:62
 msgid "Video (path from share root or URL)"
 msgstr "Video (Pfad ab Share-Wurzel oder URL)"
 
-#: tools/templates/tools/reel_studio.html:68
-#: tools/templates/tools/video_render.html:89
+#: templates/tools/reel_studio.html:69 templates/tools/video_render.html:90
 msgid "Search"
 msgstr "Suchen"
 
-#: tools/templates/tools/reel_studio.html:80
+#: templates/tools/reel_studio.html:81
 msgid "Current position"
 msgstr "Aktuelle Position"
 
-#: tools/templates/tools/reel_studio.html:82
+#: templates/tools/reel_studio.html:83
 msgid "Use this second as start"
 msgstr "Diese Sekunde als Start übernehmen"
 
-#: tools/templates/tools/reel_studio.html:87
+#: templates/tools/reel_studio.html:88
 msgid ""
-"Preview not available (codec not browser-compatible). Enter the start second "
-"manually."
+"Preview not available (codec not browser-compatible). Enter the start second"
+" manually."
 msgstr ""
 "Vorschau nicht verfügbar (Codec nicht browser-tauglich). Bitte die "
 "Startsekunde manuell eingeben."
 
-#: tools/templates/tools/reel_studio.html:91
+#: templates/tools/reel_studio.html:92
 msgid "Author"
 msgstr "Autor"
 
-#: tools/templates/tools/reel_studio.html:92
+#: templates/tools/reel_studio.html:93
 msgid "Show (kicker, optional)"
 msgstr "Sendung (Kicker, optional)"
 
-#: tools/templates/tools/reel_studio.html:98
+#: templates/tools/reel_studio.html:99
 msgid "TV day"
 msgstr "TV-Sendetag"
 
-#: tools/templates/tools/reel_studio.html:99
+#: templates/tools/reel_studio.html:100
 msgid "TV time"
 msgstr "TV-Uhrzeit"
 
-#: tools/templates/tools/reel_studio.html:103
+#: templates/tools/reel_studio.html:104
 msgid "Start mode"
 msgstr "Startmodus"
 
-#: tools/templates/tools/reel_studio.html:105
+#: templates/tools/reel_studio.html:106
 msgid "Auto (middle of video)"
 msgstr "Auto (Mitte des Videos)"
 
-#: tools/templates/tools/reel_studio.html:106
+#: templates/tools/reel_studio.html:107
 msgid "Manual (second)"
 msgstr "Manuell (Sekunde)"
 
-#: tools/templates/tools/reel_studio.html:107
+#: templates/tools/reel_studio.html:108
 msgid "From start"
 msgstr "Ab Anfang"
 
-#: tools/templates/tools/reel_studio.html:110
+#: templates/tools/reel_studio.html:111
 msgid "Video duration (s) – for Auto"
 msgstr "Videodauer (s) – für Auto"
 
-#: tools/templates/tools/reel_studio.html:111
+#: templates/tools/reel_studio.html:112
 msgid "Start second – for Manual"
 msgstr "Startsekunde – für Manuell"
 
-#: tools/templates/tools/reel_studio.html:116
+#: templates/tools/reel_studio.html:117
 msgid "Hook (AI)"
 msgstr "Hook (KI)"
 
-#: tools/templates/tools/reel_studio.html:118
-#: tools/templates/tools/video_render.html:157
+#: templates/tools/reel_studio.html:119 templates/tools/video_render.html:172
 msgid "Title"
 msgstr "Titel"
 
-#: tools/templates/tools/reel_studio.html:119
+#: templates/tools/reel_studio.html:120
 msgid "Location"
 msgstr "Ort"
 
-#: tools/templates/tools/reel_studio.html:125
+#: templates/tools/reel_studio.html:126
 msgid "Hook type (= scenario)"
 msgstr "Hook-Typ (= Szenario)"
 
-#: tools/templates/tools/reel_studio.html:135
+#: templates/tools/reel_studio.html:136
 msgid "Number of variants"
 msgstr "Anzahl Varianten"
 
-#: tools/templates/tools/reel_studio.html:137
+#: templates/tools/reel_studio.html:138
 msgid "Generate hooks"
 msgstr "Hooks generieren"
 
-#: tools/templates/tools/reel_studio.html:138
+#: templates/tools/reel_studio.html:139
 msgid "takes ~30–60 s"
 msgstr "dauert ~30–60 s"
 
-#: tools/templates/tools/reel_studio.html:142
+#: templates/tools/reel_studio.html:143
 msgid "Custom hook variant"
 msgstr "Eigene Hook-Variante"
 
-#: tools/templates/tools/reel_studio.html:144
+#: templates/tools/reel_studio.html:145
 msgid "First hook line"
 msgstr "Erste Hook-Zeile"
 
-#: tools/templates/tools/reel_studio.html:145
+#: templates/tools/reel_studio.html:146
 msgid "Second hook line"
 msgstr "Zweite Hook-Zeile"
 
-#: tools/templates/tools/reel_studio.html:148
+#: templates/tools/reel_studio.html:149
 msgid ""
-"Copy parts from generated hooks, edit them here, and the custom variant will "
-"be used for rendering."
+"Copy parts from generated hooks, edit them here, and the custom variant will"
+" be used for rendering."
 msgstr ""
 "Kopieren Sie Teile aus generierten Hooks, bearbeiten Sie sie hier, und die "
 "eigene Variante wird fürs Rendering verwendet."
 
-#: tools/templates/tools/reel_studio.html:154
+#: templates/tools/reel_studio.html:155
 msgid "Closing CTA"
 msgstr "Schluss-CTA"
 
-#: tools/templates/tools/reel_studio.html:155
+#: templates/tools/reel_studio.html:156
 msgid "CTA text"
 msgstr "CTA-Text"
 
-#: tools/templates/tools/reel_studio.html:156
-#: tools/templates/tools/reel_studio.html:310
+#: templates/tools/reel_studio.html:157 templates/tools/reel_studio.html:311
 msgid "Automatic (matching hook type)"
 msgstr "Automatisch (passend zum Hook-Typ)"
 
-#: tools/templates/tools/reel_studio.html:158
+#: templates/tools/reel_studio.html:159
 msgid "Show mediathek badge"
 msgstr "Mediathek-Plakette einblenden"
 
-#: tools/templates/tools/reel_studio.html:161
+#: templates/tools/reel_studio.html:162
 msgid "Render reel"
 msgstr "Reel rendern"
 
-#: tools/templates/tools/reel_studio.html:256
-#: tools/templates/tools/video_render.html:536
+#: templates/tools/reel_studio.html:257 templates/tools/video_render.html:551
 msgid "Please enter a valid number."
 msgstr "Bitte geben Sie eine gültige Nummer ein."
 
-#: tools/templates/tools/reel_studio.html:283
+#: templates/tools/reel_studio.html:284
 msgid "License data loaded, but no videos found."
 msgstr ""
 
-#: tools/templates/tools/reel_studio.html:284
-#: tools/templates/tools/video_render.html:547
+#: templates/tools/reel_studio.html:285 templates/tools/video_render.html:562
 msgid "No videos found."
 msgstr "Keine Videos gefunden."
 
-#: tools/templates/tools/reel_studio.html:294
-#: tools/templates/tools/video_render.html:555
+#: templates/tools/reel_studio.html:295 templates/tools/video_render.html:570
 msgid "Select"
 msgstr "Auswählen"
 
-#: tools/templates/tools/reel_studio.html:295
-#: tools/templates/tools/video_render.html:556
-#: tools/templates/tools/video_render_job_list.html:129
+#: templates/tools/reel_studio.html:296 templates/tools/video_render.html:571
+#: templates/tools/video_render_job_list.html:130
 msgid "Admin"
 msgstr "Admin"
 
-#: tools/templates/tools/reel_studio.html:301
-#: tools/templates/tools/video_render.html:561
-#: tools/templates/tools/video_render.html:595
+#: templates/tools/reel_studio.html:302 templates/tools/video_render.html:576
+#: templates/tools/video_render.html:610
 msgid "Error:"
 msgstr "Fehler:"
 
-#: tools/templates/tools/reel_studio.html:336
+#: templates/tools/reel_studio.html:337
 msgid "Title required"
 msgstr "Titel erforderlich"
 
-#: tools/templates/tools/reel_studio.html:342
+#: templates/tools/reel_studio.html:343
 msgid "Generating hooks …"
 msgstr "Generiere Hooks …"
 
-#: tools/templates/tools/reel_studio.html:349
+#: templates/tools/reel_studio.html:350
 msgid "variants — choose one:"
 msgstr "Varianten — wähle eine:"
 
-#: tools/templates/tools/reel_studio.html:370
-#: tools/templates/tools/reel_studio.html:373
+#: templates/tools/reel_studio.html:371 templates/tools/reel_studio.html:374
 msgid "Done"
 msgstr "Fertig"
 
-#: tools/templates/tools/reel_studio.html:387
+#: templates/tools/reel_studio.html:388
 msgid "Video and output filename required"
 msgstr "Video und Ausgabe-Dateiname erforderlich"
 
-#: tools/templates/tools/reel_studio.html:407
+#: templates/tools/reel_studio.html:408
 msgid "Reel is rendering … (~90–150 s)"
 msgstr "Reel wird gerendert … (~90–150 s)"
 
-#: tools/templates/tools/slideshow_creator.html:6
-#: tools/templates/tools/slideshow_creator.html:305
+#: templates/tools/slideshow_creator.html:6
+#: templates/tools/slideshow_creator.html:7
+#: templates/tools/slideshow_creator.html:306
 msgid "Edit Slideshow"
 msgstr "Diashow bearbeiten"
 
-#: tools/templates/tools/slideshow_creator.html:6
+#: templates/tools/slideshow_creator.html:6
+#: templates/tools/slideshow_creator.html:7
 msgid "Create Slideshow"
 msgstr "Diashow erstellen"
 
-#: tools/templates/tools/slideshow_creator.html:13
-#: tools/templates/tools/slideshow_detail.html:81
-#: tools/templates/tools/slideshow_list.html:104
+#: templates/tools/slideshow_creator.html:14
+#: templates/tools/slideshow_detail.html:82
+#: templates/tools/slideshow_list.html:105
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: tools/templates/tools/slideshow_creator.html:13
+#: templates/tools/slideshow_creator.html:14
 msgid "Create"
 msgstr "Erstellen"
 
-#: tools/templates/tools/slideshow_creator.html:305
+#: templates/tools/slideshow_creator.html:306
 msgid "Create New Slideshow"
 msgstr "Neue Diashow erstellen"
 
-#: tools/templates/tools/slideshow_creator.html:314
+#: templates/tools/slideshow_creator.html:315
 msgid "Enter project name"
 msgstr "Projektnamen eingeben"
 
-#: tools/templates/tools/slideshow_creator.html:319
-#: tools/templates/tools/slideshow_detail.html:115
-#: tools/templates/tools/slideshow_detail.html:152
-#: tools/templates/tools/slideshow_list.html:83
+#: templates/tools/slideshow_creator.html:320
+#: templates/tools/slideshow_detail.html:116
+#: templates/tools/slideshow_detail.html:153
+#: templates/tools/slideshow_list.html:84
 msgid "Media Files"
 msgstr "Mediendateien"
 
-#: tools/templates/tools/slideshow_creator.html:324
-#: tools/templates/tools/slideshow_creator.html:428
+#: templates/tools/slideshow_creator.html:325
+#: templates/tools/slideshow_creator.html:429
 msgid "Upload New"
 msgstr "Neu hochladen"
 
-#: tools/templates/tools/slideshow_creator.html:327
+#: templates/tools/slideshow_creator.html:328
 msgid "Media Library"
 msgstr "Medienbibliothek"
 
-#: tools/templates/tools/slideshow_creator.html:334
+#: templates/tools/slideshow_creator.html:335
 msgid "Drag & drop files here or click to select"
 msgstr "Dateien hierher ziehen oder zum Auswählen klicken"
 
-#: tools/templates/tools/slideshow_creator.html:346
+#: templates/tools/slideshow_creator.html:347
 msgid "Images"
 msgstr "Bilder"
 
-#: tools/templates/tools/slideshow_creator.html:349
+#: templates/tools/slideshow_creator.html:350
 msgid "Videos"
 msgstr "Videos"
 
-#: tools/templates/tools/slideshow_creator.html:366
-#: tools/templates/tools/slideshow_creator.html:448
+#: templates/tools/slideshow_creator.html:367
+#: templates/tools/slideshow_creator.html:449
 msgid "Click to add"
 msgstr "Zum Hinzufügen klicken"
 
-#: tools/templates/tools/slideshow_creator.html:368
-#: tools/templates/tools/slideshow_creator.html:450
+#: templates/tools/slideshow_creator.html:369
+#: templates/tools/slideshow_creator.html:451
 msgid "Delete from library"
 msgstr "Aus Bibliothek löschen"
 
-#: tools/templates/tools/slideshow_creator.html:372
+#: templates/tools/slideshow_creator.html:373
 msgid "No media in library yet"
 msgstr "Noch keine Medien in der Bibliothek"
 
-#: tools/templates/tools/slideshow_creator.html:381
+#: templates/tools/slideshow_creator.html:382
 msgid "Project Media"
 msgstr "Projektmedien"
 
-#: tools/templates/tools/slideshow_creator.html:382
+#: templates/tools/slideshow_creator.html:383
 msgid "Drag to reorder"
 msgstr "Ziehen zum Neuordnen"
 
-#: tools/templates/tools/slideshow_creator.html:387
+#: templates/tools/slideshow_creator.html:388
 msgid "Select All"
 msgstr "Alle auswählen"
 
-#: tools/templates/tools/slideshow_creator.html:389
-#: tools/templates/tools/slideshow_creator.html:1021
+#: templates/tools/slideshow_creator.html:390
+#: templates/tools/slideshow_creator.html:1022
 msgid "selected"
 msgstr "ausgewählt"
 
-#: tools/templates/tools/slideshow_creator.html:391
+#: templates/tools/slideshow_creator.html:392
 msgid "Delete Selected"
 msgstr "Ausgewählte löschen"
 
-#: tools/templates/tools/slideshow_creator.html:394
+#: templates/tools/slideshow_creator.html:395
 msgid "Add to Library"
 msgstr "Zur Bibliothek hinzufügen"
 
-#: tools/templates/tools/slideshow_creator.html:409
-#: tools/templates/tools/slideshow_creator.html:470
+#: templates/tools/slideshow_creator.html:410
+#: templates/tools/slideshow_creator.html:471
 msgid "Delete"
 msgstr "Löschen"
 
-#: tools/templates/tools/slideshow_creator.html:410
-#: tools/templates/tools/slideshow_creator.html:469
+#: templates/tools/slideshow_creator.html:411
+#: templates/tools/slideshow_creator.html:470
 #, fuzzy
 #| msgid "Media Library"
 msgid "Make library"
 msgstr "Medienbibliothek"
 
-#: tools/templates/tools/slideshow_creator.html:414
+#: templates/tools/slideshow_creator.html:415
 msgid "No media files yet. Upload or add from library."
 msgstr ""
 "Noch keine Mediendateien. Hochladen oder aus der Bibliothek hinzufügen."
 
-#: tools/templates/tools/slideshow_creator.html:423
-#: tools/templates/tools/slideshow_detail.html:176
+#: templates/tools/slideshow_creator.html:424
+#: templates/tools/slideshow_detail.html:177
 msgid "Background Music"
 msgstr "Hintergrundmusik"
 
-#: tools/templates/tools/slideshow_creator.html:431
+#: templates/tools/slideshow_creator.html:432
 msgid "Audio Library"
 msgstr "Audio-Bibliothek"
 
-#: tools/templates/tools/slideshow_creator.html:455
+#: templates/tools/slideshow_creator.html:456
 msgid "No audio in library yet"
 msgstr "Noch keine Audiodatei in der Bibliothek"
 
-#: tools/templates/tools/slideshow_creator.html:463
+#: templates/tools/slideshow_creator.html:464
 msgid "Project Audio"
 msgstr "Projekt-Audio"
 
-#: tools/templates/tools/slideshow_creator.html:475
+#: templates/tools/slideshow_creator.html:476
 msgid "No audio file yet. Upload or add from library."
 msgstr "Noch keine Audiodatei. Hochladen oder aus der Bibliothek hinzufügen."
 
-#: tools/templates/tools/slideshow_creator.html:488
+#: templates/tools/slideshow_creator.html:489
 msgid "Video & Transition Settings"
 msgstr "Video- & Übergangseinstellungen"
 
-#: tools/templates/tools/slideshow_creator.html:491
-#: tools/templates/tools/slideshow_detail.html:132
+#: templates/tools/slideshow_creator.html:492
+#: templates/tools/slideshow_detail.html:133
 msgid "Slide Duration"
 msgstr "Foliendauer"
 
-#: tools/templates/tools/slideshow_creator.html:495
+#: templates/tools/slideshow_creator.html:496
 msgid "Transition Duration"
 msgstr "Übergangsdauer"
 
-#: tools/templates/tools/slideshow_creator.html:509
-#: tools/templates/tools/slideshow_detail.html:140
+#: templates/tools/slideshow_creator.html:510
+#: templates/tools/slideshow_detail.html:141
 msgid "Resolution"
 msgstr "Auflösung"
 
-#: tools/templates/tools/slideshow_creator.html:535
+#: templates/tools/slideshow_creator.html:536
 msgid "Duration & Audio Settings"
 msgstr "Dauer- & Audio-Einstellungen"
 
-#: tools/templates/tools/slideshow_creator.html:538
+#: templates/tools/slideshow_creator.html:539
 msgid "Video Duration"
 msgstr "Videodauer"
 
-#: tools/templates/tools/slideshow_creator.html:543
+#: templates/tools/slideshow_creator.html:544
 msgid ""
 "Choose whether video length is determined by music or by number of images"
 msgstr ""
 "Wählen Sie, ob die Videolänge durch die Musik oder durch die Anzahl der "
 "Bilder bestimmt wird"
 
-#: tools/templates/tools/slideshow_creator.html:546
+#: templates/tools/slideshow_creator.html:547
 msgid "When images shorter than music"
 msgstr "Wenn Bilder kürzer als Musik sind"
 
-#: tools/templates/tools/slideshow_creator.html:548
+#: templates/tools/slideshow_creator.html:549
 msgid "Fade Out Audio"
 msgstr "Audio ausblenden"
 
-#: tools/templates/tools/slideshow_creator.html:549
+#: templates/tools/slideshow_creator.html:550
 msgid "Trim Audio"
 msgstr "Audio kürzen"
 
-#: tools/templates/tools/slideshow_creator.html:551
+#: templates/tools/slideshow_creator.html:552
 msgid "What to do when images finish before music ends"
 msgstr "Was tun, wenn die Bilder enden, bevor die Musik endet"
 
-#: tools/templates/tools/slideshow_creator.html:560
+#: templates/tools/slideshow_creator.html:561
 msgid "Save as Draft"
 msgstr "Als Entwurf speichern"
 
-#: tools/templates/tools/slideshow_creator.html:561
+#: templates/tools/slideshow_creator.html:562
 msgid "Generate Video"
 msgstr "Video generieren"
 
-#: tools/templates/tools/slideshow_creator.html:780
-#: tools/templates/tools/slideshow_creator.html:912
-#: tools/templates/tools/slideshow_creator.html:1189
-#: tools/templates/tools/slideshow_creator.html:1249
-#: tools/templates/tools/slideshow_creator.html:1310
+#: templates/tools/slideshow_creator.html:781
+#: templates/tools/slideshow_creator.html:913
+#: templates/tools/slideshow_creator.html:1190
+#: templates/tools/slideshow_creator.html:1250
+#: templates/tools/slideshow_creator.html:1311
 msgid "Please save project first"
 msgstr "Bitte speichern Sie zuerst das Projekt"
 
-#: tools/templates/tools/slideshow_creator.html:786
-#: tools/templates/tools/slideshow_creator.html:840
-#: tools/templates/tools/slideshow_creator.html:949
-#: tools/templates/tools/slideshow_creator.html:982
-#: tools/templates/tools/slideshow_creator.html:1061
-#: tools/templates/tools/slideshow_creator.html:1100
+#: templates/tools/slideshow_creator.html:787
+#: templates/tools/slideshow_creator.html:841
+#: templates/tools/slideshow_creator.html:950
+#: templates/tools/slideshow_creator.html:983
+#: templates/tools/slideshow_creator.html:1062
+#: templates/tools/slideshow_creator.html:1101
 msgid "Invalid project ID"
 msgstr "Ungültige Projekt-Nummer"
 
-#: tools/templates/tools/slideshow_creator.html:812
-#: tools/templates/tools/slideshow_creator.html:817
-#: tools/templates/tools/slideshow_creator.html:936
-#: tools/templates/tools/slideshow_creator.html:941
+#: templates/tools/slideshow_creator.html:813
+#: templates/tools/slideshow_creator.html:818
+#: templates/tools/slideshow_creator.html:937
+#: templates/tools/slideshow_creator.html:942
 msgid "Upload failed"
 msgstr "Upload fehlgeschlagen"
 
-#: tools/templates/tools/slideshow_creator.html:822
+#: templates/tools/slideshow_creator.html:823
 msgid "Delete this media file?"
 msgstr "Diese Mediendatei löschen?"
 
-#: tools/templates/tools/slideshow_creator.html:837
+#: templates/tools/slideshow_creator.html:838
 msgid "Add this media file to the library?"
 msgstr ""
 
-#: tools/templates/tools/slideshow_creator.html:861
-#: tools/templates/tools/slideshow_creator.html:866
+#: templates/tools/slideshow_creator.html:862
+#: templates/tools/slideshow_creator.html:867
 #, fuzzy
 #| msgid "Failed to add media"
 msgid "Failed to add media to library"
 msgstr "Medium konnte nicht hinzugefügt werden"
 
-#: tools/templates/tools/slideshow_creator.html:871
+#: templates/tools/slideshow_creator.html:872
 msgid "Delete this media from library? This cannot be undone."
 msgstr ""
-"Dieses Medium aus der Bibliothek löschen? Dies kann nicht rückgängig gemacht "
-"werden."
+"Dieses Medium aus der Bibliothek löschen? Dies kann nicht rückgängig gemacht"
+" werden."
 
-#: tools/templates/tools/slideshow_creator.html:882
+#: templates/tools/slideshow_creator.html:883
 msgid "Failed to delete media:"
 msgstr "Fehler beim Löschen des Mediums:"
 
-#: tools/templates/tools/slideshow_creator.html:886
+#: templates/tools/slideshow_creator.html:887
 msgid "Error deleting media:"
 msgstr "Fehler beim Löschen des Mediums:"
 
-#: tools/templates/tools/slideshow_creator.html:891
+#: templates/tools/slideshow_creator.html:892
 msgid "Delete this audio from library? This cannot be undone."
 msgstr ""
 "Diese Audiodatei aus der Bibliothek löschen? Dies kann nicht rückgängig "
 "gemacht werden."
 
-#: tools/templates/tools/slideshow_creator.html:902
+#: templates/tools/slideshow_creator.html:903
 msgid "Failed to delete audio:"
 msgstr "Fehler beim Löschen der Audiodatei:"
 
-#: tools/templates/tools/slideshow_creator.html:906
+#: templates/tools/slideshow_creator.html:907
 msgid "Error deleting audio:"
 msgstr "Fehler beim Löschen der Audiodatei:"
 
-#: tools/templates/tools/slideshow_creator.html:946
+#: templates/tools/slideshow_creator.html:947
 msgid "Delete this audio file?"
 msgstr "Diese Audiodatei löschen?"
 
-#: tools/templates/tools/slideshow_creator.html:969
-#: tools/templates/tools/slideshow_creator.html:974
-#: tools/templates/tools/slideshow_creator.html:1078
-#: tools/templates/tools/slideshow_creator.html:1083
+#: templates/tools/slideshow_creator.html:970
+#: templates/tools/slideshow_creator.html:975
+#: templates/tools/slideshow_creator.html:1079
+#: templates/tools/slideshow_creator.html:1084
 msgid "Delete failed"
 msgstr "Löschen fehlgeschlagen"
 
-#: tools/templates/tools/slideshow_creator.html:979
+#: templates/tools/slideshow_creator.html:980
 #, fuzzy
 #| msgid "Audio {audio_id} not found in library"
 msgid "Add this audio file to the library?"
 msgstr "Audio {audio_id} in der Bibliothek nicht gefunden"
 
-#: tools/templates/tools/slideshow_creator.html:1003
-#: tools/templates/tools/slideshow_creator.html:1008
+#: templates/tools/slideshow_creator.html:1004
+#: templates/tools/slideshow_creator.html:1009
 #, fuzzy
 #| msgid "Failed to add audio"
 msgid "Failed to add audio to library"
 msgstr "Audio konnte nicht hinzugefügt werden"
 
-#: tools/templates/tools/slideshow_creator.html:1052
-#: tools/templates/tools/slideshow_creator.html:1091
+#: templates/tools/slideshow_creator.html:1053
+#: templates/tools/slideshow_creator.html:1092
 msgid "No media selected"
 msgstr "Keine Medien ausgewählt"
 
-#: tools/templates/tools/slideshow_creator.html:1056
+#: templates/tools/slideshow_creator.html:1057
 msgid "Delete selected media files?"
 msgstr "Ausgewählte Mediendateien löschen?"
 
-#: tools/templates/tools/slideshow_creator.html:1056
-#: tools/templates/tools/slideshow_creator.html:1095
+#: templates/tools/slideshow_creator.html:1057
+#: templates/tools/slideshow_creator.html:1096
 msgid "items"
 msgstr "Elemente"
 
-#: tools/templates/tools/slideshow_creator.html:1095
+#: templates/tools/slideshow_creator.html:1096
 msgid "Add selected media files to library?"
 msgstr "Ausgewählte Mediendateien zur Bibliothek hinzufügen?"
 
-#: tools/templates/tools/slideshow_creator.html:1118
-#: tools/templates/tools/slideshow_creator.html:1123
+#: templates/tools/slideshow_creator.html:1119
+#: templates/tools/slideshow_creator.html:1124
 msgid "Failed to add to library"
 msgstr "Zur Bibliothek hinzufügen fehlgeschlagen"
 
-#: tools/templates/tools/slideshow_creator.html:1130
+#: templates/tools/slideshow_creator.html:1131
 msgid "Please enter project name"
 msgstr "Bitte geben Sie einen Projektnamen ein"
 
-#: tools/templates/tools/slideshow_creator.html:1182
+#: templates/tools/slideshow_creator.html:1183
 msgid "Settings saved"
 msgstr "Einstellungen gespeichert"
 
-#: tools/templates/tools/slideshow_creator.html:1202
+#: templates/tools/slideshow_creator.html:1203
 msgid "Video generation started. Check status in project list."
 msgstr "Videoerstellung gestartet. Status in der Projektliste prüfen."
 
-#: tools/templates/tools/slideshow_creator.html:1205
+#: templates/tools/slideshow_creator.html:1206
 msgid "Generation failed"
 msgstr "Erstellung fehlgeschlagen"
 
-#: tools/templates/tools/slideshow_creator.html:1271
+#: templates/tools/slideshow_creator.html:1272
 msgid "Media added to project"
 msgstr "Medium zum Projekt hinzugefügt"
 
-#: tools/templates/tools/slideshow_creator.html:1274
-#: tools/templates/tools/slideshow_creator.html:1279
+#: templates/tools/slideshow_creator.html:1275
+#: templates/tools/slideshow_creator.html:1280
 msgid "Failed to add media"
 msgstr "Medium konnte nicht hinzugefügt werden"
 
-#: tools/templates/tools/slideshow_creator.html:1332
+#: templates/tools/slideshow_creator.html:1333
 msgid "Audio added to project"
 msgstr "Audio zum Projekt hinzugefügt"
 
-#: tools/templates/tools/slideshow_creator.html:1335
-#: tools/templates/tools/slideshow_creator.html:1340
+#: templates/tools/slideshow_creator.html:1336
+#: templates/tools/slideshow_creator.html:1341
 msgid "Failed to add audio"
 msgstr "Audio konnte nicht hinzugefügt werden"
 
-#: tools/templates/tools/slideshow_detail.html:82
-#: tools/templates/tools/slideshow_list.html:105
+#: templates/tools/slideshow_detail.html:83
+#: templates/tools/slideshow_list.html:106
 msgid "Copy"
 msgstr ""
 
-#: tools/templates/tools/slideshow_detail.html:84
+#: templates/tools/slideshow_detail.html:85
 msgid "Download Video"
 msgstr "Video herunterladen"
 
-#: tools/templates/tools/slideshow_detail.html:104
+#: templates/tools/slideshow_detail.html:105
 msgid "Project Information"
 msgstr "Projektinformationen"
 
-#: tools/templates/tools/slideshow_detail.html:111
+#: templates/tools/slideshow_detail.html:112
 msgid "Updated"
 msgstr "Aktualisiert"
 
-#: tools/templates/tools/slideshow_detail.html:133
-#: tools/templates/tools/slideshow_detail.html:182
+#: templates/tools/slideshow_detail.html:134
+#: templates/tools/slideshow_detail.html:183
 msgid "seconds"
 msgstr "Sekunden"
 
-#: tools/templates/tools/slideshow_detail.html:144
+#: templates/tools/slideshow_detail.html:145
 msgid "Transitions"
 msgstr "Übergänge"
 
-#: tools/templates/tools/slideshow_detail.html:145
+#: templates/tools/slideshow_detail.html:146
 msgid "Disabled"
 msgstr "Deaktiviert"
 
-#: tools/templates/tools/slideshow_detail.html:168
+#: templates/tools/slideshow_detail.html:169
 msgid "No media files"
 msgstr "Keine Mediendateien"
 
-#: tools/templates/tools/slideshow_detail.html:182
+#: templates/tools/slideshow_detail.html:183
 msgid "Duration"
 msgstr "Dauer"
 
-#: tools/templates/tools/slideshow_detail.html:193
+#: templates/tools/slideshow_detail.html:194
 msgid "Generated Video"
 msgstr "Generiertes Video"
 
-#: tools/templates/tools/slideshow_detail.html:196
+#: templates/tools/slideshow_detail.html:197
 msgid "Your browser does not support video playback."
 msgstr "Ihr Browser unterstützt keine Videowiedergabe."
 
-#: tools/templates/tools/slideshow_detail.html:204
-#: tools/templates/tools/slideshow_list.html:136
+#: templates/tools/slideshow_detail.html:205
+#: templates/tools/slideshow_list.html:137
 msgid "Create a copy of this project?"
 msgstr "Eine Kopie dieses Projekts erstellen?"
 
-#: tools/templates/tools/slideshow_detail.html:218
-#: tools/templates/tools/slideshow_list.html:150
+#: templates/tools/slideshow_detail.html:219
+#: templates/tools/slideshow_list.html:151
 msgid "Project copied successfully!"
 msgstr "Projekt erfolgreich kopiert!"
 
-#: tools/templates/tools/slideshow_detail.html:221
-#: tools/templates/tools/slideshow_detail.html:225
-#: tools/templates/tools/slideshow_list.html:153
-#: tools/templates/tools/slideshow_list.html:157
+#: templates/tools/slideshow_detail.html:222
+#: templates/tools/slideshow_detail.html:226
+#: templates/tools/slideshow_list.html:154
+#: templates/tools/slideshow_list.html:158
 msgid "Error copying project:"
 msgstr "Fehler beim Kopieren des Projekts:"
 
-#: tools/templates/tools/slideshow_list.html:62
+#: templates/tools/slideshow_list.html:63
 msgid "Create video slideshows from images and videos with background music"
 msgstr ""
 "Erstellen Sie Video-Diashows aus Bildern und Videos mit Hintergrundmusik"
 
-#: tools/templates/tools/slideshow_list.html:114
+#: templates/tools/slideshow_list.html:115
 msgid "No projects found"
 msgstr "Keine Projekte gefunden"
 
-#: tools/templates/tools/video_render.html:10
+#: templates/tools/video_render.html:11
 msgid "Video Render"
 msgstr "Video-Rendering"
 
-#: tools/templates/tools/video_render.html:76
+#: templates/tools/video_render.html:77
 msgid "Video Render with Overlays"
 msgstr "Video-Rendering mit Overlays"
 
-#: tools/templates/tools/video_render.html:77
+#: templates/tools/video_render.html:78
 msgid ""
 "Render a new video version with intro/outro overlays and encoding presets."
 msgstr ""
 "Eine neue Video-Version mit Intro-/Outro-Overlays und Encoding-Presets "
 "rendern."
 
-#: tools/templates/tools/video_render.html:98
-msgid "Select a local file to upload into Media Files and open it in the tool."
+#: templates/tools/video_render.html:99
+msgid ""
+"Select a local file to upload into Media Files and open it in the tool."
 msgstr ""
-"Wählen Sie eine lokale Datei aus, um sie zu Mediendateien hochzuladen und im "
-"Tool zu öffnen."
+"Wählen Sie eine lokale Datei aus, um sie zu Mediendateien hochzuladen und im"
+" Tool zu öffnen."
 
-#: tools/templates/tools/video_render.html:100
+#: templates/tools/video_render.html:101
 msgid "Upload & Open"
 msgstr "Hochladen & Öffnen"
 
-#: tools/templates/tools/video_render.html:107
+#: templates/tools/video_render.html:108
 msgid "Leave empty for automatic naming"
 msgstr "Leer lassen für automatische Benennung"
 
-#: tools/templates/tools/video_render.html:108
+#: templates/tools/video_render.html:109
 msgid ""
 "Optional. If empty, a versioned name will be generated next to the source "
 "file."
@@ -3369,117 +3729,126 @@ msgstr ""
 "Optional. Wenn leer, wird neben der Quelldatei ein Name mit Versionssuffix "
 "erzeugt."
 
-#: tools/templates/tools/video_render.html:112
+#: templates/tools/video_render.html:113
 msgid "Video ID"
 msgstr "Video-ID"
 
-#: tools/templates/tools/video_render.html:115
-msgid "Open"
-msgstr "Öffnen"
-
-#: tools/templates/tools/video_render.html:117
+#: templates/tools/video_render.html:118
 msgid "Open the tool for a specific VideoFile ID."
 msgstr "Das Tool für eine bestimmte VideoFile-ID öffnen."
 
-#: tools/templates/tools/video_render.html:124
+#: templates/tools/video_render.html:125
 msgid "Selected Video"
 msgstr "Ausgewähltes Video"
 
-#: tools/templates/tools/video_render.html:127
+#: templates/tools/video_render.html:128
 msgid "Filename"
 msgstr "Dateiname"
 
-#: tools/templates/tools/video_render.html:130
+#: templates/tools/video_render.html:131
 msgid "Open in admin"
 msgstr "Im Admin öffnen"
 
-#: tools/templates/tools/video_render.html:134
-msgid "License"
-msgstr "Freistellung"
+#: templates/tools/video_render.html:141
+msgid "Source for rendering"
+msgstr "Quelle für das Rendering"
 
-#: tools/templates/tools/video_render.html:150
+#: templates/tools/video_render.html:145
+msgid ""
+"The selected file is a preview or an already rendered version; the original "
+"is rendered instead."
+msgstr ""
+"Die ausgewählte Datei ist eine Vorschau oder eine bereits gerenderte "
+"Version; gerendert wird stattdessen das Original."
+
+#: templates/tools/video_render.html:148
+msgid "No original video found"
+msgstr "Kein Originalvideo gefunden"
+
+#: templates/tools/video_render.html:149
+msgid ""
+"Only previews or rendered versions exist for this license; rendering is not "
+"possible."
+msgstr ""
+"Zu dieser Freistellung gibt es nur Vorschauen oder gerenderte Versionen; "
+"Rendern ist nicht möglich."
+
+#: templates/tools/video_render.html:165
 msgid "1. Select Elements and Styles"
 msgstr "1. Elemente und Stile auswählen"
 
-#: tools/templates/tools/video_render.html:159
+#: templates/tools/video_render.html:174
 msgid "Title text"
 msgstr "Titeltext"
 
-#: tools/templates/tools/video_render.html:195
-#: tools/templates/tools/video_render.html:202
-#: tools/templates/tools/video_render.html:294
-#: tools/templates/tools/video_render.html:301
-#: tools/templates/tools/video_render.html:376
-#: tools/templates/tools/video_render.html:383
-#: tools/templates/tools/video_render.html:439
-#: tools/templates/tools/video_render.html:446
+#: templates/tools/video_render.html:210 templates/tools/video_render.html:217
+#: templates/tools/video_render.html:309 templates/tools/video_render.html:316
+#: templates/tools/video_render.html:391 templates/tools/video_render.html:398
+#: templates/tools/video_render.html:454 templates/tools/video_render.html:461
 msgid "Broadcast Info"
 msgstr "Sendeinfo"
 
-#: tools/templates/tools/video_render.html:252
+#: templates/tools/video_render.html:267
 msgid "Subtitle"
 msgstr "Untertitel"
 
-#: tools/templates/tools/video_render.html:254
+#: templates/tools/video_render.html:269
 msgid "Subtitle text"
 msgstr "Untertiteltext"
 
-#: tools/templates/tools/video_render.html:347
+#: templates/tools/video_render.html:362
 msgid "Broadcast Responsibility"
 msgstr "Sendeverantwortung"
 
-#: tools/templates/tools/video_render.html:349
+#: templates/tools/video_render.html:364
 msgid "Broadcast responsibility text"
 msgstr "Text zur Sendeverantwortung"
 
-#: tools/templates/tools/video_render.html:411
+#: templates/tools/video_render.html:426
 msgid "Media Authority"
 msgstr "Medienanstalt"
 
-#: tools/templates/tools/video_render.html:413
+#: templates/tools/video_render.html:428
 msgid "Media authority text"
 msgstr "Text zur Medienanstalt"
 
-#: tools/templates/tools/video_render.html:473
+#: templates/tools/video_render.html:488
 msgid "2. Quality Settings"
 msgstr "2. Qualitätseinstellungen"
 
-#: tools/templates/tools/video_render.html:476
+#: templates/tools/video_render.html:491
 msgid "Encoding Quality"
 msgstr "Kodierungsqualität"
 
-#: tools/templates/tools/video_render.html:484
+#: templates/tools/video_render.html:499
 msgid "Mode"
 msgstr "Modus"
 
-#: tools/templates/tools/video_render.html:487
+#: templates/tools/video_render.html:502
 msgid "Add intro/outro clips and apply overlays to them"
 msgstr "Intro-/Outro-Clips hinzufügen und Overlays darauf anwenden"
 
-#: tools/templates/tools/video_render.html:491
+#: templates/tools/video_render.html:506
 msgid "Intro overlay text color"
 msgstr "Textfarbe für Intro-Overlays"
 
-#: tools/templates/tools/video_render.html:493
-#: tools/templates/tools/video_render.html:501
+#: templates/tools/video_render.html:508 templates/tools/video_render.html:516
 msgid "Preset default"
 msgstr "Preset-Standard"
 
-#: tools/templates/tools/video_render.html:494
-#: tools/templates/tools/video_render.html:502
+#: templates/tools/video_render.html:509 templates/tools/video_render.html:517
 msgid "White"
 msgstr "Weiß"
 
-#: tools/templates/tools/video_render.html:495
-#: tools/templates/tools/video_render.html:503
+#: templates/tools/video_render.html:510 templates/tools/video_render.html:518
 msgid "Black"
 msgstr "Schwarz"
 
-#: tools/templates/tools/video_render.html:499
+#: templates/tools/video_render.html:514
 msgid "Outro overlay text color"
 msgstr "Textfarbe für Outro-Overlays"
 
-#: tools/templates/tools/video_render.html:507
+#: templates/tools/video_render.html:522
 msgid ""
 "If unchecked, overlays will be applied to the first and last segment of the "
 "main video."
@@ -3487,319 +3856,118 @@ msgstr ""
 "Wenn deaktiviert, werden Overlays auf das erste und letzte Segment des "
 "Hauptvideos angewendet."
 
-#: tools/templates/tools/video_render.html:513
+#: templates/tools/video_render.html:528
 msgid "3. Submit"
 msgstr "3. Start"
 
-#: tools/templates/tools/video_render.html:515
+#: templates/tools/video_render.html:530
 msgid "Preview (10s)"
 msgstr "Vorschau (10s)"
 
-#: tools/templates/tools/video_render.html:516
+#: templates/tools/video_render.html:531
 msgid "Render Full Video"
 msgstr "Komplettes Video rendern"
 
-#: tools/templates/tools/video_render.html:518
+#: templates/tools/video_render.html:533
 msgid ""
 "This will create a new VideoFile + FileOperation and render asynchronously."
 msgstr ""
 "Dies erstellt eine neue VideoFile und einen Dateivorgang und rendert "
 "asynchron."
 
-#: tools/templates/tools/video_render.html:572
+#: templates/tools/video_render.html:587
 msgid "Please select a file."
 msgstr "Bitte wählen Sie eine Datei aus."
 
-#: tools/templates/tools/video_render.html:576
+#: templates/tools/video_render.html:591
 msgid "Please enter a valid media number (license number) first."
 msgstr ""
 "Bitte geben Sie zuerst eine gültige Mediennummer (Freistellungsnummer) ein."
 
-#: tools/templates/tools/video_render.html:580
+#: templates/tools/video_render.html:595
 msgid "Uploading..."
 msgstr "Hochladen..."
 
-#: tools/templates/tools/video_render_job_list.html:4
-#: tools/templates/tools/video_render_job_list.html:10
-#: tools/templates/tools/video_render_job_list.html:57
+#: templates/tools/video_render_job_list.html:4
+#: templates/tools/video_render_job_list.html:5
+#: templates/tools/video_render_job_list.html:11
+#: templates/tools/video_render_job_list.html:58
 msgid "Video Render Jobs"
 msgstr "Video-Rendering-Aufträge"
 
-#: tools/templates/tools/video_render_job_list.html:58
-msgid "Queue and history of video render operations started from the Tools UI."
+#: templates/tools/video_render_job_list.html:59
+msgid ""
+"Queue and history of video render operations started from the Tools UI."
 msgstr ""
 "Warteschlange und Verlauf der Video-Rendering-Aufträge (gestartet über die "
 "Tools-Oberfläche)."
 
-#: tools/templates/tools/video_render_job_list.html:70
+#: templates/tools/video_render_job_list.html:71
 msgid "In Progress"
 msgstr "In Bearbeitung"
 
-#: tools/templates/tools/video_render_job_list.html:71
+#: templates/tools/video_render_job_list.html:72
 msgid "Success"
 msgstr "Erfolgreich"
 
-#: tools/templates/tools/video_render_job_list.html:76
+#: templates/tools/video_render_job_list.html:77
 msgid "Auto-refresh is enabled while jobs are running."
 msgstr "Die automatische Aktualisierung ist aktiv, solange Aufträge laufen."
 
-#: tools/templates/tools/video_render_job_list.html:83
+#: templates/tools/video_render_job_list.html:84
 msgid "Operation"
 msgstr "Vorgang"
 
-#: tools/templates/tools/video_render_job_list.html:87
+#: templates/tools/video_render_job_list.html:88
 msgid "Config"
 msgstr "Konfiguration"
 
-#: tools/templates/tools/video_render_job_list.html:98
+#: templates/tools/video_render_job_list.html:99
 msgid "Full"
 msgstr "Voll"
 
-#: tools/templates/tools/video_render_job_list.html:117
+#: templates/tools/video_render_job_list.html:118
 msgid "Encode"
 msgstr "Encoding"
 
-#: tools/templates/tools/video_render_job_list.html:118
+#: templates/tools/video_render_job_list.html:119
 msgid "Style"
 msgstr "Stil"
 
-#: tools/templates/tools/video_render_job_list.html:119
+#: templates/tools/video_render_job_list.html:120
 msgid "Intro/Outro"
 msgstr "Intro/Outro"
 
-#: tools/templates/tools/video_render_job_list.html:119
+#: templates/tools/video_render_job_list.html:120
 msgid "Yes"
 msgstr "Ja"
 
-#: tools/templates/tools/video_render_job_list.html:119
+#: templates/tools/video_render_job_list.html:120
 msgid "No"
 msgstr "Nein"
 
-#: tools/templates/tools/video_render_job_list.html:120
+#: templates/tools/video_render_job_list.html:121
 msgid "Intro text color"
 msgstr "Intro-Textfarbe"
 
-#: tools/templates/tools/video_render_job_list.html:121
+#: templates/tools/video_render_job_list.html:122
 msgid "Outro text color"
 msgstr "Outro-Textfarbe"
 
-#: tools/templates/tools/video_render_job_list.html:130
+#: templates/tools/video_render_job_list.html:131
 msgid "File Operation"
 msgstr "Dateivorgang"
 
-#: tools/views.py:580
+#: views.py:580
 #, fuzzy
 #| msgid "Media files module is not available"
 msgid "License module is not available"
 msgstr "Das Modul für Mediendateien ist nicht verfügbar"
 
-#: tools/views.py:633
+#: views.py:633
 msgid "Sendeverantwortung"
 msgstr "Sendeverantwortung"
 
-#: tools/views.py:1007 tools/views.py:1034
+#: views.py:1008 views.py:1035
 msgid "Rendered reel not found"
 msgstr "Gerendertes Reel nicht gefunden"
-
-#~ msgid "HTTP read timeout for reel render/start requests."
-#~ msgstr "HTTP-Lese-Timeout für Reel-Render-/Start-Anfragen."
-
-#~ msgid "Invert overlay text color (white ↔ black)"
-#~ msgstr "Textfarbe der Overlays invertieren (weiß ↔ schwarz)"
-
-#~ msgid "Invert text"
-#~ msgstr "Text invertieren"
-
-#, python-brace-format
-#~ msgid ""
-#~ "High peak levels and continuous background noise detected. Recommended: "
-#~ "{preset} combines aggressive peak control, AI denoising for noise "
-#~ "removal, and speech optimization. For a softer option, use "
-#~ "{speech_preset} and verify limiter is sufficient for peak control."
-#~ msgstr ""
-#~ "Hohe Spitzenpegel und kontinuierliches Hintergrundrauschen erkannt. "
-#~ "Empfohlen: {preset} kombiniert aggressive Spitzenkontrolle, KI-"
-#~ "Entrauschung zur Rauschreduktion und Sprachoptimierung. Für eine sanftere "
-#~ "Option verwenden Sie {speech_preset} und prüfen Sie, ob der Limiter für "
-#~ "die Spitzenkontrolle ausreicht."
-
-#, python-brace-format
-#~ msgid ""
-#~ "High peak levels ({peak_level:.1f} dB) and high background noise "
-#~ "({noise_level:.1f} dB) detected. Recommended: {preset} combines "
-#~ "aggressive peak control with AI denoising for optimal results."
-#~ msgstr ""
-#~ "Hohe Spitzenpegel ({peak_level:.1f} dB) und hohes Hintergrundrauschen "
-#~ "({noise_level:.1f} dB) erkannt. Empfohlen: {preset} kombiniert aggressive "
-#~ "Spitzenkontrolle mit KI-Entrauschung für optimale Ergebnisse."
-
-#, python-brace-format
-#~ msgid ""
-#~ "Continuous and very high background noise ({noise_level:.1f} dB) "
-#~ "detected. Recommended: {preset} for aggressive AI denoising and speech "
-#~ "clarity."
-#~ msgstr ""
-#~ "Kontinuierliches und sehr hohes Hintergrundrauschen ({noise_level:.1f} "
-#~ "dB) erkannt. Empfohlen: {preset} für aggressive KI-Entrauschung und "
-#~ "Sprachklarheit."
-
-#, python-brace-format
-#~ msgid ""
-#~ "Continuous background noise and high noise level ({noise_level:.1f} dB) "
-#~ "detected. Recommended: {preset} with AI denoising for speech clarity."
-#~ msgstr ""
-#~ "Kontinuierliches Hintergrundrauschen und hohes Rauschniveau "
-#~ "({noise_level:.1f} dB) erkannt. Empfohlen: {preset} mit KI-Entrauschung "
-#~ "für Sprachklarheit."
-
-#, python-brace-format
-#~ msgid ""
-#~ "Multiple issues detected: {issues}. Recommended: {preset} with AI "
-#~ "denoising to address these problems."
-#~ msgstr ""
-#~ "Mehrere Probleme erkannt: {issues}. Empfohlen: {preset} mit KI-"
-#~ "Entrauschung zur Lösung dieser Probleme."
-
-#, python-brace-format
-#~ msgid ""
-#~ "Wind noise detected. Recommended model: {model_name}. Configure ARNNDN "
-#~ "Model Path in Tools Config to use this model."
-#~ msgstr ""
-#~ "Windgeräusche erkannt. Empfohlenes Modell: {model_name}. Konfigurieren "
-#~ "Sie den ARNNDN-Modellpfad in der Tools-Konfiguration, um dieses Modell zu "
-#~ "verwenden."
-
-#~ msgid ""
-#~ "Wind noise detected. Strong denoising recommended. Consider installing "
-#~ "RNN model for AI denoising."
-#~ msgstr ""
-#~ "Windgeräusche erkannt. Starke Entrauschung empfohlen. Erwägen Sie, das "
-#~ "RNN-Modell für KI-Entrauschung zu installieren."
-
-#, python-brace-format
-#~ msgid ""
-#~ "Low quality audio detected (compression artifacts, degradation). "
-#~ "Recommended model: {model_name}. Configure ARNNDN Model Path in Tools "
-#~ "Config to use this model."
-#~ msgstr ""
-#~ "Niedrige Audioqualität erkannt (Kompressionsartefakte, Degradierung). "
-#~ "Empfohlenes Modell: {model_name}. Konfigurieren Sie den ARNNDN-Modellpfad "
-#~ "in der Tools-Konfiguration, um dieses Modell zu verwenden."
-
-#~ msgid ""
-#~ "Wind noise detected. Consider downloading bd.rnnn model for better wind "
-#~ "noise reduction. Currently using std.rnnn."
-#~ msgstr ""
-#~ "Windgeräusche erkannt. Erwägen Sie das Herunterladen des bd.rnnn-Modells "
-#~ "für eine bessere Windgeräuschreduzierung. Derzeit wird std.rnnn verwendet."
-
-#~ msgid ""
-#~ "Low quality audio detected. Consider downloading lq.rnnn model for better "
-#~ "results with degraded audio. Currently using std.rnnn."
-#~ msgstr ""
-#~ "Niedrige Audioqualität erkannt. Erwägen Sie das Herunterladen des lq.rnnn-"
-#~ "Modells für bessere Ergebnisse bei verschlechtertem Audio. Derzeit wird "
-#~ "std.rnnn verwendet."
-
-#, python-brace-format
-#~ msgid ""
-#~ "High background noise detected ({noise_level:.1f} dB). AI denoiser "
-#~ "(arnndn) recommended for better speech clarity."
-#~ msgstr ""
-#~ "Starkes Hintergrundrauschen erkannt ({noise_level:.1f} dB). KI-"
-#~ "Entrauscher (arnndn) wird für bessere Sprachklarheit empfohlen."
-
-#, python-brace-format
-#~ msgid ""
-#~ "High background noise detected ({noise_level:.1f} dB). Strong denoising "
-#~ "recommended. Consider installing RNN model for AI denoising."
-#~ msgstr ""
-#~ "Starkes Hintergrundrauschen erkannt ({noise_level:.1f} dB). Starke "
-#~ "Entrauschung empfohlen. Erwägen Sie die Installation eines RNN-Modells "
-#~ "für KI-Entrauschung."
-
-#~ msgid ""
-#~ "Continuous background noise detected. AI denoiser recommended for speech "
-#~ "clarity."
-#~ msgstr ""
-#~ "Ständiges Hintergrundrauschen erkannt. KI-Entrauscher empfohlen für "
-#~ "bessere Sprachklarheit."
-
-#~ msgid "high dynamics (LRA > 14)"
-#~ msgstr "hohe Dynamik (LRA > 14)"
-
-#, python-brace-format
-#~ msgid ""
-#~ "Very high peak levels ({peak_level:.1f} dB) and noise. Aggressive AI "
-#~ "denoising + limiter recommended."
-#~ msgstr ""
-#~ "Sehr hohe Spitzenpegel ({peak_level:.1f} dB) und Rauschen. Aggressive KI-"
-#~ "Entrauschung + Limiter empfohlen."
-
-#~ msgid "Base path for storing uploaded media files"
-#~ msgstr "Basis-Pfad zum Speichern hochgeladener Mediendateien"
-
-#~ msgid "Base path for storing generated videos"
-#~ msgstr "Basis-Pfad zum Speichern generierter Videos"
-
-#~ msgid "Base path for audio normalize source files (optional)"
-#~ msgstr "Basis-Pfad für Quell-Dateien der Audio-Normalisierung (optional)"
-
-#~ msgid "Base path for audio normalize output files (optional)"
-#~ msgstr "Basis-Pfad für Ausgabedateien der Audio-Normalisierung (optional)"
-
-#~ msgid ""
-#~ "Choose a preset. Natural/Strong use 2-pass loudnorm; Fast Auto uses "
-#~ "dynamic loudnorm."
-#~ msgstr ""
-#~ "Wählen Sie ein Preset. Natural/Strong verwenden 2-Pass-loudnorm; Fast "
-#~ "Auto verwendet dynamisches loudnorm."
-
-#~ msgid "Output audio settings"
-#~ msgstr "Audioausgabe-Einstellungen"
-
-#~ msgid "AAC (fixed)"
-#~ msgstr "AAC (fest)"
-
-#~ msgid "Sample rate"
-#~ msgstr "Abtastrate"
-
-#~ msgid "Force stereo (2ch)"
-#~ msgstr "Stereo erzwingen (2 Kanäle)"
-
-#~ msgid "No matching files found under MEDIA_ROOT."
-#~ msgstr "Keine passenden Dateien unter MEDIA_ROOT gefunden."
-
-#~ msgid "Use custom hook"
-#~ msgstr "Eigenen Hook verwenden"
-
-#~ msgid "Copy selected hook as base"
-#~ msgstr "Ausgewählten Hook als Grundlage kopieren"
-
-#~ msgid ""
-#~ "You can combine parts from generated hooks and use your own final version."
-#~ msgstr ""
-#~ "Sie können Teile aus generierten Hooks kombinieren und Ihre eigene finale "
-#~ "Version verwenden."
-
-#~ msgid "Both custom hook lines are required."
-#~ msgstr "Beide Zeilen des eigenen Hooks sind erforderlich."
-
-#~ msgid "Custom hook selected."
-#~ msgstr "Eigener Hook ausgewählt."
-
-#: tools/templates/tools/video_render.html
-msgid "Source for rendering"
-msgstr "Quelle für das Rendering"
-
-#: tools/templates/tools/video_render.html
-msgid "The selected file is a preview or an already rendered version; the original is rendered instead."
-msgstr "Die ausgewählte Datei ist eine Vorschau oder eine bereits gerenderte Version; gerendert wird stattdessen das Original."
-
-#: tools/templates/tools/video_render.html
-msgid "No original video found"
-msgstr "Kein Originalvideo gefunden"
-
-#: tools/templates/tools/video_render.html
-msgid "Only previews or rendered versions exist for this license; rendering is not possible."
-msgstr "Zu dieser Freistellung gibt es nur Vorschauen oder gerenderte Versionen; Rendern ist nicht möglich."

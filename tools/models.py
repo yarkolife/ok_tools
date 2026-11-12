@@ -1027,6 +1027,81 @@ class ToolsConfig(models.Model):
         help_text=_('Local time when Celery Beat should send the daily reminder.'),
     )
 
+    # Instagram auto posting (Instagram Graph API, content publishing)
+    instagram_enabled = models.BooleanField(
+        default=False,
+        verbose_name=_('Instagram posting enabled'),
+        help_text=_(
+            'Creates a post draft for every rendered reel and publishes approved '
+            'posts at their time. Needs the account ID and an access token.'
+        ),
+    )
+    instagram_api_host = models.CharField(
+        max_length=40,
+        choices=[
+            ('graph.instagram.com', _('Instagram Login (graph.instagram.com)')),
+            ('graph.facebook.com', _('Facebook Login (graph.facebook.com)')),
+        ],
+        default='graph.instagram.com',
+        verbose_name=_('Instagram API'),
+        help_text=_(
+            'Instagram Login needs no Facebook page; its token lasts 60 days and is '
+            'renewed automatically. Facebook Login uses a page or system user token.'
+        ),
+    )
+    instagram_api_version = models.CharField(
+        max_length=10,
+        default='v27.0',
+        verbose_name=_('Instagram API version'),
+        help_text=_('Graph API version in the URL, e.g. v27.0.'),
+    )
+    instagram_account_id = models.CharField(
+        max_length=40,
+        blank=True,
+        default='',
+        verbose_name=_('Instagram account ID'),
+        help_text=_('Numeric ID of the professional Instagram account (IG user ID).'),
+    )
+    instagram_access_token = models.TextField(
+        blank=True,
+        default='',
+        verbose_name=_('Instagram access token'),
+        help_text=_(
+            'Long-lived token with the content publishing permission. Kept on the '
+            'server only; it is never shown in a page.'
+        ),
+    )
+    instagram_token_refreshed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Instagram token renewed at'),
+    )
+    instagram_post_time = models.TimeField(
+        default=time(17, 0),
+        verbose_name=_('Instagram post time'),
+        help_text=_('Default local time on the broadcast day for a new post draft.'),
+    )
+    instagram_caption_template = models.TextField(
+        blank=True,
+        default=(
+            '{titel}\n\n{beschreibung}\n\n'
+            '📺 {sendetermin} im Offenen Kanal\n'
+            '▶️ Mediathek: {mediathek}\n\n{hashtags}'
+        ),
+        verbose_name=_('Instagram caption template'),
+        help_text=_(
+            'Placeholders: {titel}, {untertitel}, {beschreibung}, {autor}, '
+            '{sendetermin} (day, date and the time if planned), {uhrzeit}, '
+            '{mediathek}, {hashtags} (from the license tags). A line whose '
+            'placeholders are all empty is left out.'
+        ),
+    )
+    instagram_share_to_feed = models.BooleanField(
+        default=True,
+        verbose_name=_('Also show in the feed'),
+        help_text=_('Off: the reel only appears in the Reels tab.'),
+    )
+
     class Meta:
         verbose_name = _('Tools Configuration')
         verbose_name_plural = _('Tools Configuration')
@@ -1040,6 +1115,7 @@ class ToolsConfig(models.Model):
         self.pk = 1
         super().save(*args, **kwargs)
         self.sync_reel_reminder_periodic_task()
+        self.sync_instagram_periodic_tasks()
     
     @classmethod
     def get_config(cls):
@@ -1145,6 +1221,224 @@ class ToolsConfig(models.Model):
         except Exception:
             # Configuration must remain saveable during setup and migrations.
             return
+
+    def is_instagram_configured(self) -> bool:
+        """True when posting is switched on and the account can be reached."""
+        return bool(
+            self.instagram_enabled
+            and self.instagram_account_id
+            and self.instagram_access_token
+        )
+
+    INSTAGRAM_PUBLISH_TASK_NAME = 'tools.tasks.publish_due_reel_posts'
+    INSTAGRAM_REFRESH_TASK_NAME = 'tools.tasks.refresh_instagram_token'
+
+    def sync_instagram_periodic_tasks(self) -> None:
+        """Run the due-post check every 5 minutes and renew the token daily."""
+        try:
+            from django_celery_beat.models import CrontabSchedule
+            from django_celery_beat.models import IntervalSchedule
+            from django_celery_beat.models import PeriodicTask
+
+            enabled = self.is_instagram_configured()
+            every_5, _created = IntervalSchedule.objects.get_or_create(
+                every=5, period=IntervalSchedule.MINUTES)
+            PeriodicTask.objects.update_or_create(
+                name=str(_('Tools: publish due Instagram posts')),
+                defaults={
+                    'task': self.INSTAGRAM_PUBLISH_TASK_NAME,
+                    'interval': every_5,
+                    'crontab': None,
+                    'enabled': enabled,
+                    'kwargs': json.dumps({}),
+                },
+            )
+            nightly, _created = CrontabSchedule.objects.get_or_create(
+                minute='30', hour='3', day_of_month='*', month_of_year='*',
+                day_of_week='*', timezone=getattr(settings, 'TIME_ZONE', 'UTC'),
+            )
+            PeriodicTask.objects.update_or_create(
+                name=str(_('Tools: renew Instagram token')),
+                defaults={
+                    'task': self.INSTAGRAM_REFRESH_TASK_NAME,
+                    'crontab': nightly,
+                    'interval': None,
+                    'enabled': enabled and self.instagram_api_host == 'graph.instagram.com',
+                    'kwargs': json.dumps({}),
+                },
+            )
+        except Exception:
+            # Configuration must remain saveable during setup and migrations.
+            return
+
+
+class InstagramPartner(models.Model):
+    """A partner whose reels are posted as an Instagram collab."""
+
+    MATCH_ANY = 'any'
+    MATCH_CHOICES = [
+        (MATCH_ANY, _('Title, subtitle, tags, description, further persons or author')),
+        ('title', _('Title or subtitle')),
+        ('tags', _('Tags')),
+        ('author', _('Author (profile) or further persons')),
+    ]
+
+    name = models.CharField(max_length=100, verbose_name=_('Name'))
+    keywords = models.CharField(
+        max_length=255,
+        verbose_name=_('Keywords'),
+        help_text=_(
+            'Comma separated; whole words, upper/lower case does not matter. '
+            'E.g. "HoMe, Hochschule Merseburg".'
+        ),
+    )
+    match_in = models.CharField(
+        max_length=10,
+        choices=MATCH_CHOICES,
+        default=MATCH_ANY,
+        verbose_name=_('Search in'),
+    )
+    usernames = models.CharField(
+        max_length=255,
+        verbose_name=_('Instagram accounts'),
+        help_text=_('Usernames invited as collaborators, comma separated, without @.'),
+    )
+    is_active = models.BooleanField(default=True, verbose_name=_('Active'))
+
+    class Meta:
+        verbose_name = _('Instagram partner')
+        verbose_name_plural = _('Instagram partners')
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+    def keyword_list(self) -> list[str]:
+        return [k.strip() for k in (self.keywords or '').split(',') if k.strip()]
+
+    def username_list(self) -> list[str]:
+        return [u.strip().lstrip('@') for u in (self.usernames or '').split(',') if u.strip().lstrip('@')]
+
+
+class ReelPost(models.Model):
+    """A rendered reel waiting to be, or already, published on Instagram."""
+
+    STATUS_DRAFT = 'draft'
+    STATUS_APPROVED = 'approved'
+    STATUS_PUBLISHING = 'publishing'
+    STATUS_PUBLISHED = 'published'
+    STATUS_FAILED = 'failed'
+    STATUS_CHOICES = [
+        (STATUS_DRAFT, _('Draft')),
+        (STATUS_APPROVED, _('Approved')),
+        (STATUS_PUBLISHING, _('Publishing')),
+        (STATUS_PUBLISHED, _('Published')),
+        (STATUS_FAILED, _('Failed')),
+    ]
+
+    # Instagram limits for a reel caption.
+    CAPTION_MAX_LENGTH = 2200
+    MAX_HASHTAGS = 30
+    MAX_MENTIONS = 20
+    MAX_COLLABORATORS = 3
+
+    filename = models.CharField(
+        max_length=255,
+        unique=True,
+        verbose_name=_('Reel file'),
+        help_text=_('Finished reel in the reel output folder.'),
+    )
+    license = models.ForeignKey(
+        'licenses.License',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='reel_posts',
+        verbose_name=_('License'),
+    )
+    caption = models.TextField(blank=True, verbose_name=_('Caption'))
+    collaborators = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_('Collab accounts'),
+        help_text=_('Up to 3 Instagram usernames, comma separated, without @. They get a collab invitation.'),
+    )
+    share_to_feed = models.BooleanField(default=True, verbose_name=_('Also show in the feed'))
+    thumb_offset_ms = models.PositiveIntegerField(
+        default=0,
+        verbose_name=_('Cover frame (ms)'),
+        help_text=_('Position of the cover frame in milliseconds; 0 is the first frame.'),
+    )
+    scheduled_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name=_('Publish at'),
+    )
+    status = models.CharField(
+        max_length=12,
+        choices=STATUS_CHOICES,
+        default=STATUS_DRAFT,
+        db_index=True,
+        verbose_name=_('Status'),
+    )
+    approved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='+',
+        verbose_name=_('Approved by'),
+    )
+    approved_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Approved at'))
+    container_id = models.CharField(max_length=40, blank=True, verbose_name=_('Instagram container'))
+    container_created_at = models.DateTimeField(null=True, blank=True)
+    status_checks = models.PositiveSmallIntegerField(default=0)
+    media_id = models.CharField(max_length=40, blank=True, verbose_name=_('Instagram media ID'))
+    permalink = models.URLField(blank=True, verbose_name=_('Instagram link'))
+    published_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Published at'))
+    error_message = models.TextField(blank=True, verbose_name=_('Error'))
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
+
+    class Meta:
+        verbose_name = _('Instagram post')
+        verbose_name_plural = _('Instagram posts')
+        ordering = ['-scheduled_at', '-id']
+        permissions = [
+            ('publish_reelpost', _('Can approve and publish Instagram posts')),
+        ]
+
+    def __str__(self):
+        return self.filename
+
+    @property
+    def number(self):
+        return getattr(self.license, 'number', None)
+
+    def collaborator_list(self) -> list[str]:
+        return [u.strip().lstrip('@') for u in (self.collaborators or '').split(',') if u.strip().lstrip('@')]
+
+    def clean(self):
+        """Check Instagram's limits before a post can fail at publish time."""
+        from django.core.exceptions import ValidationError
+        import re
+
+        errors = {}
+        caption = self.caption or ''
+        if len(caption) > self.CAPTION_MAX_LENGTH:
+            errors['caption'] = _('At most %(max)s characters (now %(count)s).') % {
+                'max': self.CAPTION_MAX_LENGTH, 'count': len(caption)}
+        elif len(re.findall(r'#\w', caption)) > self.MAX_HASHTAGS:
+            errors['caption'] = _('At most %(max)s hashtags.') % {'max': self.MAX_HASHTAGS}
+        elif len(re.findall(r'@\w', caption)) > self.MAX_MENTIONS:
+            errors['caption'] = _('At most %(max)s @ mentions.') % {'max': self.MAX_MENTIONS}
+        collaborators = self.collaborator_list()
+        if len(collaborators) > self.MAX_COLLABORATORS:
+            errors['collaborators'] = _('At most %(max)s collab accounts.') % {'max': self.MAX_COLLABORATORS}
+        elif any(not re.fullmatch(r'[A-Za-z0-9._]{1,30}', u) for u in collaborators):
+            errors['collaborators'] = _('Only Instagram usernames: letters, digits, dot and underscore.')
+        if errors:
+            raise ValidationError(errors)
 
 
 class AudioNormalizeJob(models.Model):

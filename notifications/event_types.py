@@ -642,6 +642,34 @@ TOOLS_JOB_FAILED = register(EventType(
     settings_flag='TOOLS_ENABLED',
 ))
 
+TOOLS_INSTAGRAM_POST_FAILED = register(EventType(
+    code='tools.instagram_post_failed',
+    module='tools',
+    label=_('Instagram post failed'),
+    description=_(
+        'An approved reel could not be published on Instagram. The post shows '
+        'the reason; approve it again once it is fixed.'),
+    message=_('{post}: {error}'),
+    category=CATEGORY_ACTION_REQUIRED,
+    source=SOURCE_SIGNAL,
+    model='tools.ReelPost',
+    settings_flag='TOOLS_ENABLED',
+))
+
+TOOLS_INSTAGRAM_TOKEN_FAILED = register(EventType(
+    code='tools.instagram_token_failed',
+    module='tools',
+    label=_('Instagram token could not be renewed'),
+    description=_(
+        'The Instagram access token expires 60 days after its last renewal. '
+        'Enter a new token in the Tools configuration before it runs out.'),
+    message=_('{error}'),
+    category=CATEGORY_ACTION_REQUIRED,
+    source=SOURCE_SIGNAL,
+    model='tools.ToolsConfig',
+    settings_flag='TOOLS_ENABLED',
+))
+
 
 # ---------------------------------------------------------------------------
 # system
