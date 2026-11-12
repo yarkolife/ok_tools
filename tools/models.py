@@ -1024,7 +1024,10 @@ class ToolsConfig(models.Model):
     reel_reminder_time = models.TimeField(
         default=time(9, 0),
         verbose_name=_('Daily reel reminder time'),
-        help_text=_('Local time when Celery Beat should send the daily reminder.'),
+        help_text=_(
+            'Local time when Celery Beat should send the daily reminder. Instagram '
+            'posts of the day are planned for the same time.'
+        ),
     )
 
     # Instagram auto posting (Instagram Graph API, content publishing)
@@ -1075,11 +1078,6 @@ class ToolsConfig(models.Model):
         null=True,
         blank=True,
         verbose_name=_('Instagram token renewed at'),
-    )
-    instagram_post_time = models.TimeField(
-        default=time(17, 0),
-        verbose_name=_('Instagram post time'),
-        help_text=_('Default local time on the broadcast day for a new post draft.'),
     )
     instagram_caption_template = models.TextField(
         blank=True,

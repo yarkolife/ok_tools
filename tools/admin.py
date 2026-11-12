@@ -187,15 +187,15 @@ class ToolsConfigAdmin(ModelAdmin):
                 'instagram_account_id',
                 'instagram_access_token',
                 'instagram_token_refreshed_at',
-                'instagram_post_time',
                 'instagram_caption_template',
                 'instagram_share_to_feed',
                 'instagram_connection',
             ),
             'description': _(
-                'Every rendered reel gets an Instagram post draft. Approved posts are '
-                'published at their time. Instagram downloads the video from '
-                'SITE_BASE_URL, so it must be a public https address.'
+                'Every rendered reel gets an Instagram post draft, to be published on the '
+                'broadcast day at the daily reel reminder time (Reel Studio section). '
+                'Approved posts are published at their time. Instagram downloads the '
+                'video from SITE_BASE_URL, so it must be a public https address.'
             ),
         }),
     )

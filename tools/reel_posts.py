@@ -32,6 +32,8 @@ STATUS_CHECK_LIMIT = 5
 CONTAINER_LIFETIME = timedelta(hours=23)
 # An approved post that is this late is not published any more.
 MISSED_AFTER = timedelta(hours=24)
+# How long a post waits for a missing Mediathek link (the reminder mail waits as long).
+MEDIATHEK_WAIT = timedelta(hours=1)
 
 _PLACEHOLDER = re.compile(r'\{(\w+)\}')
 
@@ -164,14 +166,19 @@ def create_draft(filename: str, number=None) -> ReelPost | None:
     entry = _plan_entry(number, day)
     scheduled_at = None
     if day:
-        scheduled_at = timezone.make_aware(datetime.combine(day, config.instagram_post_time))
+        # Posted in the morning of the broadcast day, together with the reminder mail.
+        scheduled_at = timezone.make_aware(datetime.combine(day, config.reel_reminder_time))
+
+    values = caption_values(license_obj, day, entry)
+    # The Mediathek link usually exists only on the broadcast day; it stays a
+    # placeholder in the draft and is filled in when the post is published.
+    values.pop('mediathek')
 
     post, _created = ReelPost.objects.get_or_create(
         filename=filename,
         defaults={
             'license': license_obj,
-            'caption': render_caption(
-                config.instagram_caption_template, caption_values(license_obj, day, entry)),
+            'caption': render_caption(config.instagram_caption_template, values),
             'collaborators': ', '.join(collaborators_for(license_obj)),
             'share_to_feed': config.instagram_share_to_feed,
             'scheduled_at': scheduled_at,
@@ -187,13 +194,19 @@ def create_draft(filename: str, number=None) -> ReelPost | None:
 def approve(post: ReelPost, user, *, now: bool = False) -> None:
     """Approve a draft (or failed) post; ``now`` publishes it right away."""
     post.full_clean()
+    moment = timezone.now()
     post.status = ReelPost.STATUS_APPROVED
     post.approved_by = user
-    post.approved_at = timezone.now()
+    post.approved_at = moment
     post.error_message = ''
     if now or not post.scheduled_at:
-        post.scheduled_at = timezone.now()
+        post.scheduled_at = moment
     post.save()
+
+
+def _published_on_demand(post: ReelPost) -> bool:
+    """True for "publish now": approved at (or after) its publishing time."""
+    return bool(post.approved_at and post.scheduled_at and post.approved_at >= post.scheduled_at)
 
 
 def back_to_draft(post: ReelPost) -> None:
@@ -206,6 +219,20 @@ def back_to_draft(post: ReelPost) -> None:
 # ---------------------------------------------------------------------------
 # Publishing (called from Celery tasks)
 # ---------------------------------------------------------------------------
+
+def mediathek_url(license_obj) -> str:
+    """The license's Mediathek link; looked up once more if it is still missing."""
+    if license_obj is None:
+        return ''
+    if license_obj.mediathek_url:
+        return license_obj.mediathek_url
+    try:
+        from .tasks import _try_refresh_mediathek_url
+        return _try_refresh_mediathek_url(license_obj) or ''
+    except Exception:
+        logger.exception('Mediathek lookup for the Instagram post failed')
+        return ''
+
 
 def public_video_url(filename: str) -> str:
     from .tasks import _reel_public_download_url
@@ -261,6 +288,16 @@ def start_publishing(post: ReelPost) -> bool:
         if not video_url.startswith('https://'):
             _fail(post, 'SITE_BASE_URL must be a public https address, Instagram downloads the video from there.')
             return False
+        if '{mediathek}' in post.caption:
+            link = mediathek_url(post.license)
+            if (not link and not _published_on_demand(post) and post.scheduled_at
+                    and timezone.now() - post.scheduled_at < MEDIATHEK_WAIT):
+                # Like the reminder mail: wait a while for the link, retried every 5 minutes.
+                post.status = ReelPost.STATUS_APPROVED
+                post.save(update_fields=['status', 'updated_at'])
+                return False
+            post.caption = render_caption(post.caption, {'mediathek': link})
+            post.save(update_fields=['caption', 'updated_at'])
         try:
             post.container_id = instagram.create_reel_container(
                 config,

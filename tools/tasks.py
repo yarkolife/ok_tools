@@ -1144,7 +1144,8 @@ def publish_reel_post(post_id):
     if start_publishing(post):
         check_reel_post.apply_async(args=[post_id], countdown=STATUS_CHECK_INTERVAL)
         return {'status': 'container', 'container_id': post.container_id}
-    return {'status': 'failed'}
+    post.refresh_from_db()
+    return {'status': post.status}
 
 
 @shared_task(name='tools.tasks.check_reel_post')

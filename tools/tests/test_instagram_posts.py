@@ -44,7 +44,7 @@ def config(tmp_path, settings):
     cfg.instagram_enabled = True
     cfg.instagram_account_id = '1789'
     cfg.instagram_access_token = 'TOKEN'
-    cfg.instagram_post_time = time(17, 0)
+    cfg.reel_reminder_time = time(9, 0)
     cfg.save()
     return cfg
 
@@ -100,9 +100,11 @@ def test_rendered_reel_becomes_a_draft(config, home_license):
     assert post.status == ReelPost.STATUS_DRAFT
     assert post.license == home_license
     assert post.collaborators == 'hs_merseburg'
-    assert timezone.localtime(post.scheduled_at) == timezone.make_aware(datetime(2026, 11, 13, 17, 0))
-    assert post.caption.startswith('HoMe live\n\nCampus Talk\n\n📺 Freitag, 13.11.2026')
-    assert 'https://mediathek.example/v/1' in post.caption
+    # Posted in the morning of the broadcast day, with the reminder mail.
+    assert timezone.localtime(post.scheduled_at) == timezone.make_aware(datetime(2026, 11, 13, 9, 0))
+    assert post.caption.startswith('HoMe live\n\nCampus Talk\n\n📺 Freitag, 13.11.2026 im Offenen Kanal')
+    # The Mediathek link is filled in when the post is published.
+    assert '▶️ Mediathek: {mediathek}' in post.caption
     assert post.caption.endswith('#Hochschule #CampusTalk')
     # Once per file.
     assert reel_posts.create_draft(FILENAME, 19082) == post
@@ -127,7 +129,7 @@ def test_limits_are_checked():
 @pytest.mark.django_db
 def test_publish_flow(config, home_license):
     post = ReelPost.objects.create(
-        filename=FILENAME, license=home_license, caption='Hallo',
+        filename=FILENAME, license=home_license, caption='Hallo\nMediathek: {mediathek}',
         collaborators='hs_merseburg', status=ReelPost.STATUS_APPROVED,
         scheduled_at=timezone.now() - timedelta(minutes=1))
     assert list(reel_posts.due_posts()) == [post]
@@ -142,6 +144,7 @@ def test_publish_flow(config, home_license):
     assert sent['video_url'].startswith('https://portal.example.org/')
     assert json.loads(sent['collaborators']) == ['hs_merseburg']
     assert sent['access_token'] == 'TOKEN'
+    assert sent['caption'] == 'Hallo\nMediathek: https://mediathek.example/v/1'
     # A second claim does nothing: the post is already being published.
     assert reel_posts.claim(post.pk) is None
 
@@ -235,3 +238,41 @@ def test_approval_needs_the_publish_permission(client, config):
     post.refresh_from_db()
     assert post.status == ReelPost.STATUS_APPROVED
     assert post.approved_by == user
+
+
+@pytest.mark.django_db
+def test_post_waits_up_to_an_hour_for_the_mediathek_link(config, home_license):
+    home_license.mediathek_url = ''
+    home_license.save()
+    post = ReelPost.objects.create(
+        filename=FILENAME, license=home_license, caption='Hallo\nMediathek: {mediathek}',
+        status=ReelPost.STATUS_APPROVED, scheduled_at=timezone.now() - timedelta(minutes=10),
+        approved_at=timezone.now() - timedelta(days=1))
+
+    with mock.patch('tools.tasks._try_refresh_mediathek_url', return_value=''), \
+            mock.patch('tools.services.instagram.requests.post') as post_call:
+        assert not reel_posts.start_publishing(reel_posts.claim(post.pk))
+    post_call.assert_not_called()
+    post.refresh_from_db()
+    assert post.status == ReelPost.STATUS_APPROVED  # tried again on the next run
+
+    # After an hour it is published without the line.
+    ReelPost.objects.filter(pk=post.pk).update(scheduled_at=timezone.now() - timedelta(minutes=61))
+    with mock.patch('tools.tasks._try_refresh_mediathek_url', return_value=''), \
+            mock.patch('tools.services.instagram.requests.post',
+                       return_value=_response(payload={'id': 'C1'})) as post_call:
+        assert reel_posts.start_publishing(reel_posts.claim(post.pk))
+    assert post_call.call_args.kwargs['data']['caption'] == 'Hallo'
+
+
+@pytest.mark.django_db
+def test_publish_now_does_not_wait_for_the_link(config, home_license, user):
+    home_license.mediathek_url = ''
+    home_license.save()
+    post = ReelPost.objects.create(filename=FILENAME, license=home_license,
+                                   caption='Hallo\nMediathek: {mediathek}')
+    reel_posts.approve(post, user, now=True)
+    with mock.patch('tools.tasks._try_refresh_mediathek_url', return_value=''), \
+            mock.patch('tools.services.instagram.requests.post',
+                       return_value=_response(payload={'id': 'C1'})):
+        assert reel_posts.start_publishing(reel_posts.claim(post.pk))

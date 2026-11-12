@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-12 12:59+0000\n"
+"POT-Creation-Date: 2026-11-12 13:17+0000\n"
 "PO-Revision-Date: 2026-01-15 23:36+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -80,15 +80,18 @@ msgstr ""
 msgid "Instagram"
 msgstr "Instagram"
 
-#: admin.py:196
+#: admin.py:195
 msgid ""
-"Every rendered reel gets an Instagram post draft. Approved posts are "
-"published at their time. Instagram downloads the video from SITE_BASE_URL, "
-"so it must be a public https address."
+"Every rendered reel gets an Instagram post draft, to be published on the "
+"broadcast day at the daily reel reminder time (Reel Studio section). "
+"Approved posts are published at their time. Instagram downloads the video "
+"from SITE_BASE_URL, so it must be a public https address."
 msgstr ""
-"Jedes gerenderte Reel bekommt einen Instagram-Post-Entwurf. Freigegebene "
-"Posts werden zu ihrer Zeit veröffentlicht. Instagram lädt das Video über "
-"SITE_BASE_URL herunter, das muss daher eine öffentliche https-Adresse sein."
+"Jedes gerenderte Reel bekommt einen Instagram-Post-Entwurf für den Sendetag "
+"zur Uhrzeit der täglichen Reel-Erinnerung (Abschnitt Reel Studio). "
+"Freigegebene Posts werden zu ihrer Zeit veröffentlicht. Instagram lädt das "
+"Video über SITE_BASE_URL herunter, das muss daher eine öffentliche https-"
+"Adresse sein."
 
 #: admin.py:214
 msgid ""
@@ -221,11 +224,11 @@ msgid "The post was changed and is a draft again; approve it once more."
 msgstr ""
 "Der Post wurde geändert und ist wieder ein Entwurf; bitte erneut freigeben."
 
-#: admin.py:754 models.py:1357 templates/tools/video_render.html:135
+#: admin.py:754 models.py:1355 templates/tools/video_render.html:135
 msgid "License"
 msgstr "Freistellung"
 
-#: admin.py:760 models.py:155 models.py:1382 models.py:1476
+#: admin.py:760 models.py:155 models.py:1380 models.py:1474
 #: templates/tools/audio_normalize.html:247
 #: templates/tools/audio_normalize.html:349
 #: templates/tools/audio_normalize_job_detail.html:50
@@ -239,7 +242,7 @@ msgstr "Freistellung"
 msgid "Status"
 msgstr "Status"
 
-#: admin.py:772 models.py:1397
+#: admin.py:772 models.py:1395
 msgid "Instagram link"
 msgstr "Instagram-Link"
 
@@ -681,24 +684,24 @@ msgstr "Unteres Drittel links"
 msgid "Lower Third Right"
 msgstr "Unteres Drittel rechts"
 
-#: models.py:102 models.py:1332 templates/tools/slideshow_list.html:70
+#: models.py:102 models.py:1330 templates/tools/slideshow_list.html:70
 msgid "Draft"
 msgstr "Entwurf"
 
-#: models.py:103 models.py:1450 templates/tools/audio_normalize.html:433
+#: models.py:103 models.py:1448 templates/tools/audio_normalize.html:433
 #: templates/tools/audio_normalize_job_list.html:63
 #: templates/tools/slideshow_list.html:71
 msgid "Processing"
 msgstr "Wird verarbeitet"
 
-#: models.py:104 models.py:1451 templates/tools/audio_normalize.html:434
+#: models.py:104 models.py:1449 templates/tools/audio_normalize.html:434
 #: templates/tools/audio_normalize_job_list.html:64
 #: templates/tools/slideshow_detail.html:121
 #: templates/tools/slideshow_list.html:72
 msgid "Completed"
 msgstr "Abgeschlossen"
 
-#: models.py:105 models.py:1336 models.py:1452
+#: models.py:105 models.py:1334 models.py:1450
 #: templates/tools/audio_normalize.html:435
 #: templates/tools/audio_normalize_job_list.html:65
 #: templates/tools/slideshow_list.html:73
@@ -780,7 +783,7 @@ msgstr "Projektname"
 msgid "Name of the slideshow project"
 msgstr "Name des Diashow-Projekts"
 
-#: models.py:148 models.py:535 models.py:1469
+#: models.py:148 models.py:535 models.py:1467
 msgid "Created By"
 msgstr "Erstellt von"
 
@@ -845,7 +848,7 @@ msgstr "Video-Bitrate"
 msgid "Video bitrate (e.g., 5M, 10M)"
 msgstr "Video-Bitrate (z.B. 5M, 10M)"
 
-#: models.py:208 models.py:1539
+#: models.py:208 models.py:1537
 msgid "Audio Bitrate"
 msgstr "Audio-Bitrate"
 
@@ -887,7 +890,7 @@ msgstr "Wenn Bilder kürzer als Musik sind"
 msgid "Output Video File"
 msgstr "Ausgabe-Videodatei"
 
-#: models.py:243 models.py:1578
+#: models.py:243 models.py:1576
 msgid "Error Message"
 msgstr "Fehlermeldung"
 
@@ -905,7 +908,7 @@ msgstr ""
 msgid "What to do when images are shorter than music"
 msgstr "Wenn Bilder kürzer als Musik sind"
 
-#: models.py:275 models.py:446 models.py:1588
+#: models.py:275 models.py:446 models.py:1586
 msgid "Created At"
 msgstr "Erstellt am"
 
@@ -913,7 +916,7 @@ msgstr "Erstellt am"
 msgid "Updated At"
 msgstr "Aktualisiert am"
 
-#: models.py:284 models.py:1598
+#: models.py:284 models.py:1596
 msgid "Completed At"
 msgstr "Abgeschlossen am"
 
@@ -947,7 +950,7 @@ msgstr "Projekt, zu dem dieses Medium gehört (null für Bibliotheksdateien)"
 msgid "Media File"
 msgstr "Mediendatei"
 
-#: models.py:340 models.py:430 models.py:1286
+#: models.py:340 models.py:430 models.py:1284
 #: templates/tools/slideshow_list.html:81
 msgid "Name"
 msgstr "Name"
@@ -1114,7 +1117,7 @@ msgstr "Intro"
 msgid "Outro"
 msgstr "Outro"
 
-#: models.py:572 models.py:1482 templates/tools/audio_normalize.html:212
+#: models.py:572 models.py:1480 templates/tools/audio_normalize.html:212
 #: templates/tools/audio_normalize.html:1156
 #: templates/tools/audio_normalize_job_detail.html:68
 #: templates/tools/audio_normalize_job_list.html:76
@@ -1631,16 +1634,19 @@ msgstr "E-Mail-Adresse, die die tägliche Reel-Erinnerung erhält."
 msgid "Daily reel reminder time"
 msgstr "Uhrzeit der täglichen Reel-Erinnerung"
 
-#: models.py:1027
-msgid "Local time when Celery Beat should send the daily reminder."
+#: models.py:1028
+msgid ""
+"Local time when Celery Beat should send the daily reminder. Instagram posts "
+"of the day are planned for the same time."
 msgstr ""
-"Lokale Uhrzeit, zu der Celery Beat die tägliche Erinnerung senden soll."
+"Uhrzeit, zu der Celery Beat die tägliche Erinnerung sendet. Die Instagram-"
+"Posts des Tages werden für dieselbe Zeit geplant."
 
-#: models.py:1033
+#: models.py:1036
 msgid "Instagram posting enabled"
 msgstr "Instagram-Posting aktiviert"
 
-#: models.py:1035
+#: models.py:1038
 msgid ""
 "Creates a post draft for every rendered reel and publishes approved posts at"
 " their time. Needs the account ID and an access token."
@@ -1649,19 +1655,19 @@ msgstr ""
 "freigegebene Posts zu ihrer Zeit. Braucht die Konto-ID und einen "
 "Zugriffstoken."
 
-#: models.py:1042
+#: models.py:1045
 msgid "Instagram Login (graph.instagram.com)"
 msgstr "Instagram-Login (graph.instagram.com)"
 
-#: models.py:1043
+#: models.py:1046
 msgid "Facebook Login (graph.facebook.com)"
 msgstr "Facebook-Login (graph.facebook.com)"
 
-#: models.py:1046
+#: models.py:1049
 msgid "Instagram API"
 msgstr "Instagram-API"
 
-#: models.py:1048
+#: models.py:1051
 msgid ""
 "Instagram Login needs no Facebook page; its token lasts 60 days and is "
 "renewed automatically. Facebook Login uses a page or system user token."
@@ -1670,27 +1676,27 @@ msgstr ""
 "wird automatisch erneuert. Facebook-Login nutzt einen Seiten- oder System-"
 "User-Token."
 
-#: models.py:1055
+#: models.py:1058
 msgid "Instagram API version"
 msgstr "Instagram-API-Version"
 
-#: models.py:1056
+#: models.py:1059
 msgid "Graph API version in the URL, e.g. v27.0."
 msgstr "Graph-API-Version in der URL, z. B. v27.0."
 
-#: models.py:1062
+#: models.py:1065
 msgid "Instagram account ID"
 msgstr "Instagram-Konto-ID"
 
-#: models.py:1063
+#: models.py:1066
 msgid "Numeric ID of the professional Instagram account (IG user ID)."
 msgstr "Numerische ID des professionellen Instagram-Kontos (IG-User-ID)."
 
-#: models.py:1068
+#: models.py:1071
 msgid "Instagram access token"
 msgstr "Instagram-Zugriffstoken"
 
-#: models.py:1070
+#: models.py:1073
 msgid ""
 "Long-lived token with the content publishing permission. Kept on the server "
 "only; it is never shown in a page."
@@ -1698,23 +1704,15 @@ msgstr ""
 "Langlebiger Token mit der Berechtigung zum Veröffentlichen. Bleibt nur auf "
 "dem Server und wird nie auf einer Seite angezeigt."
 
-#: models.py:1077
+#: models.py:1080
 msgid "Instagram token renewed at"
 msgstr "Instagram-Token erneuert am"
 
-#: models.py:1081
-msgid "Instagram post time"
-msgstr "Instagram-Postzeit"
-
-#: models.py:1082
-msgid "Default local time on the broadcast day for a new post draft."
-msgstr "Standard-Uhrzeit am Sendetag für einen neuen Post-Entwurf."
-
-#: models.py:1091
+#: models.py:1089
 msgid "Instagram caption template"
 msgstr "Instagram-Bildunterschrift (Vorlage)"
 
-#: models.py:1093
+#: models.py:1091
 #, python-brace-format
 msgid ""
 "Placeholders: {titel}, {untertitel}, {beschreibung}, {autor}, {sendetermin} "
@@ -1727,52 +1725,52 @@ msgstr ""
 "(aus den Tags der Freistellung). Eine Zeile, deren Platzhalter alle leer "
 "sind, entfällt."
 
-#: models.py:1101 models.py:1366
+#: models.py:1099 models.py:1364
 msgid "Also show in the feed"
 msgstr "Auch im Feed zeigen"
 
-#: models.py:1102
+#: models.py:1100
 msgid "Off: the reel only appears in the Reels tab."
 msgstr "Aus: Das Reel erscheint nur im Reels-Tab."
 
-#: models.py:1106 models.py:1107
+#: models.py:1104 models.py:1105
 msgid "Tools Configuration"
 msgstr "Werkzeuge-Konfiguration"
 
-#: models.py:1213
+#: models.py:1211
 msgid "Tools: send daily reel reminder"
 msgstr "Tools: tägliche Reel-Erinnerung senden"
 
-#: models.py:1247
+#: models.py:1245
 msgid "Tools: publish due Instagram posts"
 msgstr "Werkzeuge: fällige Instagram-Posts veröffentlichen"
 
-#: models.py:1261
+#: models.py:1259
 msgid "Tools: renew Instagram token"
 msgstr "Werkzeuge: Instagram-Token erneuern"
 
-#: models.py:1280
+#: models.py:1278
 msgid "Title, subtitle, tags, description, further persons or author"
 msgstr "Titel, Untertitel, Tags, Beschreibung, weitere Personen oder Autor"
 
-#: models.py:1281
+#: models.py:1279
 msgid "Title or subtitle"
 msgstr "Titel oder Untertitel"
 
-#: models.py:1282 templates/email/daily_reel_reminder_body.html:15
+#: models.py:1280 templates/email/daily_reel_reminder_body.html:15
 #: templates/email/daily_reel_reminder_body.txt:9
 msgid "Tags"
 msgstr "Tags"
 
-#: models.py:1283
+#: models.py:1281
 msgid "Author (profile) or further persons"
 msgstr "Autor (Profil) oder weitere Personen"
 
-#: models.py:1289
+#: models.py:1287
 msgid "Keywords"
 msgstr "Stichwörter"
 
-#: models.py:1291
+#: models.py:1289
 msgid ""
 "Comma separated; whole words, upper/lower case does not matter. E.g. \"HoMe,"
 " Hochschule Merseburg\"."
@@ -1780,61 +1778,61 @@ msgstr ""
 "Durch Kommas getrennt; ganze Wörter, Groß-/Kleinschreibung egal. Z. B. "
 "„HoMe, Hochschule Merseburg“."
 
-#: models.py:1299
+#: models.py:1297
 msgid "Search in"
 msgstr "Suchen in"
 
-#: models.py:1303
+#: models.py:1301
 msgid "Instagram accounts"
 msgstr "Instagram-Konten"
 
-#: models.py:1304
+#: models.py:1302
 msgid "Usernames invited as collaborators, comma separated, without @."
 msgstr ""
 "Benutzernamen, die als Collab eingeladen werden, durch Kommas getrennt, ohne"
 " @."
 
-#: models.py:1306
+#: models.py:1304
 msgid "Active"
 msgstr "Aktiv"
 
-#: models.py:1309
+#: models.py:1307
 msgid "Instagram partner"
 msgstr "Instagram-Partner"
 
-#: models.py:1310
+#: models.py:1308
 msgid "Instagram partners"
 msgstr "Instagram-Partner"
 
-#: models.py:1333
+#: models.py:1331
 msgid "Approved"
 msgstr "Freigegeben"
 
-#: models.py:1334
+#: models.py:1332
 msgid "Publishing"
 msgstr "Wird veröffentlicht"
 
-#: models.py:1335
+#: models.py:1333
 msgid "Published"
 msgstr "Veröffentlicht"
 
-#: models.py:1348
+#: models.py:1346
 msgid "Reel file"
 msgstr "Reel-Datei"
 
-#: models.py:1349
+#: models.py:1347
 msgid "Finished reel in the reel output folder."
 msgstr "Fertiges Reel im Reel-Ausgabeordner."
 
-#: models.py:1359
+#: models.py:1357
 msgid "Caption"
 msgstr "Bildunterschrift"
 
-#: models.py:1363
+#: models.py:1361
 msgid "Collab accounts"
 msgstr "Collab-Konten"
 
-#: models.py:1364
+#: models.py:1362
 msgid ""
 "Up to 3 Instagram usernames, comma separated, without @. They get a collab "
 "invitation."
@@ -1842,39 +1840,39 @@ msgstr ""
 "Bis zu 3 Instagram-Benutzernamen, durch Kommas getrennt, ohne @. Sie "
 "erhalten eine Collab-Einladung."
 
-#: models.py:1369
+#: models.py:1367
 msgid "Cover frame (ms)"
 msgstr "Titelbild-Frame (ms)"
 
-#: models.py:1370
+#: models.py:1368
 msgid "Position of the cover frame in milliseconds; 0 is the first frame."
 msgstr "Position des Titelbilds in Millisekunden; 0 ist der erste Frame."
 
-#: models.py:1375
+#: models.py:1373
 msgid "Publish at"
 msgstr "Veröffentlichen am"
 
-#: models.py:1390
+#: models.py:1388
 msgid "Approved by"
 msgstr "Freigegeben von"
 
-#: models.py:1392
+#: models.py:1390
 msgid "Approved at"
 msgstr "Freigegeben am"
 
-#: models.py:1393
+#: models.py:1391
 msgid "Instagram container"
 msgstr "Instagram-Container"
 
-#: models.py:1396
+#: models.py:1394
 msgid "Instagram media ID"
 msgstr "Instagram-Medien-ID"
 
-#: models.py:1398
+#: models.py:1396
 msgid "Published at"
 msgstr "Veröffentlicht am"
 
-#: models.py:1399 templates/tools/audio_normalize_job_detail.html:55
+#: models.py:1397 templates/tools/audio_normalize_job_detail.html:55
 #: templates/tools/audio_normalize_job_list.html:96
 #: templates/tools/reel_studio.html:363 templates/tools/reel_studio.html:413
 #: templates/tools/slideshow_detail.html:98
@@ -1882,101 +1880,101 @@ msgstr "Veröffentlicht am"
 msgid "Error"
 msgstr "Fehler"
 
-#: models.py:1400
+#: models.py:1398
 msgid "Created at"
 msgstr "Erstellt am"
 
-#: models.py:1401
+#: models.py:1399
 msgid "Updated at"
 msgstr "Aktualisiert am"
 
-#: models.py:1404
+#: models.py:1402
 msgid "Instagram post"
 msgstr "Instagram-Post"
 
-#: models.py:1405
+#: models.py:1403
 msgid "Instagram posts"
 msgstr "Instagram-Posts"
 
-#: models.py:1408
+#: models.py:1406
 msgid "Can approve and publish Instagram posts"
 msgstr "Kann Instagram-Posts freigeben und veröffentlichen"
 
-#: models.py:1429
+#: models.py:1427
 #, python-format
 msgid "At most %(max)s characters (now %(count)s)."
 msgstr "Höchstens %(max)s Zeichen (jetzt %(count)s)."
 
-#: models.py:1432
+#: models.py:1430
 #, python-format
 msgid "At most %(max)s hashtags."
 msgstr "Höchstens %(max)s Hashtags."
 
-#: models.py:1434
+#: models.py:1432
 #, python-format
 msgid "At most %(max)s @ mentions."
 msgstr "Höchstens %(max)s @-Erwähnungen."
 
-#: models.py:1437
+#: models.py:1435
 #, python-format
 msgid "At most %(max)s collab accounts."
 msgstr "Höchstens %(max)s Collab-Konten."
 
-#: models.py:1439
+#: models.py:1437
 msgid "Only Instagram usernames: letters, digits, dot and underscore."
 msgstr ""
 "Nur Instagram-Benutzernamen: Buchstaben, Ziffern, Punkt und Unterstrich."
 
-#: models.py:1448 templates/tools/audio_normalize.html:431
+#: models.py:1446 templates/tools/audio_normalize.html:431
 #: templates/tools/audio_normalize_job_list.html:61
 msgid "Pending"
 msgstr "Ausstehend"
 
-#: models.py:1449 templates/tools/audio_normalize.html:432
+#: models.py:1447 templates/tools/audio_normalize.html:432
 #: templates/tools/audio_normalize_job_list.html:62
 msgid "Analyzing"
 msgstr "Analysiere"
 
-#: models.py:1456
+#: models.py:1454
 msgid "TV (R128)"
 msgstr "TV (R128)"
 
-#: models.py:1457
+#: models.py:1455
 msgid "Web"
 msgstr "Web"
 
-#: models.py:1461
+#: models.py:1459
 msgid "192 kbps"
 msgstr "192 kbps"
 
-#: models.py:1462
+#: models.py:1460
 msgid "256 kbps"
 msgstr "256 kbps"
 
-#: models.py:1483
+#: models.py:1481
 msgid "Audio normalize preset ID"
 msgstr "Preset-ID für Audio-Normalisierung"
 
-#: models.py:1489 templates/tools/audio_normalize.html:348
+#: models.py:1487 templates/tools/audio_normalize.html:348
 msgid "Target"
 msgstr "Ziel"
 
-#: models.py:1490
+#: models.py:1488
 msgid "Target loudness profile"
 msgstr "Ziel-Lautheitsprofil"
 
-#: models.py:1495
+#: models.py:1493
 msgid "Input File"
 msgstr "Eingabedatei"
 
 # AudioNormalizeJob - output_path_external
-#: models.py:1506
+#: models.py:1504
 #, fuzzy
 #| msgid "Output Path (external)"
 msgid "Input path (external)"
 msgstr "Eingabepfad (extern)"
 
-#: models.py:1507
+#: models.py:1505
 #, fuzzy
 #| msgid ""
 #| "Absolute path when output was written outside MEDIA_ROOT (e.g. to a storage "
@@ -1988,13 +1986,13 @@ msgstr ""
 "Absoluter Pfad, wenn die Eingabe außerhalb von MEDIA_ROOT liegt (z. B. von "
 "einem Speicherort)."
 
-#: models.py:1512
+#: models.py:1510
 #, fuzzy
 #| msgid "No media files"
 msgid "Input media file ID"
 msgstr "ID der Eingabedatei"
 
-#: models.py:1513
+#: models.py:1511
 msgid ""
 "media_files.VideoFile ID when input was chosen by media number (for stream "
 "URL)."
@@ -2002,16 +2000,16 @@ msgstr ""
 "media_files.VideoFile-ID, wenn die Eingabe nach Mediennummer (Nummer) "
 "ausgewählt wurde (für Stream-URL)."
 
-#: models.py:1519
+#: models.py:1517
 msgid "Output File"
 msgstr "Ausgabedatei"
 
 # AudioNormalizeJob - output_path_external
-#: models.py:1524
+#: models.py:1522
 msgid "Output Path (external)"
 msgstr "Ausgabepfad (extern)"
 
-#: models.py:1525
+#: models.py:1523
 msgid ""
 "Absolute path when output was written outside MEDIA_ROOT (e.g. to a storage "
 "location)."
@@ -2019,76 +2017,76 @@ msgstr ""
 "Absoluter Pfad, wenn die Ausgabe außerhalb von MEDIA_ROOT geschrieben wurde "
 "(z. B. in einen Speicherort)."
 
-#: models.py:1531
+#: models.py:1529
 msgid "Output Filename"
 msgstr "Ausgabedateiname"
 
-#: models.py:1532
+#: models.py:1530
 msgid "If empty, will default to <input>_R128.mp4"
 msgstr "Wenn leer, wird standardmäßig <input>_R128.mp4 verwendet"
 
-#: models.py:1543
+#: models.py:1541
 msgid "Sample Rate"
 msgstr "Abtastrate"
 
-#: models.py:1547
+#: models.py:1545
 msgid "Force Stereo"
 msgstr "Stereo erzwingen"
 
-#: models.py:1548
+#: models.py:1546
 msgid "If enabled, audio will be forced to 2 channels"
 msgstr "Wenn aktiviert, wird das Audio auf 2 Kanäle erzwungen"
 
-#: models.py:1554
+#: models.py:1552
 msgid "Input Metadata"
 msgstr "Eingabe-Metadaten"
 
-#: models.py:1555
+#: models.py:1553
 msgid "ffprobe JSON output"
 msgstr "ffprobe-JSON-Ausgabe"
 
-#: models.py:1560
+#: models.py:1558
 msgid "Analysis Before"
 msgstr "Analyse vorher"
 
-#: models.py:1561
+#: models.py:1559
 msgid "loudnorm analysis JSON from pass 1"
 msgstr "loudnorm-Analyse-JSON aus Durchgang 1"
 
-#: models.py:1566
+#: models.py:1564
 msgid "Analysis After"
 msgstr "Analyse nachher"
 
-#: models.py:1567
+#: models.py:1565
 msgid "loudnorm analysis JSON from after-processing verification pass"
 msgstr ""
 "loudnorm-Analyse-JSON aus dem Verifikationsdurchgang nach der Verarbeitung"
 
-#: models.py:1572
+#: models.py:1570
 msgid "Progress (%)"
 msgstr "Fortschritt (%)"
 
-#: models.py:1573
+#: models.py:1571
 msgid "Processing progress 0..100"
 msgstr "Verarbeitungsfortschritt 0..100"
 
-#: models.py:1582
+#: models.py:1580
 msgid "FFmpeg Log"
 msgstr "FFmpeg-Protokoll"
 
-#: models.py:1593
+#: models.py:1591
 #, fuzzy
 #| msgid "Created At"
 msgid "Started At"
 msgstr "Gestartet am"
 
-#: models.py:1602 templates/tools/audio_normalize_job_detail.html:4
+#: models.py:1600 templates/tools/audio_normalize_job_detail.html:4
 #: templates/tools/audio_normalize_job_detail.html:5
 #: templates/tools/audio_normalize_job_detail.html:38
 msgid "Audio Normalize Job"
 msgstr "Audio-Normalisierungsauftrag"
 
-#: models.py:1603 templates/tools/audio_normalize.html:11
+#: models.py:1601 templates/tools/audio_normalize.html:11
 #: templates/tools/audio_normalize_job_detail.html:11
 #: templates/tools/audio_normalize_job_list.html:4
 #: templates/tools/audio_normalize_job_list.html:5
