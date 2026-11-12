@@ -128,12 +128,12 @@
       <h6>{% trans "Consumables" %}</h6>
       {% if messages %}
         {% for message in messages %}
-          <div class="tiny mb-2" style="color:{% if message.level_tag == 'error' %}oklch(0.45 0.14 28){% else %}oklch(0.45 0.1 75){% endif %}">{{ message }}</div>
+          <div class="tiny mb-2 {% if message.level_tag == 'error' %}text-bad{% else %}text-warn{% endif %}">{{ message }}</div>
         {% endfor %}
       {% endif %}
 
       {% if user_missing_consumables %}
-        <div class="tiny mb-2" style="padding:6px 8px;border-radius:6px;background:oklch(0.97 0.04 28);color:oklch(0.40 0.12 28)">
+        <div class="tiny mb-2 panel-bad text-bad-strong" style="padding:6px 8px;border-radius:6px;border:1px solid transparent">
           <i class="fas fa-triangle-exclamation me-1"></i>{% trans "Still missing from other rentals of this user:" %}
           <ul style="margin:4px 0 0;padding-left:16px">
             {% for c in user_missing_consumables %}

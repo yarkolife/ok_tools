@@ -169,7 +169,7 @@ function ReturnScreen({ rental, items, urls, consumables = [] }) {
       </div>
 
       {/* Summary bar */}
-      <div className="action-bar" style={{background: 'oklch(0.97 0.03 240)', borderColor: 'oklch(0.88 0.06 240)'}}>
+      <div className="action-bar panel-info">
         <div className="primary-cta">
           <Avatar user={rental.user} size={32} />
           <div>
@@ -190,7 +190,7 @@ function ReturnScreen({ rental, items, urls, consumables = [] }) {
             <div className="muted tiny" style={{textTransform: 'uppercase', letterSpacing: '.04em', fontWeight: 600}}>
               {t('ret.issues', 'Issues')}
             </div>
-            <div style={{fontWeight: 600, color: issueCount > 0 ? 'oklch(0.45 0.14 28)' : 'var(--ink)'}}>
+            <div className={issueCount > 0 ? 'text-bad' : ''} style={{fontWeight: 600}}>
               {issueCount}
             </div>
           </div>
@@ -297,7 +297,7 @@ function ReturnScreen({ rental, items, urls, consumables = [] }) {
               </div>
 
               {showIssueFor === ret.id && hasIssue && (
-                <div style={{padding: '12px 20px 14px 60px', background: 'oklch(0.98 0.02 28)',
+                <div className="panel-bad-soft" style={{padding: '12px 20px 14px 60px',
                                 borderBottom: '1px solid var(--line)'}}>
                   <div className="d-flex" style={{gap: 10, alignItems: 'center', marginBottom: 8}}>
                     <i className="fas fa-triangle-exclamation" style={{color: 'oklch(0.55 0.14 45)'}}></i>

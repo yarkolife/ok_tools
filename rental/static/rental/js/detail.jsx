@@ -654,8 +654,7 @@ function IssuesPanel({ issues, onReportIssue }) {
             </div>
             <div className="muted tiny">
               {iss.severity === 'minor' && <span className="tag tag-warn">{t('sev.minor', 'Minor')}</span>}
-              {iss.severity === 'major' && <span className="tag tag-bad"
-                style={{background:'oklch(0.97 0.05 45)', color:'oklch(0.40 0.14 45)', borderColor:'oklch(0.85 0.1 45)'}}>
+              {iss.severity === 'major' && <span className="tag tag-major">
                 {t('sev.major', 'Major')}
               </span>}
               {iss.severity === 'critical' && <span className="tag tag-bad">{t('sev.critical', 'Critical')}</span>}

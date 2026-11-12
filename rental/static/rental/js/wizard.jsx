@@ -1142,9 +1142,9 @@ function StepTime({ initial, period, setPeriod, cart }) {
       <QuickPick period={period} setPeriod={setPeriod} workingHours={initial.working_hours} />
 
       {warnings.length > 0 && (
-        <div className="inline-extend" style={{background: 'oklch(0.97 0.04 28)', borderColor: 'oklch(0.85 0.09 28)'}}>
+        <div className="inline-extend panel-bad">
           <i className="fas fa-triangle-exclamation" style={{color: 'oklch(0.55 0.16 28)'}}></i>
-          <ul style={{margin: 0, paddingLeft: 16, color: 'oklch(0.35 0.12 28)'}}>
+          <ul className="text-bad-strong" style={{margin: 0, paddingLeft: 16}}>
             {warnings.map((w, i) => <li key={i} style={{fontSize: 12}}>{w}</li>)}
           </ul>
         </div>
