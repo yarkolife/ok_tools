@@ -88,9 +88,10 @@ class BarcodeApiTests(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         data = resp.json()
+        self.assertEqual((data['rental_item_id'], data['outstanding']), (ri.id, 2))
+        # The scan is only counted on the page; "Complete return" stores it.
         ri.refresh_from_db()
-        self.assertEqual(ri.quantity_returned, 1)
-        self.assertFalse(data['complete'])
+        self.assertEqual(ri.quantity_returned, 0)
 
     def test_scan_return_rejects_display_code(self):
         """The return page used to send R-YYMM-NNNN, which is not the pk."""

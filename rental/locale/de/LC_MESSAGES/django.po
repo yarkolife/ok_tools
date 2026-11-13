@@ -5004,3 +5004,6 @@ msgstr "Tagesansicht öffnen"
 
 msgid "Click a day to reserve the room."
 msgstr "Auf einen Tag klicken, um den Raum zu reservieren."
+
+msgid "This item is already counted completely."
+msgstr "Dieser Artikel ist schon vollständig gezählt."

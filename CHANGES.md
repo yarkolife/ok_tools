@@ -12,6 +12,7 @@ CHANGELOG
 * **rental: Fix returns by scanner failing without a chosen condition**
   * Returning items only by scanning them (without clicking "OK" in the condition column) failed with a database error, because the empty condition was stored as is. An item without a chosen condition now counts as "good".
   * Every return note said "Hold item out of the rental pool until reviewed", because that option is ticked by default and only shown for items with a problem. Charging the user and holding the item out now only apply to items with a problem.
+  * Scanning an item on the return page stored it as returned at once, while "Complete return" stored the return a second time. A return that was not completed left the item half returned, and the next scan was refused with "All issued quantities have already been returned". A scan now only counts the item on the page; "Complete return" stores everything together. The page also counts only what is still out after earlier partial returns.
 
 2026-11-12 (Version 4.69.0)
 ==========================

@@ -518,6 +518,7 @@ def _i18n_bundle():
         'ret.scan_barcode': _('Scan Barcode'),
         'ret.scan_ph': _('Scan or type inventory number…'),
         'ret.scan_failed': _('Scan failed.'),
+        'ret.scan_full': _('This item is already counted completely.'),
         'ret.returned': _('returned'),
         'ret.progress': _('Progress'),
         'ret.checked': _('checked'),
@@ -4835,11 +4836,14 @@ def api_barcode_lookup(request):
 @staff_member_required
 def api_scan_return_item(request):
     """
-    Scan a barcode to increment the return count for a rental item.
+    Find the rental item behind a scanned barcode on the return page.
 
     POST /rental/api/scan-return/
     Body: {"rental_id": int, "inventory_number": str}
-    Returns updated rental item details with completion status.
+
+    Nothing is stored here: the page counts the scan and "Complete return"
+    records it. Storing the count on every scan left items half returned
+    when the return was not completed, and a second scan was then refused.
     """
     logger = logging.getLogger(__name__)
 
@@ -4889,14 +4893,12 @@ def api_scan_return_item(request):
             status=404,
         )
 
-    if rental_item.quantity_returned >= rental_item.quantity_issued:
+    outstanding = (rental_item.quantity_issued or 0) - (rental_item.quantity_returned or 0)
+    if outstanding <= 0:
         return JsonResponse(
             {'error': _('All issued quantities have already been returned')},
             status=400,
         )
-
-    rental_item.quantity_returned += 1
-    rental_item.save()
 
     return JsonResponse({
         'rental_item_id': rental_item.id,
@@ -4904,7 +4906,7 @@ def api_scan_return_item(request):
         'description': rental_item.inventory_item.description or rental_item.inventory_item.inventory_number,
         'quantity_issued': rental_item.quantity_issued,
         'quantity_returned': rental_item.quantity_returned,
-        'complete': rental_item.quantity_returned >= rental_item.quantity_issued,
+        'outstanding': outstanding,
     })
 
 

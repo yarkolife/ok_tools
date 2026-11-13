@@ -71,9 +71,10 @@ class BarcodeIntegrationTests(TestCase):
         self.assertEqual(data['inventory_number'], 'OK-E2E-001')
 
     def test_full_scan_issue_workflow(self):
+        """A scan finds the item but stores nothing; a repeat scan finds it again."""
         item = self._create_item('OK-E2E-002')
         rental = self._create_rental()
-        self._create_rental_item(rental, item, quantity_issued=1, quantity_returned=0)
+        ri = self._create_rental_item(rental, item, quantity_issued=1, quantity_returned=0)
 
         lookup_url = reverse('rental:api_barcode_lookup') + '?num=OK-E2E-002'
         resp = self.client.get(lookup_url)
@@ -81,19 +82,20 @@ class BarcodeIntegrationTests(TestCase):
         self.assertEqual(resp.json()['inventory_number'], 'OK-E2E-002')
 
         return_url = reverse('rental:api_scan_return_item')
-        resp = self.client.post(
-            return_url,
-            data=json.dumps({'rental_id': rental.id, 'inventory_number': 'OK-E2E-002'}),
-            content_type='application/json',
-        )
-        self.assertEqual(resp.status_code, 200)
-        data = resp.json()
-        self.assertEqual(data['quantity_returned'], 1)
-        self.assertTrue(data['complete'])
+        for _ in range(2):
+            resp = self.client.post(
+                return_url,
+                data=json.dumps({'rental_id': rental.id, 'inventory_number': 'OK-E2E-002'}),
+                content_type='application/json',
+            )
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.json()['outstanding'], 1)
+        ri.refresh_from_db()
+        self.assertEqual(ri.quantity_returned, 0)
 
-        ri = RentalItem.objects.get(rental_request=rental, inventory_item=item)
-        self.assertEqual(ri.quantity_returned, 1)
-
+        # Once the return is stored, there is nothing left to scan.
+        ri.quantity_returned = 1
+        ri.save(update_fields=['quantity_returned'])
         resp = self.client.post(
             return_url,
             data=json.dumps({'rental_id': rental.id, 'inventory_number': 'OK-E2E-002'}),
@@ -109,40 +111,14 @@ class BarcodeIntegrationTests(TestCase):
         ri_b = self._create_rental_item(rental, item_b, quantity_issued=1, quantity_returned=0)
 
         return_url = reverse('rental:api_scan_return_item')
-
-        resp = self.client.post(
-            return_url,
-            data=json.dumps({'rental_id': rental.id, 'inventory_number': 'OK-E2E-003A'}),
-            content_type='application/json',
-        )
-        self.assertEqual(resp.status_code, 200)
-        self.assertTrue(resp.json()['complete'])
-        ri_a.refresh_from_db()
-        self.assertEqual(ri_a.quantity_returned, 1)
-
-        resp = self.client.post(
-            return_url,
-            data=json.dumps({'rental_id': rental.id, 'inventory_number': 'OK-E2E-003B'}),
-            content_type='application/json',
-        )
-        self.assertEqual(resp.status_code, 200)
-        self.assertTrue(resp.json()['complete'])
-        ri_b.refresh_from_db()
-        self.assertEqual(ri_b.quantity_returned, 1)
-
-        resp = self.client.post(
-            return_url,
-            data=json.dumps({'rental_id': rental.id, 'inventory_number': 'OK-E2E-003A'}),
-            content_type='application/json',
-        )
-        self.assertEqual(resp.status_code, 400)
-
-        resp = self.client.post(
-            return_url,
-            data=json.dumps({'rental_id': rental.id, 'inventory_number': 'OK-E2E-003B'}),
-            content_type='application/json',
-        )
-        self.assertEqual(resp.status_code, 400)
+        for ri, number in ((ri_a, 'OK-E2E-003A'), (ri_b, 'OK-E2E-003B')):
+            resp = self.client.post(
+                return_url,
+                data=json.dumps({'rental_id': rental.id, 'inventory_number': number}),
+                content_type='application/json',
+            )
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.json()['rental_item_id'], ri.id)
 
     def test_scan_nonexistent_item(self):
         rental = self._create_rental()
@@ -160,49 +136,24 @@ class BarcodeIntegrationTests(TestCase):
         self.assertEqual(resp.status_code, 404)
 
     def test_scan_return_quantity_exact(self):
+        """The scan reports what is still out; only partial returns stored before reduce it."""
         item = self._create_item('OK-E2E-005')
         rental = self._create_rental()
         ri = self._create_rental_item(rental, item, quantity_issued=3, quantity_returned=0)
 
         return_url = reverse('rental:api_scan_return_item')
 
-        resp = self.client.post(
-            return_url,
-            data=json.dumps({'rental_id': rental.id, 'inventory_number': 'OK-E2E-005'}),
-            content_type='application/json',
-        )
-        self.assertEqual(resp.status_code, 200)
-        data = resp.json()
-        self.assertEqual(data['quantity_returned'], 1)
-        self.assertFalse(data['complete'])
+        def scan():
+            return self.client.post(
+                return_url,
+                data=json.dumps({'rental_id': rental.id, 'inventory_number': 'OK-E2E-005'}),
+                content_type='application/json',
+            )
 
-        resp = self.client.post(
-            return_url,
-            data=json.dumps({'rental_id': rental.id, 'inventory_number': 'OK-E2E-005'}),
-            content_type='application/json',
-        )
-        self.assertEqual(resp.status_code, 200)
-        data = resp.json()
-        self.assertEqual(data['quantity_returned'], 2)
-        self.assertFalse(data['complete'])
-
-        resp = self.client.post(
-            return_url,
-            data=json.dumps({'rental_id': rental.id, 'inventory_number': 'OK-E2E-005'}),
-            content_type='application/json',
-        )
-        self.assertEqual(resp.status_code, 200)
-        data = resp.json()
-        self.assertEqual(data['quantity_returned'], 3)
-        self.assertTrue(data['complete'])
-
-        resp = self.client.post(
-            return_url,
-            data=json.dumps({'rental_id': rental.id, 'inventory_number': 'OK-E2E-005'}),
-            content_type='application/json',
-        )
-        self.assertEqual(resp.status_code, 400)
-
-        ri.refresh_from_db()
-        self.assertEqual(ri.quantity_returned, 3)
-        self.assertTrue(ri.quantity_returned >= ri.quantity_issued)
+        self.assertEqual(scan().json()['outstanding'], 3)
+        ri.quantity_returned = 2
+        ri.save(update_fields=['quantity_returned'])
+        self.assertEqual(scan().json()['outstanding'], 1)
+        ri.quantity_returned = 3
+        ri.save(update_fields=['quantity_returned'])
+        self.assertEqual(scan().status_code, 400)

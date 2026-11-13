@@ -11,7 +11,8 @@ function ReturnScreen({ rental, items, urls, consumables = [] }) {
       name: i.name,
       num: i.num,
       issuedAt: i.issued_at,
-      total: i.qty_issued,
+      // What is still out: earlier partial returns are not counted again.
+      total: i.outstanding ?? i.qty_issued,
       qtyReturned: 0,
       condition: null,
       issue: '',
@@ -67,10 +68,13 @@ function ReturnScreen({ rental, items, urls, consumables = [] }) {
         rental_id: rental.pk,
         inventory_number: scanValue.trim(),
       });
-      const idx = returns.findIndex(r => r.id === data.rental_item_id);
-      if (idx >= 0) {
-        setRet(data.rental_item_id, { qtyReturned: data.quantity_returned });
+      // The scan is only counted here; "Complete return" stores it.
+      const row = returns.find(r => r.id === data.rental_item_id);
+      if (!row) throw new Error(t('ret.scan_failed', 'Scan failed.'));
+      if (row.qtyReturned >= row.total) {
+        throw new Error(t('ret.scan_full', 'This item is already counted completely.'));
       }
+      setRet(row.id, { qtyReturned: row.qtyReturned + 1 });
       beep(800, 100);
       setScanError('');
       setScanFeedback('success');
