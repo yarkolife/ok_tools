@@ -9,6 +9,9 @@ CHANGELOG
   * Each card, and any old link to a configuration list, opens the form directly instead of a list with one row.
 * **licenses: Archive carriers link to their license**
   * In "Archive carriers" the license number and title open the license; the carrier number still opens the carrier.
+* **rental: Fix returns by scanner failing without a chosen condition**
+  * Returning items only by scanning them (without clicking "OK" in the condition column) failed with a database error, because the empty condition was stored as is. An item without a chosen condition now counts as "good".
+  * Every return note said "Hold item out of the rental pool until reviewed", because that option is ticked by default and only shown for items with a problem. Charging the user and holding the item out now only apply to items with a problem.
 
 2026-11-12 (Version 4.69.0)
 ==========================

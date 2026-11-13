@@ -2342,11 +2342,17 @@ def api_return_rental_items(request):
                 'warn': 'fair',
                 'bad': 'poor',
             }
-            condition = condition_map.get(item_data.get('condition'), item_data.get('condition', 'good'))
+            # No condition chosen (e.g. returned by scanning only) means OK; the
+            # field must not be stored empty.
+            raw_condition = item_data.get('condition') or 'ok'
+            condition = condition_map.get(raw_condition, raw_condition)
 
             issue_text = (item_data.get('issue') or '').strip()
-            charge_user = bool(item_data.get('charge'))
-            hold_out = bool(item_data.get('hold_out'))
+            # Charging and holding out only apply to an item with a problem; the
+            # page keeps "hold out" ticked by default but hides it until then.
+            has_problem = bool(issue_text) or condition in ('fair', 'poor')
+            charge_user = has_problem and bool(item_data.get('charge'))
+            hold_out = has_problem and bool(item_data.get('hold_out'))
             notes = item_data.get('notes', '')
             if issue_text and not notes:
                 notes = issue_text

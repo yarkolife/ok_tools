@@ -312,3 +312,60 @@ def test__rental__consumables__wizard_creates_and_warns_about_missing(client, dj
 
     assert response.status_code == 200, response.content
     assert list(new_rental.consumables.values_list('name', 'quantity')) == [('SD 64GB', 4)]
+
+
+@pytest.mark.django_db
+def test__rental__return__scanned_item_without_condition_counts_as_ok(client, django_user_model):
+    """Returning by scan only leaves the condition unset; that is "OK", not an error."""
+    from rental.models import RentalTransaction
+
+    borrower, staff = _users(django_user_model)
+    rental = _rental(borrower, staff)
+    rental_item = _issued_item(rental)
+    client.force_login(staff)
+
+    with patch('rental.views.send_return_receipt_email'):
+        response = client.post(
+            reverse('rental:api_return_rental_items'),
+            data=json.dumps({
+                'rental_id': rental.pk,
+                # What the return page sends after a scan: no condition chosen,
+                # "hold out" still ticked by default although nothing is wrong.
+                'items': [{'id': rental_item.pk, 'qty_returned': 1, 'condition': None,
+                           'issue': '', 'charge': False, 'hold_out': True}],
+                'consumables': [],
+                'close_rental': True,
+            }),
+            content_type='application/json',
+        )
+
+    assert response.status_code == 200, response.content
+    transaction = RentalTransaction.objects.get(rental_item=rental_item, transaction_type='return')
+    assert transaction.condition == 'good'
+    assert 'Hold item out' not in transaction.notes
+
+
+@pytest.mark.django_db
+def test__rental__return__hold_out_is_noted_for_a_damaged_item(client, django_user_model):
+    from rental.models import RentalTransaction
+
+    borrower, staff = _users(django_user_model)
+    rental = _rental(borrower, staff)
+    rental_item = _issued_item(rental)
+    client.force_login(staff)
+
+    with patch('rental.views.send_return_receipt_email'):
+        client.post(
+            reverse('rental:api_return_rental_items'),
+            data=json.dumps({
+                'rental_id': rental.pk,
+                'items': [{'id': rental_item.pk, 'qty_returned': 1, 'condition': 'bad',
+                           'issue': 'Display cracked', 'hold_out': True}],
+                'consumables': [],
+            }),
+            content_type='application/json',
+        )
+
+    transaction = RentalTransaction.objects.get(rental_item=rental_item, transaction_type='return')
+    assert transaction.condition == 'poor'
+    assert 'Hold item out of the rental pool until reviewed.' in transaction.notes
