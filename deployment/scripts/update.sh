@@ -932,6 +932,12 @@ if [ -z "${LOCAL_UPDATE_CALLED:-}" ]; then
     fi
 fi
 
+# Remember the commit for the version shown in the admin (the image has no .git)
+if [ -d "$PROJECT_DIR/.git" ]; then
+    git -C "$PROJECT_DIR" rev-parse --short=7 HEAD > "$PROJECT_DIR/BUILD_COMMIT" 2>/dev/null \
+        || rm -f "$PROJECT_DIR/BUILD_COMMIT"
+fi
+
 # Check and create local update script AFTER git pull (so we have latest version)
 if ! create_local_update_script; then
     print_warning "Failed to create local update script, but continuing with update..."

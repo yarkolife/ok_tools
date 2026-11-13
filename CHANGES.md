@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+2026-11-13 (Version 4.72.0)
+==========================
+
+* **admin: Installed version visible in the sidebar**
+  * The sidebar shows "OK-Tools 4.72.0 · <commit>" above the user menu, so staff and operators see which release runs on each server.
+  * The version lives in `ok_tools/version.py` (raised with every feature release). The commit is written to `BUILD_COMMIT` by `deployment/scripts/update.sh` before the image is built; in development it is read from `.git`.
+* **handbuch: Chapters compare their version with the installed one**
+  * The manual index shows the installed version. A chapter written for an older minor version than the one installed says so above the text ("Geschrieben für OK-Tools 4.71.0, installiert ist 4.72.0 …") and on its card.
+
 2026-11-13 (Version 4.71.0)
 ==========================
 

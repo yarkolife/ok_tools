@@ -1,0 +1,23 @@
+{% load i18n unfold %}
+{% comment %}
+  Copy of Unfold 0.110 helpers/navigation.html; adds the OK-Tools version
+  above the user block (see ok_tools/version.py).
+{% endcomment %}
+<nav id="nav-sidebar-inner" class="bg-base-50 flex flex-col min-h-screen dark:text-font-default-dark dark:bg-base-950/20 {% element_classes 'navigation_inner' %}">
+    {% include "unfold/helpers/navigation_header.html" %}
+
+    {% include "unfold/helpers/search.html" %}
+
+    {% if sidebar_navigation|length > 0 %}
+        {% include "unfold/helpers/app_list.html" with app_list=available_apps %}
+    {% else %}
+        {% include "admin/app_list.html" with app_list=available_apps show_changelinks=False %}
+    {% endif %}
+
+    <div class="mt-auto px-6 py-2 text-xs text-subtle select-text" id="ok-version"
+         title="{% translate 'Installed version' %}{% if OK_COMMIT %} · Commit {{ OK_COMMIT }}{% endif %}">
+        OK-Tools {{ OK_VERSION }}{% if OK_COMMIT %} <span class="opacity-70">· {{ OK_COMMIT }}</span>{% endif %}
+    </div>
+
+    {% include "unfold/helpers/navigation_user.html" %}
+</nav>

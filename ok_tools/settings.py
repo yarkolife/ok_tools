@@ -299,6 +299,7 @@ TEMPLATES = [
                 "ok_tools.context_processors.dashboard_theme_context",
                 "ok_tools.context_processors.module_flags",
                 "ok_tools.context_processors.brand_context",
+                "ok_tools.context_processors.app_version",
             ],
         },
     },

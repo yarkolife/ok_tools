@@ -26,6 +26,9 @@
   background: var(--ok-surface, #fff); border: 1px solid var(--ok-line, #dde3e9);
   color: var(--ok-ink-3, #5b6673); }
 .hb-stand strong { color: var(--ok-ink, #1f2933); }
+.hb-stand-note { margin: -8px 0 18px; padding: 8px 12px; border-radius: 8px; font-size: 13px;
+  background: var(--ok-warning-soft, #fff7e6); border: 1px solid var(--ok-warning-line, #f0c36d);
+  color: var(--ok-warning-ink, #6b4a00); }
 
 /* Table of contents from [TOC] */
 .hb .toc { margin: 0 0 24px; padding: 14px 18px; border-radius: 8px;

@@ -186,3 +186,6 @@ response.html
 # Local-only project notes
 PROJECT_MODULES_RU.md
 PROJECT_ROADMAP_RU.md
+
+# Commit of the deployed code, written by deployment/scripts/update.sh
+/BUILD_COMMIT

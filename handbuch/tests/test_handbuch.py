@@ -92,3 +92,32 @@ def test_chapters_carry_a_version_and_date():
     for chapter in kapitel_module.KAPITEL:
         assert re.fullmatch(r'\d+\.\d+\.\d+', chapter.version)
         assert chapter.stand
+
+
+@pytest.mark.django_db
+def test_admin_shows_the_installed_version(client, staff, monkeypatch):
+    from ok_tools import version
+    monkeypatch.setattr(version, 'commit', lambda: 'abc1234')
+    client.force_login(staff)
+    html = client.get(reverse('admin:index')).content.decode()
+    assert f'OK-Tools {version.VERSION}' in html
+    assert 'abc1234' in html
+
+
+def test_chapter_for_an_older_minor_version_says_so(monkeypatch):
+    chapter = kapitel_module.get_chapter(SLUG)
+    monkeypatch.setattr(kapitel_module, 'VERSION', chapter.version)
+    assert not chapter.older_than_installed
+    major, minor, _ = (int(p) for p in chapter.version.split('.'))
+    monkeypatch.setattr(kapitel_module, 'VERSION', f'{major}.{minor}.5')
+    assert not chapter.older_than_installed
+    monkeypatch.setattr(kapitel_module, 'VERSION', f'{major}.{minor + 1}.0')
+    assert chapter.older_than_installed
+
+
+def test_version_tuple():
+    from ok_tools.version import version_tuple
+    assert version_tuple('4.72.0') == (4, 72, 0)
+    assert version_tuple('4.72') == (4, 72, 0)
+    assert version_tuple('') == (0, 0, 0)
+    assert version_tuple('4.x.1') == (4, 0, 1)

@@ -18,6 +18,9 @@
     <span>Bildschirmfotos mit Beispieldaten in der hellen Ansicht.</span>
     <a href="{{ index_url }}">Alle Kapitel</a>
   </div>
+  {% if kapitel.older_than_installed %}
+  <p class="hb-stand-note">Geschrieben für OK-Tools {{ kapitel.version }}, installiert ist {{ OK_VERSION }}. Einzelne Bildschirme können inzwischen etwas anders aussehen.</p>
+  {% endif %}
 
   {{ content|safe }}
 

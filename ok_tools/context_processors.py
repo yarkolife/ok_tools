@@ -83,3 +83,10 @@ def _brand_css(color, build):
     if color not in _BRAND_CSS_CACHE:
         _BRAND_CSS_CACHE[color] = build(color)
     return _BRAND_CSS_CACHE[color]
+
+
+def app_version(request):
+    """Installed OK-Tools version and commit, shown in the admin sidebar."""
+    from ok_tools import version
+
+    return {'OK_VERSION': version.VERSION, 'OK_COMMIT': version.commit()}

@@ -2,9 +2,10 @@
 
 Every chapter is a Markdown file in ``handbuch/inhalt/<slug>.md`` (see
 ``handbuch/render.py`` for the extras it may use) and is listed here with the
-OK-Tools version and the date it was last checked against. When a described page changes, the chapter is updated and its
-``version`` and ``stand`` are raised in the same commit, so readers always see
-how current the text is.
+OK-Tools version and the date it was last checked against. When a described
+page changes, the chapter is updated and its ``version`` and ``stand`` are
+raised in the same commit, so readers always see how current the text is.
+A chapter written for an older minor version than the installed one says so.
 
 A chapter is only offered when the modules it describes are installed (a
 module switched off in the environment is not in ``INSTALLED_APPS``).
@@ -14,6 +15,8 @@ from dataclasses import dataclass
 from dataclasses import field
 from datetime import date
 from django.apps import apps
+from ok_tools.version import VERSION
+from ok_tools.version import version_tuple
 from typing import Optional
 from typing import Tuple
 
@@ -33,6 +36,11 @@ class Kapitel:
     def available(self) -> bool:
         return all(apps.is_installed(app) for app in self.requires)
 
+    @property
+    def older_than_installed(self) -> bool:
+        """Written for an older minor version than the one running."""
+        return version_tuple(self.version)[:2] < version_tuple(VERSION)[:2]
+
 
 KAPITEL: Tuple[Kapitel, ...] = (
     Kapitel(
@@ -43,7 +51,7 @@ KAPITEL: Tuple[Kapitel, ...] = (
             'Eigentümer festlegen, Etikett drucken und aufkleben, ausleihen '
             '(geführt oder mit dem Scanner) und zurücknehmen.'
         ),
-        version='4.71.0',
+        version='4.72.0',
         stand=date(2026, 11, 13),
         icon='inventory_2',
         requires=('inventory', 'rental'),
