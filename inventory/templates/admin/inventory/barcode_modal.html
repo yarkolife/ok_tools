@@ -18,7 +18,8 @@
         justify-content: center;
     }
     .barcode-modal-content {
-        background-color: #fefefe;
+        background-color: var(--ok-surface, #fefefe);
+        color: var(--ok-ink, #1f2933);
         margin: 2% auto;
         padding: 0;
         border-radius: 8px;
@@ -60,7 +61,7 @@
     }
     .barcode-modal-footer {
         padding: 12px 20px;
-        border-top: 1px solid #dee2e6;
+        border-top: 1px solid var(--ok-line, #dee2e6);
         display: flex;
         gap: 8px;
         align-items: center;
@@ -102,22 +103,35 @@
         gap: 8px;
         font-size: 13px;
         cursor: pointer;
-        background: #f8f9fa;
+        background: var(--ok-surface-2, #f8f9fa);
+        color: var(--ok-ink, #1f2933);
         padding: 6px 14px;
         border-radius: 6px;
-        border: 1px solid #dee2e6;
+        border: 1px solid var(--ok-line, #dee2e6);
         user-select: none;
+    }
+    .barcode-format-label .barcode-format-hint {
+        color: var(--ok-ink-3, #6c757d);
+        font-size: 11px;
+    }
+    /* The preview shows the labels as printed: always on white. */
+    #barcode-content {
+        background: #fff;
+        color: #111;
+        border-radius: 6px;
+        padding: 8px;
     }
     .barcode-loading {
         text-align: center;
         padding: 60px;
         color: #6c757d;
+        background: #fff;
         font-size: 14px;
     }
     .barcode-error {
         text-align: center;
         padding: 60px;
-        color: #dc3545;
+        color: var(--ok-danger, #dc3545);
         font-size: 14px;
     }
 </style>
@@ -151,13 +165,13 @@
                            {% if forloop.first %}checked{% endif %}
                            onchange="selectFormat()">
                     <span>{% trans fmt.name %}</span>
-                    <span style="color:#6c757d;font-size:11px;">({{ fmt.size_label }})</span>
+                    <span class="barcode-format-hint">({{ fmt.size_label }})</span>
                 </label>
                 {% endfor %}
                 <label class="barcode-format-label" id="rotate-option" style="display:none;">
                     <input type="checkbox" id="label-rotate" onchange="loadBarcodes(buildUrl())">
                     <span>{% trans "Rotate 90°" %}</span>
-                    <span style="color:#6c757d;font-size:11px;">{% trans "for printers with portrait media" %}</span>
+                    <span class="barcode-format-hint">{% trans "for printers with portrait media" %}</span>
                 </label>
             </div>
             <div id="barcode-content">

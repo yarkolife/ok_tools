@@ -7433,3 +7433,9 @@ msgstr "Programm-Mail aus den Erstausstrahlungen im gefilterten Zeitraum"
 
 msgid "There are no settings you may change."
 msgstr "Es gibt keine Einstellungen, die Sie ändern dürfen."
+
+msgid "Help"
+msgstr "Hilfe"
+
+msgid "Manual"
+msgstr "Handbuch"

@@ -567,7 +567,9 @@ function ReportIssueModal({ item, onClose, urls }) {
 
 /* ---------- Item row with expand ---------- */
 function ItemRow({ item, expanded, toggle, urls, onReportIssue, onSwapClick, status, hasSignature }) {
-  const fullyReturned = (item.qty_returned || 0) >= (item.qty_issued || 0);
+  // Nothing issued yet means reserved, not "returned" (0 >= 0).
+  const notIssued = !(item.qty_issued > 0);
+  const fullyReturned = !notIssued && (item.qty_returned || 0) >= item.qty_issued;
   const canSwap = status && ['draft', 'reserved'].includes(status);
   return (
     <>
@@ -583,9 +585,11 @@ function ItemRow({ item, expanded, toggle, urls, onReportIssue, onSwapClick, sta
           <div><div className="v">{item.qty_returned || 0}</div><div className="l">{t('qty.back', 'back')}</div></div>
         </div>
         <div>
-          {fullyReturned
-            ? <span className="tag tag-ok">{t('tag.returned', 'Returned')}</span>
-            : <span className="tag tag-warn">{t('tag.out', 'Out')}</span>}
+          {notIssued
+            ? <span className="tag tag-hold">{t('tag.reserved', 'Reserved')}</span>
+            : fullyReturned
+              ? <span className="tag tag-ok">{t('tag.returned', 'Returned')}</span>
+              : <span className="tag tag-warn">{t('tag.out', 'Out')}</span>}
         </div>
         <div className="muted tiny">{fmtDateShort(item.issued_at)}</div>
       </div>

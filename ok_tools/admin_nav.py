@@ -25,6 +25,7 @@ from typing import Any
 # (key, title, icon, collapsible, superuser only). Icons are Material Symbols.
 SECTIONS: list[tuple[str, Any, str, bool, bool]] = [
     ("work", _("Daily work"), "work", False, False),
+    ("help", _("Help"), "help", False, False),
     ("archive", _("Archive & media"), "video_library", False, False),
     ("people", _("Users & projects"), "group", False, False),
     ("rental", _("Rental & inventory"), "inventory_2", True, False),
@@ -47,6 +48,8 @@ MODEL_SECTIONS: dict[str, str] = {
     "contributions.DisaImport": "work",
     "tools.ToolsInterface": "work",
     "tools.ReelPost": "work",
+    # Help
+    "handbuch.Handbuch": "help",
     "notifications.NotificationsFeed": "work",
     "dashboard.Dashboard": "work",
     # Background jobs (video render, imports): checked after starting one
@@ -115,6 +118,7 @@ MODEL_SECTIONS: dict[str, str] = {
     "planung.ProgramMailLog": "system",
     # Only needed inside their parent record
     "rental.RentalItem": "hidden",
+    "handbuch.HandbuchNotiz": "hidden",
     "rental.RentalTransaction": "hidden",
     "rental.RentalIssue": "hidden",
     "inventory.InventoryItemImage": "hidden",
@@ -167,6 +171,7 @@ MODEL_ICONS: dict[str, str] = {
     "inventory.Organization": "corporate_fare",
     "tools.ToolsInterface": "handyman",
     "tools.ReelPost": "smart_display",
+    "handbuch.Handbuch": "menu_book",
     "tools.InstagramPartner": "handshake",
     "tools.SlideshowProject": "slideshow",
     "tools.AudioNormalizeJob": "graphic_eq",

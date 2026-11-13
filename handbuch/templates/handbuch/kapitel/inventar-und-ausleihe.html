@@ -1,0 +1,270 @@
+{% load static %}
+<p>Dieses Kapitel beschreibt den ganzen Weg eines Geräts: vom Eintragen ins Inventar über das Etikett
+  bis zur Ausleihe und Rückgabe. Die Bildschirmfotos zeigen Beispieldaten („Max Mustermann“,
+  „Videokamera Sony PXW-Z90 (Demo)“).</p>
+
+<nav class="hb-toc" aria-label="Inhalt">
+  <h2>Inhalt</h2>
+  <ol>
+    <li><a href="#begriffe">Begriffe</a></li>
+    <li><a href="#inventar">Neues Gerät ins Inventar aufnehmen</a></li>
+    <li><a href="#etikett">Etikett drucken und aufkleben</a></li>
+    <li><a href="#ausleihe">Ausleihe – geführter Weg</a></li>
+    <li><a href="#ausgabe">Ausgabe, wenn der Nutzer kommt</a></li>
+    <li><a href="#schnell">Ausleihe – schneller Weg mit dem Scanner</a></li>
+    <li><a href="#rueckgabe">Rückgabe</a></li>
+    <li><a href="#fragen">Häufige Fragen</a></li>
+  </ol>
+</nav>
+
+{# ---------------------------------------------------------------- #}
+<h2 id="begriffe">1. Begriffe</h2>
+<table>
+  <thead><tr><th>Begriff</th><th>Bedeutung</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Inventarartikel</strong></td><td>Ein Eintrag im Inventar mit einer <strong>Inventarnummer</strong> (z. B. <code>OK-001136</code>). Gleiche Geräte werden unter <em>einer</em> Nummer geführt.</td></tr>
+    <tr><td><strong>Gerät</strong></td><td>Ein einzelnes Stück eines Inventarartikels mit eigener <strong>Seriennummer</strong>, eigenem Status und eigenen Prüfungen. Zwei gleiche Kameras = ein Inventarartikel mit zwei Geräten.</td></tr>
+    <tr><td><strong>Menge</strong></td><td>Anzahl der Geräte auf Lager. Sie wird aus den Geräten automatisch berechnet.</td></tr>
+    <tr><td><strong>Standort</strong></td><td>Wo das Gerät liegt, z. B. <em>Ausleihe → Schrank 1 → Fach A</em>.</td></tr>
+    <tr><td><strong>Eigentümer</strong></td><td>Wem das Gerät gehört: dem OK, der MSA, einem Projekt, einer Spende …</td></tr>
+    <tr><td><strong>Für Verleih verfügbar</strong></td><td>Nur so markierte Artikel erscheinen in der Ausleihe.</td></tr>
+    <tr><td><strong>Verbrauchsmaterial</strong></td><td>Kleinteile, die nicht im Inventar stehen (Akkus, Kabel, SD-Karten). Sie werden pro Ausleihe notiert und bei der Rückgabe abgehakt.</td></tr>
+  </tbody>
+</table>
+
+{# ---------------------------------------------------------------- #}
+<h2 id="inventar">2. Neues Gerät ins Inventar aufnehmen</h2>
+<p><strong>Menü:</strong> <em>Tagesgeschäft → Inventarartikel</em> → <strong>+</strong> (oben rechts).</p>
+<figure>
+  <a href="{% static 'handbuch/bilder/a01-neuer-inventarartikel.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/a01-neuer-inventarartikel.jpg' %}" width="1568" height="726" alt="Formular Neuer Inventarartikel" loading="lazy"></a>
+  <figcaption>Das leere Formular. Die Inventarnummer ist schon vorgeschlagen.</figcaption>
+</figure>
+
+<h3 id="inventar-grunddaten">2.1 Grunddaten</h3>
+<ol>
+  <li><strong>Inventarnummer</strong> – wird automatisch vorgeschlagen (nächste freie Nummer der Serie <code>OK-</code>). Nur ändern, wenn das Gerät schon eine Nummer hat.</li>
+  <li><strong>Beschreibung</strong> – so, wie das Gerät in der Ausleihe heißen soll, z. B. <em>Videokamera Sony PXW-Z90</em>. Bei Sets: was dazugehört.</li>
+  <li><strong>Hersteller</strong> und <strong>Kategorie</strong> aus der Liste wählen. Fehlt ein Eintrag, über die Schaltfläche <strong>⋮</strong> neben dem Feld einen neuen anlegen.</li>
+  <li><strong>Standort</strong> wählen (siehe <a href="#inventar-standort">2.3</a>).</li>
+  <li><strong>Für Verleih verfügbar</strong> einschalten, wenn das Gerät ausgeliehen werden darf.</li>
+  <li><strong>Barcode-Etikett aufgeklebt</strong> erst einschalten, wenn das Etikett wirklich klebt (siehe <a href="#etikett">Kapitel 3</a>).</li>
+</ol>
+
+<h3 id="inventar-geraete">2.2 Geräte und Seriennummern</h3>
+<p>In der Tabelle <strong>Geräte</strong> wird jedes einzelne Stück mit seiner <strong>Seriennummer</strong> eingetragen.
+  Für jedes weitere gleiche Gerät <strong>„Gerät hinzufügen“</strong> klicken – es bleibt dieselbe Inventarnummer,
+  nur die Seriennummer ist verschieden. Kaufdatum, Kaufpreis und Notiz sind optional.</p>
+<figure>
+  <a href="{% static 'handbuch/bilder/a02-inventarartikel-ausgefuellt.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/a02-inventarartikel-ausgefuellt.jpg' %}" width="1568" height="726" alt="Ausgefülltes Formular mit zwei Geräten" loading="lazy"></a>
+  <figcaption>Ausgefüllt: zwei gleiche Kameras unter einer Inventarnummer, je mit eigener Seriennummer.</figcaption>
+</figure>
+<div class="hb-hint"><p>Hat ein Gerät keine Seriennummer, das Feld leer lassen – es wird dann als „Gerät 1“, „Gerät 2“ … geführt.
+  Die <strong>Menge</strong> muss nicht eingetragen werden: Sobald Geräte erfasst sind, zählt OK-Tools die Geräte auf Lager selbst.
+  Weiter unten lassen sich <strong>Prüfungen</strong> (z. B. DGUV) je Gerät eintragen.</p></div>
+
+<h3 id="inventar-standort">2.3 Standort festlegen</h3>
+<p>Standorte sind verschachtelt: <em>Raum → Schrank/Regal → Fach</em>. Das Gerät bekommt den genauesten Platz,
+  an dem es zurückgelegt wird. Neue Standorte werden unter <em>Ausleihe &amp; Inventar → Standorte</em> angelegt;
+  im Feld <strong>Übergeordnet</strong> steht der Schrank oder Raum, in dem der neue Platz liegt.</p>
+<figure>
+  <a href="{% static 'handbuch/bilder/a08-standorte.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/a08-standorte.jpg' %}" width="1568" height="726" alt="Liste der Standorte" loading="lazy"></a>
+  <figcaption>Standorte mit vollem Pfad.</figcaption>
+</figure>
+
+<h3 id="inventar-eigentuemer">2.4 Eigentümer</h3>
+<p>Im Abschnitt <strong>Eigentum &amp; Reservierungen</strong> den <strong>Eigentümer</strong> wählen:</p>
+<ul>
+  <li><strong>OKMQ</strong> (bzw. euer Kanal) – aus eigenen Mitteln gekauft,</li>
+  <li><strong>MSA</strong> – von der Medienanstalt Sachsen-Anhalt zur Verfügung gestellt,</li>
+  <li>ein <strong>Projekt</strong>, eine <strong>Spende</strong> oder eine Dauerleihgabe.</li>
+</ul>
+<p>Hat der Eigentümer eine eigene Inventarnummer (z. B. die MSA), diese unter <strong>Inventarnummer des Eigentümers</strong>
+  eintragen. Reservierte und verliehene Mengen rechnet OK-Tools selbst. Neue Eigentümer (z. B. ein neues Projekt)
+  werden unter <em>Ausleihe &amp; Inventar → Organisationen</em> angelegt.</p>
+<figure>
+  <a href="{% static 'handbuch/bilder/a04-eigentuemer.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/a04-eigentuemer.jpg' %}" width="1568" height="726" alt="Abschnitt Eigentum" loading="lazy"></a>
+  <figcaption>Eigentümer und Inventarnummer des Eigentümers.</figcaption>
+</figure>
+
+<h3 id="inventar-speichern">2.5 Speichern</h3>
+<p><strong>„Sichern und weiter bearbeiten“</strong> klicken. Die Menge zeigt jetzt die Zahl der Geräte (hier 2).</p>
+<figure>
+  <a href="{% static 'handbuch/bilder/a03-inventarartikel-gespeichert.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/a03-inventarartikel-gespeichert.jpg' %}" width="1568" height="726" alt="Gespeicherter Inventarartikel" loading="lazy"></a>
+  <figcaption>Gespeichert: Menge 2, Status „Auf Lager“.</figcaption>
+</figure>
+<div class="hb-hint">
+  <p><strong>Fotos</strong> werden nicht hochgeladen, sondern aus dem Inventar-Fotoordner gelesen: dort einen Unterordner mit der
+    Inventarnummer anlegen (z. B. <code>OK-001136</code>), die Fotos hineinlegen und in der Liste die Aktion
+    <strong>„Fotos aus eingebundenem Ordner neu einlesen“</strong> ausführen.</p>
+  <p><strong>Ähnliche Artikel:</strong> Die Aktion <strong>„Ausgewählte Inventarartikel kopieren“</strong> legt eine Kopie mit der
+    nächsten freien Nummer an.</p>
+</div>
+
+{# ---------------------------------------------------------------- #}
+<h2 id="etikett">3. Etikett drucken und aufkleben</h2>
+
+<h3 id="etikett-drucken">3.1 Drucken</h3>
+<ol>
+  <li>In <em>Inventarartikel</em> den Artikel suchen und links <strong>anhaken</strong> (mehrere gleichzeitig sind möglich).</li>
+  <li>Unten die Aktion <strong>„Barcodes drucken“</strong> wählen und <strong>Start</strong> klicken.</li>
+</ol>
+<figure>
+  <a href="{% static 'handbuch/bilder/a05-aktion-barcodes-drucken.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/a05-aktion-barcodes-drucken.jpg' %}" width="1568" height="726" alt="Aktion Barcodes drucken" loading="lazy"></a>
+  <figcaption>Artikel angehakt, Aktion „Barcodes drucken“ gewählt.</figcaption>
+</figure>
+<ol start="3">
+  <li>Format wählen – für den Etikettendrucker <strong>Rollenetikett (51 × 25 mm)</strong>. Die Vorschau zeigt Inventarnummer,
+    Eigentümer, Barcode, Beschreibung und Standort.</li>
+  <li><strong>„An Etikettendrucker senden“</strong> druckt direkt auf dem Etikettendrucker. <strong>„Drucken“</strong> öffnet den
+    Druckdialog des Browsers (z. B. für A4-Bögen).</li>
+</ol>
+<figure>
+  <a href="{% static 'handbuch/bilder/a06-etiketten-dialog.png' %}" target="_blank"><img src="{% static 'handbuch/bilder/a06-etiketten-dialog.png' %}" width="1568" height="634" alt="Dialog Barcode-Etiketten" loading="lazy"></a>
+  <figcaption>Format und Vorschau des Etiketts.</figcaption>
+</figure>
+<div class="hb-hint"><p>Ein Etikett gilt für den <strong>Inventarartikel</strong>. Bei mehreren gleichen Geräten unter einer Nummer bekommt jedes Gerät
+  dasselbe Etikett – entsprechend oft drucken.</p></div>
+
+<h3 id="etikett-aufkleben">3.2 Aufkleben</h3>
+<ul>
+  <li>Auf eine <strong>glatte, saubere Stelle</strong>, die beim Benutzen <strong>nicht abgerieben</strong> wird und nicht stört –
+    z. B. Unter- oder Rückseite, nicht auf Griffe, Tasten oder Lüftungsschlitze.</li>
+  <li>Der Barcode muss für den Scanner <strong>gut erreichbar</strong> bleiben.</li>
+  <li>Besteht ein Gerät aus <strong>mehreren Teilen</strong>, die getrennt werden können (Kamera, Netzteil, Ladegerät …),
+    <strong>jedes Teil bekleben</strong>.</li>
+  <li>Wird ein Gerät <strong>dauerhaft in einer Tasche oder Kiste</strong> aufbewahrt, auch die Kiste bekleben.</li>
+</ul>
+
+<h3 id="etikett-markieren">3.3 Als aufgeklebt markieren</h3>
+<p>Den Artikel in der Liste anhaken, Aktion <strong>„Barcode-Etikett als aufgeklebt markieren“</strong> → <strong>Start</strong>.
+  In der Spalte <em>Barcode-Etikett aufgeklebt</em> steht dann ein grüner Haken. Über den Filter
+  <em>Barcode-Etikett aufgeklebt: Nein</em> findet man jederzeit alle Geräte ohne Etikett.</p>
+<figure>
+  <a href="{% static 'handbuch/bilder/a07-etikett-aufgeklebt.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/a07-etikett-aufgeklebt.jpg' %}" width="1568" height="726" alt="Etikett als aufgeklebt markiert" loading="lazy"></a>
+  <figcaption>Verfügbar für den Verleih und mit Etikett.</figcaption>
+</figure>
+
+{# ---------------------------------------------------------------- #}
+<h2 id="ausleihe">4. Ausleihe – geführter Weg</h2>
+<p><strong>Menü:</strong> <em>Tagesgeschäft → Ausleihprozess</em> (öffnet die Ausleihverwaltung, Modus <strong>Geführt</strong>).
+  Der Assistent hat vier Schritte.</p>
+
+<h3 id="ausleihe-nutzer">Schritt 1 – Nutzer</h3>
+<p>Name, E-Mail oder Matrikelnummer eintippen und den Nutzer anklicken. Ist die Person noch nicht registriert,
+  über <strong>„Neuer Nutzer“</strong> anlegen. Hat die Person aus einer früheren Ausleihe noch etwas nicht
+  zurückgebracht, steht das rot unter dem Namen (<em>Fehlendes Material</em>) – gleich ansprechen.</p>
+<figure>
+  <a href="{% static 'handbuch/bilder/b01-nutzer-waehlen.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/b01-nutzer-waehlen.jpg' %}" width="1568" height="726" alt="Schritt 1 Nutzer" loading="lazy"></a>
+</figure>
+
+<h3 id="ausleihe-zeitraum">Schritt 2 – Zeitraum</h3>
+<p><strong>Abholung</strong> und <strong>Rückgabe bis</strong> eintragen oder eine <strong>Schnellauswahl</strong> nehmen
+  (<em>Heute/Morgen, Nachmittag, Wochenende, Nächste 7 Tage</em>). Es gelten die Öffnungszeiten; Mitarbeitende können
+  auch außerhalb buchen.</p>
+<figure>
+  <a href="{% static 'handbuch/bilder/b02-zeitraum.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/b02-zeitraum.jpg' %}" width="1568" height="726" alt="Schritt 2 Zeitraum" loading="lazy"></a>
+</figure>
+
+<h3 id="ausleihe-artikel">Schritt 3 – Artikel und Räume</h3>
+<p>Links nach Kategorie filtern oder oben suchen und mit <strong>+</strong> hinzufügen. Angezeigt wird, wie viele Stück im
+  gewählten Zeitraum frei sind (z. B. <em>2/2 verfügbar</em>). Bei mehreren Geräten unter einer Nummer die
+  <strong>Anzahl</strong> oben bei <em>Ausgewählte Artikel</em> einstellen. Über <strong>Sets</strong> lassen sich ganze
+  Gerätesätze, über <strong>Räume</strong> Räume dazubuchen.</p>
+<figure>
+  <a href="{% static 'handbuch/bilder/b03-artikel-waehlen.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/b03-artikel-waehlen.jpg' %}" width="1568" height="726" alt="Schritt 3 Artikel" loading="lazy"></a>
+</figure>
+
+<h3 id="ausleihe-pruefen">Schritt 4 – Prüfen und bestätigen</h3>
+<ul>
+  <li><strong>Projekt</strong> (Pflicht) und <strong>Zweck</strong> eintragen.</li>
+  <li><strong>Verbrauchsmaterial (nicht im Inventar):</strong> alles, was zusätzlich mitgegeben wird –
+    <strong>eine Zeile pro Sache, die Zahl am Ende ist die Menge</strong>:
+<pre><code>Akku NP-F970 - 2
+SD-Karte 64 GB - 2
+XLR-Kabel 5 m - 1</code></pre>
+    Diese Liste wird bei der Rückgabe abgehakt. Was nicht zurückkommt, bleibt als <em>fehlend</em> sichtbar.</li>
+  <li><strong>E-Mail-Benachrichtigung</strong> anhaken, wenn der Nutzer eine Bestätigung bekommen soll.</li>
+  <li><strong>„Bestätigen &amp; senden“</strong> klicken.</li>
+</ul>
+<figure>
+  <a href="{% static 'handbuch/bilder/b04-pruefen-verbrauchsmaterial.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/b04-pruefen-verbrauchsmaterial.jpg' %}" width="1568" height="726" alt="Schritt 4 Prüfen und Verbrauchsmaterial" loading="lazy"></a>
+</figure>
+<p>Die Ausleihe ist jetzt <strong>reserviert</strong>. Ihre Seite zeigt oben den Ablauf
+  <em>Erstellt → Reserviert → Ausgegeben → Zurückgegeben → Geschlossen</em>, rechts Nutzer, Zeitraum,
+  Verbrauchsmaterial und die <strong>interne Notiz</strong>.</p>
+<figure>
+  <a href="{% static 'handbuch/bilder/b05-ausleihe-reserviert.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/b05-ausleihe-reserviert.jpg' %}" width="1568" height="726" alt="Reservierte Ausleihe" loading="lazy"></a>
+</figure>
+
+{# ---------------------------------------------------------------- #}
+<h2 id="ausgabe">5. Ausgabe, wenn der Nutzer kommt</h2>
+<ol>
+  <li>Die Ausleihe öffnen (<em>Alle Ausleihen</em> oder links <em>Heute fällig</em>).</li>
+  <li>Die Geräte mit dem Nutzer <strong>durchgehen</strong>: Sind alle Teile da, stimmen die Seriennummern, ist alles heil?
+    Fehlt ein Kleinteil, unter <em>Verbrauchsmaterial</em> ergänzen; Auffälligkeiten in die <strong>interne Notiz</strong>
+    schreiben und <strong>„Notiz speichern“</strong> klicken.</li>
+  <li><strong>„Unterschrift anfordern“</strong> – der Nutzer unterschreibt:
+    <ul>
+      <li><strong>Hier zeichnen</strong> – direkt auf dem Tablet oder Bildschirm,</li>
+      <li><strong>Mit Telefon unterschreiben</strong> – QR-Code mit dem eigenen Handy scannen,</li>
+      <li><strong>Auf Papier unterschreiben</strong> – Ausgabeschein drucken und von Hand unterschreiben lassen.</li>
+    </ul>
+  </li>
+</ol>
+<figure>
+  <a href="{% static 'handbuch/bilder/b06-signatur-methode.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/b06-signatur-methode.jpg' %}" width="1568" height="726" alt="Signaturmethode wählen" loading="lazy"></a>
+</figure>
+<figure>
+  <a href="{% static 'handbuch/bilder/b07-unterschrift.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/b07-unterschrift.jpg' %}" width="1568" height="726" alt="Unterschrift zeichnen" loading="lazy"></a>
+</figure>
+<ol start="4">
+  <li><strong>„Als ausgegeben markieren“</strong> und die Rückfrage bestätigen. Die Ausleihe steht jetzt auf
+    <strong>Ausgegeben</strong>, mit dem Rückgabetermin.</li>
+</ol>
+<figure>
+  <a href="{% static 'handbuch/bilder/b08-ausgegeben.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/b08-ausgegeben.jpg' %}" width="1568" height="726" alt="Ausgegebene Ausleihe" loading="lazy"></a>
+  <figcaption>Ausgegeben, unterschrieben, mit interner Notiz.</figcaption>
+</figure>
+<div class="hb-hint"><p><strong>Beleg drucken</strong> (oben rechts) druckt den Ausgabeschein, <strong>Packliste drucken</strong> eine Liste zum
+  Zusammenstellen. Über <strong>Verlängern</strong> wird der Rückgabetermin verschoben.</p></div>
+
+{# ---------------------------------------------------------------- #}
+<h2 id="schnell">6. Ausleihe – schneller Weg mit dem Scanner</h2>
+<p>Für Ausleihen, die sofort mitgenommen werden. <strong>Menü:</strong> <em>Ausleihprozess</em>, oben rechts <strong>„Schnell“</strong>.</p>
+<ol>
+  <li><strong>Nutzer</strong> suchen und auswählen.</li>
+  <li><strong>Abholung</strong> und <strong>Rückgabe bis</strong> prüfen (vorbelegt).</li>
+  <li>In das Feld <strong>Artikel scannen</strong> klicken und die Etiketten der Geräte <strong>nacheinander scannen</strong>.
+    Jedes Gerät erscheint sofort in der Liste; bei mehreren Geräten unter einer Nummer erhöht ein weiterer Scan die Anzahl
+    (oder <strong>+</strong> / <strong>−</strong>).</li>
+  <li><strong>Verbrauchsmaterial</strong> wie beim geführten Weg eintragen.</li>
+</ol>
+<figure>
+  <a href="{% static 'handbuch/bilder/c01-schnell-gescannt.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/c01-schnell-gescannt.jpg' %}" width="1568" height="726" alt="Schnelle Ausleihe mit Scanner" loading="lazy"></a>
+</figure>
+<ol start="5">
+  <li><strong>„Jetzt ausgeben“</strong> – die Ausleihe wird angelegt und sofort ausgegeben. Danach öffnet sich die
+    Unterschrift (hier, per Telefon oder auf Papier).</li>
+</ol>
+<figure>
+  <a href="{% static 'handbuch/bilder/c02-schnell-signatur.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/c02-schnell-signatur.jpg' %}" width="1568" height="726" alt="Unterschrift bei schneller Ausleihe" loading="lazy"></a>
+</figure>
+<div class="hb-hint"><p>Der Scanner arbeitet wie eine Tastatur: Er „tippt“ die Inventarnummer und drückt Enter. Ohne Scanner kann
+  die Nummer auch von Hand eingegeben werden.</p></div>
+
+{# ---------------------------------------------------------------- #}
+<h2 id="rueckgabe">7. Rückgabe</h2>
+{% include "handbuch/kapitel/_rueckgabe.html" %}
+
+{# ---------------------------------------------------------------- #}
+<h2 id="fragen">8. Häufige Fragen</h2>
+<p><strong>Ein Gerät taucht in der Ausleihe nicht auf.</strong><br>
+  Prüfen, ob <em>Für Verleih verfügbar</em> eingeschaltet ist, ob der Status <em>Auf Lager</em> ist und ob es im Zeitraum
+  nicht schon verliehen oder reserviert ist.</p>
+<p><strong>Zwei gleiche Mikrofone – eine Nummer oder zwei?</strong><br>
+  Eine Inventarnummer, zwei Geräte mit je eigener Seriennummer (<a href="#inventar-geraete">2.2</a>).</p>
+<p><strong>Ein Gerät ist kaputt.</strong><br>
+  Im Inventarartikel beim betroffenen Gerät den Status auf <em>Defekt</em> setzen. Es wird dann nicht mehr verliehen;
+  die Menge passt sich an.</p>
+<p><strong>Wo sehe ich, was jemand nicht zurückgebracht hat?</strong><br>
+  In der Ausleihverwaltung links unter <em>Achtung → Fehlendes Material</em> und <em>Überfällig</em>.</p>

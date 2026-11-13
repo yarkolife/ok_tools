@@ -1,0 +1,79 @@
+{% load static %}
+<p><strong>Menü:</strong> In der Ausleihverwaltung links <strong>Rückgabe</strong>. Alternativ auf der Seite der Ausleihe
+  <strong>„Rückgabe starten“</strong>.</p>
+
+<h3 id="rueckgabe-finden">7.1 Ausleihe finden</h3>
+<ol>
+  <li>Den Namen oder die E-Mail des Nutzers eintippen und <strong>Suche</strong> klicken (oder den Nutzer aus der Liste
+    <em>Nutzer mit aktiven Ausleihen</em> wählen).</li>
+  <li>Bei der richtigen Ausleihe auf <strong>Rückgabe</strong> klicken.</li>
+</ol>
+<figure>
+  <a href="{% static 'handbuch/bilder/d01-rueckgabe-nutzer-suchen.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/d01-rueckgabe-nutzer-suchen.jpg' %}" width="1568" height="726" alt="Nutzer für die Rückgabe suchen" loading="lazy"></a>
+</figure>
+<figure>
+  <a href="{% static 'handbuch/bilder/d02-rueckgabe-aktive-ausleihen.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/d02-rueckgabe-aktive-ausleihen.jpg' %}" width="1568" height="726" alt="Aktive Ausleihen des Nutzers" loading="lazy"></a>
+  <figcaption>Alle aktiven Ausleihen des Nutzers mit Zeitraum und Status.</figcaption>
+</figure>
+
+<h3 id="rueckgabe-normal">7.2 Normaler Weg: von Hand abhaken</h3>
+<p>Die Rückgabeseite zeigt oben das Scanfeld, darunter die Geräte, das Verbrauchsmaterial und die Optionen.</p>
+<figure>
+  <a href="{% static 'handbuch/bilder/d03-rueckgabe-seite.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/d03-rueckgabe-seite.jpg' %}" width="1568" height="726" alt="Rückgabeseite" loading="lazy"></a>
+</figure>
+<ol>
+  <li><strong>Geräte:</strong> jedes zurückgegebene Gerät links <strong>anhaken</strong> und den <strong>Zustand</strong> wählen:
+    <ul>
+      <li><strong>OK</strong> – alles in Ordnung,</li>
+      <li><strong>Geringfügig</strong> – kleiner Mangel,</li>
+      <li><strong>Schaden</strong> – beschädigt. Es öffnet sich ein Feld für die Beschreibung; dort lässt sich auch festlegen,
+        ob der Schaden dem Nutzer in Rechnung gestellt und ob das Gerät bis zur Prüfung aus dem Verleih genommen wird.</li>
+    </ul>
+    Ist alles da und heil: <strong>„Alles zurückgegeben, alles OK“</strong> hakt alle Geräte auf einmal ab.</li>
+  <li><strong>Verbrauchsmaterial:</strong> Kreis anklicken, wenn alles zurück ist; bei Teilmengen mit <strong>–</strong> /
+    <strong>+</strong> die zurückgegebene Anzahl einstellen und im Feld daneben notieren, warum etwas fehlt.</li>
+  <li>Bei Bedarf eine <strong>Rückgabenotiz (intern)</strong> schreiben.</li>
+  <li>Optionen prüfen:
+    <ul>
+      <li><strong>Rückgabebeleg per E-Mail an Nutzer senden</strong>,</li>
+      <li><strong>Ausleihe nach Rückgabe schließen</strong> – schließt die Ausleihe sofort, wenn alle Geräte zurück sind,</li>
+      <li><strong>Für Inventarprüfung markieren</strong> – legt für jedes zurückgegebene Gerät eine Prüfaufgabe an.</li>
+    </ul>
+  </li>
+  <li><strong>„Rückgabe abschließen“</strong> klicken.</li>
+</ol>
+<figure>
+  <a href="{% static 'handbuch/bilder/d04-rueckgabe-abgehakt.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/d04-rueckgabe-abgehakt.jpg' %}" width="1568" height="726" alt="Rückgabe abgehakt" loading="lazy"></a>
+  <figcaption>Kamera zurück (OK), Akkus und Kabel vollständig, eine SD-Karte fehlt noch – mit Begründung.</figcaption>
+</figure>
+
+<h3 id="rueckgabe-fehlend">7.3 Was fehlt, bleibt sichtbar</h3>
+<p>Nicht zurückgegebenes Verbrauchsmaterial bleibt als <strong>fehlend</strong> an der Ausleihe stehen
+  („1 von 2 fehlen“), wird links unter <em>Achtung → Fehlendes Material</em> gezählt und erscheint bei der nächsten
+  Ausleihe derselben Person als Hinweis. Kommt es später zurück, wird es auf der Seite der Ausleihe abgehakt;
+  ist es endgültig weg, über <strong>„Abschreiben“</strong>.</p>
+<figure>
+  <a href="{% static 'handbuch/bilder/d05-rueckgabe-abgeschlossen.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/d05-rueckgabe-abgeschlossen.jpg' %}" width="1568" height="726" alt="Abgeschlossene Ausleihe mit fehlendem Material" loading="lazy"></a>
+  <figcaption>Geschlossen, die fehlende SD-Karte bleibt rot markiert.</figcaption>
+</figure>
+
+<h3 id="rueckgabe-schnell">7.4 Schneller Weg: mit dem Scanner</h3>
+<ol>
+  <li>Die Rückgabe der Ausleihe öffnen (wie in 7.1).</li>
+  <li>Der Cursor steht schon im Feld <strong>Barcode scannen</strong>: die Etiketten der Geräte <strong>nacheinander scannen</strong>.
+    Jedes gescannte Gerät wird sofort als zurück gezählt („1/1 zurück“), ein Ton bestätigt den Scan. Gehört das Gerät
+    nicht zu dieser Ausleihe, ertönt ein tiefer Ton und eine Meldung erscheint.</li>
+  <li>Wird kein Zustand gewählt, gilt das Gerät als <strong>OK</strong>. Nur bei Mängeln <em>Geringfügig</em> oder
+    <em>Schaden</em> anklicken.</li>
+  <li>Verbrauchsmaterial abhaken und <strong>„Rückgabe abschließen“</strong> klicken.</li>
+</ol>
+<figure>
+  <a href="{% static 'handbuch/bilder/d06-rueckgabe-gescannt.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/d06-rueckgabe-gescannt.jpg' %}" width="1568" height="726" alt="Rückgabe mit Scanner" loading="lazy"></a>
+  <figcaption>Nach dem Scan: Kamera „1/1 zurück“, Fortschritt 1/1.</figcaption>
+</figure>
+<div class="hb-hint"><p>Der Scan wird erst mit <strong>„Rückgabe abschließen“</strong> gespeichert. Wer die Seite vorher verlässt,
+  verliert nichts – die Rückgabe kann einfach neu begonnen werden.</p></div>
+<figure>
+  <a href="{% static 'handbuch/bilder/d07-rueckgabe-fehlt-noch.jpg' %}" target="_blank"><img src="{% static 'handbuch/bilder/d07-rueckgabe-fehlt-noch.jpg' %}" width="1568" height="726" alt="Hinweis auf fehlendes Material aus anderen Ausleihen" loading="lazy"></a>
+  <figcaption>Auch in anderen Ausleihen derselben Person erscheint der Hinweis „Fehlt noch aus anderen Ausleihen“.</figcaption>
+</figure>

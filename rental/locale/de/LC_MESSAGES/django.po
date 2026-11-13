@@ -3207,7 +3207,7 @@ msgstr "Auf Lager"
 
 #: rental/views.py:414
 msgid "Out"
-msgstr "Nicht verfügbar"
+msgstr "Ausgegeben"
 
 #: rental/views.py:418
 msgid "From"

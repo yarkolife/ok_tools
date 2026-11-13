@@ -239,6 +239,9 @@ if TOOLS_ENABLED:
 if NOTIFICATIONS_ENABLED:
     INSTALLED_APPS.append("notifications")
 
+# In-app manual for the staff; its chapters are offered per installed module.
+INSTALLED_APPS.append("handbuch")
+
 # Admin theme: Unfold (https://unfoldadmin.com). Off by default while the
 # admin is being migrated; enable with ADMIN_UNFOLD_ENABLED=true. The apps go
 # first so Unfold's AdminSite replaces the default one before autodiscover

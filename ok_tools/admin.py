@@ -149,6 +149,29 @@ def _reorder_app_list(app_list: List[Dict[str, Any]], request=None) -> List[Dict
             }
             app_list.append(registration)
         registration["models"].insert(0, hub)
+    if django_apps.is_installed("handbuch") and request.user.is_staff:
+        from handbuch.kapitel import available_chapters
+
+        if available_chapters():
+            manual = {
+                "name": _("Manual"),
+                "object_name": "Handbuch",
+                "admin_url": reverse("admin:handbuch_index"),
+                "add_url": None,
+                "view_only": True,
+            }
+            existing = next(
+                (app for app in app_list if app.get("app_label") == "handbuch"), None)
+            if existing is None:
+                app_list.append({
+                    "name": _("Manual"),
+                    "app_label": "handbuch",
+                    "app_url": reverse("admin:handbuch_index"),
+                    "has_module_perms": True,
+                    "models": [manual],
+                })
+            else:
+                existing["models"].insert(0, manual)
     app_list = [app for app in app_list if app.get("models")]
     return _sort_models(app_list)
 
@@ -326,6 +349,24 @@ def _custom_get_urls(self: admin.AdminSite):  # type: ignore[override]
                 "notifications/stats/",
                 self.admin_view(stats_view),
                 name="notifications_stats",
+            ),
+        ]
+    if django_apps.is_installed("handbuch"):
+        from functools import partial
+
+        from handbuch.views import handbuch_index
+        from handbuch.views import handbuch_kapitel
+
+        custom_urls += [
+            path(
+                "handbuch/",
+                self.admin_view(partial(handbuch_index, admin_site=self)),
+                name="handbuch_index",
+            ),
+            path(
+                "handbuch/<slug:slug>/",
+                self.admin_view(partial(handbuch_kapitel, admin_site=self)),
+                name="handbuch_kapitel",
             ),
         ]
     return custom_urls + urls

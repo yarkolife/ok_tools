@@ -25,6 +25,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.html import format_html_join
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 import json
 
 
@@ -186,10 +187,15 @@ def unit_label(unit):
 class LocationAdmin(ModelAdmin):
     """Admin interface for Location (hierarchical)."""
 
-    list_display = ("full_path", "parent")
+    list_display = ("location_path", "parent")
     search_fields = ("name",)
     autocomplete_fields = ("parent",)
     ordering = ("parent__id", "name")
+
+    @admin.display(description=gettext_lazy("Location"), ordering="name")
+    def location_path(self, obj):
+        """The whole path, e.g. "Ausleihe -> Schrank 1 -> Fach A"."""
+        return obj.full_path
 
 
 @admin.register(InventorySeries)

@@ -1,0 +1,48 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'handbuch/handbuch.css' %}">{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Start</a>
+  &rsaquo; <a href="{{ index_url }}">Handbuch</a>
+  &rsaquo; {{ kapitel.title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<article class="hb">
+  <div class="hb-stand">
+    <span>Stand: <strong>OK-Tools {{ kapitel.version }}</strong> · <strong>{{ kapitel.stand|date:"d.m.Y" }}</strong></span>
+    <span>Bildschirmfotos mit Beispieldaten in der hellen Ansicht.</span>
+    <a href="{{ index_url }}">Alle Kapitel</a>
+  </div>
+
+  {% include kapitel.template %}
+
+  <section class="hb-notes" id="notizen">
+    <h2>Hinweise aus der Praxis</h2>
+    <p class="hb-muted">Was nur bei euch gilt (wo der Etikettendrucker steht, wer Ausleihen freigibt …).
+      Diese Hinweise bleiben bei Updates erhalten.</p>
+    {% for note in notes %}
+      <div class="hb-note">{{ note.text|urlize }}
+        <div class="hb-note__meta">
+          <span>{{ note.created_by.get_full_name|default:note.created_by.email|default:"—" }} · {{ note.updated_at|date:"d.m.Y H:i" }}</span>
+          {% if can_change_note %}<a href="{% url 'admin:handbuch_handbuchnotiz_change' note.pk %}">Bearbeiten</a>{% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <p class="hb-muted">Noch keine Hinweise.</p>
+    {% endfor %}
+    {% if can_add_note %}
+      <form method="post">
+        {% csrf_token %}
+        <label for="hb-note-text" class="hb-muted">Neuer Hinweis</label>
+        <textarea id="hb-note-text" name="text" required></textarea>
+        <button type="submit" class="hb-btn">Hinweis speichern</button>
+      </form>
+    {% endif %}
+  </section>
+</article>
+{% endblock %}

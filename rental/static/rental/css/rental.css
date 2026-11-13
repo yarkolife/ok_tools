@@ -1082,6 +1082,8 @@ html, body {
 /* admin/css/base.css frames every text input; a checklist line has none. */
 .cons-list input.cons-text, .cons-list input.cons-text:focus {
   border: 0; border-bottom: 1px solid transparent; border-radius: 0; box-shadow: none; padding: 2px 0; height: auto;
+  /* Without these the form-control keeps a white field in the dark theme. */
+  background: transparent; color: inherit;
 }
 .cons-list input.cons-text:focus { border-bottom-color: var(--line); }
 .cons-row.done .cons-text, .cons-row.off .cons-text { text-decoration: line-through; color: var(--ink-3, #8a8f98); }
@@ -1089,6 +1091,9 @@ html, body {
 .cons-meta { font-size: 11.5px; color: oklch(0.45 0.14 28); display: flex; gap: 8px; flex-wrap: wrap; }
 .cons-meta button { border: 0; background: none; padding: 0; color: var(--ink-3, #8a8f98); text-decoration: underline; font-size: 11.5px; }
 .cons-error { font-size: 11.5px; color: oklch(0.45 0.14 28); margin-top: 4px; }
+html.dark .cons-row.missing .cons-text,
+html.dark .cons-meta,
+html.dark .cons-error { color: oklch(0.8 0.11 28); }
 
 
 /* ---------- Dark theme: soft status colours ---------- */

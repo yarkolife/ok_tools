@@ -1,0 +1,28 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'handbuch/handbuch.css' %}">{% endblock %}
+
+{% block content %}
+<div class="hb">
+  <p class="hb-muted">Anleitungen zu OK-Tools. Jedes Kapitel zeigt, für welche Version es geschrieben wurde.
+    Eigene Hinweise eures Kanals können unter jedem Kapitel ergänzt werden.</p>
+
+  {% if chapters %}
+    <div class="hb-cards">
+      {% for entry in chapters %}
+        <a class="hb-card" href="{% url 'admin:handbuch_kapitel' entry.kapitel.slug %}">
+          <span class="hb-card__title">
+            <span class="material-symbols-outlined" aria-hidden="true">{{ entry.kapitel.icon }}</span>
+            {{ entry.kapitel.title }}
+          </span>
+          <span class="hb-card__text">{{ entry.kapitel.summary }}</span>
+          <span class="hb-card__meta">Stand: OK-Tools {{ entry.kapitel.version }} · {{ entry.kapitel.stand|date:"d.m.Y" }}{% if entry.notes %} · {{ entry.notes }} Hinweis{{ entry.notes|pluralize:"e" }}{% endif %}</span>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="hb-muted">Für die Module dieser Installation gibt es noch keine Kapitel.</p>
+  {% endif %}
+</div>
+{% endblock %}

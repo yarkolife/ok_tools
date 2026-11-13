@@ -1481,7 +1481,7 @@ function QuickRental({ initial, cart, setCart, user, setUser, period, setPeriod,
             <div className="muted tiny mb-1" style={{textTransform: 'uppercase', fontWeight: 600}}>{t('wiz.scan','Scan')}</div>
             <div className="input-group input-group-sm">
               <span className="input-group-text"><i className="fas fa-barcode"></i></span>
-              <input className="form-control" placeholder="INV-…" autoFocus
+              <input className="form-control" placeholder={t('ret.scan_ph', 'Scan or type inventory number…')} autoFocus
                      ref={scanRef}
                      style={scanInputStyle}
                      disabled={busy}

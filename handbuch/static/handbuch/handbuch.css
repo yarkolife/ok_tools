@@ -1,0 +1,78 @@
+/* In-app manual. Colours come from the OK theme tokens, so light and dark
+   mode both read well; screenshots keep their own colours on a neutral frame. */
+
+.hb { max-width: 980px; color: var(--ok-ink, #1f2933); line-height: 1.6; font-size: 15px; }
+.hb a { color: var(--ok-brand, #417690); }
+.hb h2, .hb h3, .hb h4 { color: var(--ok-ink, #1f2933); background: none; padding: 0;
+  text-transform: none; letter-spacing: 0; font-weight: 600; }
+.hb h2 { font-size: 1.35rem; margin: 2.2em 0 .6em; padding-top: .6em;
+  border-top: 1px solid var(--ok-line, #dde3e9); scroll-margin-top: 80px; }
+.hb h3 { font-size: 1.08rem; margin: 1.6em 0 .4em; scroll-margin-top: 80px; }
+.hb p, .hb ul, .hb ol { margin: 0 0 .9em; }
+.hb ul, .hb ol { padding-left: 1.4em; }
+.hb ol { list-style: decimal; }
+.hb ul { list-style: disc; }
+.hb ul ul { list-style: circle; }
+.hb li { margin: .25em 0; }
+.hb code, .hb kbd { font-family: var(--ok-font-mono, ui-monospace, monospace); font-size: .9em;
+  padding: .1em .35em; border-radius: 4px; background: var(--ok-surface-2, #f1f4f7);
+  border: 1px solid var(--ok-line, #dde3e9); color: var(--ok-ink, #1f2933); }
+.hb pre { margin: .4em 0 1em; padding: 10px 14px; border-radius: 8px; overflow: auto;
+  background: var(--ok-surface-2, #f1f4f7); border: 1px solid var(--ok-line, #dde3e9); }
+.hb pre code { padding: 0; border: 0; background: none; }
+
+.hb-stand { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 0 0 18px;
+  padding: 10px 14px; border-radius: 8px; font-size: 13px;
+  background: var(--ok-surface, #fff); border: 1px solid var(--ok-line, #dde3e9);
+  color: var(--ok-ink-3, #5b6673); }
+.hb-stand strong { color: var(--ok-ink, #1f2933); }
+
+.hb-toc { margin: 0 0 24px; padding: 14px 18px; border-radius: 8px;
+  background: var(--ok-surface, #fff); border: 1px solid var(--ok-line, #dde3e9); }
+.hb-toc h2 { margin: 0 0 6px; padding: 0; border: 0; font-size: 1rem; }
+.hb-toc ol { margin: 0; columns: 2 260px; }
+
+.hb table { width: 100%; border-collapse: collapse; margin: .4em 0 1.2em; font-size: 14px; }
+.hb th, .hb td { text-align: left; vertical-align: top; padding: 8px 10px;
+  border-bottom: 1px solid var(--ok-line, #dde3e9); color: var(--ok-ink, #1f2933); }
+.hb th { font-weight: 600; background: var(--ok-surface-2, #f1f4f7); }
+
+.hb figure { margin: 10px 0 22px; }
+.hb figure a { display: block; border-radius: 8px; overflow: hidden;
+  border: 1px solid var(--ok-line, #dde3e9); background: #fff; }
+.hb figure img { display: block; width: 100%; height: auto; }
+.hb figcaption { margin-top: 6px; font-size: 13px; color: var(--ok-ink-3, #5b6673); }
+
+.hb-hint, .hb-warn { margin: 0 0 1.1em; padding: 10px 14px; border-radius: 8px; font-size: 14px;
+  border: 1px solid; }
+.hb-hint { background: var(--ok-info-soft, #eef6ff); border-color: var(--ok-info-line, #b6d4fe);
+  color: var(--ok-info-ink, #084298); }
+.hb-warn { background: var(--ok-warning-soft, #fff7e6); border-color: var(--ok-warning-line, #f0c36d);
+  color: var(--ok-warning-ink, #6b4a00); }
+.hb-hint p:last-child, .hb-warn p:last-child { margin-bottom: 0; }
+
+.hb-cards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.hb-card { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; text-decoration: none;
+  border-radius: 10px; background: var(--ok-surface, #fff); border: 1px solid var(--ok-line, #dde3e9);
+  color: var(--ok-ink, #1f2933) !important; }
+.hb-card:hover { border-color: var(--ok-brand, #417690); }
+.hb-card__title { display: flex; gap: 8px; align-items: center; font-size: 16px; font-weight: 600; }
+.hb-card__title .material-symbols-outlined { color: var(--ok-brand, #417690); }
+.hb-card__text { font-size: 14px; color: var(--ok-ink-2, #3e4c59); }
+.hb-card__meta { font-size: 12px; color: var(--ok-ink-3, #5b6673); }
+
+.hb-notes { margin-top: 32px; }
+.hb-note { margin: 0 0 10px; padding: 10px 14px; border-radius: 8px; white-space: pre-wrap;
+  background: var(--ok-surface, #fff); border: 1px solid var(--ok-line, #dde3e9); }
+.hb-note__meta { display: flex; gap: 12px; margin-top: 6px; font-size: 12px; white-space: normal;
+  color: var(--ok-ink-3, #5b6673); }
+.hb-notes form { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; max-width: 980px; }
+.hb-notes label { display: block; }
+.hb-notes form textarea { align-self: stretch; }
+.hb-notes textarea { width: 100%; min-height: 90px; box-sizing: border-box; padding: 8px 10px;
+  border-radius: 8px; border: 1px solid var(--ok-line, #dde3e9);
+  background: var(--ok-surface, #fff); color: var(--ok-ink, #1f2933); font: inherit; }
+.hb-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 7px 14px;
+  border-radius: 6px; border: 1px solid var(--ok-brand, #417690); cursor: pointer; font-weight: 600;
+  background: var(--ok-brand, #417690); color: var(--ok-on-brand, #fff); }
+.hb-muted { color: var(--ok-ink-3, #5b6673); font-size: 13px; }

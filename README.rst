@@ -4,8 +4,8 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.70.0
-**Last Updated**: 12 November 2026
+**Current Version**: 4.71.0
+**Last Updated**: 13 November 2026
 
 Features
 ========
@@ -129,6 +129,11 @@ Features
   - **Instagram posting**: every rendered reel becomes a post draft (caption template, broadcast time, collab accounts of
     matching partners); approved posts are published through the Instagram Graph API at their time
   - Optional module (enabled via TOOLS_ENABLED setting)
+
+- **Manual (Handbuch)** - In-app manual for the staff (menu "Help")
+  - Chapters as templates with screenshots, each marked with the OK-Tools version and date it was written for
+  - First chapter: inventory and rental (new device, label, guided and quick rental, return)
+  - Notes per chapter for what only applies to one channel; kept across updates
 
 - **Inventory Management** - Track equipment and resources with serial numbers
   - Hierarchical location management (Room -> Cabinet structure)
