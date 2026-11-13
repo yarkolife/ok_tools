@@ -1,8 +1,8 @@
 """The chapters of the manual.
 
-Every chapter is a template in ``handbuch/templates/handbuch/kapitel/`` and is
-listed here with the OK-Tools version and the date it was last checked
-against. When a described page changes, the chapter is updated and its
+Every chapter is a Markdown file in ``handbuch/inhalt/<slug>.md`` (see
+``handbuch/render.py`` for the extras it may use) and is listed here with the
+OK-Tools version and the date it was last checked against. When a described page changes, the chapter is updated and its
 ``version`` and ``stand`` are raised in the same commit, so readers always see
 how current the text is.
 
@@ -29,10 +29,6 @@ class Kapitel:
     stand: date
     icon: str = 'menu_book'
     requires: Tuple[str, ...] = field(default_factory=tuple)
-
-    @property
-    def template(self) -> str:
-        return f'handbuch/kapitel/{self.slug}.html'
 
     def available(self) -> bool:
         return all(apps.is_installed(app) for app in self.requires)

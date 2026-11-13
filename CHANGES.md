@@ -6,7 +6,7 @@ CHANGELOG
 
 * **handbuch: Manual inside OK-Tools**
   * New menu section "Help" with "Manual" for every staff member. The first chapter, "Inventar und Ausleihe" (German, with screenshots), covers the whole way of a device: adding it to the inventory (several identical devices under one number with their serial numbers, location, owner, available for rental, photos), printing and sticking the barcode label, the guided rental (user, period, items, consumables, internal note, signature, hand-out), the quick rental with the scanner, and the return by hand or by scanner, including missing consumables.
-  * Every chapter shows the OK-Tools version and the date it was written for, so readers see how current it is; it is updated together with the pages it describes. Chapters are only offered when their modules are installed.
+  * Every chapter shows the OK-Tools version and the date it was written for, so readers see how current it is; it is updated together with the pages it describes. Chapters are only offered when their modules are installed. Chapters are written in Markdown (`handbuch/inhalt/<slug>.md`, new dependency `Markdown==3.7`).
   * Below each chapter the staff can add notes that only apply to their channel ("the label printer is in office 2"); they are kept in the database and survive updates (permission "Can add manual note").
   * The "?" button in the top bar of the rental pages opens the matching section (rental or return).
 * **Design: light and dark theme readable everywhere**

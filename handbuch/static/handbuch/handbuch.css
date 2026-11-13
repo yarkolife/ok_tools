@@ -27,10 +27,11 @@
   color: var(--ok-ink-3, #5b6673); }
 .hb-stand strong { color: var(--ok-ink, #1f2933); }
 
-.hb-toc { margin: 0 0 24px; padding: 14px 18px; border-radius: 8px;
+/* Table of contents from [TOC] */
+.hb .toc { margin: 0 0 24px; padding: 14px 18px; border-radius: 8px;
   background: var(--ok-surface, #fff); border: 1px solid var(--ok-line, #dde3e9); }
-.hb-toc h2 { margin: 0 0 6px; padding: 0; border: 0; font-size: 1rem; }
-.hb-toc ol { margin: 0; columns: 2 260px; }
+.hb .toc .toctitle { display: block; margin: 0 0 6px; font-weight: 600; color: var(--ok-ink, #1f2933); }
+.hb .toc ul { margin: 0; padding-left: 1.2em; columns: 2 260px; list-style: none; }
 
 .hb table { width: 100%; border-collapse: collapse; margin: .4em 0 1.2em; font-size: 14px; }
 .hb th, .hb td { text-align: left; vertical-align: top; padding: 8px 10px;
@@ -43,13 +44,14 @@
 .hb figure img { display: block; width: 100%; height: auto; }
 .hb figcaption { margin-top: 6px; font-size: 13px; color: var(--ok-ink-3, #5b6673); }
 
-.hb-hint, .hb-warn { margin: 0 0 1.1em; padding: 10px 14px; border-radius: 8px; font-size: 14px;
-  border: 1px solid; }
-.hb-hint { background: var(--ok-info-soft, #eef6ff); border-color: var(--ok-info-line, #b6d4fe);
+/* Boxes from "!!! hinweis" / "!!! warnung" */
+.hb .admonition { margin: 0 0 1.1em; padding: 10px 14px; border-radius: 8px; font-size: 14px;
+  border: 1px solid; background: var(--ok-info-soft, #eef6ff); border-color: var(--ok-info-line, #b6d4fe);
   color: var(--ok-info-ink, #084298); }
-.hb-warn { background: var(--ok-warning-soft, #fff7e6); border-color: var(--ok-warning-line, #f0c36d);
+.hb .admonition.warnung { background: var(--ok-warning-soft, #fff7e6); border-color: var(--ok-warning-line, #f0c36d);
   color: var(--ok-warning-ink, #6b4a00); }
-.hb-hint p:last-child, .hb-warn p:last-child { margin-bottom: 0; }
+.hb .admonition .admonition-title { font-weight: 600; margin-bottom: .3em; }
+.hb .admonition p:last-child { margin-bottom: 0; }
 
 .hb-cards { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 .hb-card { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; text-decoration: none;

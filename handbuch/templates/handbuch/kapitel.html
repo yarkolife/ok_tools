@@ -19,7 +19,7 @@
     <a href="{{ index_url }}">Alle Kapitel</a>
   </div>
 
-  {% include kapitel.template %}
+  {{ content|safe }}
 
   <section class="hb-notes" id="notizen">
     <h2>Hinweise aus der Praxis</h2>

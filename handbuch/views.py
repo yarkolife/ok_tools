@@ -3,6 +3,7 @@
 from .kapitel import available_chapters
 from .kapitel import get_chapter
 from .models import HandbuchNotiz
+from .render import render_chapter
 from django.contrib import messages
 from django.http import Http404
 from django.http import HttpResponseRedirect
@@ -52,6 +53,7 @@ def handbuch_kapitel(request, slug, admin_site):
         **admin_site.each_context(request),
         'title': kapitel.title,
         'kapitel': kapitel,
+        'content': render_chapter(kapitel.slug),
         'notes': notes,
         'can_add_note': can_add,
         'can_change_note': request.user.has_perm('handbuch.change_handbuchnotiz'),
