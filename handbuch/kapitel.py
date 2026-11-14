@@ -58,8 +58,8 @@ KAPITEL: Tuple[Kapitel, ...] = (
             'Eigentümer festlegen, Etikett drucken und aufkleben, ausleihen '
             '(geführt oder mit dem Scanner) und zurücknehmen.'
         ),
-        version='4.72.0',
-        stand=date(2026, 11, 13),
+        version='4.73.0',
+        stand=date(2026, 11, 14),
         icon='inventory_2',
         requires=('inventory', 'rental'),
         pfade=(
@@ -74,6 +74,33 @@ KAPITEL: Tuple[Kapitel, ...] = (
             'rental/static/rental/js/',
             'rental/static/rental/css/',
             'rental/locale/',
+        ),
+    ),
+    Kapitel(
+        slug='einstellungen',
+        title='Einstellungen für Administratoren',
+        summary=(
+            'Alle Einstellungen im Browser: Konfigurationsseite, jedes Formular '
+            'Feld für Feld, Benachrichtigungen, Stammdaten, periodische Aufgaben '
+            'und was nur in der .env eingestellt wird.'
+        ),
+        version='4.73.0',
+        stand=date(2026, 11, 14),
+        icon='settings',
+        pfade=(
+            'ok_tools/admin.py',
+            'ok_tools/admin_secrets.py',
+            'ok_tools/templates/admin/configuration_index.html',
+            'registration/admin.py',
+            'rental/admin.py',
+            'inventory/admin.py',
+            'licenses/admin.py',
+            'media_files/admin.py',
+            'planung/admin.py',
+            'austausch/admin.py',
+            'tools/admin.py',
+            'notifications/admin.py',
+            'notifications/templates/admin/notifications/settings.html',
         ),
     ),
 )

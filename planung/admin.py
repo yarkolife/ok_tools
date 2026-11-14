@@ -21,6 +21,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from licenses.models import License
 from ok_tools.admin_base import ModelAdmin
+from ok_tools.admin_secrets import SecretFieldsMixin
 from planung.services.plan_service import enrich_plan_items
 
 
@@ -473,8 +474,10 @@ class PlanTemplateAdmin(ModelAdmin):
 
 
 @admin.register(PlanungConfig)
-class PlanungConfigAdmin(ModelAdmin):
+class PlanungConfigAdmin(SecretFieldsMixin, ModelAdmin):
     """Admin interface for planning module configuration."""
+
+    secret_fields = ('playout_import_api_key', 'anchor_render_api_key')
 
     fieldsets = (
         (_('Playout Import'), {

@@ -10,7 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 
 
-VERSION = '4.72.0'
+VERSION = '4.73.0'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

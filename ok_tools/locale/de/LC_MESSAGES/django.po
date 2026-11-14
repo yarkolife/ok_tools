@@ -4037,7 +4037,7 @@ msgstr ""
 msgid ""
 "German federal state written to exchange metadata; code is generated "
 "automatically"
-msgstr ""
+msgstr "Bundesland, das in die Austausch-Metadaten geschrieben wird; das Kürzel wird automatisch erzeugt."
 
 #: registration/models.py:647
 msgid "Bundesland Code"
@@ -7442,3 +7442,6 @@ msgstr "Handbuch"
 
 msgid "Installed version"
 msgstr "Installierte Version"
+
+msgid "A value is stored. Leave empty to keep it; enter a new one to replace it."
+msgstr "Ein Wert ist gespeichert. Leer lassen, um ihn zu behalten; einen neuen eintragen, um ihn zu ersetzen."

@@ -2,105 +2,126 @@
 {% load i18n %}
 
 {% block content %}
-<div id="content-main" class="notifications-page">
+<style>
+  .nset { max-width: 1100px; display: grid; gap: 16px; }
+  .nset-card { background: var(--ok-surface, #fff); border: 1px solid var(--ok-line, #ddd);
+               border-radius: var(--ok-radius-lg, 8px); padding: 14px 18px; color: var(--ok-ink, #222); }
+  .nset-card h2 { margin: 0 0 4px; font-size: 1rem; font-weight: 600; color: var(--ok-ink, #222);
+                  background: none; padding: 0; text-transform: none; letter-spacing: 0; }
+  .nset-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+  .nset-help { margin: 0; color: var(--ok-ink-3, #666); font-size: 13px; max-width: 75ch; }
+  .nset-row-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .nset-btn { display: inline-flex; align-items: center; min-height: 34px; padding: 6px 14px;
+              border-radius: var(--ok-radius, 6px); border: 1px solid var(--ok-line, #ccc);
+              background: var(--ok-surface, #fff); color: var(--ok-ink, #222); font-size: 13px; font-weight: 500;
+              cursor: pointer; text-decoration: none; line-height: 1.2; }
+  .nset-btn:hover { border-color: var(--ok-brand, #417690); color: var(--ok-brand, #417690); }
+  .nset-btn--primary { background: var(--ok-brand, #417690); border-color: var(--ok-brand, #417690);
+                       color: var(--ok-on-brand, #fff); font-weight: 600; }
+  .nset-btn--primary:hover { filter: brightness(1.08); color: var(--ok-on-brand, #fff); }
+  .nset-event { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 24px;
+                padding: 12px 0; border-top: 1px solid var(--ok-line, #ddd); }
+  .nset-event:first-of-type { border-top: 0; }
+  .nset-event.is-off .nset-title { color: var(--ok-ink-3, #666); }
+  .nset-check { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+  .nset-check input { margin-top: 3px; accent-color: var(--ok-brand, #417690); width: 16px; height: 16px; flex: none; }
+  .nset-title { font-weight: 600; font-size: 14px; color: var(--ok-ink, #222); }
+  .nset-code { display: block; font-family: ui-monospace, monospace; font-size: 11px; color: var(--ok-ink-3, #666); }
+  .nset-desc { display: block; margin-top: 2px; font-size: 13px; color: var(--ok-ink-2, #444); }
+  .nset-params { display: grid; gap: 10px; align-content: start; }
+  .nset-param label { display: block; font-size: 13px; font-weight: 500; color: var(--ok-ink, #222); margin-bottom: 3px; }
+  .nset-param input[type=number], .nset-param select {
+      width: 100%; max-width: 320px; min-height: 34px; padding: 5px 9px; font-size: 13px;
+      border: 1px solid var(--ok-line, #ccc); border-radius: var(--ok-radius, 6px);
+      background: var(--ok-surface, #fff); color: var(--ok-ink, #222); }
+  .nset-param input[type=number] { max-width: 120px; }
+  .nset-param .nset-help { margin-top: 3px; font-size: 12px; }
+  .nset-none { font-size: 13px; color: var(--ok-ink-3, #666); }
+  .nset-save { position: sticky; bottom: 0; z-index: 5; display: flex; align-items: center; gap: 12px;
+               padding: 12px 18px; background: var(--ok-surface, #fff); border: 1px solid var(--ok-line, #ddd);
+               border-radius: var(--ok-radius-lg, 8px); box-shadow: 0 -4px 12px rgba(0,0,0,.06); }
+  .nset-save .nset-help { flex: 1; }
+  @media (max-width: 760px) { .nset-event { grid-template-columns: 1fr; } }
+</style>
 
-  <p class="notifications-toolbar">
-    <a href="{% url 'admin:notifications_feed' %}" class="button">
-      {% translate "My notifications" %}
-    </a>
-    <a href="{{ config_url }}" class="button">
-      {% translate "Notification Configuration" %}
-    </a>
-    <a href="{{ stats_url }}" class="button">
-      {% translate "Notification statistics" %}
-    </a>
-  </p>
+<div class="nset">
+  <div class="nset-card nset-head">
+    <p class="nset-help">
+      {% blocktranslate trimmed %}A disabled check is not executed at all: it costs nothing and is
+      invisible to everyone. Switch off whatever this channel does not do.{% endblocktranslate %}
+    </p>
+    <div class="nset-row-btns">
+      <a href="{% url 'admin:notifications_feed' %}" class="nset-btn">{% translate "My notifications" %}</a>
+      <a href="{{ config_url }}" class="nset-btn">{% translate "Notification Configuration" %}</a>
+      <a href="{{ stats_url }}" class="nset-btn">{% translate "Notification statistics" %}</a>
+    </div>
+  </div>
 
-  <p class="help">
-    {% blocktranslate %}A disabled check is not executed at all: it costs nothing and is
-    invisible to everyone. Switch off whatever this channel does not do.{% endblocktranslate %}
-  </p>
-
-  <form method="post">
+  <form method="post" class="nset">
     {% csrf_token %}
     {% for group in groups %}
-      <div class="module">
+      <section class="nset-card">
         <h2>{{ group.module_label }}</h2>
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">{% translate "Enabled" %}</th>
-              <th scope="col">{% translate "Event type" %}</th>
-              <th scope="col">{% translate "Parameters" %}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for entry in group.entries %}
-              <tr>
-                <td>
-                  <input type="checkbox" name="enabled" value="{{ entry.spec.code }}"
-                         {% if entry.enabled %}checked{% endif %}
-                         {% if not entry.available %}disabled{% endif %}>
-                </td>
-                <th scope="row">
-                  {{ entry.spec.label }}
-                  <br>
-                  <span class="notifications-meta">{{ entry.spec.code }}</span>
-                  {% if entry.spec.description %}
-                    <br><span class="help">{{ entry.spec.description }}</span>
+        {% for entry in group.entries %}
+          <div class="nset-event{% if not entry.enabled %} is-off{% endif %}">
+            <label class="nset-check">
+              <input type="checkbox" name="enabled" value="{{ entry.spec.code }}"
+                     {% if entry.enabled %}checked{% endif %}
+                     {% if not entry.available %}disabled{% endif %}>
+              <span>
+                <span class="nset-title">{{ entry.spec.label }}</span>
+                <span class="nset-code">{{ entry.spec.code }}</span>
+                {% if entry.spec.description %}<span class="nset-desc">{{ entry.spec.description }}</span>{% endif %}
+                {% if not entry.available %}
+                  <span class="nset-desc">{% blocktranslate with flag=entry.spec.settings_flag %}Module disabled in settings ({{ flag }}).{% endblocktranslate %}</span>
+                {% endif %}
+              </span>
+            </label>
+            <div class="nset-params">
+              {% for param in entry.params %}
+                <div class="nset-param">
+                  <label for="{{ param.field }}">{{ param.label }}</label>
+                  {% if param.kind == "storage_locations" %}
+                    <select id="{{ param.field }}" name="{{ param.field }}"
+                            multiple size="{{ param.choices|length|default:4 }}">
+                      {% for choice in param.choices %}
+                        <option value="{{ choice.value }}" {% if choice.selected %}selected{% endif %}>{{ choice.label }}</option>
+                      {% empty %}
+                        <option disabled>{% translate "No active storage locations" %}</option>
+                      {% endfor %}
+                    </select>
+                  {% elif param.kind == "choice" %}
+                    <select id="{{ param.field }}" name="{{ param.field }}">
+                      {% for choice in param.choices %}
+                        <option value="{{ choice.value }}" {% if choice.selected %}selected{% endif %}>{{ choice.label }}</option>
+                      {% endfor %}
+                    </select>
+                  {% else %}
+                    <input type="number" id="{{ param.field }}" name="{{ param.field }}"
+                           value="{{ param.value }}" min="0" step="1">
                   {% endif %}
-                  {% if not entry.available %}
-                    <br><span class="help">
-                      {% blocktranslate with flag=entry.spec.settings_flag %}Module disabled in settings ({{ flag }}).{% endblocktranslate %}
-                    </span>
-                  {% endif %}
-                </th>
-                <td>
-                  {% for param in entry.params %}
-                    <label for="{{ param.field }}">{{ param.label }}</label>
-                    {% if param.kind == "storage_locations" %}
-                      <select id="{{ param.field }}" name="{{ param.field }}"
-                              multiple size="{{ param.choices|length|default:4 }}">
-                        {% for choice in param.choices %}
-                          <option value="{{ choice.value }}"
-                                  {% if choice.selected %}selected{% endif %}>
-                            {{ choice.label }}
-                          </option>
-                        {% empty %}
-                          <option disabled>{% translate "No active storage locations" %}</option>
-                        {% endfor %}
-                      </select>
-                    {% elif param.kind == "choice" %}
-                      <select id="{{ param.field }}" name="{{ param.field }}">
-                        {% for choice in param.choices %}
-                          <option value="{{ choice.value }}"
-                                  {% if choice.selected %}selected{% endif %}>
-                            {{ choice.label }}
-                          </option>
-                        {% endfor %}
-                      </select>
-                    {% else %}
-                      <input type="number" id="{{ param.field }}" name="{{ param.field }}"
-                             value="{{ param.value }}" min="0" step="1">
-                    {% endif %}
-                    {% if param.help_text %}
-                      <span class="help">{{ param.help_text }}</span>
-                    {% endif %}
-                    <br>
-                  {% empty %}
-                    <span class="notifications-meta">&mdash;</span>
-                  {% endfor %}
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+                  {% if param.help_text %}<p class="nset-help">{{ param.help_text }}</p>{% endif %}
+                </div>
+              {% empty %}
+                <span class="nset-none">{% translate "No parameters" %}</span>
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+      </section>
     {% endfor %}
-    <p class="submit-row">
-      <button type="submit" class="default">{% translate "Save" %}</button>
-    </p>
+    <div class="nset-save">
+      <span class="nset-help">{% translate "Changes apply from the next check." %}</span>
+      <button type="submit" class="nset-btn nset-btn--primary">{% translate "Save" %}</button>
+    </div>
   </form>
-
 </div>
+
+<script>
+  // Grey out an event type while it is switched off.
+  document.querySelectorAll('.nset-event').forEach(function (row) {
+    var box = row.querySelector('input[name=enabled]');
+    box.addEventListener('change', function () { row.classList.toggle('is-off', !box.checked); });
+  });
+</script>
 {% endblock %}

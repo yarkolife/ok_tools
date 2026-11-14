@@ -471,7 +471,7 @@ class ExchangeConfig(models.Model):
     
     def __str__(self):
         """Return string representation."""
-        return f"Exchange Config - {self.nextcloud_base_url}"
+        return str(self._meta.verbose_name)
     
     def clean(self):
         """Validate the model."""

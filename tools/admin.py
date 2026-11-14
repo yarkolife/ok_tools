@@ -3,6 +3,7 @@
 import json
 import logging
 from ok_tools.admin_base import ModelAdmin
+from ok_tools.admin_secrets import SecretFieldsMixin
 from ok_tools.admin_base import TabularInline
 from pathlib import Path
 
@@ -120,8 +121,11 @@ class SlideshowAudioAdmin(ModelAdmin):
 
 
 @admin.register(ToolsConfig)
-class ToolsConfigAdmin(ModelAdmin):
+class ToolsConfigAdmin(SecretFieldsMixin, ModelAdmin):
     """Admin interface for ToolsConfig."""
+
+    # The Instagram token has its own handling below (refresh timestamp).
+    secret_fields = ('reel_render_api_key',)
 
     fieldsets = (
         (_('Storage'), {

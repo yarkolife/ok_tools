@@ -1112,11 +1112,11 @@ msgstr "Benachrichtigungsstatistik"
 
 #: templates/admin/notifications/settings.html:20
 msgid ""
-"A disabled check is not executed at all: it costs nothing and is\n"
-"    invisible to everyone. Switch off whatever this channel does not do."
+"A disabled check is not executed at all: it costs nothing and is invisible "
+"to everyone. Switch off whatever this channel does not do."
 msgstr ""
-"Eine deaktivierte Prüfung wird gar nicht ausgeführt: Sie kostet nichts und ist\n"
-"    für alle unsichtbar. Schalten Sie ab, was dieser Kanal nicht macht."
+"Eine deaktivierte Prüfung wird gar nicht ausgeführt: Sie kostet nichts und "
+"ist für alle unsichtbar. Schalten Sie ab, was dieser Kanal nicht macht."
 
 #: templates/admin/notifications/settings.html:54
 #, python-format
@@ -1762,3 +1762,9 @@ msgstr "Benachrichtigungseinstellungen gespeichert."
 #: views.py:811
 msgid "Only superusers may see the notification statistics."
 msgstr "Nur Superuser dürfen die Benachrichtigungsstatistik sehen."
+
+msgid "No parameters"
+msgstr "Keine Parameter"
+
+msgid "Changes apply from the next check."
+msgstr "Gilt ab der nächsten Prüfung."

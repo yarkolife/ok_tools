@@ -4,8 +4,8 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.72.0
-**Last Updated**: 13 November 2026
+**Current Version**: 4.73.0
+**Last Updated**: 14 November 2026
 
 Features
 ========
@@ -130,8 +130,9 @@ Features
     matching partners); approved posts are published through the Instagram Graph API at their time
   - Optional module (enabled via TOOLS_ENABLED setting)
 
-- **Manual (Handbuch)** - In-app manual for the staff (menu "Help"); chapters show the version they were written for and note when the installed version is newer
+- **Manual (Handbuch)** - In-app manual for the staff (menu "Help") with the chapters "Inventar und Ausleihe" and "Einstellungen für Administratoren"; chapters show the version they were written for and note when the installed version is newer
 - **Version in the admin** - Installed version and commit shown at the bottom of the sidebar
+- **Secret settings** - Passwords, API keys and tokens in settings forms are write-only; the stored value is never shown
   - Chapters as templates with screenshots, each marked with the OK-Tools version and date it was written for
   - First chapter: inventory and rental (new device, label, guided and quick rental, return)
   - Notes per chapter for what only applies to one channel; kept across updates

@@ -13,10 +13,13 @@ from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from ok_tools.admin_base import ModelAdmin
 from ok_tools.admin_base import TabularInline
+from ok_tools.admin_secrets import SecretFieldsInlineMixin
+from ok_tools.admin_secrets import SecretFieldsMixin
 
 
-class ExchangeChannelAuthInline(TabularInline):
+class ExchangeChannelAuthInline(SecretFieldsInlineMixin, TabularInline):
     model = ExchangeChannelAuth
+    secret_fields = ('metadata_api_token',)
     extra = 0
     fields = [
         'channel_name',
@@ -33,8 +36,10 @@ class ExchangeChannelAuthInline(TabularInline):
 
 
 @admin.register(ExchangeConfig)
-class ExchangeConfigAdmin(ModelAdmin):
+class ExchangeConfigAdmin(SecretFieldsMixin, ModelAdmin):
     """Admin for ExchangeConfig (singleton)."""
+
+    secret_fields = ('nextcloud_password',)
     
     autocomplete_fields = ['storage_location', 'default_media_authority']
     inlines = [ExchangeChannelAuthInline]

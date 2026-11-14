@@ -513,13 +513,13 @@ msgstr ""
 
 #: austausch/models.py:327
 msgid "Same-State Channel Exceptions"
-msgstr ""
+msgstr "Kanäle aus demselben Bundesland"
 
 #: austausch/models.py:329
 msgid ""
 "Comma-separated or newline-separated channel names that should be treated as "
 "local/same-state for visibility rules."
-msgstr ""
+msgstr "Kanalnamen, durch Komma oder Zeilenumbruch getrennt, die bei den Sichtbarkeitsregeln wie Kanäle aus dem eigenen Bundesland behandelt werden."
 
 #: austausch/models.py:339
 msgid "Export Destination"
@@ -533,10 +533,8 @@ msgstr ""
 "Netzwerkfreigabe."
 
 #: austausch/models.py:345
-#, fuzzy
-#| msgid "Download Storage Path"
 msgid "Upload Server Path"
-msgstr "Upload-Serverpfad"
+msgstr "Upload-Pfad auf dem Server"
 
 #: austausch/models.py:346
 msgid ""
@@ -1649,3 +1647,45 @@ msgstr "Für alle setzen"
 
 msgid "Publication: the time set here is sent as the PeerTube publication time and takes priority over broadcasts and Planung. A known time is suggested. 'Now' publishes the video as soon as it is uploaded. An empty field keeps the time from broadcasts/Planung."
 msgstr "Veröffentlichung: Die hier gesetzte Zeit wird als Veröffentlichungszeit an PeerTube übergeben und hat Vorrang vor Sendungen und Planung. Eine bekannte Zeit wird vorgeschlagen. „Sofort“ veröffentlicht das Video, sobald es hochgeladen ist. Ein leeres Feld übernimmt die Zeit aus Sendungen/Planung."
+
+msgid "Export robustness"
+msgstr "Absicherung des Exports"
+
+msgid "Safeguards against an unresponsive storage: copies run in chunks with a stall watchdog, leftover .tmp_ files are swept, an unreachable source is replaced by a byte-identical copy on another location, and the same item cannot be exported twice at the same time. The defaults are sensible; change them only if an export is being aborted or kept waiting too often."
+msgstr "Schutz vor einem Speicher, der nicht antwortet: Kopien laufen in Stücken mit einer Hänger-Überwachung, liegengebliebene .tmp_-Dateien werden entfernt, eine nicht erreichbare Quelle wird durch eine byte-gleiche Kopie auf einem anderen Speicherort ersetzt, und derselbe Eintrag kann nicht zweimal gleichzeitig exportiert werden. Die Standardwerte passen; nur ändern, wenn Exporte zu oft abbrechen oder warten."
+
+msgid "Copy Chunk Size (MB)"
+msgstr "Kopier-Stückgröße (MB)"
+
+msgid "Video files are copied to the network share in chunks of this size. Smaller chunks report progress more finely but cost throughput; larger ones make the stall watchdog coarser. 8 MB is a good default."
+msgstr "Videodateien werden in Stücken dieser Größe auf die Netzwerkfreigabe kopiert. Kleinere Stücke zeigen den Fortschritt feiner, kosten aber Durchsatz; größere machen die Hänger-Überwachung gröber. 8 MB ist ein guter Standardwert."
+
+msgid "Copy Stall Timeout (seconds)"
+msgstr "Abbruch bei Stillstand (Sekunden)"
+
+msgid "Abort a copy that has written no byte for this long. Protects the Celery worker from hanging forever on an unresponsive share."
+msgstr "Eine Kopie abbrechen, die so lange kein Byte geschrieben hat. Schützt den Celery-Worker davor, an einer Freigabe, die nicht antwortet, endlos zu hängen."
+
+msgid "Export Temp File Cleanup (hours)"
+msgstr "Temporäre Exportdateien entfernen (Stunden)"
+
+msgid "Before each export, delete leftover .tmp_ files in the export directory older than this. Set to 0 to disable."
+msgstr "Vor jedem Export liegengebliebene .tmp_-Dateien im Exportverzeichnis löschen, die älter sind. 0 schaltet das aus."
+
+msgid "Export Source Failover"
+msgstr "Ersatzquelle beim Export"
+
+msgid "When the same video exists on several storage locations, read it from a reachable one instead of always from the highest-quality location. Only byte-identical copies are considered."
+msgstr "Liegt dasselbe Video auf mehreren Speicherorten, wird es von einem erreichbaren gelesen statt immer vom hochwertigsten. Nur byte-gleiche Kopien zählen."
+
+msgid "Minimum Source Read Speed (MB/s)"
+msgstr "Mindest-Lesegeschwindigkeit der Quelle (MB/s)"
+
+msgid "A storage location reading slower than this is treated as dead and skipped as an export source."
+msgstr "Ein Speicherort, der langsamer liest, gilt als ausgefallen und wird als Exportquelle übersprungen."
+
+msgid "Prevent Concurrent Export of the Same Item"
+msgstr "Gleichzeitigen Export desselben Eintrags verhindern"
+
+msgid "Skip items that another export task is already uploading, instead of letting two workers write the same file at once."
+msgstr "Einträge überspringen, die ein anderer Exportauftrag schon hochlädt, damit nicht zwei Worker gleichzeitig dieselbe Datei schreiben."

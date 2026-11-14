@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+2026-11-14 (Version 4.73.0)
+==========================
+
+* **handbuch: New chapter "Einstellungen für Administratoren"**
+  * Explains every settings form of the configuration page field by field (organisation, registration, rental incl. label printer and working hours, inventory photos, licenses, media files, planning and programme mail, exchange, tools with Reel Studio and Instagram, notifications), the reference data lists, periodic tasks and what only the server operator can set in `.env`. German, with screenshots.
+* **admin: Passwords and API keys are no longer shown in settings forms**
+  * The Nextcloud password, the playout and anchor API keys, the reel renderer key and the channel tokens of the exchange are password fields now; the stored value is never sent to the browser. Leaving the field empty keeps the stored value, a new value replaces it (`ok_tools/admin_secrets.py`, like the Instagram token before).
+* **notifications: Settings page in the common design**
+  * The notification settings use cards per module like the subscriptions page: check on the left with its description, parameters on the right, save bar at the bottom.
+* Fixed: English labels in the settings forms (export safeguards of the exchange, same-state channels, upload path, approval, print form city, working hours hint, transcode preset, reel timeout) are translated; the tools and exchange settings pages show their German title; long German field labels no longer run into the input field.
+
 2026-11-13 (Version 4.72.0)
 ==========================
 

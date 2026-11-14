@@ -754,7 +754,7 @@ msgstr "Bildschirmtafel-Einstellungen"
 
 #: licenses/admin.py:2594
 msgid "Freistellung Print Form"
-msgstr ""
+msgstr "Druckformular der Freistellung"
 
 #: licenses/apps.py:10 licenses/models.py:420
 #: licenses/templates/admin/licenses/import_duplicate_confirmation.html:8
@@ -1205,11 +1205,11 @@ msgstr ""
 
 #: licenses/models.py:576
 msgid "Freistellung city"
-msgstr ""
+msgstr "Ort im Freistellungsformular"
 
 #: licenses/models.py:577
 msgid "City name for \"Ort, Datum\" in the Freistellung print form."
-msgstr ""
+msgstr "Ortsname für „Ort, Datum“ im Druckformular der Freistellung."
 
 #: licenses/models.py:585
 msgid "Freistellung signature user"

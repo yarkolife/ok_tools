@@ -1570,7 +1570,7 @@ msgstr "Reel-Render-Timeout (Sekunden)"
 msgid ""
 "HTTP read timeout for reel render/start and hook requests. Must be generous "
 "(e.g. 360) so a cold AI model is not cut off before the renderer responds."
-msgstr ""
+msgstr "HTTP-Lese-Timeout für Reel-Render-, Start- und Hook-Anfragen. Großzügig wählen (z. B. 360), damit ein kalt startendes KI-Modell nicht abgebrochen wird, bevor der Renderer antwortet."
 
 #: models.py:974
 msgid "Reel output filename pattern"

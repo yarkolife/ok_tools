@@ -188,7 +188,7 @@ msgstr "Ausleihzeitraum"
 
 #: rental/admin.py:519
 msgid "Approval workflow"
-msgstr ""
+msgstr "Genehmigung"
 
 #: rental/admin.py:528
 msgid "Automatic Reminders"
@@ -208,7 +208,7 @@ msgstr "Arbeitszeiten"
 
 #: rental/admin.py:552
 msgid "Leave both fields empty to mark a day as closed."
-msgstr ""
+msgstr "Beide Felder leer lassen, wenn an diesem Tag geschlossen ist."
 
 #: rental/admin.py:554
 msgid "Organization Access"

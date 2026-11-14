@@ -1779,16 +1779,12 @@ msgstr ""
 "transkodieren"
 
 #: media_files/models.py:783
-#, fuzzy
-#| msgid "Video Encode Preset"
 msgid "Transcode Encoding Preset"
-msgstr "Transkodierungs-Preset"
+msgstr "Encoding-Preset für Umwandlung"
 
 #: media_files/models.py:784
-#, fuzzy
-#| msgid "Unique name for this encoding preset (e.g., \"1080p25_9000k\")"
 msgid "Default encoding preset for transcoding (e.g., \"1080p25_9000k\")"
-msgstr "Standard-Encoding-Preset für Transkodierung (z. B. \"1080p25_9000k\")"
+msgstr "Standard-Encoding-Preset für die Umwandlung (z. B. „1080p25_9000k“)."
 
 #: media_files/models.py:798
 msgid "Render Encoding Preset"

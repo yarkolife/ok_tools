@@ -50,12 +50,40 @@ def test_index_and_chapter_show_the_version_stamp(client, staff):
 
 
 @pytest.mark.django_db
-def test_every_screenshot_of_the_chapter_exists(client, staff):
+@pytest.mark.parametrize('slug, minimum', [(SLUG, 20), ('einstellungen', 5)])
+def test_every_screenshot_of_the_chapter_exists(client, staff, slug, minimum):
     client.force_login(staff)
-    html = client.get(reverse('admin:handbuch_kapitel', args=[SLUG]), secure=True).content.decode()
+    html = client.get(reverse('admin:handbuch_kapitel', args=[slug]), secure=True).content.decode()
     images = set(re.findall(r'handbuch/bilder/([\w.-]+)', html))
-    assert len(images) >= 20
+    assert len(images) >= minimum
     missing = [name for name in images if not finders.find(f'handbuch/bilder/{name}')]
+    assert missing == []
+
+
+@pytest.mark.django_db
+def test_every_chapter_renders_and_its_links_point_to_anchors(client, staff):
+    client.force_login(staff)
+    for chapter in kapitel_module.available_chapters():
+        page = client.get(reverse('admin:handbuch_kapitel', args=[chapter.slug]), secure=True)
+        assert page.status_code == 200, chapter.slug
+        html = page.content.decode()
+        ids = set(re.findall(r'id="([^"]+)"', html))
+        targets = set(re.findall(r'href="#([^"]+)"', html))
+        assert targets - ids == set(), chapter.slug
+
+
+@pytest.mark.django_db
+def test_settings_chapter_covers_every_configuration_form():
+    """Each settings form on the configuration page is named in the chapter."""
+    from django.contrib.admin.sites import site
+    from django.utils import translation
+    from handbuch.render import KAPITEL_DIR
+
+    text = (KAPITEL_DIR / 'einstellungen.md').read_text(encoding='utf-8')
+    with translation.override('de'):
+        names = [str(model._meta.verbose_name) for model in site._registry
+                 if callable(getattr(model, 'get_config', None))]
+    missing = [name for name in names if name not in text]
     assert missing == []
 
 

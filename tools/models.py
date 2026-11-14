@@ -1106,7 +1106,7 @@ class ToolsConfig(models.Model):
     
     def __str__(self):
         """Return string representation."""
-        return "Tools Configuration"
+        return str(self._meta.verbose_name)
     
     def save(self, *args, **kwargs):
         """Ensure only one config instance exists."""

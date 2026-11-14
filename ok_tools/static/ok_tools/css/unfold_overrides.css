@@ -389,3 +389,11 @@ a.ok-task__name:hover { color: var(--ok-brand); }
 .select2-container--admin-autocomplete .select2-results__option--highlighted[aria-selected] {
     color: var(--ok-ink, #1f2937) !important;
 }
+
+/* Long German compound words in form labels ("…Genehmigungsbenachrichtigungen")
+   ran over the label column into the field; hyphenate or break them instead. */
+.field-line label.block {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
