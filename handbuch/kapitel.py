@@ -7,6 +7,12 @@ page changes, the chapter is updated and its ``version`` and ``stand`` are
 raised in the same commit, so readers always see how current the text is.
 A chapter written for an older minor version than the installed one says so.
 
+``pfade`` lists the files and folders of the pages a chapter describes.
+``python handbuch/aktualitaet.py`` lists commits that touched them after the
+chapter's ``stand``; with ``--staged`` (pre-commit hook) it warns when they are
+changed without the chapter. Keep this file free of Django calls at import
+time in the ``KAPITEL`` literal: the script reads it without Django.
+
 A chapter is only offered when the modules it describes are installed (a
 module switched off in the environment is not in ``INSTALLED_APPS``).
 """
@@ -32,6 +38,7 @@ class Kapitel:
     stand: date
     icon: str = 'menu_book'
     requires: Tuple[str, ...] = field(default_factory=tuple)
+    pfade: Tuple[str, ...] = field(default_factory=tuple)
 
     def available(self) -> bool:
         return all(apps.is_installed(app) for app in self.requires)
@@ -55,6 +62,19 @@ KAPITEL: Tuple[Kapitel, ...] = (
         stand=date(2026, 11, 13),
         icon='inventory_2',
         requires=('inventory', 'rental'),
+        pfade=(
+            'inventory/admin.py',
+            'inventory/forms.py',
+            'inventory/templates/',
+            'rental/admin.py',
+            'rental/forms.py',
+            'rental/views.py',
+            'rental/label_layout.py',
+            'rental/templates/rental/',
+            'rental/static/rental/js/',
+            'rental/static/rental/css/',
+            'rental/locale/',
+        ),
     ),
 )
 

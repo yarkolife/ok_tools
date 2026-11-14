@@ -121,3 +121,33 @@ def test_version_tuple():
     assert version_tuple('4.72') == (4, 72, 0)
     assert version_tuple('') == (0, 0, 0)
     assert version_tuple('4.x.1') == (4, 0, 1)
+
+
+def test_freshness_script_reads_the_same_chapters():
+    from handbuch import aktualitaet
+    read = {c['slug']: c for c in aktualitaet.read_chapters()}
+    for chapter in kapitel_module.KAPITEL:
+        assert read[chapter.slug]['stand'] == chapter.stand
+        assert read[chapter.slug]['pfade'] == chapter.pfade
+
+
+def test_watched_paths_exist():
+    from handbuch.aktualitaet import REPO
+    for chapter in kapitel_module.KAPITEL:
+        assert chapter.pfade, f'{chapter.slug}: no pfade'
+        for entry in chapter.pfade:
+            path = REPO / entry
+            assert path.is_dir() if entry.endswith('/') else path.is_file(), entry
+
+
+def test_staged_pages_without_chapter_give_a_reminder():
+    from handbuch.aktualitaet import matches
+    from handbuch.aktualitaet import staged_reminders
+    chapter = {'slug': 's', 'title': 'T', 'stand': None,
+               'pfade': ('rental/views.py', 'rental/templates/rental/')}
+    assert matches('rental/templates/rental/list.html', chapter['pfade'])
+    assert not matches('rental/views_api.py', chapter['pfade'])
+    assert staged_reminders([chapter], ['rental/views.py']) == {'T': ['rental/views.py']}
+    assert staged_reminders([chapter], ['rental/views.py', 'handbuch/inhalt/s.md']) == {}
+    assert staged_reminders([chapter], ['rental/views.py', 'handbuch/kapitel.py']) == {}
+    assert staged_reminders([chapter], ['ok_tools/admin.py']) == {}

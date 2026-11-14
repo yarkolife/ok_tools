@@ -9,6 +9,7 @@ CHANGELOG
   * The version lives in `ok_tools/version.py` (raised with every feature release). The commit is written to `BUILD_COMMIT` by `deployment/scripts/update.sh` before the image is built; in development it is read from `.git`.
 * **handbuch: Chapters compare their version with the installed one**
   * The manual index shows the installed version. A chapter written for an older minor version than the one installed says so above the text ("Geschrieben für OK-Tools 4.71.0, installiert ist 4.72.0 …") and on its card.
+  * For maintainers: each chapter lists the files of the pages it describes (`pfade` in `handbuch/kapitel.py`). `python handbuch/aktualitaet.py` (on the host, needs git) lists the commits that touched them after the chapter's date; `--staged` reminds before a commit when those pages change without the chapter and can be used as a non-blocking pre-commit hook.
 
 2026-11-13 (Version 4.71.0)
 ==========================
