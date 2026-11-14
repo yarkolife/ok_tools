@@ -58,7 +58,7 @@ KAPITEL: Tuple[Kapitel, ...] = (
             'Eigentümer festlegen, Etikett drucken und aufkleben, ausleihen '
             '(geführt oder mit dem Scanner) und zurücknehmen.'
         ),
-        version='4.73.0',
+        version='4.74.0',
         stand=date(2026, 11, 14),
         icon='inventory_2',
         requires=('inventory', 'rental'),
@@ -84,7 +84,7 @@ KAPITEL: Tuple[Kapitel, ...] = (
             'Feld für Feld, Benachrichtigungen, Stammdaten, periodische Aufgaben '
             'und was nur in der .env eingestellt wird.'
         ),
-        version='4.73.0',
+        version='4.74.0',
         stand=date(2026, 11, 14),
         icon='settings',
         pfade=(

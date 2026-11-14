@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+2026-11-14 (Version 4.74.0)
+==========================
+
+* **handbuch: Unchanged chapters follow the version automatically**
+  * A chapter's version now means "checked against this release". `python handbuch/aktualitaet.py --bump` (on the host, after raising the version) gives every chapter whose pages have no commits after its date and no uncommitted changes the current version and today's date. Chapters whose pages changed are listed and keep their version, so the manual only notes "Geschrieben für …" where the text may really be outdated, not after every release of an unrelated module.
+
 2026-11-14 (Version 4.73.0)
 ==========================
 

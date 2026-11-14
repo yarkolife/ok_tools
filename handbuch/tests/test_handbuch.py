@@ -179,3 +179,28 @@ def test_staged_pages_without_chapter_give_a_reminder():
     assert staged_reminders([chapter], ['rental/views.py', 'handbuch/inhalt/s.md']) == {}
     assert staged_reminders([chapter], ['rental/views.py', 'handbuch/kapitel.py']) == {}
     assert staged_reminders([chapter], ['ok_tools/admin.py']) == {}
+
+
+def test_freshness_script_reads_the_installed_version():
+    from handbuch.aktualitaet import current_version
+    from ok_tools.version import VERSION
+    assert current_version() == VERSION
+
+
+def test_bump_raises_only_the_confirmed_chapters():
+    from datetime import date as day
+    from handbuch.aktualitaet import bump_registry
+    source = (
+        "KAPITEL = [\r\n"
+        "    Kapitel(\r\n"
+        "        slug='a', title='Ä',\r\n"
+        "        version='4.1.0',\r\n"
+        "        stand=date(2026, 1, 2),\r\n"
+        "    ),\r\n"
+        "    Kapitel(slug='b', title='B', version='4.1.0', stand=date(2026, 1, 2)),\r\n"
+        "]\r\n"
+    )
+    result = bump_registry(source, {'a'}, '4.9.0', day(2026, 11, 14))
+    assert "version='4.9.0',\r\n        stand=date(2026, 11, 14),\r\n" in result
+    assert "Kapitel(slug='b', title='B', version='4.1.0', stand=date(2026, 1, 2))" in result
+    assert result.count('\r\n') == source.count('\r\n')
