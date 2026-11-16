@@ -203,6 +203,45 @@ def create_draft(filename: str, number=None) -> ReelPost | None:
     return post
 
 
+REEL_VIDEO_SUFFIXES = ('.mp4', '.mov', '.m4v')
+
+
+def drafts_for_existing_reels(today: date | None = None) -> list[ReelPost]:
+    """Create drafts for reels already in the output folder; return the new ones.
+
+    Only reels whose broadcast day (``…_YYMMDD`` in the name) is today or
+    later: a preview of a broadcast that is over is not worth posting.
+    """
+    config = ToolsConfig.get_config()
+    folder = config.get_reel_output_dir()
+    if not config.is_instagram_configured() or folder is None:
+        return []
+    today = today or timezone.localdate()
+    known = set(ReelPost.objects.values_list('filename', flat=True))
+    try:
+        from media_files.utils import extract_number_from_filename
+    except Exception:  # media_files is optional
+        extract_number_from_filename = None
+    created = []
+    for path in sorted(folder.iterdir()):
+        if not path.is_file() or path.suffix.lower() not in REEL_VIDEO_SUFFIXES:
+            continue
+        if path.name in known:
+            continue
+        day = reel_date_from_filename(path.name)
+        if day is None or day < today:
+            continue
+        number = extract_number_from_filename(path.name) if extract_number_from_filename else None
+        try:
+            post = create_draft(path.name, number)
+        except Exception:
+            logger.exception('Could not create the Instagram post draft for %s', path.name)
+            continue
+        if post is not None:
+            created.append(post)
+    return created
+
+
 # ---------------------------------------------------------------------------
 # Approval
 # ---------------------------------------------------------------------------

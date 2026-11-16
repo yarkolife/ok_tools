@@ -299,6 +299,50 @@ def test_morning_mail_creates_missing_drafts(config, home_license):
 
 
 @pytest.mark.django_db
+def test_finished_reels_get_drafts_from_their_broadcast_day_on(config, home_license, tmp_path):
+    folder = tmp_path / 'reels'
+    (folder / '19082_Programmvorschau_Reel_261112.mp4').write_bytes(b'mp4')  # broadcast over
+    (folder / '19082_Programmvorschau_Reel_261120.mp4').write_bytes(b'mp4')
+    (folder / '19082_Reel_ohne_Datum.mp4').write_bytes(b'mp4')
+    (folder / 'notes_261120.txt').write_text('x')
+    ReelPost.objects.create(filename='19082_Programmvorschau_Reel_261120.mp4')
+
+    created = reel_posts.drafts_for_existing_reels(today=date(2026, 11, 13))
+
+    # FILENAME is broadcast on the 13th; the one on the 20th already has a post.
+    assert [p.filename for p in created] == [FILENAME]
+    assert created[0].license == home_license
+    assert created[0].caption.startswith('HoMe live')
+    assert ReelPost.objects.count() == 2
+    assert reel_posts.drafts_for_existing_reels(today=date(2026, 11, 13)) == []
+
+
+@pytest.mark.django_db
+def test_no_drafts_for_existing_reels_while_posting_is_off(config):
+    config.instagram_enabled = False
+    config.save()
+    assert reel_posts.drafts_for_existing_reels(today=date(2026, 11, 13)) == []
+
+
+@pytest.mark.django_db
+@override_settings(TOOLS_ENABLED=True)
+def test_drafts_button_creates_drafts_on_post_only(client, config, home_license):
+    admin_user = get_user_model().objects.create_superuser(email='boss@example.org', password='x')
+    client.force_login(admin_user)
+    url = reverse('admin:tools_reelpost_create_drafts')
+
+    with mock.patch.object(reel_posts.timezone, 'localdate', return_value=date(2026, 11, 13)):
+        assert client.get(url, secure=True).status_code == 405
+        assert not ReelPost.objects.exists()
+        response = client.post(url, secure=True)
+
+    assert response.status_code == 302
+    assert ReelPost.objects.filter(filename=FILENAME).exists()
+    changelist = client.get(reverse('admin:tools_reelpost_changelist'), secure=True)
+    assert url in changelist.content.decode()
+
+
+@pytest.mark.django_db
 def test_mail_link_shows_the_post_and_publishes_only_on_the_button(client, config, home_license):
     post = ReelPost.objects.create(filename=FILENAME, license=home_license, caption='Hallo Welt')
     url = reverse('tools:reel_post_approve', args=[reel_posts.approval_token(post)])

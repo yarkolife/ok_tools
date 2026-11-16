@@ -4,8 +4,8 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.74.0
-**Last Updated**: 14 November 2026
+**Current Version**: 4.75.0
+**Last Updated**: 16 November 2026
 
 Features
 ========
@@ -127,7 +127,8 @@ Features
     - Add library media to any project without re-uploading
     - Staff-only library management
   - **Instagram posting**: every rendered reel becomes a post draft (caption template, broadcast time, collab accounts of
-    matching partners); approved posts are published through the Instagram Graph API at their time
+    matching partners); approved posts are published through the Instagram Graph API at their time; reels rendered
+    before posting was switched on get their drafts with one button in the post list
   - Optional module (enabled via TOOLS_ENABLED setting)
 
 - **Manual (Handbuch)** - In-app manual for the staff (menu "Help") with the chapters "Inventar und Ausleihe" and "Einstellungen für Administratoren"; chapters show the release they were checked against and note when the installed version is newer; `python handbuch/aktualitaet.py --bump` confirms chapters whose pages did not change

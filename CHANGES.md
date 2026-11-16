@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+2026-11-16 (Version 4.75.0)
+==========================
+
+* **tools: Post drafts for reels that were rendered before Instagram posting was switched on**
+  * The Instagram post list has a button "Entwürfe für fertige Reels". It creates a draft for every reel in the reel output folder whose broadcast day (`…_YYMMDD` in the file name) is today or later and that has no post yet, with the caption template, the broadcast time and the collab partners, as for a newly rendered reel. Nothing is published; the drafts still need an approval. Reels of past broadcasts and files without a date are skipped.
+* Fixed: In the dark theme, tables on the rental pages (e.g. "Missing consumables") showed every other row white with light, unreadable text. The colours of Django's admin `base.css`, which these pages load, now follow the OK Tools theme.
+
 2026-11-14 (Version 4.74.0)
 ==========================
 

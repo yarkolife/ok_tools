@@ -752,6 +752,7 @@ class ReelPostAdmin(InstagramOnlyMixin, ModelAdmin):
     date_hierarchy = 'scheduled_at'
     raw_id_fields = ['license']
     actions = ['approve_action', 'publish_now_action', 'back_to_draft_action']
+    change_list_template = 'admin/tools/reelpost/change_list.html'
     readonly_fields = ['status', 'reel_preview', 'caption_info', 'approved_by', 'approved_at',
                        'instagram_link', 'published_at', 'media_id', 'container_id',
                        'error_message', 'created_at', 'updated_at']
@@ -875,6 +876,31 @@ class ReelPostAdmin(InstagramOnlyMixin, ModelAdmin):
     @admin.action(description=_('Publish now'))
     def publish_now_action(self, request, queryset):
         self._approve(request, queryset, now=True)
+
+    def get_urls(self):
+        urls = [
+            path('create-drafts/', self.admin_site.admin_view(self.create_drafts_view),
+                 name='tools_reelpost_create_drafts'),
+        ]
+        return urls + super().get_urls()
+
+    def create_drafts_view(self, request):
+        """Drafts for reels rendered before posting was switched on (POST only)."""
+        from django.core.exceptions import PermissionDenied
+        from django.http import HttpResponseNotAllowed
+
+        from .reel_posts import drafts_for_existing_reels
+        if request.method != 'POST':
+            return HttpResponseNotAllowed(['POST'])
+        if not self.has_add_permission(request):
+            raise PermissionDenied
+        created = drafts_for_existing_reels()
+        if created:
+            self.message_user(request, _('%(count)s draft(s) created.') % {'count': len(created)})
+        else:
+            self.message_user(request, _('No new drafts: every finished reel from today on already has a post.'),
+                              level=messages.WARNING)
+        return redirect('admin:tools_reelpost_changelist')
 
     @admin.action(description=_('Back to draft'))
     def back_to_draft_action(self, request, queryset):

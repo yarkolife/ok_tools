@@ -22,6 +22,22 @@
     --bs-border-radius: var(--ok-radius);
     --bs-font-sans-serif: var(--ok-font);
 }
+/* Rental pages also load Django's admin/css/base.css, whose colours are
+   light-only without admin/css/dark_mode.css (e.g. every odd table row
+   gets background: var(--body-bg), white). Point them at our tokens. */
+html[data-bs-theme] {
+    --body-fg: var(--ok-ink);
+    --body-bg: var(--ok-surface);
+    --body-quiet-color: var(--ok-ink-3);
+    --body-medium-color: var(--ok-ink-2);
+    --body-loud-color: var(--ok-ink);
+    --link-fg: var(--ok-brand);
+    --link-hover-color: var(--ok-brand-strong);
+    --hairline-color: var(--ok-line);
+    --border-color: var(--ok-line-2);
+    --darkened-bg: var(--ok-surface-2);
+    --selected-bg: var(--ok-surface-hover);
+}
 html[data-bs-theme] .card,
 html[data-bs-theme] .modal-content,
 html[data-bs-theme] .dropdown-menu,

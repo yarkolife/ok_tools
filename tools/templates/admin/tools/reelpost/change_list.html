@@ -1,0 +1,14 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block object-tools-items %}
+  {% if has_add_permission %}
+  <li>
+    <form method="post" action="{% url 'admin:tools_reelpost_create_drafts' %}" id="reel-drafts-form" style="display:none">{% csrf_token %}</form>
+    {% trans "Create drafts for every finished reel from today on that has no post yet? Nothing is published." as drafts_confirm %}
+    <a href="#" class="addlink" title="{% trans 'Reels in the reel output folder with a broadcast day from today on get a draft with the caption template and the collab partners.' %}"
+       onclick="if (confirm('{{ drafts_confirm|escapejs }}')) { document.getElementById('reel-drafts-form').submit(); } return false;">{% trans "Drafts for finished reels" %}</a>
+  </li>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

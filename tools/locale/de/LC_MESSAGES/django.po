@@ -4073,3 +4073,32 @@ msgstr "Sendeverantwortung"
 #: views.py:1008 views.py:1035
 msgid "Rendered reel not found"
 msgstr "Gerendertes Reel nicht gefunden"
+
+#: admin.py
+msgid "Drafts for finished reels"
+msgstr "Entwürfe für fertige Reels"
+
+#: templates/admin/tools/reelpost/change_list.html
+msgid ""
+"Create drafts for every finished reel from today on that has no post yet? "
+"Nothing is published."
+msgstr ""
+"Für jedes fertige Reel ab heute ohne Post einen Entwurf anlegen? Es wird "
+"nichts veröffentlicht."
+
+#: templates/admin/tools/reelpost/change_list.html
+msgid ""
+"Reels in the reel output folder with a broadcast day from today on get a "
+"draft with the caption template and the collab partners."
+msgstr ""
+"Reels im Reel-Ausgabeordner mit Sendetag ab heute bekommen einen Entwurf mit "
+"der Bildunterschrift-Vorlage und den Collab-Partnern."
+
+#: admin.py
+#, python-format
+msgid "%(count)s draft(s) created."
+msgstr "%(count)s Entwurf/Entwürfe angelegt."
+
+#: admin.py
+msgid "No new drafts: every finished reel from today on already has a post."
+msgstr "Keine neuen Entwürfe: Jedes fertige Reel ab heute hat schon einen Post."

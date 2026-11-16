@@ -1166,6 +1166,21 @@ class ToolsConfig(models.Model):
             pass
         return ''
 
+    def get_reel_output_dir(self):
+        """Return the folder with the rendered reels as an existing Path, or None."""
+        from pathlib import Path
+        base = self.get_reel_output_base()
+        if not base:
+            return None
+        base_path = Path(base).resolve()
+        subdir = (self.reel_output_subdir or '').strip('/\\')
+        folder = (base_path / subdir).resolve() if subdir else base_path
+        try:
+            folder.relative_to(base_path)
+        except ValueError:
+            return None
+        return folder if folder.is_dir() else None
+
     def resolve_reel_output_file(self, filename: str):
         """Resolve a rendered reel filename to an existing absolute Path or None."""
         from pathlib import Path
