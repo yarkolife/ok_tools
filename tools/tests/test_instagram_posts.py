@@ -305,6 +305,7 @@ def test_finished_reels_get_drafts_from_their_broadcast_day_on(config, home_lice
     (folder / '19082_Programmvorschau_Reel_261120.mp4').write_bytes(b'mp4')
     (folder / '19082_Reel_ohne_Datum.mp4').write_bytes(b'mp4')
     (folder / 'notes_261120.txt').write_text('x')
+    (folder / '19100_Programmvorschau_261119.mp4').write_bytes(b'mp4')  # full preview, no reel
     ReelPost.objects.create(filename='19082_Programmvorschau_Reel_261120.mp4')
 
     created = reel_posts.drafts_for_existing_reels(today=date(2026, 11, 13))
@@ -338,8 +339,11 @@ def test_drafts_button_creates_drafts_on_post_only(client, config, home_license)
 
     assert response.status_code == 302
     assert ReelPost.objects.filter(filename=FILENAME).exists()
-    changelist = client.get(reverse('admin:tools_reelpost_changelist'), secure=True)
-    assert url in changelist.content.decode()
+    changelist = client.get(reverse('admin:tools_reelpost_changelist'), secure=True).content.decode()
+    assert url in changelist
+    # Inside the object-tools list in both admin modes, so it gets the button style.
+    tools = changelist[changelist.index('<ul class="object-tools">'):]
+    assert tools.index(url) < tools.index('</ul>')
 
 
 @pytest.mark.django_db

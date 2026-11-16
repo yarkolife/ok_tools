@@ -204,13 +204,20 @@ def create_draft(filename: str, number=None) -> ReelPost | None:
 
 
 REEL_VIDEO_SUFFIXES = ('.mp4', '.mov', '.m4v')
+_REEL_NAME = re.compile(r'(^|_)reel($|_)')
+
+
+def is_reel_file(filename: str) -> bool:
+    """``…_Reel_…`` files; the folder also holds full programme previews."""
+    return bool(_REEL_NAME.search(Path(filename or '').stem.lower()))
 
 
 def drafts_for_existing_reels(today: date | None = None) -> list[ReelPost]:
     """Create drafts for reels already in the output folder; return the new ones.
 
-    Only reels whose broadcast day (``…_YYMMDD`` in the name) is today or
-    later: a preview of a broadcast that is over is not worth posting.
+    Only reels (``Reel`` in the name, not the full programme previews) whose
+    broadcast day (``…_YYMMDD`` in the name) is today or later: a preview
+    of a broadcast that is over is not worth posting.
     """
     config = ToolsConfig.get_config()
     folder = config.get_reel_output_dir()
@@ -225,6 +232,8 @@ def drafts_for_existing_reels(today: date | None = None) -> list[ReelPost]:
     created = []
     for path in sorted(folder.iterdir()):
         if not path.is_file() or path.suffix.lower() not in REEL_VIDEO_SUFFIXES:
+            continue
+        if not is_reel_file(path.name):
             continue
         if path.name in known:
             continue

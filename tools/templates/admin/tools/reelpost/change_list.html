@@ -2,6 +2,9 @@
 {% load i18n %}
 
 {% block object-tools-items %}
+  {# Unfold has no <ul class="object-tools"> of its own; our button styles need it (unfold_overrides.css). #}
+  {% if ADMIN_UNFOLD_ENABLED %}<ul class="object-tools">{% endif %}
+  {{ block.super }}
   {% if has_add_permission %}
   <li>
     <form method="post" action="{% url 'admin:tools_reelpost_create_drafts' %}" id="reel-drafts-form" style="display:none">{% csrf_token %}</form>
@@ -10,5 +13,5 @@
        onclick="if (confirm('{{ drafts_confirm|escapejs }}')) { document.getElementById('reel-drafts-form').submit(); } return false;">{% trans "Drafts for finished reels" %}</a>
   </li>
   {% endif %}
-  {{ block.super }}
+  {% if ADMIN_UNFOLD_ENABLED %}</ul>{% endif %}
 {% endblock %}
