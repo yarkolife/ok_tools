@@ -478,7 +478,7 @@ class VideoRenderSelectView(UserPassesTestMixin, LoginRequiredMixin, TemplateVie
         context["video"] = None
         context["license"] = None
         context["encodings"] = []
-        context["styles"] = []
+        context["style_presets"] = []  # not "styles": Unfold lists its stylesheets under that name
         context["title_styles"] = []
         context["subtitle_styles"] = []
         context["broadcast_styles"] = []
@@ -800,7 +800,7 @@ class VideoRenderView(UserPassesTestMixin, LoginRequiredMixin, TemplateView):
                 "video": video,
                 "license": license_obj,
                 "render_source": VideoFile.render_source_for(license_obj.number, fallback=video),
-                "styles": all_styles,
+                "style_presets": all_styles,  # not "styles" (Unfold stylesheets)
                 "title_styles": title_styles,
                 "subtitle_styles": subtitle_styles,
                 "broadcast_styles": broadcast_styles,

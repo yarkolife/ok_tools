@@ -362,7 +362,6 @@ class StorageLocationAdmin(ModelAdmin):
         'last_health_check', 'last_read_mbps',
     ]
     change_list_template = 'admin/media_files/storagelocation/change_list.html'
-    delete_confirmation_template = 'admin/media_files/storagelocation/delete_confirmation.html'
     
     fieldsets = (
         (None, {

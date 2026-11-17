@@ -15,7 +15,8 @@
 {% block extrastyle %}
 {{ block.super }}
 <style>
-    .tool-container { padding: 20px; max-width: 1100px; }
+    .tool-container { padding: 20px; max-width: 1100px; box-sizing: border-box; }
+    .checkbox-item { min-width: 0; max-width: 100%; box-sizing: border-box; }
     .section {
         background: var(--ok-surface, #fff);
         border: 1px solid var(--ok-line, #dee2e6);
@@ -28,21 +29,21 @@
         font-size: 16px;
         font-weight: 700;
         margin-bottom: 12px;
-        color: #111827;
+        color: var(--ok-ink, #111827);
     }
     .row { display: flex; flex-wrap: wrap; gap: 18px; }
     .field { display: flex; flex-direction: column; min-width: 240px; }
-    .field label { font-weight: 600; margin-bottom: 6px; color: #374151; }
+    .field label { font-weight: 600; margin-bottom: 6px; color: var(--ok-ink-2, #374151); }
     .field input[type="text"], .field select {
         height: 42px;
         padding: 8px 12px;
-        border: 1px solid #d1d5db;
+        border: 1px solid var(--ok-line-2, #d1d5db);
         border-radius: 8px;
         background: var(--ok-surface, #fff);
         font-size: 14px;
         box-sizing: border-box;
     }
-    .hint { font-size: 12px; color: #6b7280; margin-top: 6px; }
+    .hint { font-size: 12px; color: var(--ok-ink-3, #6b7280); margin-top: 6px; }
     .video-wrap { margin-top: 10px; }
     .video-wrap video { width: 100%; max-height: 480px; background: #000; border-radius: 10px; }
     .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -55,16 +56,16 @@
         line-height: 30px !important;
         box-sizing: border-box !important;
     }
-    .muted { color: #6b7280; }
+    .muted { color: var(--ok-ink-3, #6b7280); }
 
     /* Lightweight styles for style cards (from legacy render page) */
-    .checkbox-item { border: 2px solid #e5e7eb; border-radius: 10px; padding: 14px; }
+    .checkbox-item { border: 2px solid var(--ok-line, #e5e7eb); border-radius: 10px; padding: 14px; }
     .checkbox-item:hover { border-color: var(--ok-brand, #417690); }
     .checkbox-label { font-weight: 700; margin-bottom: 6px; }
-    .element-style-selection { margin-top: 12px; padding-top: 12px; border-top: 1px solid #e5e7eb; }
+    .element-style-selection { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--ok-line, #e5e7eb); }
     .style-preview { display: flex; gap: 12px; overflow-x: auto; padding: 8px 0; }
-    .style-card { border: 2px solid #e5e7eb; border-radius: 10px; overflow: hidden; min-width: 200px; background: #111827; color: #fff; cursor: pointer; flex: 0 0 auto; }
-    .style-card.selected { border-color: var(--ok-brand, #417690); box-shadow: 0 0 0 2px #e7f3ff; }
+    .style-card { border: 2px solid var(--ok-line, #e5e7eb); border-radius: 10px; overflow: hidden; min-width: 200px; background: #111827; color: #fff; cursor: pointer; flex: 0 0 auto; }
+    .style-card.selected { border-color: var(--ok-brand, #417690); box-shadow: 0 0 0 2px var(--ok-info-soft, #e7f3ff); }
     .style-card-preview { height: 110px; background: #000; display:flex; align-items:center; justify-content:center; position:relative; }
     .style-card-info { padding: 10px; background: #1f2937; }
     .style-card-name { font-weight: 700; font-size: 12px; }
@@ -171,11 +172,11 @@
                             <input type="checkbox" id="show-title" name="show_title" value="true">
                             <span class="checkbox-label">{% trans "Title" %}</span>
                         </label>
-                        <input type="text" id="overlay-text-title" name="overlay_text_title" placeholder="{% trans 'Title text' %}" value="{% if license.title %}{{ license.title }}{% endif %}" style="flex: 1; min-width: 200px; height: 36px; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                        <input type="text" id="overlay-text-title" name="overlay_text_title" placeholder="{% trans 'Title text' %}" value="{% if license.title %}{{ license.title }}{% endif %}" style="flex: 1; min-width: 200px; height: 36px; padding: 6px 10px; border: 1px solid var(--ok-line-2, #d1d5db); border-radius: 6px; font-size: 14px;">
                     </div>
                     <div class="element-style-selection" style="display:none;">
                         <div class="style-preview">
-                            {% for style in title_styles|default:styles %}
+                            {% for style in title_styles|default:style_presets %}
                                 <div class="style-card" data-style="{{ style.id }}">
                                     <div class="style-card-preview">
                                         {% if style.preview_type == "modern_title" %}
@@ -266,11 +267,11 @@
                             <input type="checkbox" id="show-subtitle" name="show_subtitle" value="true">
                             <span class="checkbox-label">{% trans "Subtitle" %}</span>
                         </label>
-                        <input type="text" id="overlay-text-subtitle" name="overlay_text_subtitle" placeholder="{% trans 'Subtitle text' %}" value="{% if license.subtitle %}{{ license.subtitle }}{% endif %}" style="flex: 1; min-width: 200px; height: 36px; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                        <input type="text" id="overlay-text-subtitle" name="overlay_text_subtitle" placeholder="{% trans 'Subtitle text' %}" value="{% if license.subtitle %}{{ license.subtitle }}{% endif %}" style="flex: 1; min-width: 200px; height: 36px; padding: 6px 10px; border: 1px solid var(--ok-line-2, #d1d5db); border-radius: 6px; font-size: 14px;">
                     </div>
                     <div class="element-style-selection" style="display:none;">
                         <div class="style-preview">
-                            {% for style in subtitle_styles|default:styles %}
+                            {% for style in subtitle_styles|default:style_presets %}
                                 <div class="style-card" data-style="{{ style.id }}">
                                     <div class="style-card-preview">
                                         {% if style.preview_type == "subtitle" %}
@@ -361,11 +362,11 @@
                             <input type="checkbox" id="show-broadcast" name="show_broadcast_resp" value="true" checked>
                             <span class="checkbox-label">{% trans "Broadcast Responsibility" %}</span>
                         </label>
-                        <input type="text" id="overlay-text-broadcast" name="overlay_text_broadcast" placeholder="{% trans 'Broadcast responsibility text' %}" value="{{ default_broadcast_text|default:'' }}" style="flex: 1; min-width: 200px; height: 36px; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                        <input type="text" id="overlay-text-broadcast" name="overlay_text_broadcast" placeholder="{% trans 'Broadcast responsibility text' %}" value="{{ default_broadcast_text|default:'' }}" style="flex: 1; min-width: 200px; height: 36px; padding: 6px 10px; border: 1px solid var(--ok-line-2, #d1d5db); border-radius: 6px; font-size: 14px;">
                     </div>
                     <div class="element-style-selection" style="display:block;">
                         <div class="style-preview">
-                            {% for style in broadcast_styles|default:styles %}
+                            {% for style in broadcast_styles|default:style_presets %}
                                 <div class="style-card" data-style="{{ style.id }}">
                                     <div class="style-card-preview">
                                         {% if style.preview_type == "broadcast" %}
@@ -425,11 +426,11 @@
                             <input type="checkbox" id="show-authority" name="show_media_authority" value="true" checked>
                             <span class="checkbox-label">{% trans "Media Authority" %}</span>
                         </label>
-                        <input type="text" id="overlay-text-authority" name="overlay_text_authority" placeholder="{% trans 'Media authority text' %}" value="{{ default_authority_text|default:'' }}" style="flex: 1; min-width: 200px; height: 36px; padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                        <input type="text" id="overlay-text-authority" name="overlay_text_authority" placeholder="{% trans 'Media authority text' %}" value="{{ default_authority_text|default:'' }}" style="flex: 1; min-width: 200px; height: 36px; padding: 6px 10px; border: 1px solid var(--ok-line-2, #d1d5db); border-radius: 6px; font-size: 14px;">
                     </div>
                     <div class="element-style-selection" style="display:block;">
                         <div class="style-preview">
-                            {% for style in authority_styles|default:styles %}
+                            {% for style in authority_styles|default:style_presets %}
                                 <div class="style-card" data-style="{{ style.id }}">
                                     <div class="style-card-preview">
                                         {% if style.preview_type == "media_authority" %}
@@ -563,7 +564,7 @@ async function searchMediaByNumber() {
             return;
         }
         out.innerHTML = items.map(v => `
-            <div style="padding:10px; border:1px solid #e5e7eb; border-radius:10px; margin-bottom:10px; background:var(--ok-surface, #fff);">
+            <div style="padding:10px; border:1px solid var(--ok-line, #e5e7eb); border-radius:10px; margin-bottom:10px; background:var(--ok-surface, #fff);">
                 <div style="font-weight:700;">#${v.number} — ${v.filename}</div>
                 <div class="hint">${v.storage_location || ''}</div>
                 <div class="actions" style="margin-top:8px;">

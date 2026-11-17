@@ -80,24 +80,24 @@
     border: 1px solid var(--ok-line, #ddd);
   }
   .export-stat-card.success {
-    background: #d4edda;
-    border-color: #c3e6cb;
-    color: #155724;
+    background: var(--ok-success-soft, #d4edda);
+    border-color: var(--ok-success-line, #c3e6cb);
+    color: var(--ok-success-ink, #155724);
   }
   .export-stat-card.skipped {
-    background: #fff3cd;
-    border-color: #ffeeba;
-    color: #856404;
+    background: var(--ok-warning-soft, #fff3cd);
+    border-color: var(--ok-warning-line, #ffeeba);
+    color: var(--ok-warning-ink, #856404);
   }
   .export-stat-card.failed {
-    background: #f8d7da;
-    border-color: #f5c6cb;
-    color: #721c24;
+    background: var(--ok-danger-soft, #f8d7da);
+    border-color: var(--ok-danger-line, #f5c6cb);
+    color: var(--ok-danger-ink, #721c24);
   }
   .export-stat-card.cover {
-    background: #d1ecf1;
-    border-color: #bee5eb;
-    color: #0c5460;
+    background: var(--ok-info-soft, #d1ecf1);
+    border-color: var(--ok-info-line, #bee5eb);
+    color: var(--ok-info-ink, #0c5460);
   }
   .export-stat-card .stat-value {
     font-size: 32px;
@@ -126,8 +126,8 @@
     overflow-y: auto;
   }
   .export-details .error-list {
-    background: #fff5f5;
-    border: 1px solid #f5c6cb;
+    background: var(--ok-danger-soft, #fff5f5);
+    border: 1px solid var(--ok-danger-line, #f5c6cb);
     border-radius: 4px;
     padding: 0;
     margin: 0;
@@ -135,7 +135,7 @@
   }
   .export-details .error-list li {
     padding: 12px 16px;
-    border-bottom: 1px solid #f5c6cb;
+    border-bottom: 1px solid var(--ok-danger-line, #f5c6cb);
     display: flex;
     gap: 12px;
   }
@@ -144,30 +144,30 @@
   }
   .export-details .error-list .error-id {
     font-weight: 600;
-    color: #721c24;
+    color: var(--ok-danger-ink, #721c24);
     white-space: nowrap;
   }
   .export-details .error-list .error-reason {
-    color: #721c24;
+    color: var(--ok-danger-ink, #721c24);
   }
   .export-details .running-list {
-    background: #fffdf3;
-    border-color: #ffeeba;
+    background: var(--ok-warning-soft, #fffdf3);
+    border-color: var(--ok-warning-line, #ffeeba);
   }
   .export-details .running-list li {
-    border-bottom-color: #ffeeba;
+    border-bottom-color: var(--ok-warning-line, #ffeeba);
   }
   .export-details .running-list .error-id,
   .export-details .running-list .error-reason {
-    color: #856404;
+    color: var(--ok-warning-ink, #856404);
   }
   .export-error-banner {
-    background: #fff5f5;
-    border: 1px solid #f5c6cb;
+    background: var(--ok-danger-soft, #fff5f5);
+    border: 1px solid var(--ok-danger-line, #f5c6cb);
     border-radius: 4px;
     padding: 12px 16px;
     margin-bottom: 20px;
-    color: #721c24;
+    color: var(--ok-danger-ink, #721c24);
     font-weight: 500;
   }
   .export-empty {
@@ -213,8 +213,8 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: #fff3cd;
-    color: #856404;
+    background: var(--ok-warning-soft, #fff3cd);
+    color: var(--ok-warning-ink, #856404);
     padding: 6px 12px;
     border-radius: 20px;
     font-size: 13px;
@@ -224,7 +224,7 @@
     content: '';
     width: 8px;
     height: 8px;
-    background: #856404;
+    background: var(--ok-warning-ink, #856404);
     border-radius: 50%;
     animation: pulse 1.5s infinite;
   }

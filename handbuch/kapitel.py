@@ -59,7 +59,7 @@ KAPITEL: Tuple[Kapitel, ...] = (
             '(geführt oder mit dem Scanner) und zurücknehmen.'
         ),
         version='4.77.0',
-        stand=date(2026, 11, 17),
+        stand=date(2026, 11, 18),
         icon='inventory_2',
         requires=('inventory', 'rental'),
         pfade=(
@@ -85,7 +85,7 @@ KAPITEL: Tuple[Kapitel, ...] = (
             'und was nur in der .env eingestellt wird.'
         ),
         version='4.77.0',
-        stand=date(2026, 11, 17),
+        stand=date(2026, 11, 18),
         icon='settings',
         pfade=(
             'ok_tools/admin.py',

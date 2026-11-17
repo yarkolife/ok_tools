@@ -250,7 +250,7 @@
     .style-card.selected {
         border-color: var(--ok-brand, #417690);
         border-width: 3px;
-        box-shadow: 0 0 0 2px #e7f3ff;
+        box-shadow: 0 0 0 2px var(--ok-info-soft, #e7f3ff);
     }
     
     .style-card-preview {
@@ -307,7 +307,7 @@
     
     .style-desc {
         font-size: 11px;
-        color: #aaa;
+        color: var(--ok-ink-4, #aaa);
         margin-top: 4px;
         margin-left: 24px;
     }
@@ -350,15 +350,15 @@
     }
     
     .alert-success {
-        background: #d4edda;
-        border: 1px solid #c3e6cb;
-        color: #155724;
+        background: var(--ok-success-soft, #d4edda);
+        border: 1px solid var(--ok-success-line, #c3e6cb);
+        color: var(--ok-success-ink, #155724);
     }
     
     .alert-error {
-        background: #f8d7da;
-        border: 1px solid #f5c6cb;
-        color: #721c24;
+        background: var(--ok-danger-soft, #f8d7da);
+        border: 1px solid var(--ok-danger-line, #f5c6cb);
+        color: var(--ok-danger-ink, #721c24);
     }
     
     .loading {
@@ -433,7 +433,7 @@
                     <div class="element-style-selection" style="display: none;">
                         <label style="display: block; margin-bottom: 10px; font-weight: 500;">{% trans "Choose Style for Title:" %}</label>
                         <div class="style-preview">
-                            {% for style in title_styles|default:styles %}
+                            {% for style in title_styles|default:style_presets %}
                                 <div class="style-card" data-style="{{ style.id }}">
                                     <div class="style-card-preview">
                                         {% if style.preview_type == "modern_title" %}
@@ -521,7 +521,7 @@
                     <div class="element-style-selection" style="display: none;">
                         <label style="display: block; margin-bottom: 10px; font-weight: 500;">{% trans "Choose Style for Subtitle:" %}</label>
                         <div class="style-preview">
-                            {% for style in subtitle_styles|default:styles %}
+                            {% for style in subtitle_styles|default:style_presets %}
                                 <div class="style-card" data-style="{{ style.id }}">
                                     <div class="style-card-preview">
                                         {% if style.preview_type == "subtitle" %}
@@ -613,7 +613,7 @@
                     <div class="element-style-selection" style="display: block;">
                         <label style="display: block; margin-bottom: 10px; font-weight: 500;">{% trans "Choose Style for Broadcast Responsibility:" %}</label>
                         <div class="style-preview">
-                            {% for style in broadcast_styles|default:styles %}
+                            {% for style in broadcast_styles|default:style_presets %}
                                 <div class="style-card" data-style="{{ style.id }}">
                                     <div class="style-card-preview">
                                         {% if style.preview_type == "modern_title" %}
@@ -700,7 +700,7 @@
                     <div class="element-style-selection" style="display: block;">
                         <label style="display: block; margin-bottom: 10px; font-weight: 500;">{% trans "Choose Style for Media Authority:" %}</label>
                         <div class="style-preview">
-                            {% for style in authority_styles|default:styles %}
+                            {% for style in authority_styles|default:style_presets %}
                                 <div class="style-card" data-style="{{ style.id }}">
                                     <div class="style-card-preview">
                                         {% if style.preview_type == "media_authority" %}

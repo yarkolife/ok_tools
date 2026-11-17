@@ -51,7 +51,7 @@
         <span class="status-badge status-{{ job.status }}">{{ job.get_status_display }}</span>
         <span style="margin-left: 10px;">{% trans 'Progress' %}: <strong>{{ job.progress }}%</strong></span>
         {% if job.error_message %}
-        <div style="margin-top: 10px; padding: 10px; background: #f8d7da; border-radius: 4px; color: #721c24;">
+        <div style="margin-top: 10px; padding: 10px; background: var(--ok-danger-soft, #f8d7da); border-radius: 4px; color: var(--ok-danger-ink, #721c24);">
             <strong>{% trans 'Error' %}:</strong> {{ job.error_message }}
         </div>
         {% endif %}

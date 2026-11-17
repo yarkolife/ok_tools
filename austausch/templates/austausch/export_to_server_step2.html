@@ -89,12 +89,12 @@
     line-height: 1;
   }
   .export-step2-table .bool-icon.bool-true {
-    background: #d4edda;
-    color: #155724;
+    background: var(--ok-success-soft, #d4edda);
+    color: var(--ok-success-ink, #155724);
   }
   .export-step2-table .bool-icon.bool-false {
-    background: #f8d7da;
-    color: #721c24;
+    background: var(--ok-danger-soft, #f8d7da);
+    color: var(--ok-danger-ink, #721c24);
   }
   .export-step2-table .title-cell {
     max-width: 200px;
@@ -159,7 +159,7 @@
   }
   .export-step2-table tr.row-running {
     background: #f4f4f4;
-    color: #888;
+    color: var(--ok-ink-3, #888);
   }
   .export-step2-table tr.row-running .title-cell {
     font-style: italic;
@@ -227,8 +227,8 @@
     margin-left: 6px;
     padding: 1px 7px;
     border-radius: 10px;
-    background: #fff3cd;
-    color: #856404;
+    background: var(--ok-warning-soft, #fff3cd);
+    color: var(--ok-warning-ink, #856404);
     font-size: 11px;
     font-weight: 600;
     white-space: nowrap;

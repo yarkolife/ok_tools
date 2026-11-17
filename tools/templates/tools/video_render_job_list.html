@@ -15,7 +15,9 @@
 {% block extrastyle %}
 {{ block.super }}
 <style>
-    .jobs-container { padding: 20px; }
+    .jobs-container { padding: 20px; box-sizing: border-box; max-width: 100%; }
+    .job-table-wrap { overflow-x: auto; }
+    .job-table .mono { overflow-wrap: anywhere; }
     .filter-section {
         background: var(--ok-surface, #fff);
         border: 1px solid var(--ok-line, #dee2e6);
@@ -36,7 +38,7 @@
     .status-success { background: #28a745; color: #fff; }
     .status-failed { background: #dc3545; color: #fff; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; }
-    .row-highlight { background: #fff7e6; }
+    .row-highlight { background: var(--ok-warning-soft, #fff7e6); }
     .job-actions {
         display: flex;
         flex-wrap: wrap;
@@ -78,6 +80,7 @@
         {% endif %}
     </div>
 
+    <div class="job-table-wrap">
     <table class="job-table">
         <thead>
             <tr>
@@ -103,7 +106,7 @@
                 <td>
                     <span class="status-badge status-{{ op.status|lower }}">{{ op.get_status_display }}</span>
                     {% if op.error_message %}
-                        <div style="margin-top: 6px; color:#721c24; background:#f8d7da; padding: 8px; border-radius: 4px;">
+                        <div style="margin-top: 6px; color:var(--ok-danger-ink, #721c24); background:var(--ok-danger-soft, #f8d7da); padding: 8px; border-radius: 4px;">
                             <strong>{% trans 'Error' %}:</strong> {{ op.error_message|truncatechars:220 }}
                         </div>
                     {% endif %}
@@ -141,6 +144,7 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
 
     {% if is_paginated %}
     <div class="paginator" style="margin-top: 20px;">

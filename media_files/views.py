@@ -257,7 +257,7 @@ def render_video_admin(request, video_id):
     context = {
         'video': video,
         'license': license_obj,
-        'styles': styles,  # For backward compatibility
+        'style_presets': styles,  # not 'styles': Unfold lists its stylesheets under that name
         'title_styles': title_styles,
         'subtitle_styles': subtitle_styles,
         'broadcast_styles': broadcast_styles,

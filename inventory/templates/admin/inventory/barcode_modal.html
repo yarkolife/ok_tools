@@ -116,7 +116,7 @@
     }
     /* The preview shows the labels as printed: always on white. */
     #barcode-content {
-        background: #fff;
+        background: var(--ok-surface, #fff);
         color: #111;
         border-radius: 6px;
         padding: 8px;
@@ -124,8 +124,8 @@
     .barcode-loading {
         text-align: center;
         padding: 60px;
-        color: #6c757d;
-        background: #fff;
+        color: var(--ok-ink-3, #6c757d);
+        background: var(--ok-surface, #fff);
         font-size: 14px;
     }
     .barcode-error {

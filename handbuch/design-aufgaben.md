@@ -17,6 +17,10 @@ Regel: im hellen Theme alles hell, im dunklen alles dunkel, überall gut lesbar.
 | 9 | Konfigurationsformulare | Englische Beschriftungen: „Export robustness“ und seine Felder, „Same-State Channel Exceptions“, „Upload Server Path“, „Approval workflow“, „Freistellung city“, Arbeitszeiten-Hinweis, Transcode-Preset, Reel-Timeout. | erledigt – übersetzt |
 | 10 | Werkzeuge-/Austausch-Konfiguration | Seitentitel „Tools Configuration“ bzw. „Exchange Config - <URL>“ statt des deutschen Namens. | erledigt |
 | 11 | Alle Formulare | Lange Feldnamen („…Genehmigungsbenachrichtigungen“) liefen über die Beschriftungsspalte ins Feld. | erledigt – Silbentrennung in Beschriftungen |
+| 12 | Benachrichtigungsstatistik | Unter Unfold völlig ohne Gestaltung (Listen und Tabelle als Fließtext). | erledigt (17.11.2026, 4.77.0) – Karten und Tabellen |
+| 13 | Video-Rendering, Video-Rendering-Aufträge | Admin-Stylesheets fehlten (Kontextname `styles` überschrieb Unfold), Knöpfe als Text, Seite breiter als das Fenster. | erledigt – `style_presets`, Tabellen scrollen |
+| 14 | Cover-Variante auswählen, Speicherort löschen, Zwischenseiten (Archiv-Löschung, JSON-Import, Export) | Alte Admin- bzw. Bootstrap-Optik. | erledigt – Karten (`.ok-page`), Standard-Löschseite |
+| 15 | Export zum Server (Ergebnis), Audio-Normalisierung, Reel-Studio, Kalenderwochen-Hinweise | Im dunklen Theme helle Kacheln bzw. dunkle Schrift auf Dunkel. | erledigt – Theme-Farben statt fester Farben |
 
 Nur lokal (keine Aufgabe): In der lokalen Testumgebung fehlte die Logo-Datei unter `media/`;
 auf den Servern ist sie vorhanden.

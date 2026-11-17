@@ -2,23 +2,25 @@
 {% load i18n %}
 
 {% block content %}
-<div id="content-main" class="notifications-page">
+<div class="ok-page" style="max-width: none;">
 
-  <p class="notifications-toolbar">
-    <a href="{{ feed_url }}" class="button">{% translate "My notifications" %}</a>
-    <a href="{{ settings_url }}" class="button">{% translate "Notification settings" %}</a>
-  </p>
+  <div class="ok-card ok-actions">
+    <form method="get" class="ok-actions" style="flex: 1 1 auto;">
+      <div class="ok-field" style="grid-auto-flow: column; align-items: center; gap: 10px;">
+        <label for="stats-days">{% translate "Observation window (days)" %}</label>
+        <input type="number" name="days" id="stats-days" min="1" step="1" value="{{ days }}" style="width: 90px;">
+      </div>
+      <button type="submit" class="ok-btn">{% translate "Apply" %}</button>
+    </form>
+    <a href="{{ feed_url }}" class="ok-btn ok-btn--secondary">{% translate "My notifications" %}</a>
+    <a href="{{ settings_url }}" class="ok-btn ok-btn--secondary">{% translate "Notification settings" %}</a>
+  </div>
 
-  <form method="get" class="notifications-filters">
-    <label for="stats-days">{% translate "Observation window (days)" %}</label>
-    <input type="number" name="days" id="stats-days" min="1" step="1" value="{{ days }}">
-    <button type="submit" class="button">{% translate "Apply" %}</button>
-  </form>
-
-  <div class="module">
-    <h2>{% translate "Is the page being read?" %}</h2>
-    <div class="notifications-summary-body">
-      <ul class="notifications-list">
+  <div class="ok-grid-2">
+  <section class="ok-card">
+    <h2 class="ok-card__title">{% translate "Is the page being read?" %}</h2>
+    <div>
+      <ul class="ok-list">
         <li>
           {% blocktranslate with count=summary.staff %}Staff accounts: {{ count }}{% endblocktranslate %}
         </li>
@@ -33,12 +35,12 @@
         </li>
       </ul>
     </div>
-  </div>
+  </section>
 
-  <div class="module">
-    <h2>{% translate "Are the items being closed?" %}</h2>
-    <div class="notifications-summary-body">
-      <ul class="notifications-list">
+  <section class="ok-card">
+    <h2 class="ok-card__title">{% translate "Are the items being closed?" %}</h2>
+    <div>
+      <ul class="ok-list">
         <li>
           {% blocktranslate with count=summary.events days=summary.days %}Events in the last {{ days }} days: {{ count }}{% endblocktranslate %}
         </li>
@@ -48,7 +50,7 @@
         <li>
           {% blocktranslate with count=summary.dismissed %}Marked as handled: {{ count }}{% endblocktranslate %}
           {% if summary.closed_share is not None %}
-            <span class="notifications-meta">{{ summary.closed_share }}%</span>
+            <span class="ok-muted">{{ summary.closed_share }}%</span>
           {% endif %}
         </li>
         <li>
@@ -58,18 +60,19 @@
           {% blocktranslate with enabled=summary.enabled_types total=summary.types %}Enabled event types: {{ enabled }} of {{ total }}{% endblocktranslate %}
         </li>
       </ul>
-      <p class="help">
+      <p class="ok-card__help" style="margin: 12px 0 0;">
         {% blocktranslate %}A type with many silenced entries and few handled ones is
         reporting the wrong thing. A type with no events at all over a long window is
         either switched off or asks a question this channel does not have.{% endblocktranslate %}
       </p>
     </div>
+  </section>
   </div>
 
-  <div class="module">
-    <h2>{% translate "Per event type" %}</h2>
-    <div class="notifications-summary-body notifications-table-wrap">
-      <table>
+  <section class="ok-card">
+    <h2 class="ok-card__title">{% translate "Per event type" %}</h2>
+    <div class="ok-table-wrap">
+      <table class="ok-table">
         <thead>
           <tr>
             <th scope="col">{% translate "Event type" %}</th>
@@ -88,36 +91,36 @@
             <tr>
               <th scope="row">
                 {{ row.label }}
-                <br><span class="notifications-meta">{{ row.code }}</span>
+                <br><span class="ok-muted">{{ row.code }}</span>
               </th>
               <td>{% if row.enabled %}{% translate "yes" %}{% else %}{% translate "no" %}{% endif %}</td>
-              <td>{% if row.expectation %}<span class="notifications-meta">&mdash;</span>{% else %}{{ row.events }}{% endif %}</td>
+              <td>{% if row.expectation %}<span class="ok-muted">&mdash;</span>{% else %}{{ row.events }}{% endif %}</td>
               <td>{{ row.items }}</td>
               <td>
                 {{ row.dismissed }}
                 {% if row.closed_share is not None %}
-                  <span class="notifications-meta">{{ row.closed_share }}%</span>
+                  <span class="ok-muted">{{ row.closed_share }}%</span>
                 {% endif %}
               </td>
               <td>{{ row.open }}</td>
               <td>{{ row.snoozed }}</td>
               <td>{{ row.suppressed }}</td>
-              <td>{% if row.median_hours is not None %}{{ row.median_hours }}{% else %}<span class="notifications-meta">&mdash;</span>{% endif %}</td>
+              <td>{% if row.median_hours is not None %}{{ row.median_hours }}{% else %}<span class="ok-muted">&mdash;</span>{% endif %}</td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
-      <p class="help">
+    </div>
+    <p class="ok-card__help" style="margin: 12px 0 0;">
         {% blocktranslate %}Expectations are recomputed on every render and never stored,
         so they have no event count.{% endblocktranslate %}
       </p>
-    </div>
-  </div>
+  </section>
 
-  <div class="module">
-    <h2>{% translate "Per staff member" %}</h2>
-    <div class="notifications-summary-body notifications-table-wrap">
-      <table>
+  <section class="ok-card">
+    <h2 class="ok-card__title">{% translate "Per staff member" %}</h2>
+    <div class="ok-table-wrap">
+      <table class="ok-table">
         <thead>
           <tr>
             <th scope="col">{% translate "Account" %}</th>
@@ -132,17 +135,17 @@
             <tr>
               <th scope="row">
                 {{ row.email }}
-                {% if row.is_superuser %}<span class="notifications-meta">superuser</span>{% endif %}
+                {% if row.is_superuser %}<span class="ok-muted">superuser</span>{% endif %}
               </th>
               <td>{{ row.subscriptions }}</td>
               <td>
                 {% if row.last_seen_at %}
                   {{ row.last_seen_at|date:"d.m.Y H:i" }}
-                  <span class="notifications-meta">
+                  <span class="ok-muted">
                     {% blocktranslate with days=row.days_since %}{{ days }} days ago{% endblocktranslate %}
                   </span>
                 {% else %}
-                  <span class="notifications-meta">{% translate "never" %}</span>
+                  <span class="ok-muted">{% translate "never" %}</span>
                 {% endif %}
               </td>
               <td>{{ row.open_items }}</td>
@@ -152,7 +155,7 @@
         </tbody>
       </table>
     </div>
-  </div>
+  </section>
 
 </div>
 {% endblock %}

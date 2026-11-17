@@ -25,13 +25,13 @@ Flow: metadata -> generate hooks -> pick hook -> (pick CTA) -> render reel.
 {% block extrastyle %}
 {{ block.super }}
 <style>
-  :root { --rs-teal:#064d61; --rs-teal2:#0a6178; }
+  .rs-wrap { --rs-teal: var(--ok-brand, #064d61); --rs-teal2: var(--ok-brand-strong, #0a6178); }
   .rs-wrap { max-width: 880px; padding: 16px; }
-  .rs-wrap fieldset.module { border:1px solid #cdd8dc; border-radius:10px; margin:0 0 18px; padding:16px 18px; }
+  .rs-wrap fieldset.module { border:1px solid var(--ok-line-2, #cdd8dc); border-radius:10px; margin:0 0 18px; padding:16px 18px; }
   .rs-wrap legend { color: var(--rs-teal); font-weight:700; padding:0 6px; font-size:15px; }
   .rs-wrap label { display:block; font-weight:600; margin:10px 0 4px; font-size:13px; }
   .rs-wrap input, .rs-wrap select, .rs-wrap textarea {
-      width:100%; padding:9px 11px; border:1px solid #b9c6cc; border-radius:8px; font-size:14px; box-sizing:border-box; }
+      width:100%; padding:9px 11px; border:1px solid var(--ok-line-2, #b9c6cc); border-radius:8px; font-size:14px; box-sizing:border-box; }
   .rs-wrap select {
       height:auto; min-height:42px; line-height:1.4; padding-right:32px;
       background-color:var(--ok-surface, #fff); }
@@ -40,15 +40,15 @@ Flow: metadata -> generate hooks -> pick hook -> (pick CTA) -> render reel.
   .rs-wrap button { background:var(--rs-teal); color:#fff; border:0; border-radius:8px; padding:11px 18px; font-weight:700; cursor:pointer; }
   .rs-wrap button:disabled { opacity:.5; cursor:default; }
   .rs-wrap button.sec { background:var(--ok-surface, #fff); color:var(--rs-teal); border:2px solid var(--rs-teal); }
-  .rs-cand { border:1px solid #cdd8dc; border-radius:8px; padding:10px 12px; margin:8px 0; cursor:pointer; display:flex; gap:10px; align-items:flex-start; }
-  .rs-cand.sel { border-color:var(--rs-teal); background:#eef6f8; }
-  .rs-cand b { display:block; } .rs-cand small { color:#5a6b71; }
-  .rs-custom-hook { border:1px dashed #9bb0b8; border-radius:8px; padding:12px; margin-top:12px; background:#fbfdfe; display:none; }
-  .rs-custom-hook.sel { border-style:solid; border-color:var(--rs-teal); background:#eef6f8; }
-  .rs-status { padding:10px 12px; border-radius:8px; background:#eef6f8; margin-top:10px; font-size:14px; }
-  .rs-status.err { background:#fdecec; color:#9b2222; }
-  .rs-status.ok { background:#e9f7ee; color:#1c6b38; }
-  .rs-muted { color:#5a6b71; font-size:13px; }
+  .rs-cand { border:1px solid var(--ok-line-2, #cdd8dc); border-radius:8px; padding:10px 12px; margin:8px 0; cursor:pointer; display:flex; gap:10px; align-items:flex-start; }
+  .rs-cand.sel { border-color:var(--rs-teal); background:var(--ok-brand-soft, #eef6f8); }
+  .rs-cand b { display:block; } .rs-cand small { color:var(--ok-ink-3, #5a6b71); }
+  .rs-custom-hook { border:1px dashed var(--ok-line-2, #9bb0b8); border-radius:8px; padding:12px; margin-top:12px; background:var(--ok-surface-2, #fbfdfe); display:none; }
+  .rs-custom-hook.sel { border-style:solid; border-color:var(--rs-teal); background:var(--ok-brand-soft, #eef6f8); }
+  .rs-status { padding:10px 12px; border-radius:8px; background:var(--ok-brand-soft, #eef6f8); margin-top:10px; font-size:14px; }
+  .rs-status.err { background:var(--ok-danger-soft, #fdecec); color:var(--ok-danger-ink, #9b2222); }
+  .rs-status.ok { background:var(--ok-success-soft, #e9f7ee); color:var(--ok-success-ink, #1c6b38); }
+  .rs-muted { color:var(--ok-ink-3, #5a6b71); font-size:13px; }
 </style>
 {% endblock %}
 
@@ -288,7 +288,7 @@ async function searchMediaByNumber(){
     out.innerHTML = items.map(v => {
       const selectUrl = reelStudioSelectUrl(v.id);
       return `
-        <div style="padding:10px; border:1px solid #cdd8dc; border-radius:8px; margin-bottom:10px; background:var(--ok-surface, #fff);">
+        <div style="padding:10px; border:1px solid var(--ok-line-2, #cdd8dc); border-radius:8px; margin-bottom:10px; background:var(--ok-surface, #fff);">
           <div style="font-weight:700;">#${escapeHtml(v.number)} — ${escapeHtml(v.filename)}</div>
           <div class="rs-muted">${escapeHtml(v.storage_location || '')}</div>
           <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
