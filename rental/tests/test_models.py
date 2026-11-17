@@ -529,6 +529,27 @@ class RentalTransactionModelTest(TestCase):
         expected_values = ['Issue 1 → Test Item [OK-01] x2', 'Ausgeben 1 → Test Item [OK-01] x2']
         self.assertIn(str(transaction), expected_values)
     
+    def test_issue_and_return_count_on_the_item_without_inventory_events(self):
+        """Issue/return only count on the rental item; no Celery inventory events."""
+        import sys
+        from unittest import mock
+
+        from inventory import events
+        names = ['handle_rental_created_event', 'handle_rental_issued_event',
+                 'handle_rental_returned_event', 'handle_rental_cancelled_event']
+        # The old dispatch was skipped while pytest was imported; hide it here.
+        with mock.patch.dict(sys.modules), \
+                mock.patch.multiple(events, **{n: mock.DEFAULT for n in names}) as patched:
+            sys.modules.pop('pytest', None)
+            for kind in ('issue', 'return'):
+                RentalTransaction.objects.create(
+                    rental_item=self.rental_item, transaction_type=kind, quantity=2,
+                    performed_by=self.admin_user)
+        self.rental_item.refresh_from_db()
+        self.assertEqual((self.rental_item.quantity_issued, self.rental_item.quantity_returned), (2, 2))
+        for name in names:
+            patched[name].delay.assert_not_called()
+
     def test_rental_transaction_creation_with_room(self):
         """Test creating a rental transaction with a room."""
         transaction = RentalTransaction.objects.create(

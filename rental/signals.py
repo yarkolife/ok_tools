@@ -2,8 +2,7 @@
 Django signals for rental application.
 
 This module contains signal handlers that automatically respond to model changes
-in the rental system. It handles audit logging and triggers inventory quantity updates
-through asynchronous events.
+in the rental system: audit logging and the issued/returned quantities of rental items.
 """
 
 from .models import RentalItem
@@ -66,12 +65,7 @@ def log_rental_request_changes(sender, instance: RentalRequest, created, **kwarg
 @receiver(post_save, sender=RentalTransaction)
 def update_inventory_quantities(sender, instance: RentalTransaction, created, **kwargs):
     """
-    Trigger inventory quantity updates through asynchronous events.
-
-    - reserve: increases reserved_quantity
-    - issue: decreases reserved_quantity and increases rented_quantity
-    - return: decreases rented_quantity
-    - cancel: decreases reserved_quantity
+    Count issued and returned quantities on the rental item.
 
     Args:
         sender: The model class that sent the signal
@@ -87,7 +81,6 @@ def update_inventory_quantities(sender, instance: RentalTransaction, created, **
         return
 
     rental_item = instance.rental_item
-    item_id = rental_item.inventory_item_id
     qty = int(instance.quantity or 0)
     user_id = instance.performed_by.id if instance.performed_by else None
     
@@ -95,16 +88,6 @@ def update_inventory_quantities(sender, instance: RentalTransaction, created, **
         # If no user is specified, we can't perform the operation
         return
 
-    # Import the inventory events
-    from inventory.events import (
-        handle_rental_created_event,
-        handle_rental_issued_event,
-        handle_rental_returned_event,
-        handle_rental_cancelled_event
-    )
-
-    # Update rental item quantities locally. This must always run - including
-    # under tests - so it is kept out of the test-gated Celery block below.
     if instance.transaction_type == 'issue':
         rental_item.quantity_issued = (rental_item.quantity_issued or 0) + qty
         rental_item.save(update_fields=['quantity_issued'])
@@ -112,19 +95,12 @@ def update_inventory_quantities(sender, instance: RentalTransaction, created, **
         rental_item.quantity_returned = (rental_item.quantity_returned or 0) + qty
         rental_item.save(update_fields=['quantity_returned'])
 
-    # Celery dispatch is skipped during tests/migrations to avoid broker
-    # connection issues; only the asynchronous events are gated, not the
-    # local quantity bookkeeping above.
-    import sys
-    if not ('pytest' in sys.modules or 'test' in sys.argv or 'migrate' in sys.argv):
-        if instance.transaction_type == 'reserve':
-            handle_rental_created_event.delay(item_id, qty, user_id)
-        elif instance.transaction_type == 'issue':
-            handle_rental_issued_event.delay(item_id, qty, user_id)
-        elif instance.transaction_type == 'return':
-            handle_rental_returned_event.delay(item_id, qty, user_id)
-        elif instance.transaction_type == 'cancel':
-            handle_rental_cancelled_event.delay(item_id, qty, user_id)
+    # The inventory events (handle_rental_*_event) are no longer sent: they
+    # moved reserved_quantity/rented_quantity of the item, but rentals have
+    # not created 'reserve' transactions since 2025, so every issue and
+    # return was reported as failed and changed nothing. What is out and
+    # back is counted on the rental item above; availability per period is
+    # checked from the rental items.
 
 
 @receiver(post_save, sender=RoomRental)

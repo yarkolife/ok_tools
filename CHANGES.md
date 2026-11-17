@@ -6,6 +6,7 @@ CHANGELOG
 
 * **tools: Post drafts for reels that were rendered before Instagram posting was switched on**
   * The Instagram post list has a button "Entwürfe für fertige Reels". It creates a draft for every reel in the reel output folder whose broadcast day (`…_YYMMDD` in the file name) is today or later and that has no post yet, with the caption template, the broadcast time and the collab partners, as for a newly rendered reel. Nothing is published; the drafts still need an approval. Reels of past broadcasts and files without a date are skipped.
+* Fixed: Every issue and return of a rental put "Handle Rental Issued/Returned Event" tasks marked "failed" into the task results. These Celery events moved the reserved/rented counters of the inventory item, but rentals have not created reservations since 2025, so they never changed anything. They are no longer sent; what is out and back is counted on the rental items as before.
 * Fixed: The button also created drafts for the full programme previews in the same folder (`…_Programmvorschau_YYMMDD.mp4`); only files with `Reel` in the name count now. In the Unfold admin the button now looks like the other buttons of the list header in both themes.
 * Fixed: In the dark theme, tables on the rental pages (e.g. "Missing consumables") showed every other row white with light, unreadable text. The colours of Django's admin `base.css`, which these pages load, now follow the OK Tools theme.
 
