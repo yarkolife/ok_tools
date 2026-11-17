@@ -145,7 +145,8 @@
                     <label for="{{ form.suggested_date.id_for_label }}" class="form-label">
                         <i class="bi bi-calendar-event me-1"></i>{{ form.suggested_date.label }}
                     </label>
-                    {{ form.suggested_date }}
+                    <div class="d-flex gap-2 suggested-date-inputs">{{ form.suggested_date }}</div>
+                    <div class="form-text" id="suggested-date-live-hint" style="display:none"><i class="bi bi-broadcast-pin text-danger me-1"></i>{% trans 'Live broadcast: date and time are required.' %}</div>
                     {% if form.suggested_date.errors %}
                     <div class="invalid-feedback d-block">
                         {% for error in form.suggested_date.errors %}{{ error }}{% endfor %}
@@ -1053,7 +1054,19 @@
         }
     }
 
+
+    // Live broadcasts need date and time; both inputs become required.
+    function toggleLiveDateRequired(isLive) {
+        ['id_suggested_date_0', 'id_suggested_date_1'].forEach(function (id) {
+            const input = document.getElementById(id);
+            if (input) input.required = Boolean(isLive);
+        });
+        const hint = document.getElementById('suggested-date-live-hint');
+        if (hint) hint.style.display = isLive ? 'block' : 'none';
+    }
+
     function toggleLiveBroadcast(checkbox) {
+        toggleLiveDateRequired(checkbox.checked);
         const repetitionsField = document.getElementById('id_repetitions_allowed');
         const exchangeSAField = document.getElementById('id_media_authority_exchange_allowed');
         const exchangeOtherField = document.getElementById('id_media_authority_exchange_allowed_other_states');

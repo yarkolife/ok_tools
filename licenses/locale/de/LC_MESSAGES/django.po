@@ -3032,3 +3032,12 @@ msgstr "Übersprungen (kein Profil): %s"
 
 msgid "PDF could not be created for: %s"
 msgstr "PDF konnte nicht erstellt werden für: %s"
+
+msgid "Live broadcast: date and time are required."
+msgstr "Live-Sendung: Datum und Uhrzeit sind Pflichtangaben."
+
+msgid "A live broadcast needs the broadcast date and time."
+msgstr "Für eine Live-Sendung sind Sendedatum und Uhrzeit Pflichtangaben."
+
+msgid "Please check your entries."
+msgstr "Bitte prüfen Sie Ihre Eingaben."

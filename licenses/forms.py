@@ -51,8 +51,48 @@ class BooleanSelectOnly(forms.Select):
 logger = logging.getLogger('django')
 
 
+class SuggestedDateTimeField(forms.SplitDateTimeField):
+    """Broadcast date and time as two inputs.
+
+    The form used a single date input, so the time of a live broadcast was
+    never asked for and every suggested date was stored at 00:00. The time
+    may stay empty for normal licenses (then 00:00 as before); live
+    broadcasts require both, see ``CreateLicenseForm.clean``.
+    """
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault('required', False)
+        super().__init__(
+            require_all_fields=False,
+            widget=forms.SplitDateTimeWidget(
+                date_attrs={'type': 'date'},
+                time_attrs={'type': 'time'},
+                date_format='%Y-%m-%d',
+                time_format='%H:%M',
+            ),
+            **kwargs,
+        )
+        for field in self.fields:
+            field.required = False
+
+    def compress(self, data_list):
+        from django.forms.utils import from_current_timezone
+        import datetime as dt
+
+        day, moment = (list(data_list or []) + [None, None])[:2]
+        if day in self.empty_values:
+            if moment not in self.empty_values:
+                raise forms.ValidationError(self.error_messages['invalid_date'], code='invalid_date')
+            return None
+        if moment in self.empty_values:
+            moment = dt.time.min
+        return from_current_timezone(dt.datetime.combine(day, moment))
+
+
 class CreateLicenseForm(forms.ModelForm):
     """Form to create a license."""
+
+    suggested_date = SuggestedDateTimeField(label=_('Suggested broadcast date'))
 
     class Meta:
         """The okuser field is not visible for the user."""
@@ -67,7 +107,6 @@ class CreateLicenseForm(forms.ModelForm):
             'youth_protection_necessary': BooleanSelectOnly(attrs={'id': 'id_youth_protection_necessary', 'required': True}),
             'youth_protection_category': forms.Select(attrs={'id': 'id_youth_protection_category'}),
             'duration': forms.widgets.TimeInput,
-            'suggested_date': forms.DateInput(attrs={"type": "date"}),
             'further_persons': forms.Textarea(attrs={'style': 'max-height: 4em'}),
             'tags': TagsInputWidget(),
             'signature_svg': forms.HiddenInput(),
@@ -161,6 +200,17 @@ class CreateLicenseForm(forms.ModelForm):
         return super().is_valid()
 
 
+
+    def clean(self):
+        """A live broadcast needs the day and the time it goes on air."""
+        cleaned = super().clean()
+        if cleaned.get('is_live') and 'suggested_date' in self.fields:
+            day = (self.data.get('suggested_date_0') or '').strip()
+            moment = (self.data.get('suggested_date_1') or '').strip()
+            if not day or not moment:
+                self.add_error('suggested_date', _(
+                    'A live broadcast needs the broadcast date and time.'))
+        return cleaned
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

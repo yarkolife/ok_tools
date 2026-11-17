@@ -423,6 +423,26 @@ class CreateLicenseView(generic.CreateView):
         
         return response
 
+    def form_invalid(self, form):
+        """AJAX: report the errors instead of a page the script only reloads.
+
+        The script reloaded the page on any non-JSON answer, so every entry
+        was lost and the user never saw what was wrong.
+        """
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            lines = []
+            for name, errors in form.errors.items():
+                field = form.fields.get(name)
+                label = str(field.label) if field is not None and field.label else ''
+                for error in errors:
+                    lines.append(f'{label}: {error}' if label else str(error))
+            return JsonResponse({
+                'success': False,
+                'error': '\n'.join(lines) or str(_('Please check your entries.')),
+                'fields': {name: [str(e) for e in errors] for name, errors in form.errors.items()},
+            }, status=400)
+        return super().form_invalid(form)
+
     def get_success_url(self) -> str:
         """Show a message to confirm the creation."""
         messages.success(

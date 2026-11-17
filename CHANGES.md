@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2026-11-17 (Version 4.77.0)
+==========================
+
+* **licenses: Live broadcasts need a broadcast date and time**
+  * The user's license form ("Freistellung anlegen" and editing) shows the suggested broadcast date as a date and a time input. When "Live-Sendung" is ticked, both are required: the browser marks them, a hint says so, and the server refuses a live license without date or time ("Für eine Live-Sendung sind Sendedatum und Uhrzeit Pflichtangaben."). Without "Live" the time may stay empty, as before.
+* Fixed: The form only had a date input, so every suggested broadcast date was stored at 00:00 and the time of a live broadcast was lost. The entered time is now saved and shown again when the license is edited.
+* Fixed: When creating a license failed a check, the page reloaded and every entry was lost without saying why. The errors are now shown and the form keeps its entries.
+
 2026-11-17 (Version 4.76.0)
 ==========================
 

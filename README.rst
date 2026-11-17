@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.76.0
+**Current Version**: 4.77.0
 **Last Updated**: 17 November 2026
 
 Features
@@ -22,6 +22,7 @@ Features
 
 - **License Management** - Manage broadcasting licenses with tags and metadata export
   - License creation and confirmation workflow
+  - Suggested broadcast date and time as separate inputs; for live broadcasts both are required
   - Admin filtering by inclusive license creation-date and current-author-age ranges
   - Archive media (``ArchiveMedium``): DVD, master DVD, VHS, master VHS, Sendeband, RAID carriers with number and note, edited inline on the license; shelf view "which licenses are on DVD/tape no. X"
   - Legacy archive fields on licenses: old contribution number (``legacy_number``), staff-only internal note, external production (Fremdbeitrag) flag, all searchable and filterable in the admin
