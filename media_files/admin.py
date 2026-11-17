@@ -46,41 +46,14 @@ def _is_archive_protected() -> bool:
         return bool(getattr(settings, 'VIDEO_ARCHIVE_PROTECTED', True))
 
 
-def _admin_archive_cleanup_preview_page(title: str, rows: list) -> HttpResponse:
-    """Render a simple HTML preview page for archive cleanup."""
-    # rows: list of dicts {number, keep, delete[]}
-    def esc(s):
-        return str(s).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-
-    html = [
-        "<html><head><meta charset='utf-8' />",
-        f"<title>{esc(title)}</title>",
-        "<style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; padding:16px}"
-        "table{border-collapse:collapse; width:100%}"
-        "th,td{border:1px solid var(--ok-line, #ddd); padding:8px; vertical-align:top}"
-        "th{background:#f6f6f6; text-align:left}"
-        ".keep{color:#17a2b8; font-weight:700}"
-        ".del{color:#dc3545}"
-        ".muted{color:var(--ok-ink-3, #666)}"
-        "</style></head><body>",
-        f"<h2>{esc(title)}</h2>",
-        "<p class='muted'>This is a preview only. No files were deleted.</p>",
-        "<table>",
-        "<tr><th>Number</th><th>Keep</th><th>Delete</th></tr>",
-    ]
-
-    for r in rows:
-        deletes = "<br/>".join([esc(x) for x in r.get("delete", [])]) or "—"
-        html.append(
-            "<tr>"
-            f"<td><strong>{esc(r['number'])}</strong></td>"
-            f"<td class='keep'>{esc(r['keep'])}</td>"
-            f"<td class='del'>{deletes}</td>"
-            "</tr>"
-        )
-
-    html.extend(["</table></body></html>"])
-    return HttpResponse("".join(html))
+def _admin_archive_cleanup_preview_page(request, admin_site, title, rows: list):
+    """Render the archive cleanup preview (rows: dicts with number, keep, delete[])."""
+    return render(request, 'admin/media_files/videofile/archive_cleanup_preview.html', {
+        **admin_site.each_context(request),
+        'title': title,
+        'rows': rows,
+        'cancel_url': reverse('admin:media_files_videofile_changelist'),
+    })
 
 
 def _archive_version_sort_key(v):
@@ -2673,7 +2646,7 @@ class VideoFileAdmin(ModelAdmin):
                 "delete": [fmt(v) for v in sorted(delete, key=_archive_version_sort_key, reverse=True)],
             })
 
-        return _admin_archive_cleanup_preview_page("Preview: ARCHIVE cleanup (keep best archive)", rows)
+        return _admin_archive_cleanup_preview_page(request, self.admin_site, _('Preview: ARCHIVE cleanup (keep best archive)'), rows)
 
     @admin.action(description=_('Preview archive cleanup (keep newest archive)'))
     def preview_archive_duplicates_keep_newest_action(self, request, queryset):
@@ -2708,7 +2681,7 @@ class VideoFileAdmin(ModelAdmin):
                 "delete": [fmt(v) for v in sorted(delete, key=_archive_newest_sort_key, reverse=True)],
             })
 
-        return _admin_archive_cleanup_preview_page("Preview: ARCHIVE cleanup (keep newest)", rows)
+        return _admin_archive_cleanup_preview_page(request, self.admin_site, _('Preview: ARCHIVE cleanup (keep newest)'), rows)
 
     @admin.action(description=_('Preview archive cleanup (keep largest archive file)'))
     def preview_archive_duplicates_keep_largest_action(self, request, queryset):
@@ -2743,7 +2716,7 @@ class VideoFileAdmin(ModelAdmin):
                 "delete": [fmt(v) for v in sorted(delete, key=_archive_largest_sort_key, reverse=True)],
             })
 
-        return _admin_archive_cleanup_preview_page("Preview: ARCHIVE cleanup (keep largest)", rows)
+        return _admin_archive_cleanup_preview_page(request, self.admin_site, _('Preview: ARCHIVE cleanup (keep largest)'), rows)
 
     def _force_archive_cleanup_confirm_page(self, request, queryset, *, action_name: str, title: str, required_phrase: str):
         """Render confirmation page for force archive cleanup actions."""

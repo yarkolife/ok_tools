@@ -1,49 +1,27 @@
 {% extends "admin/base_site.html" %}
 {% load i18n %}
 
-{% block breadcrumbs %}
-<div class="breadcrumbs">
-    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-    &rsaquo; <a href="{% url 'admin:licenses_license_changelist' %}">{% trans 'Licenses' %}</a>
-    &rsaquo; {% trans 'Import from JSON' %}
-</div>
-{% endblock %}
-
 {% block content %}
-<h1>{% trans 'Import License from JSON' %}</h1>
-
-<form method="post" enctype="multipart/form-data">
+<div class="ok-page">
+  <form method="post" enctype="multipart/form-data" class="ok-card">
     {% csrf_token %}
-    
-    <fieldset class="module aligned">
-        <div class="form-row">
-            <div>
-                <label for="{{ form.json_file.id_for_label }}">{{ form.json_file.label }}:</label>
-                {{ form.json_file }}
-                {% if form.json_file.help_text %}
-                    <p class="help">{{ form.json_file.help_text }}</p>
-                {% endif %}
-                {% if form.json_file.errors %}
-                    <ul class="errorlist">
-                        {% for error in form.json_file.errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
-        </div>
-    </fieldset>
-    
-    <div class="submit-row">
-        <input type="submit" value="{% trans 'Import' %}" class="default" name="_import">
-        <a href="{% url 'admin:licenses_license_changelist' %}" class="button">{% trans 'Cancel' %}</a>
+    <h2 class="ok-card__title">{% translate "JSON File" %}</h2>
+    {{ form.non_field_errors }}
+    <div class="ok-fields">
+      {% for field in form %}
+        {% include "admin/_ok_field.html" with field=field %}
+      {% endfor %}
     </div>
-    
-    <div class="module" style="margin-top: 20px;">
-        <h2>{% trans 'JSON Format' %}</h2>
-        <p>{% trans 'The JSON file should contain the following fields:' %}</p>
-        <pre style="background: var(--ok-surface-2, #f5f5f5); padding: 10px; border: 1px solid var(--ok-line, #ddd);">
-{
+    <div class="ok-actions" style="margin-top: 18px;">
+      <button type="submit" class="ok-btn" name="_import">{% translate "Import" %}</button>
+      <a href="{% url 'admin:licenses_license_changelist' %}" class="ok-btn ok-btn--secondary">{% translate "Cancel" %}</a>
+    </div>
+  </form>
+
+  <section class="ok-card">
+    <h2 class="ok-card__title">{% translate "JSON Format" %}</h2>
+    <p class="ok-card__help">{% translate "The JSON file should contain the following fields:" %}</p>
+<pre>{
     "name": "License title",
     "description": "License description",
     "category": 107,
@@ -51,37 +29,42 @@
     "targetChannel": "@ok_dessau@lokalmedial.de",
     "allowExchange": true,
     "saveToMediathek": true
-}
-        </pre>
-        <p><strong>{% trans 'Field descriptions:' %}</strong></p>
-        <ul>
-            <li><strong>senderResponsible</strong>: {% trans 'Full name of the profile owner (e.g., "Bernd Krüger"). Used to find the Profile. If not found, targetChannel will be used as fallback.' %}</li>
-            <li><strong>targetChannel</strong>: {% trans 'Media authority identifier. Used as fallback if senderResponsible profile is not found.' %}</li>
-        </ul>
-        <p><strong>{% trans 'Category mapping:' %}</strong></p>
-        <ul>
-            <li>101: Kurzfilm</li>
-            <li>102: Trailer</li>
-            <li>103: Medienpädagogische Produktionen</li>
-            <li>104: Experimentierfeld "Video"</li>
-            <li>105: Orientierungshilfen</li>
-            <li>106: Heimatdoku</li>
-            <li>107: Kulturelles und soziales Engagement</li>
-            <li>108: Politisch orientiertes Bürgerfernsehen</li>
-            <li>109: Familie und Freizeit</li>
-            <li>110: Sonstiges</li>
-        </ul>
-        <p><strong>{% trans 'Media Authority mapping:' %}</strong></p>
-        <ul>
-            <li>@ok_dessau@lokalmedial.de → OK Dessau</li>
-            <li>@ok_magdeburg@lokalmedial.de → OK Magdeburg</li>
-            <li>@okmq@lokalmedial.de → OK Merseburg-Querfurt</li>
-            <li>@ok_salzwedel@lokalmedial.de → OK Salzwedel</li>
-            <li>@ok_wettin@lokalmedial.de → OK Wettin</li>
-            <li>@ok_wernigerode@lokalmedial.de → OK Wernigerode</li>
-            <li>@ok_stendal@lokalmedial.de → OK Stendal</li>
-        </ul>
-    </div>
-</form>
-{% endblock %}
+}</pre>
+    <p><strong>{% translate "Field descriptions:" %}</strong></p>
+    <ul class="ok-list">
+      <li><code>senderResponsible</code>: {% translate 'Full name of the profile owner (e.g., "Bernd Krüger"). Used to find the Profile. If not found, targetChannel will be used as fallback.' %}</li>
+      <li><code>targetChannel</code>: {% translate "Media authority identifier. Used as fallback if senderResponsible profile is not found." %}</li>
+    </ul>
+  </section>
 
+  <div class="ok-grid-2">
+    <section class="ok-card">
+      <h2 class="ok-card__title">{% translate "Category mapping:" %}</h2>
+      <ul class="ok-list">
+        <li><code>101</code> Kurzfilm</li>
+        <li><code>102</code> Trailer</li>
+        <li><code>103</code> Medienpädagogische Produktionen</li>
+        <li><code>104</code> Experimentierfeld "Video"</li>
+        <li><code>105</code> Orientierungshilfen</li>
+        <li><code>106</code> Heimatdoku</li>
+        <li><code>107</code> Kulturelles und soziales Engagement</li>
+        <li><code>108</code> Politisch orientiertes Bürgerfernsehen</li>
+        <li><code>109</code> Familie und Freizeit</li>
+        <li><code>110</code> Sonstiges</li>
+      </ul>
+    </section>
+    <section class="ok-card">
+      <h2 class="ok-card__title">{% translate "Media Authority mapping:" %}</h2>
+      <ul class="ok-list">
+        <li><code>@ok_dessau@lokalmedial.de</code> → OK Dessau</li>
+        <li><code>@ok_magdeburg@lokalmedial.de</code> → OK Magdeburg</li>
+        <li><code>@okmq@lokalmedial.de</code> → OK Merseburg-Querfurt</li>
+        <li><code>@ok_salzwedel@lokalmedial.de</code> → OK Salzwedel</li>
+        <li><code>@ok_wettin@lokalmedial.de</code> → OK Wettin</li>
+        <li><code>@ok_wernigerode@lokalmedial.de</code> → OK Wernigerode</li>
+        <li><code>@ok_stendal@lokalmedial.de</code> → OK Stendal</li>
+      </ul>
+    </section>
+  </div>
+</div>
+{% endblock %}

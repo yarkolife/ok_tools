@@ -1,0 +1,25 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="ok-page">
+  <div class="ok-alert">
+    <svg class="ok-alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+    <div class="ok-alert__body">
+      <p>{% translate "This is a preview only. No files were deleted." %}</p>
+    </div>
+  </div>
+
+  <section class="ok-card">
+    {% if rows %}
+      {% include "admin/media_files/videofile/_archive_cleanup_rows.html" with rows=rows %}
+    {% else %}
+      <p class="ok-muted">{% translate "The selected videos have no duplicates in ARCHIVE storage." %}</p>
+    {% endif %}
+  </section>
+
+  <div class="ok-actions">
+    <a class="ok-btn ok-btn--secondary" href="{{ cancel_url }}">{% translate "Back to the list" %}</a>
+  </div>
+</div>
+{% endblock %}

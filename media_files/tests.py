@@ -650,3 +650,57 @@ class CleanupMissingFilesCommandTests(TestCase):
         self._run()
 
         self.assertEqual(VideoFile.objects.count(), 0)
+
+
+class ArchiveCleanupPagesTests(TestCase):
+    """The archive cleanup preview and force-delete confirmation are admin pages."""
+
+    def setUp(self):
+        self.admin = get_user_model().objects.create_superuser(
+            email='admin@example.com', password='pw-12345'
+        )
+        self.client.force_login(self.admin)
+        archive = StorageLocation.objects.create(
+            name="Archive", storage_type="ARCHIVE", path="/tmp/archive/", is_active=True,
+        )
+        self.videos = [
+            VideoFile.objects.create(
+                number=18313, filename=name, storage_location=archive,
+                file_path=name, is_available=False, file_size=size,
+            )
+            for name, size in [("18313_Demo_v1.mp4", 2000), ("18313_Demo.mp4", 1000)]
+        ]
+        self.url = reverse('admin:media_files_videofile_changelist')
+
+    def _post(self, action, **extra):
+        return self.client.post(self.url, {
+            'action': action,
+            '_selected_action': [v.pk for v in self.videos],
+            **extra,
+        })
+
+    def test_preview_uses_admin_layout(self):
+        response = self._post('preview_archive_duplicates_keep_largest_action')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'admin/media_files/videofile/archive_cleanup_preview.html')
+        content = response.content.decode()
+        self.assertIn('ok-table', content)
+        self.assertIn('18313_Demo_v1.mp4', content)
+
+    def test_force_delete_confirmation_page(self):
+        response = self._post('force_delete_archive_duplicates_keep_best_action')
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn('ok-alert--danger', content)
+        self.assertIn('DELETE ARCHIVE', content)
+        self.assertIn('name="confirmation_phrase"', content)
+        self.assertEqual(VideoFile.objects.filter(number=18313).count(), 2)
+
+    def test_wrong_phrase_shows_error_and_keeps_files(self):
+        response = self._post(
+            'force_delete_archive_duplicates_keep_best_action',
+            force_apply='1', confirmation_phrase='nope', password='pw-12345',
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('ok-field--error', response.content.decode())
+        self.assertEqual(VideoFile.objects.filter(number=18313).count(), 2)

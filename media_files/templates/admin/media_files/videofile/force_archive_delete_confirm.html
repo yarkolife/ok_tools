@@ -2,26 +2,30 @@
 {% load i18n %}
 
 {% block content %}
-  <h1>{{ title }}</h1>
-
-  <div class="messagelist">
-    <div class="warning">
-      <p><strong>{% trans "Danger zone" %}</strong></p>
+<div class="ok-page">
+  <div class="ok-alert ok-alert--danger" role="alert">
+    <svg class="ok-alert__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+    <div class="ok-alert__body">
+      <p class="ok-alert__title">{% translate "Danger zone" %}</p>
       <p>
-        {% trans "This action can delete files from ARCHIVE storage even when archive protection is enabled." %}
-        {% trans "Proceed only if you are absolutely sure." %}
-      </p>
-      <p>
-        {% trans "Required phrase" %}: <code>{{ required_phrase }}</code>
-      </p>
-      <p>
-        {% trans "Planned deletions" %}: <strong>{{ planned_delete_count }}</strong>
-        {% trans "file(s)" %} / <strong>{{ planned_numbers_count }}</strong> {% trans "number(s)" %}
+        {% translate "This action can delete files from ARCHIVE storage even when archive protection is enabled." %}
+        {% translate "Proceed only if you are absolutely sure." %}
       </p>
     </div>
   </div>
 
-  <form method="post">
+  <div class="ok-stats">
+    <div class="ok-stat ok-stat--danger">
+      <span class="ok-stat__value">{{ planned_delete_count }}</span>
+      <span class="ok-stat__label">{% translate "File(s) to delete" %}</span>
+    </div>
+    <div class="ok-stat">
+      <span class="ok-stat__value">{{ planned_numbers_count }}</span>
+      <span class="ok-stat__label">{% translate "Number(s) checked" %}</span>
+    </div>
+  </div>
+
+  <form method="post" class="ok-card">
     {% csrf_token %}
     <input type="hidden" name="action" value="{{ action_name }}">
     <input type="hidden" name="force_apply" value="1">
@@ -29,41 +33,31 @@
       <input type="hidden" name="_selected_action" value="{{ obj.pk }}">
     {% endfor %}
 
-    <fieldset class="module aligned">
-      {{ form.as_p }}
-    </fieldset>
+    <h2 class="ok-card__title">{% translate "Confirm" %}</h2>
+    <p class="ok-card__help">
+      {% translate "Enter this phrase and your password:" %}
+      <code>{{ required_phrase }}</code>
+    </p>
 
-    <div class="submit-row">
-      <input type="submit" class="default" value="{% trans 'Confirm and delete' %}">
-      <a class="button cancel-link" href="{{ cancel_url }}">{% trans "Cancel" %}</a>
+    {{ form.non_field_errors }}
+    <div class="ok-fields">
+      {% for field in form %}
+        {% include "admin/_ok_field.html" with field=field %}
+      {% endfor %}
+    </div>
+
+    <div class="ok-actions" style="margin-top: 18px;">
+      <button type="submit" class="ok-btn ok-btn--destructive">{% translate "Confirm and delete" %}</button>
+      <a class="ok-btn ok-btn--secondary" href="{{ cancel_url }}">{% translate "Cancel" %}</a>
     </div>
   </form>
 
   {% if sample_rows %}
-    <h2>{% trans "Preview (sample)" %}</h2>
-    <p class="help">{% trans "First items only; not all planned deletions are shown here." %}</p>
-    <table class="adminlist">
-      <thead>
-        <tr>
-          <th>{% trans "Number" %}</th>
-          <th>{% trans "Keep" %}</th>
-          <th>{% trans "Delete" %}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in sample_rows %}
-          <tr>
-            <td><strong>{{ row.number }}</strong></td>
-            <td>{{ row.keep }}</td>
-            <td>
-              {% for d in row.delete %}
-                <div>{{ d }}</div>
-              {% endfor %}
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <section class="ok-card">
+      <h2 class="ok-card__title">{% translate "Preview (sample)" %}</h2>
+      <p class="ok-card__help">{% translate "First items only; not all planned deletions are shown here." %}</p>
+      {% include "admin/media_files/videofile/_archive_cleanup_rows.html" with rows=sample_rows %}
+    </section>
   {% endif %}
+</div>
 {% endblock %}
-

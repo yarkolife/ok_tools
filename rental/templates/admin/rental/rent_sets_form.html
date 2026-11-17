@@ -1,15 +1,30 @@
 {% extends "admin/base_site.html" %}
 {% load i18n %}
 
+{% block extrahead %}
+{{ block.super }}
+<script src="{% url 'admin:jsi18n' %}"></script>
+{{ form.media }}
+{% endblock %}
+
 {% block content %}
-  <h1>{% trans "Create rental from equipment sets" %}</h1>
-  <form method="post" novalidate>
+<div class="ok-page">
+  <form method="post" novalidate class="ok-card">
     {% csrf_token %}
-    <div>
-      {{ form.as_p }}
+    {% if form.non_field_errors %}
+      <div class="ok-alert ok-alert--danger" role="alert" style="margin-bottom: 16px;">
+        <div class="ok-alert__body">{{ form.non_field_errors }}</div>
+      </div>
+    {% endif %}
+    <div class="ok-fields">
+      {% for field in form %}
+        {% include "admin/_ok_field.html" with field=field %}
+      {% endfor %}
     </div>
-    <div class="submit-row">
-      <input type="submit" class="default" value="{% trans "Create" %}">
+    <div class="ok-actions" style="margin-top: 18px;">
+      <button type="submit" class="ok-btn">{% translate "Create" %}</button>
+      <a href="{% url 'admin:rental_rentalrequest_changelist' %}" class="ok-btn ok-btn--secondary">{% translate "Cancel" %}</a>
     </div>
   </form>
+</div>
 {% endblock %}

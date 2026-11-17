@@ -1,0 +1,8 @@
+{% comment %}One form field on an intermediate admin page (.ok-page, styles in ok_theme.css).
+Usage: {% include "admin/_ok_field.html" with field=form.name %}{% endcomment %}
+<div class="ok-field{% if field.errors %} ok-field--error{% endif %}">
+  <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="ok-field__required" aria-hidden="true">*</span>{% endif %}</label>
+  {{ field }}
+  {% if field.help_text %}<p class="ok-field__help" id="{{ field.auto_id }}_helptext">{{ field.help_text|safe }}</p>{% endif %}
+  {{ field.errors }}
+</div>

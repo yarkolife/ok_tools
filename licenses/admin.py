@@ -2151,6 +2151,15 @@ class LicenseAdmin(ExportMixin, ModelAdmin):
             messages.SUCCESS,
         )
     
+    def _import_json_context(self, request, form, title=None):
+        """Context for the JSON import pages (admin layout, title, form)."""
+        return {
+            **self.admin_site.each_context(request),
+            'title': title or _('Import License from JSON'),
+            'form': form,
+            'opts': self.model._meta,
+        }
+
     def import_json_view(self, request):
         """Import License from JSON file."""
         from django.shortcuts import redirect
@@ -2314,7 +2323,7 @@ class LicenseAdmin(ExportMixin, ModelAdmin):
                                 return TemplateResponse(
                                     request,
                                     'admin/licenses/import_json.html',
-                                    {'form': form, 'opts': self.model._meta}
+                                    self._import_json_context(request, form)
                                 )
                         else:
                             self.message_user(
@@ -2325,7 +2334,7 @@ class LicenseAdmin(ExportMixin, ModelAdmin):
                             return TemplateResponse(
                                 request,
                                 'admin/licenses/import_json.html',
-                                {'form': form, 'opts': self.model._meta}
+                                self._import_json_context(request, form)
                             )
                     
                     license_data['profile'] = profile
@@ -2413,8 +2422,9 @@ class LicenseAdmin(ExportMixin, ModelAdmin):
                             request,
                             'admin/licenses/import_duplicate_confirmation.html',
                             {
-                                'form': form,
-                                'opts': self.model._meta,
+                                **self._import_json_context(
+                                    request, form, title=_('Potential Duplicate Detected')
+                                ),
                                 'new_title': license_data['title'],
                                 'new_profile': profile,
                                 'duplicates': potential_duplicates,
@@ -2460,7 +2470,7 @@ class LicenseAdmin(ExportMixin, ModelAdmin):
         return TemplateResponse(
             request,
             'admin/licenses/import_json.html',
-            {'form': form, 'opts': self.model._meta}
+            self._import_json_context(request, form)
         )
 
 

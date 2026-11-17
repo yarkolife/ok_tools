@@ -2660,10 +2660,8 @@ msgid "Confirm and delete"
 msgstr "Genehmigen und löschen"
 
 #: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:43
-#, fuzzy
-#| msgid "Preview (5s)"
 msgid "Preview (sample)"
-msgstr "Vorschau (Beispiel)"
+msgstr "Vorschau (Auszug)"
 
 #: media_files/templates/admin/media_files/videofile/force_archive_delete_confirm.html:44
 msgid "First items only; not all planned deletions are shown here."
@@ -3723,3 +3721,33 @@ msgstr ""
 
 msgid "{} file(s) skipped because their storage is unavailable or empty"
 msgstr "{} Datei(en) übersprungen, weil ihr Speicherort nicht verfügbar oder leer ist"
+
+msgid "File(s) to delete"
+msgstr "Zu löschende Datei(en)"
+
+msgid "Number(s) checked"
+msgstr "Geprüfte Nummer(n)"
+
+msgid "Confirm"
+msgstr "Bestätigen"
+
+msgid "Enter this phrase and your password:"
+msgstr "Geben Sie diesen Ausdruck und Ihr Passwort ein:"
+
+msgid "This is a preview only. No files were deleted."
+msgstr "Nur eine Vorschau. Es wurden keine Dateien gelöscht."
+
+msgid "The selected videos have no duplicates in ARCHIVE storage."
+msgstr "Die ausgewählten Videos haben keine Duplikate im ARCHIV-Speicher."
+
+msgid "Back to the list"
+msgstr "Zurück zur Liste"
+
+msgid "Preview: ARCHIVE cleanup (keep best archive)"
+msgstr "Vorschau: ARCHIV-Bereinigung (bestes Archiv behalten)"
+
+msgid "Preview: ARCHIVE cleanup (keep newest)"
+msgstr "Vorschau: ARCHIV-Bereinigung (neueste behalten)"
+
+msgid "Preview: ARCHIVE cleanup (keep largest)"
+msgstr "Vorschau: ARCHIV-Bereinigung (größte behalten)"

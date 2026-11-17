@@ -1,0 +1,25 @@
+{% load i18n %}
+<div class="ok-table-wrap">
+  <table class="ok-table">
+    <thead>
+      <tr>
+        <th>{% translate "Number" %}</th>
+        <th>{% translate "Keep" %}</th>
+        <th>{% translate "Delete" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        <tr>
+          <td><strong>{{ row.number }}</strong></td>
+          <td><div class="ok-keep"><span aria-hidden="true">✓</span><span>{{ row.keep }}</span></div></td>
+          <td>
+            {% for d in row.delete %}
+              <div class="ok-del"><span aria-hidden="true">✕</span><span>{{ d }}</span></div>
+            {% empty %}—{% endfor %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
