@@ -5007,3 +5007,15 @@ msgstr "Auf einen Tag klicken, um den Raum zu reservieren."
 
 msgid "This item is already counted completely."
 msgstr "Dieser Artikel ist schon vollständig gezählt."
+
+msgid "Waiting for approval"
+msgstr "Wartet auf Bestätigung"
+
+msgid "Picked up"
+msgstr "Abgeholt"
+
+msgid "Back to booking"
+msgstr "Zurück zur Buchung"
+
+msgid "Request"
+msgstr "Anfrage"

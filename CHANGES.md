@@ -1,6 +1,21 @@
 CHANGELOG
 =========
 
+2026-11-17 (Version 4.76.0)
+==========================
+
+* **rental: Booking page for borrowers in three steps**
+  * The page "Ausleihe" in the user account now reads top to bottom: 1. "Wofür und wann?" (project, purpose, period), 2. "Technik oder Raum auswählen", 3. "Prüfen und absenden" with a summary and one large button ("Anfrage absenden", or "Jetzt reservieren" when requests need no approval).
+  * People used to put equipment or a room in the selection and leave, thinking it was booked. As long as something is selected but not sent, an orange bar at the bottom says "… ausgewählt, noch nicht gebucht", step 3 shows the same notice, and leaving the page asks for confirmation.
+  * The room dialog has the project name and purpose fields too (kept in sync with step 1) and a button "Raum hinzufügen und Anfrage absenden", so a room is booked in one go. "Raum hinzufügen" alone now says that the room is selected but not booked yet; before it claimed rooms were reserved automatically.
+  * A missing project name or purpose scrolls to the field and marks it.
+* **rental: Borrowers see the state of their requests**
+  * "Ihre Anfragen" lists every current request (waiting for approval, reserved, picked up) and the ones cancelled or denied in the last 30 days, each with its status and a link to the request page (`/rental/user/rental/<id>/`, now with a link back).
+  * Status names for borrowers: "Wartet auf Bestätigung", "Reserviert", "Abgeholt", "Zurückgegeben", "Storniert". Requests that staff closed after the return count as returned; before they vanished from the account. Room-only bookings are no longer listed as overdue, since they end by themselves.
+  * The counters on the account start page and the booking page come from one definition (`rental/user_rentals.py`); the start page did not count requests waiting for approval as current.
+* Fixed: Sending a booking request could take 35–40 seconds; the request was saved, but the page waited. The approval mails to staff and the borrower are now sent by Celery after the booking is saved (`rental.tasks.send_rental_approval_emails`); without Celery they go out directly as before. SMTP connections time out after `EMAIL_TIMEOUT` seconds (default 30), and a booking that takes longer than 5 seconds is logged with its duration.
+* Removed leftover debug code in the Nextcloud room sync that tried to write to a developer's local file on every room booking.
+
 2026-11-16 (Version 4.75.0)
 ==========================
 

@@ -129,12 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const reserveBtn = document.getElementById('reserveBtn');
             if (reserveBtn) {
-                reserveBtn.addEventListener('click', () => {
-                    const action = (typeof RENTAL_REQUIRES_APPROVAL !== 'undefined' && RENTAL_REQUIRES_APPROVAL)
-                        ? 'draft'
-                        : 'reserved';
-                    this.createRental(action);
-                });
+                reserveBtn.addEventListener('click', () => this.createRental(this.submitAction()));
             }
 
             const addSetToRentalBtn = document.getElementById('addSetToRentalBtn');
@@ -144,7 +139,118 @@ document.addEventListener('DOMContentLoaded', function() {
             if (roomsFilterBtn) roomsFilterBtn.addEventListener('click', this.showRooms.bind(this));
 
             const addRoomToRentalBtn = document.getElementById('addRoomToRentalBtn');
-            if (addRoomToRentalBtn) addRoomToRentalBtn.addEventListener('click', this.addRoomToRental.bind(this));
+            if (addRoomToRentalBtn) addRoomToRentalBtn.addEventListener('click', () => this.addRoomToRental());
+
+            // "Add room and send": the same checks, then the request goes out at once.
+            const addRoomAndSendBtn = document.getElementById('addRoomAndSendBtn');
+            if (addRoomToRentalBtn && addRoomAndSendBtn) {
+                addRoomAndSendBtn.addEventListener('click', () => this.addRoomToRental({ send: true }));
+                new MutationObserver(() => {
+                    addRoomAndSendBtn.disabled = addRoomToRentalBtn.disabled;
+                }).observe(addRoomToRentalBtn, { attributes: true, attributeFilter: ['disabled'] });
+            }
+
+            this.bindBookingGuidance();
+        }
+
+        submitAction() {
+            return (typeof RENTAL_REQUIRES_APPROVAL !== 'undefined' && RENTAL_REQUIRES_APPROVAL)
+                ? 'draft'
+                : 'reserved';
+        }
+
+        // People used to fill the cart and leave, thinking it was booked.
+        // Everything here keeps "selected" and "sent" visibly apart.
+        bindBookingGuidance() {
+            // Project and purpose also live in the room dialog; both stay in sync.
+            document.querySelectorAll('[data-mirror]').forEach(copy => {
+                const main = document.querySelector(`[name="${copy.dataset.mirror}"]`);
+                if (!main) return;
+                copy.addEventListener('input', () => {
+                    main.value = copy.value;
+                    this.updateBookingGuidance();
+                });
+                main.addEventListener('input', () => {
+                    copy.value = main.value;
+                    this.updateBookingGuidance();
+                });
+            });
+            const roomsModal = document.getElementById('roomsModal');
+            if (roomsModal) {
+                roomsModal.addEventListener('show.bs.modal', () => {
+                    document.querySelectorAll('[data-mirror]').forEach(copy => {
+                        const main = document.querySelector(`[name="${copy.dataset.mirror}"]`);
+                        if (main) copy.value = main.value;
+                    });
+                });
+            }
+            ['start_date', 'end_date'].forEach(name => {
+                const field = document.querySelector(`[name="${name}"]`);
+                if (field) field.addEventListener('change', () => this.updateBookingGuidance());
+            });
+
+            const go = document.getElementById('pendingBookingGo');
+            if (go) go.addEventListener('click', () => this.scrollToStep('bookingStep3'));
+
+            window.addEventListener('beforeunload', (event) => {
+                if (this.hasUnsentSelection()) {
+                    event.preventDefault();
+                    event.returnValue = '';
+                }
+            });
+            this.updateBookingGuidance();
+        }
+
+        hasUnsentSelection() {
+            return !this.isCreatingRental
+                && (this.selectedItems.length > 0 || this.selectedRooms.length > 0);
+        }
+
+        scrollToStep(id) {
+            const step = document.getElementById(id);
+            if (step) step.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        updateBookingGuidance() {
+            const count = this.selectedItems.length + this.selectedRooms.length;
+            const unsent = count > 0;
+            const bar = document.getElementById('pendingBookingBar');
+            if (bar) bar.classList.toggle('d-none', !unsent);
+            document.body.classList.toggle('has-pending-booking', unsent);
+            const label = document.getElementById('pendingBookingCount');
+            if (label) {
+                label.textContent = interpolate(
+                    ngettext('%(count)s position', '%(count)s positions', count), { count }, true);
+            }
+            const notice = document.getElementById('notSentNotice');
+            if (notice) notice.classList.toggle('d-none', !unsent);
+
+            const summary = document.getElementById('bookingSummary');
+            if (summary) {
+                const value = name => (document.querySelector(`[name="${name}"]`)?.value || '').trim();
+                const when = (v) => v ? new Date(v).toLocaleString('de-DE', {
+                    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                }) : '–';
+                const project = value('project_name');
+                const projectHtml = project
+                    ? this.escapeHtml(project)
+                    : `<span class="text-danger">${gettext('missing (step 1)')}</span>`;
+                summary.innerHTML = `
+                    <div><strong>${gettext('Project')}:</strong> ${projectHtml}</div>
+                    <div><strong>${gettext('Period')}:</strong> ${when(value('start_date'))} – ${when(value('end_date'))}</div>`;
+            }
+        }
+
+        // Point at the field that is missing instead of only showing a dialog.
+        showMissingField(name, message) {
+            const field = document.querySelector(`[name="${name}"]`);
+            alert(message);
+            if (field) {
+                this.scrollToStep('bookingStep1');
+                field.classList.add('is-invalid');
+                field.addEventListener('input', () => field.classList.remove('is-invalid'), { once: true });
+                setTimeout(() => field.focus(), 300);
+            }
         }
 
         addDaysToDateString(dateString, days) {
@@ -387,51 +493,44 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!container) return;
 
             try {
-                const resp = await fetch(`${URLS.userRentalDetails}?type=active`);
-                if (!resp.ok) {
-                    throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
-                }
-
-                const data = await resp.json();
-
-                if (!data.success) {
-                    throw new Error(data.error || gettext('Unknown error'));
-                }
-
-                const rentals = (data.rentals || []).filter(rental => {
-const status = (rental.status || '').toLowerCase();
-                    return status === 'draft' || status === 'reserved';
-                });
+                // Current requests (waiting, reserved, picked up) and the ones
+                // cancelled lately, so a denied request does not just vanish.
+                const fetchGroup = async (type) => {
+                    const resp = await fetch(`${URLS.userRentalDetails}?type=${type}`);
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+                    const data = await resp.json();
+                    if (!data.success) throw new Error(data.error || gettext('Unknown error'));
+                    return data.rentals || [];
+                };
+                const [active, cancelled] = await Promise.all([fetchGroup('active'), fetchGroup('cancelled')]);
+                const rentals = active.concat(cancelled);
                 if (!rentals.length) {
                     container.innerHTML = `<div class="text-muted">${container.dataset.labelNoActive || gettext('No active rentals')}</div>`;
                     return;
                 }
 
                 const labelRequest = container.dataset.labelRequest || gettext('Request');
-                const labelStatus = container.dataset.labelStatus || gettext('Status');
                 const labelPeriod = container.dataset.labelPeriod || gettext('Period');
                 const labelItems = container.dataset.labelItems || gettext('Items');
                 const labelRooms = container.dataset.labelRooms || gettext('Rooms');
+                const when = (v) => v ? new Date(v).toLocaleString('de-DE', {
+                    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+                }) : gettext('-');
 
-                const rows = rentals.map(rental => {
-                    const status = rental.status_display || rental.status || '';
-                    const start = rental.requested_start_date ? new Date(rental.requested_start_date).toLocaleString() : gettext('-');
-                    const end = rental.requested_end_date ? new Date(rental.requested_end_date).toLocaleString() : gettext('-');
+                container.innerHTML = rentals.map(rental => {
                     const itemsCount = (rental.items || []).length;
                     const roomsCount = (rental.room_rentals || []).length;
+                    const status = rental.status_display || rental.status || '';
                     return `
-                        <div class="border rounded p-2 mb-2 bg-light">
-                            <div class="fw-semibold">
-                                ${labelRequest} #${rental.id}: ${rental.project_name || ''}
+                        <a href="${rental.detail_url}" class="user-request d-block border rounded p-2 mb-2 text-reset text-decoration-none">
+                            <div class="d-flex justify-content-between align-items-start gap-2">
+                                <span class="fw-semibold">${labelRequest} ${rental.id}: ${this.escapeHtml(rental.project_name || '')}</span>
+                                <span class="badge ${this.getStatusBadgeClass(rental.status)}">${this.escapeHtml(status)}</span>
                             </div>
-                            <div>${labelStatus}: ${status}</div>
-                            <div>${labelPeriod}: ${start} – ${end}</div>
-                            <div>${labelItems}: ${itemsCount} • ${labelRooms}: ${roomsCount}</div>
-                        </div>
-                    `;
+                            <div class="small text-muted">${labelPeriod}: ${when(rental.requested_start_date)} – ${when(rental.requested_end_date)}</div>
+                            <div class="small text-muted">${labelItems}: ${itemsCount} • ${labelRooms}: ${roomsCount}</div>
+                        </a>`;
                 }).join('');
-
-                container.innerHTML = rows;
             } catch (error) {
                 console.error('Error loading active requests:', error);
                 container.innerHTML = `<div class="text-muted">${container.dataset.labelNoActive || gettext('No active rentals')}</div>`;
@@ -577,7 +676,8 @@ const status = (rental.status || '').toLowerCase();
                                 <small class="text-muted">${gettext('ID')}: ${rental.id}</small>
                             </div>
                             <div class="d-flex align-items-center gap-2">
-                                <span class="badge ${this.getStatusBadgeClass(rental.status)}">${this.getStatusLabel(rental.status)}</span>
+                                <span class="badge ${this.getStatusBadgeClass(rental.status)}">${this.escapeHtml(rental.status_display || this.getStatusLabel(rental.status))}</span>
+                                ${rental.detail_url ? `<a href="${rental.detail_url}" class="btn btn-sm btn-outline-secondary">${gettext('Open')}</a>` : ''}
                                 ${type === 'overdue' && rental.days_overdue > 0 ?
                                     `<span class="badge bg-danger ms-1">${rental.days_overdue} ${gettext('days overdue')}</span>` : ''}
                             </div>
@@ -725,6 +825,7 @@ const status = (rental.status || '').toLowerCase();
                 case 'reserved': return 'bg-info';
                 case 'issued': return 'bg-primary';
                 case 'returned': return 'bg-success';
+                case 'closed': return 'bg-success';
                 case 'cancelled': return 'bg-danger';
                 default: return 'bg-secondary';
             }
@@ -863,92 +964,29 @@ const status = (rental.status || '').toLowerCase();
             return null;
         }
 
+        // The period is chosen in step 1; step 2 only points there.
         showSelectDatesHint() {
             const grid = document.getElementById('inventoryGrid');
             if (!grid) return;
 
             grid.innerHTML = `
                 <div class="col-12">
-                    <div class="text-center p-5">
-                        <div class="workflow-step p-3 rounded mb-3 d-inline-block" style="max-width: 400px;">
-                            <div class="d-flex align-items-center mb-2 justify-content-center">
-                                <i class="bi bi-calendar-check text-secondary me-2"></i>
-                                <strong>${gettext('3. Time Period')}</strong>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label form-label-sm">${gettext('From:')}</label>
-                                <input name="start_date_hint" type="date" class="form-control form-control-sm" required>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label form-label-sm">${gettext('To:')}</label>
-                                <input name="end_date_hint" type="date" class="form-control form-control-sm" required>
-                            </div>
-                        </div>
-                        <p class="mt-3 text-muted">${gettext('Select dates above to view availability')}</p>
+                    <div class="text-center p-4 text-muted">
+                        <i class="bi bi-calendar-check fs-2 d-block mb-2"></i>
+                        <p class="mb-3">${gettext('Choose the period in step 1 first; then you see what is free.')}</p>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="goToPeriodBtn">
+                            <i class="bi bi-arrow-up me-1"></i>${gettext('To step 1')}
+                        </button>
                     </div>
                 </div>
             `;
-            
-            const startHintField = grid.querySelector('input[name="start_date_hint"]');
-            const endHintField = grid.querySelector('input[name="end_date_hint"]');
-            const startMainField = document.querySelector('input[name="start_date"]');
-            const endMainField = document.querySelector('input[name="end_date"]');
-            if (startHintField && startMainField) {
-                startHintField.value = (startMainField.value || '').slice(0, 10);
-                this.setupDateFieldConstraints(startHintField, null);
-                startHintField.addEventListener('change', (e) => {
-                    if (startMainField) {
-                        if (e.target.value) {
-                            startMainField.value = this.buildDateTimeValue(
-                                e.target.value, this.getDefaultStartTime(e.target.value));
-                        }
-                        if (endMainField && e.target.value) {
-                            this.setupDateFieldConstraints(endMainField, e.target.value);
-                        }
-                        if (endHintField && e.target.value) {
-                            this.setupDateFieldConstraints(endHintField, e.target.value);
-                        }
-                        this.ensureDateTimeDefaults();
-                        startMainField.dispatchEvent(new Event('change', { bubbles: true }));
-                    }
+            const go = grid.querySelector('#goToPeriodBtn');
+            if (go) {
+                go.addEventListener('click', () => {
+                    this.scrollToStep('bookingStep1');
+                    const start = document.querySelector('input[name="start_date"]');
+                    if (start) setTimeout(() => start.focus(), 300);
                 });
-            }
-            
-            if (endHintField && endMainField) {
-                endHintField.value = (endMainField.value || '').slice(0, 10);
-                const startDate = (startMainField?.value || '').slice(0, 10) || startHintField?.value;
-                this.setupDateFieldConstraints(endHintField, startDate);
-                endHintField.addEventListener('change', (e) => {
-                    if (endMainField) {
-                        if (e.target.value) {
-                            endMainField.value = this.buildDateTimeValue(
-                                e.target.value, this.getDefaultEndTime(e.target.value));
-                        }
-                        this.ensureDateTimeDefaults();
-                        endMainField.dispatchEvent(new Event('change', { bubbles: true }));
-                    }
-                });
-            }
-            
-            if (startMainField && startHintField) {
-                const syncStartHandler = () => {
-                    if (startHintField) {
-                        startHintField.value = (startMainField.value || '').slice(0, 10);
-                        if (endHintField) {
-                            this.setupDateFieldConstraints(endHintField, (startMainField.value || '').slice(0, 10));
-                        }
-                    }
-                };
-                startMainField.addEventListener('change', syncStartHandler);
-            }
-            
-            if (endMainField && endHintField) {
-                const syncEndHandler = () => {
-                    if (endHintField) {
-                        endHintField.value = (endMainField.value || '').slice(0, 10);
-                    }
-                };
-                endMainField.addEventListener('change', syncEndHandler);
             }
         }
 
@@ -1264,6 +1302,7 @@ const status = (rental.status || '').toLowerCase();
 
             if (this.selectedItems.length === 0 && this.selectedRooms.length === 0) {
                 box.innerHTML = `<small class="text-muted">${gettext('Nothing selected')}</small>`;
+                this.updateBookingGuidance();
                 return;
             }
 
@@ -1332,6 +1371,7 @@ const status = (rental.status || '').toLowerCase();
             // Add event listeners to remove buttons
             this.bindRemoveItemEvents();
             this.bindRemoveRoomEvents();
+            this.updateBookingGuidance();
         }
 
         bindRemoveItemEvents() {
@@ -2266,7 +2306,7 @@ const status = (rental.status || '').toLowerCase();
             }
         }
 
-        addRoomToRental() {
+        addRoomToRental({ send = false } = {}) {
             if (!this.selectedRoom) {
                 alert(gettext('Please select a room'));
                 return;
@@ -2372,9 +2412,14 @@ const status = (rental.status || '').toLowerCase();
                 const modal = bootstrap.Modal.getInstance(document.getElementById('roomsModal'));
                 if (modal) modal.hide();
 
-                alert(interpolate(gettext('Room "%(roomName)s" was added to the rental. Note: Rooms are automatically reserved and will return after the scheduled time.'), {
+                if (send) {
+                    this.createRental(this.submitAction());
+                    return;
+                }
+                alert(interpolate(gettext('Room "%(roomName)s" is selected but not booked yet. Send the request in step 3.'), {
                     roomName: this.selectedRoom.name
                 }, true));
+                this.scrollToStep('bookingStep3');
             });
         }
 
@@ -2433,14 +2478,14 @@ const status = (rental.status || '').toLowerCase();
                 // Validate project info
                 const projectName = document.querySelector('[name="project_name"]').value.trim();
                 if (!projectName) {
-                    alert(gettext('Please enter project name'));
+                    this.showMissingField('project_name', gettext('Please enter project name'));
                     return;
                 }
 
                 // Validate purpose
                 const purpose = document.querySelector('[name="purpose"]').value.trim();
                 if (!purpose) {
-                    alert(gettext('Please enter purpose of use'));
+                    this.showMissingField('purpose', gettext('Please enter purpose of use'));
                     return;
                 }
 
@@ -2508,6 +2553,7 @@ const status = (rental.status || '').toLowerCase();
                         alert(interpolate(gettext('Rental successfully booked! ID: %(rentalId)s'), { rentalId: result.rental_id }, true));
                     }
                     this.clearForm();
+                    this.loadUserActiveRequests();
                 } else {
                     const errorMessage = result.error || gettext('Unknown error occurred');
                     console.error('Rental creation error:', errorMessage);

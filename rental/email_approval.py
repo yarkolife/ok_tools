@@ -135,6 +135,26 @@ def build_approval_links(*, rental_id: int) -> ApprovalLinks:
     )
 
 
+def queue_approval_emails(*, rental_request_id: int) -> None:
+    """Send the approval mails in Celery once the booking is committed.
+
+    Without Celery (broker down) they are sent directly, as before.
+    """
+    from django.db import transaction
+
+    def _queue():
+        from .tasks import send_rental_approval_emails
+        try:
+            send_rental_approval_emails.delay(rental_request_id)
+        except Exception:
+            logger.warning(
+                "Could not queue rental approval emails, sending them directly "
+                "(rental_request_id=%s)", rental_request_id, exc_info=True)
+            send_rental_approval_emails(rental_request_id)
+
+    transaction.on_commit(_queue)
+
+
 def send_admin_approval_email(*, rental_request) -> None:
     """
     Notify admins about a new user-created rental request that needs approval.

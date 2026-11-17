@@ -1,85 +1,27 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static ok_static %}
 {% load i18n %}
 
 {% block title %}{% trans "Rental" %} - OK Tools{% endblock %}
 {% block page_title %}{% trans "Equipment and Studio Rooms Booking" %}{% endblock %}
 
 {% block content %}
-
-<!-- Rental Process -->
 <div class="row">
-    <!-- Left Sidebar - Workflow Steps -->
-    <div class="col-lg-3">
+    <!-- Left: who is booking, their requests -->
+    <div class="col-lg-3 order-2">
         <div class="dashboard-card">
-            <div class="card-header">
-                <h5 class="card-title">
-                    <i class="bi bi-list-check text-primary me-2"></i>
-                    {% trans "Booking Process" %}
-                </h5>
-            </div>
             <div class="card-body">
-                <!-- Step 1: User Info -->
-                <div class="workflow-step active p-3 rounded mb-3" data-user-id="{{ user_id }}">
+                <div class="workflow-step p-3 rounded mb-3" data-user-id="{{ user_id }}">
                     <div class="d-flex align-items-center mb-2">
                         <i class="bi bi-person-circle text-primary me-2"></i>
-                        <strong>{% trans "1. Your Information" %}</strong>
+                        <strong>{% trans "Booking for" %}</strong>
                     </div>
                     <div class="user-info">
                         <div class="alert alert-info py-2 mb-0">
                             <small>
-                                <i class="bi bi-info-circle me-1"></i>
-                                {% if user_display_name %}
-                                    {{ user_display_name }}
-                                {% elif user.first_name and user.last_name %}
-                                    {{ user.first_name }} {{ user.last_name }}
-                                {% elif user.first_name %}
-                                    {{ user.first_name }}
-                                {% elif user.last_name %}
-                                    {{ user.last_name }}
-                                {% elif user.username %}
-                                    {{ user.username }}
-                                {% else %}
-                                    {% trans "User" %}
-                                {% endif %}
-                                {% if user.email %}
-                                    <br><span class="text-muted">{{ user.email }}</span>
-                                {% endif %}
+                                {% if user_display_name %}{{ user_display_name }}{% else %}{{ user.email }}{% endif %}
+                                {% if user.email and user_display_name != user.email %}<br><span class="text-muted">{{ user.email }}</span>{% endif %}
                             </small>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Compact Statistics -->
-                <div class="workflow-step p-3 rounded mb-3">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-bar-chart text-info me-2"></i>
-                        <strong>{% trans "Statistics" %}</strong>
-                    </div>
-                    <div class="row g-2">
-                        <div class="col-4">
-                            <div class="stats-card stats-card-primary" data-type="active">
-                                <div class="stats-icon-small">
-                                    <i class="bi bi-clock"></i>
-                                </div>
-                                <div class="stats-number">{{ active_rentals|default:0 }}</div>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="stats-card stats-card-success" data-type="returned">
-                                <div class="stats-icon-small">
-                                    <i class="bi bi-check-circle"></i>
-                                </div>
-                                <div class="stats-number">{{ returned_rentals|default:0 }}</div>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="stats-card stats-card-warning" data-type="overdue">
-                                <div class="stats-icon-small">
-                                    <i class="bi bi-exclamation-triangle"></i>
-                                </div>
-                                <div class="stats-number">{{ overdue_rentals|default:0 }}</div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -102,129 +44,152 @@
                     </div>
                 </div>
 
-                <!-- Step 2: Project Info -->
-                <div class="workflow-step p-3 rounded mb-3">
+                <div class="workflow-step p-3 rounded mb-0">
                     <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-project-diagram text-secondary me-2"></i>
-                        <strong>{% trans "2. Project Information" %}</strong>
+                        <i class="bi bi-bar-chart text-info me-2"></i>
+                        <strong>{% trans "Overview" %}</strong>
                     </div>
-                    <div class="mb-2">
-                        <input type="text" name="project_name" class="form-control form-control-sm" placeholder="{% trans 'Project Name' %}" required>
-                    </div>
-                    <div class="mb-2">
-                        <textarea name="purpose" class="form-control form-control-sm" placeholder="{% trans 'Purpose of Use' %}" rows="2"></textarea>
-                    </div>
-                </div>
-
-                <!-- Step 3: Time Period -->
-                <div class="workflow-step p-3 rounded mb-3">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-calendar-check text-secondary me-2"></i>
-                        <strong>{% trans "3. Time Period" %}</strong>
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label form-label-sm">{% trans "From:" %}</label>
-                        <input name="start_date" type="datetime-local" class="form-control form-control-sm" required>
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label form-label-sm">{% trans "To:" %}</label>
-                        <input name="end_date" type="datetime-local" class="form-control form-control-sm" required>
-                    </div>
-                    <div id="workingHoursHint" class="form-text small" aria-live="polite"></div>
-                </div>
-
-                <!-- Step 4: Selection -->
-                <div class="workflow-step p-3 rounded mb-3">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-boxes text-secondary me-2"></i>
-                        <strong>{% trans "4. Selection" %}</strong>
-                    </div>
-                    <div class="selected-items" id="selectedItems">
-                        <small class="text-muted">{% trans "Nothing selected" %}</small>
-                    </div>
-                </div>
-
-                <!-- Step 5: Action -->
-                <div class="workflow-step p-3 rounded mb-3">
-                    <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-play text-secondary me-2"></i>
-                        <strong>{% trans "5. Action" %}</strong>
-                    </div>
-                    <div class="btn-group-vertical w-100" role="group">
-                        <button class="btn btn-outline-primary btn-sm" id="reserveBtn" disabled>
-                            <i class="bi bi-bookmark me-1"></i>{% trans "Reserve" %}
-                        </button>
+                    <div class="row g-2">
+                        <div class="col-4">
+                            <div class="stats-card stats-card-primary" data-type="active" title="{% trans 'Current Rentals' %}" role="button">
+                                <div class="stats-icon-small"><i class="bi bi-clock"></i></div>
+                                <div class="stats-number">{{ active_rentals|default:0 }}</div>
+                                <div class="stats-caption">{% trans "Current" %}</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-card stats-card-success" data-type="returned" title="{% trans 'Returned Rentals' %}" role="button">
+                                <div class="stats-icon-small"><i class="bi bi-check-circle"></i></div>
+                                <div class="stats-number">{{ returned_rentals|default:0 }}</div>
+                                <div class="stats-caption">{% trans "Returned" %}</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-card stats-card-warning" data-type="overdue" title="{% trans 'Expired Rentals' %}" role="button">
+                                <div class="stats-icon-small"><i class="bi bi-exclamation-triangle"></i></div>
+                                <div class="stats-number">{{ overdue_rentals|default:0 }}</div>
+                                <div class="stats-caption">{% trans "Overdue" %}</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="col-lg-9">
-        <!-- Inventory Selection Panel -->
-        <div class="dashboard-card rental-inventory-card">
+    <!-- Main: the booking, step by step -->
+    <div class="col-lg-9 order-1">
+        <!-- Step 1 -->
+        <div class="dashboard-card booking-step mb-4" id="bookingStep1">
             <div class="card-header">
-                <h5 class="card-title">
-                    <i class="bi bi-boxes text-success me-2"></i>
-                    {% trans "Available Inventory" %}
+                <h5 class="card-title mb-0">
+                    <span class="booking-step-number">1</span>{% trans "What for and when?" %}
                 </h5>
             </div>
-            
-            <!-- Quick Filters -->
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label" for="bookingProjectName">{% trans "Project Name" %} <span class="text-danger">*</span></label>
+                        <input type="text" id="bookingProjectName" name="project_name" class="form-control" placeholder="{% trans 'e.g. Interview for the city magazine' %}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="bookingPurpose">{% trans "Purpose of Use" %} <span class="text-danger">*</span></label>
+                        <textarea id="bookingPurpose" name="purpose" class="form-control" rows="1" placeholder="{% trans 'e.g. filming, editing' %}"></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="bookingStart">{% trans "From:" %}</label>
+                        <input id="bookingStart" name="start_date" type="datetime-local" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="bookingEnd">{% trans "To:" %}</label>
+                        <input id="bookingEnd" name="end_date" type="datetime-local" class="form-control" required>
+                    </div>
+                </div>
+                <div id="workingHoursHint" class="form-text small mt-2" aria-live="polite"></div>
+            </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="dashboard-card booking-step rental-inventory-card mb-4" id="bookingStep2">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <span class="booking-step-number">2</span>{% trans "Choose equipment or a room" %}
+                </h5>
+            </div>
             <div class="card-body border-bottom">
-                <div class="row align-items-center">
+                <div class="row g-2 align-items-center">
                     <div class="col-md-4">
                         <div class="input-group search-group">
                             <span class="input-group-text"><i class="bi bi-search"></i></span>
                             <input type="text" class="form-control" placeholder="{% trans 'Search inventory...' %}" id="inventorySearch">
                         </div>
                     </div>
-                    <!-- <div class="col-md-2">
-                        <select class="form-select filter-select" id="ownerFilter">
-                            <option value="all">{% trans "All Owners" %}</option>
-                        </select>
-                    </div> -->
                     <div class="col-md-3">
                         <select class="form-select filter-select" id="categoryFilter">
                             <option value="all">{% trans "All Categories" %}</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-outline-success w-100" id="roomsFilterBtn">
-                            <i class="bi bi-building me-1"></i>{% trans "Rooms" %}
+                    <div class="col-md-5 d-flex gap-2">
+                        <button class="btn btn-success flex-fill" id="roomsFilterBtn">
+                            <i class="bi bi-building me-1"></i>{% trans "Book a room" %}
                         </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Inventory Grid -->
-            <div class="card-body">
-                <div class="inventory-grid">
-                    <div class="row" id="inventoryGrid">
-                        <!-- Content will be loaded by JavaScript -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <button class="btn btn-outline-secondary me-2" id="clearFormBtn">
-                            <i class="bi bi-eraser me-1"></i>{% trans "Reset" %}
-                        </button>
-                    </div>
-                    <div>
-                        <button class="btn btn-outline-warning me-2" id="showSetsBtn">
+                        <button class="btn btn-outline-warning flex-fill" id="showSetsBtn">
                             <i class="bi bi-layer-group me-1"></i>{% trans "Show Sets" %}
                         </button>
                     </div>
                 </div>
             </div>
+            <div class="card-body">
+                <div class="inventory-grid">
+                    <div class="row" id="inventoryGrid"></div>
+                </div>
+            </div>
         </div>
+
+        <!-- Step 3 -->
+        <div class="dashboard-card booking-step mb-4" id="bookingStep3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <span class="booking-step-number">3</span>{% trans "Check and send" %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="bookingSummary" class="mb-3 small text-muted"></div>
+                <div class="selected-items" id="selectedItems">
+                    <small class="text-muted">{% trans "Nothing selected" %}</small>
+                </div>
+                <div class="alert alert-warning py-2 mt-3 mb-3 d-none" id="notSentNotice">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    {% if rental_requires_approval %}
+                        {% trans "Not booked yet: your selection is only sent when you press the button below. Staff then confirm it." %}
+                    {% else %}
+                        {% trans "Not booked yet: your selection is only reserved when you press the button below." %}
+                    {% endif %}
+                </div>
+                <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+                    <button class="btn btn-outline-secondary" id="clearFormBtn">
+                        <i class="bi bi-eraser me-1"></i>{% trans "Reset" %}
+                    </button>
+                    <button class="btn btn-primary btn-lg" id="reserveBtn" disabled>
+                        <i class="bi bi-send me-1"></i>{% if rental_requires_approval %}{% trans "Send request" %}{% else %}{% trans "Reserve now" %}{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stays on screen while something is selected but not sent -->
+<div id="pendingBookingBar" class="pending-booking-bar d-none" role="status" aria-live="polite">
+    <div class="container d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div>
+            <i class="bi bi-cart-check me-1"></i>
+            <strong id="pendingBookingCount"></strong>
+            <span class="ms-1">{% trans "selected, not booked yet." %}</span>
+        </div>
+        <button type="button" class="btn btn-light btn-sm fw-semibold" id="pendingBookingGo">
+            {% trans "Check and send" %} <i class="bi bi-arrow-down ms-1"></i>
+        </button>
     </div>
 </div>
 
@@ -340,14 +305,28 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <div class="text-start me-auto">
-                    <small class="text-info">
+            <div class="modal-footer flex-column align-items-stretch">
+                <!-- Same fields as step 1, so a room can be booked from here in one go -->
+                <div class="row g-2 w-100 m-0">
+                    <div class="col-md-6 ps-0">
+                        <label class="form-label small mb-1" for="roomProjectName">{% trans "Project Name" %} <span class="text-danger">*</span></label>
+                        <input type="text" id="roomProjectName" class="form-control form-control-sm" data-mirror="project_name" placeholder="{% trans 'e.g. Interview for the city magazine' %}">
+                    </div>
+                    <div class="col-md-6 pe-0">
+                        <label class="form-label small mb-1" for="roomPurpose">{% trans "Purpose of Use" %} <span class="text-danger">*</span></label>
+                        <input type="text" id="roomPurpose" class="form-control form-control-sm" data-mirror="purpose" placeholder="{% trans 'e.g. filming, editing' %}">
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2 w-100 mt-2">
+                    <small class="text-info me-auto">
                         <i class="bi bi-info-circle me-1"></i>{% trans "Rooms are automatically returned after scheduled time" %}
                     </small>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
+                    <button type="button" class="btn btn-outline-success" id="addRoomToRentalBtn" disabled>{% trans "Add Room" %}</button>
+                    <button type="button" class="btn btn-success" id="addRoomAndSendBtn" disabled>
+                        <i class="bi bi-send me-1"></i>{% if rental_requires_approval %}{% trans "Add room and send request" %}{% else %}{% trans "Add room and reserve" %}{% endif %}
+                    </button>
                 </div>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
-                <button type="button" class="btn btn-success" id="addRoomToRentalBtn" disabled>{% trans "Add Room" %}</button>
             </div>
         </div>
     </div>
@@ -512,6 +491,51 @@
         align-items: center;
         justify-content: center;
     }
+
+    /* Booking in three numbered steps */
+    .booking-step-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        margin-right: .6rem;
+        border-radius: 50%;
+        background: var(--bs-primary, var(--primary-color));
+        color: #fff;
+        font-size: .95rem;
+        font-weight: 700;
+    }
+    .dashboard-card.booking-step {
+        height: auto !important;
+        display: block !important;
+        scroll-margin-top: calc(var(--top-navbar-height, 70px) + 1rem);
+    }
+    .dashboard-card.booking-step .card-body { flex: 0 0 auto !important; }
+    #roomsFilterBtn { height: auto; min-height: 44px; }
+    .stats-caption { font-size: .7rem; opacity: .8; text-align: center; }
+    .user-request:hover { border-color: var(--bs-primary, var(--primary-color)) !important; }
+
+    /* "Selected, not booked yet": fixed at the bottom until sent */
+    .pending-booking-bar {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1040;
+        padding: .6rem 1rem;
+        background: #b45309;
+        color: #fff;
+        box-shadow: 0 -4px 14px rgba(0, 0, 0, .18);
+    }
+    body.has-pending-booking { padding-bottom: 4rem; }
+    /* Fixed colours: the bar is orange in both themes, so is its button. */
+    .pending-booking-bar #pendingBookingGo,
+    [data-theme="dark"] .pending-booking-bar #pendingBookingGo {
+        background: #fff;
+        border-color: #fff;
+        color: #7c2d12;
+    }
 </style>
 {% endblock %}
 
@@ -540,5 +564,5 @@
 </script>
 
 <script src="{% static 'rental/js/working_hours.js' %}"></script>
-<script src="{% static 'js/rental_dashboard.js' %}"></script>
+<script src="{% static_v 'js/rental_dashboard.js' %}"></script>
 {% endblock %}

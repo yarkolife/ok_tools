@@ -1635,11 +1635,18 @@ def api_create_rental_user(request):
         return JsonResponse({'error': _('Method not allowed')}, status=405)
 
     try:
+        import time
         data = json.loads(request.body)
-        
+
         rental_service = RentalService()
+        started = time.monotonic()
         result = rental_service.create_rental_request(data, request.user, request.user, is_user_request=True)
-        
+        elapsed = time.monotonic() - started
+        # Users once waited 35-40 s here; a slow request shows up in the log.
+        logger.log(logging.WARNING if elapsed > 5 else logging.INFO,
+                   'User rental request %s took %.1f s (success=%s)',
+                   result.get('rental_id'), elapsed, result.get('success'))
+
         if result['success']:
             return JsonResponse(result)
         else:
@@ -6251,37 +6258,18 @@ def api_get_room_schedule_user(request):
 def api_get_user_rental_details(request):
     """
     Get detailed rental information for the current user.
-    Returns rental details filtered by type (active, returned, overdue).
+    Returns rental details filtered by type (active, returned, overdue, cancelled).
     """
     from django.utils import timezone
 
     try:
         rental_type = request.GET.get('type', 'active')
 
-        # Get user's rental requests based on type
-        user_rentals = RentalRequest.objects.select_related('created_by').prefetch_related(
-            'items__inventory_item',
-            'room_rentals__room'
-        ).filter(user=request.user)
-
-        if rental_type == 'active':
-            # Active rentals are those that are draft/reserved/issued and NOT expired
-            rentals = user_rentals.filter(
-                status__in=['draft', 'reserved', 'issued']
-            ).filter(
-                requested_end_date__isnull=False,
-                requested_end_date__gte=timezone.now()
-            )
-        elif rental_type == 'returned':
-            rentals = user_rentals.filter(status='returned')
-        elif rental_type == 'overdue':
-            # Overdue rentals are those that are active but past their end date
-            rentals = user_rentals.filter(
-                status__in=['reserved', 'issued']
-            ).filter(
-                requested_end_date__isnull=False,
-                requested_end_date__lt=timezone.now()
-            )
+        from .user_rentals import GROUPS
+        from .user_rentals import user_rentals as rentals_in_group
+        if rental_type in GROUPS:
+            rentals = rentals_in_group(request.user, rental_type).select_related(
+                'created_by').prefetch_related('items__inventory_item', 'room_rentals__room')
         else:
             return JsonResponse({
                 'success': False,
@@ -6356,7 +6344,8 @@ def api_get_user_rental_details(request):
                 'requested_end_date': rental.requested_end_date.isoformat() if rental.requested_end_date else None,
                 'actual_end_date': rental.actual_end_date.isoformat() if rental.actual_end_date else None,
                 'status': rental.status or '',
-                'status_display': rental.get_status_display() if rental else '',
+                'status_display': rental.user_status_display,
+                'detail_url': reverse('rental:user_rental_detail', args=[rental.id]),
                 'items': rental_items or [],
                 'room_rentals': room_rentals or [],
                 'days_overdue': days_overdue or 0

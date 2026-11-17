@@ -583,9 +583,9 @@ class RentalService:
                 from rental.config import get_rental_user_request_requires_approval
                 if get_rental_user_request_requires_approval():
                     try:
-                        from rental.email_approval import send_admin_approval_email, send_user_pending_email
-                        send_admin_approval_email(rental_request=rental_request)
-                        send_user_pending_email(rental_request=rental_request)
+                        # Sent by Celery after commit; the user does not wait for SMTP.
+                        from rental.email_approval import queue_approval_emails
+                        queue_approval_emails(rental_request_id=rental_request.id)
                     except Exception:
                         # Do not fail rental creation on notification errors.
                         logging.getLogger('django').exception(

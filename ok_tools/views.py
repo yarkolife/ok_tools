@@ -53,25 +53,14 @@ def dashboard(request):
         from rental.models import RentalRequest
         from rental.models import RentalTransaction
 
+        from rental.user_rentals import user_rental_counts
+
         # Get user's rental requests
         user_rental_requests = RentalRequest.objects.filter(user=request.user)
-
-        # Count active rentals (reserved/issued and not expired)
-        active_rentals = user_rental_requests.filter(
-            status__in=['reserved', 'issued'],
-            requested_end_date__gte=timezone.now()
-        ).count()
-
-        # Count returned rentals
-        returned_rentals = user_rental_requests.filter(
-            status='returned'
-        ).count()
-
-        # Count overdue rentals (reserved/issued but end date passed)
-        overdue_rentals = user_rental_requests.filter(
-            status__in=['reserved', 'issued'],
-            requested_end_date__lt=timezone.now()
-        ).count()
+        counts = user_rental_counts(request.user)
+        active_rentals = counts['active_rentals']
+        returned_rentals = counts['returned_rentals']
+        overdue_rentals = counts['overdue_rentals']
 
         # Total rentals
         total_rentals = user_rental_requests.count()
@@ -398,29 +387,8 @@ class RentalDashboardView(LoginRequiredMixin, TemplateView):
             from django.utils import timezone
             from rental.models import RentalRequest
 
-            # Get user's rental requests
-            user_rental_requests = RentalRequest.objects.filter(user=self.request.user)
-
-            # Count active rentals (draft/reserved/issued and not expired)
-            context['active_rentals'] = user_rental_requests.filter(
-                status__in=['draft', 'reserved', 'issued']
-            ).filter(
-                requested_end_date__isnull=False,
-                requested_end_date__gte=timezone.now()
-            ).count()
-
-            # Count returned rentals
-            context['returned_rentals'] = user_rental_requests.filter(
-                status='returned'
-            ).count()
-
-            # Count overdue rentals (reserved/issued but end date passed)
-            context['overdue_rentals'] = user_rental_requests.filter(
-                status__in=['reserved', 'issued']
-            ).filter(
-                requested_end_date__isnull=False,
-                requested_end_date__lt=timezone.now()
-            ).count()
+            from rental.user_rentals import user_rental_counts
+            context.update(user_rental_counts(self.request.user))
 
         except Exception as e:
             print(f"Error calculating rental stats for dashboard: {e}")

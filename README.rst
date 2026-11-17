@@ -4,8 +4,8 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.75.0
-**Last Updated**: 16 November 2026
+**Current Version**: 4.76.0
+**Last Updated**: 17 November 2026
 
 Features
 ========
@@ -175,6 +175,9 @@ Features
   - Automatic rental expiration management via cron jobs
   - Issued and overdue rentals can be extended from the detail page (button and "…" menu)
   - Configurable automatic return reminder emails for issued rentals, tracked so each rental is reminded once unless delivery fails
+  - Booking page for borrowers in three steps (what for and when, choose equipment or a room, check and send); a bar and a notice show that a selection is not booked until it is sent, and rooms can be booked straight from the room dialog
+  - Borrowers see their current, returned, overdue and recently cancelled requests with plain status names and a link to each request
+  - Approval mails for user requests are sent by Celery after the booking is saved, so the booking does not wait for the mail server
 
 - **Dashboard Analytics** - Comprehensive data visualization and monitoring
   - Multiple dashboard widgets (Users, Licenses, Contributions, Projects, Inventory, Notifications, Funnel, Media Data)

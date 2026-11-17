@@ -148,6 +148,11 @@ class RentalRequest(models.Model):
         """Return human-readable representation."""
         return f"{self.project_name} ({self.user})"
 
+    @property
+    def user_status_display(self) -> str:
+        """Status as the borrower sees it (account pages, mails)."""
+        return user_status_label(self.status)
+
     def has_any_signature(self):
         """Return True when any supported signature format is available."""
         if self.signature:
@@ -1655,3 +1660,18 @@ class RentalSigningSession(models.Model):
     def is_expired(self):
         from django.utils import timezone
         return timezone.now() >= self.expires_at
+
+
+# What a borrower reads; staff terms like "draft" or "closed" mean nothing to them.
+USER_STATUS_LABELS = {
+    'draft': _('Waiting for approval'),
+    'reserved': _('Reserved'),
+    'issued': _('Picked up'),
+    'returned': _('Returned'),
+    'closed': _('Returned'),
+    'cancelled': _('Cancelled'),
+}
+
+
+def user_status_label(status: str) -> str:
+    return str(USER_STATUS_LABELS.get(status, status or ''))

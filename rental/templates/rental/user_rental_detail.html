@@ -22,15 +22,9 @@
                     </div>
                 </div>
                 <div class="text-end">
-                    <span class="badge bg-secondary">
-                        {% if rental.status == 'reserved' %}{% trans "Reserved" %}
-                        {% elif rental.status == 'issued' %}{% trans "Issued" %}
-                        {% elif rental.status == 'returned' %}{% trans "Returned" %}
-                        {% elif rental.status == 'cancelled' %}{% trans "Cancelled" %}
-                        {% elif rental.status == 'draft' %}{% trans "Pending approval" %}
-                        {% else %}{{ rental.status }}{% endif %}
-                    </span>
-                    <div class="small text-muted mt-1">ID: {{ rental.id }}</div>
+                    <span class="badge bg-secondary">{{ rental.user_status_display }}</span>
+                    <div class="small text-muted mt-1">{% trans "Request" %} {{ rental.id }}</div>
+                    <a href="{% url 'rental_dashboard' %}" class="small d-inline-block mt-1"><i class="bi bi-arrow-left me-1"></i>{% trans "Back to booking" %}</a>
                 </div>
             </div>
         </div>

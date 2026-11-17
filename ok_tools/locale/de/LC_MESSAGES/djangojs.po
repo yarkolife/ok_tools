@@ -4633,3 +4633,25 @@ msgstr "Mitarbeitende können trotzdem außerhalb der Öffnungszeiten buchen."
 
 msgid "Sending…"
 msgstr "Wird gesendet…"
+
+msgid "missing (step 1)"
+msgstr "fehlt (Schritt 1)"
+
+msgid "Open"
+msgstr "Öffnen"
+
+#, python-format
+msgid "Room \"%(roomName)s\" is selected but not booked yet. Send the request in step 3."
+msgstr "Raum „%(roomName)s“ ist ausgewählt, aber noch nicht gebucht. Sende die Anfrage in Schritt 3 ab."
+
+#, python-format
+msgid "%(count)s position"
+msgid_plural "%(count)s positions"
+msgstr[0] "%(count)s Position"
+msgstr[1] "%(count)s Positionen"
+
+msgid "Choose the period in step 1 first; then you see what is free."
+msgstr "Wähle zuerst in Schritt 1 den Zeitraum, dann siehst du, was frei ist."
+
+msgid "To step 1"
+msgstr "Zu Schritt 1"

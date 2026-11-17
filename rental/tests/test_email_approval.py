@@ -133,3 +133,57 @@ def test__rental__email_approval__admin_email_contains_staff_view_link(settings,
     html_body = email.alternatives[0][0]
     assert expected_staff_url in html_body
 
+
+
+@pytest.mark.django_db
+def test__rental__user_request__approval_mails_leave_after_commit_in_celery(
+        settings, django_user_model, django_capture_on_commit_callbacks):
+    """The booking response does not wait for SMTP: mails go to Celery after commit."""
+    from datetime import timedelta
+    from unittest import mock
+
+    from rental.models import Room
+    from rental.services.rental_service import RentalService
+    from rental import tasks
+
+    settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+    user = django_user_model.objects.create_user(email="booker@example.com", password="pwd")
+    django_user_model.objects.create_user(email="staff2@example.com", password="pwd", is_staff=True)
+    room = Room.objects.create(name="Schnittraum", capacity=2, is_active=True)
+    day = timezone.localdate() + timedelta(days=1)
+    while day.weekday() >= 5:
+        day += timedelta(days=1)
+    data = {
+        "project_name": "Schnitt", "purpose": "x", "action": "draft", "items": [],
+        "start_date": f"{day.isoformat()}T12:00", "end_date": f"{day.isoformat()}T15:00",
+        "rooms": [{"room_id": room.id, "people_count": 1}], "rental_type": "room",
+    }
+
+    with mock.patch("rental.config.get_rental_user_request_requires_approval", return_value=True), \
+            mock.patch.object(tasks.send_rental_approval_emails, "delay") as delay, \
+            django_capture_on_commit_callbacks(execute=True):
+        result = RentalService.create_rental_request(data, user, user, is_user_request=True)
+        assert len(mail.outbox) == 0  # nothing is sent inside the request
+
+    assert result["success"], result
+    delay.assert_called_once_with(result["rental_id"])
+
+    tasks.send_rental_approval_emails(result["rental_id"])
+    assert sorted(m.to[0] for m in mail.outbox) == ["booker@example.com", "staff2@example.com"]
+
+
+@pytest.mark.django_db
+def test__rental__approval_mail_task__skips_requests_no_longer_pending(settings, django_user_model):
+    """Approved before the task ran: no "please approve" mail any more."""
+    from rental import tasks
+
+    settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+    user = django_user_model.objects.create_user(email="u5@example.com", password="pwd")
+    start = timezone.now()
+    rr = RentalRequest.objects.create(
+        user=user, created_by=user, project_name="P", purpose="X",
+        requested_start_date=start, requested_end_date=start + timezone.timedelta(days=1),
+        rental_type="equipment", notes="", status="reserved")
+
+    tasks.send_rental_approval_emails(rr.id)
+    assert mail.outbox == []

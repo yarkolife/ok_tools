@@ -43,8 +43,7 @@ def setup(db):
 @pytest.fixture
 def mails():
     with patch('rental.config.get_rental_user_request_requires_approval', return_value=True), \
-            patch('rental.email_approval.send_admin_approval_email') as admin, \
-            patch('rental.email_approval.send_user_pending_email'):
+            patch('rental.email_approval.queue_approval_emails') as admin:
         yield admin
 
 

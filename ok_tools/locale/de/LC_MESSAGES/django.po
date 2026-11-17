@@ -7445,3 +7445,45 @@ msgstr "Installierte Version"
 
 msgid "A value is stored. Leave empty to keep it; enter a new one to replace it."
 msgstr "Ein Wert ist gespeichert. Leer lassen, um ihn zu behalten; einen neuen eintragen, um ihn zu ersetzen."
+
+msgid "Booking for"
+msgstr "Buchung für"
+
+msgid "What for and when?"
+msgstr "Wofür und wann?"
+
+msgid "e.g. Interview for the city magazine"
+msgstr "z. B. Interview für das Stadtmagazin"
+
+msgid "e.g. filming, editing"
+msgstr "z. B. Dreh, Schnitt"
+
+msgid "Choose equipment or a room"
+msgstr "Technik oder Raum auswählen"
+
+msgid "Book a room"
+msgstr "Raum buchen"
+
+msgid "Check and send"
+msgstr "Prüfen und absenden"
+
+msgid "Not booked yet: your selection is only sent when you press the button below. Staff then confirm it."
+msgstr "Noch nicht gebucht: Deine Auswahl wird erst mit dem Knopf unten gesendet. Danach bestätigt das Team die Anfrage."
+
+msgid "Not booked yet: your selection is only reserved when you press the button below."
+msgstr "Noch nicht gebucht: Deine Auswahl wird erst mit dem Knopf unten reserviert."
+
+msgid "Send request"
+msgstr "Anfrage absenden"
+
+msgid "Reserve now"
+msgstr "Jetzt reservieren"
+
+msgid "selected, not booked yet."
+msgstr "ausgewählt, noch nicht gebucht."
+
+msgid "Add room and send request"
+msgstr "Raum hinzufügen und Anfrage absenden"
+
+msgid "Add room and reserve"
+msgstr "Raum hinzufügen und reservieren"
