@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+2026-11-18 (Version 4.78.0)
+==========================
+
+* **tools: Instagram cover frame from the reel renderer**
+  * Reel posts were published with the first frame as cover, which shows the frozen footage before the hook appears. The reel renderer (okmq-anchor) now reports the cover time with the finished render (`cover_frame`, `cover_ms` in `GET /api/reel/<job_id>`): the moment the hook is fully on screen (1.6 s), for question hooks ("frage") the moment only the question is shown. The post draft stores it as "Titelbild-Frame (ms)"; staff can still change it before approving.
+  * Question hooks now pause about half a second after the question before the second line is typed, without cursor, so this frame exists in the video. A draft created by the folder scan before the render result arrived gets the cover afterwards, unless it was set by hand.
+
 2026-11-17 (Version 4.77.0)
 ==========================
 

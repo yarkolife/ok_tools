@@ -112,6 +112,30 @@ def test_rendered_reel_becomes_a_draft(config, home_license):
 
 
 @pytest.mark.django_db
+def test_draft_takes_the_cover_frame_from_the_renderer(config, home_license):
+    post = reel_posts.create_draft(FILENAME, 19082, cover_ms='1220')
+    assert post.thumb_offset_ms == 1220
+
+
+@pytest.mark.django_db
+def test_draft_from_the_folder_scan_gets_the_cover_later(config, home_license):
+    post = reel_posts.create_draft(FILENAME, 19082)
+    assert post.thumb_offset_ms == 0
+
+    from tools.tasks import _create_reel_post_draft
+    _create_reel_post_draft({'status': 'done', 'file': FILENAME, 'cover_ms': 1220})
+    post.refresh_from_db()
+    assert post.thumb_offset_ms == 1220
+
+    # A cover chosen by hand stays.
+    post.thumb_offset_ms = 3000
+    post.save()
+    reel_posts.create_draft(FILENAME, 19082, cover_ms=1220)
+    post.refresh_from_db()
+    assert post.thumb_offset_ms == 3000
+
+
+@pytest.mark.django_db
 def test_no_draft_while_posting_is_off(config):
     config.instagram_enabled = False
     config.save()

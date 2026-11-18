@@ -1034,7 +1034,8 @@ def _create_reel_post_draft(result: dict) -> None:
         number = None
     try:
         from .reel_posts import create_draft
-        create_draft(filename, number)
+        # cover_ms: where the renderer shows the hook -> Instagram cover frame.
+        create_draft(filename, number, cover_ms=(result or {}).get('cover_ms'))
     except Exception:
         # The reel itself is fine; a missing draft can be added by hand.
         logger.exception('Could not create the Instagram post draft for %s', filename)

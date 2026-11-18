@@ -161,14 +161,24 @@ def caption_values(license_obj, day: date | None, plan_entry: dict) -> dict:
     }
 
 
-def create_draft(filename: str, number=None) -> ReelPost | None:
-    """Create the post draft for a rendered reel (once per file)."""
+def create_draft(filename: str, number=None, cover_ms=None) -> ReelPost | None:
+    """Create the post draft for a rendered reel (once per file).
+
+    ``cover_ms`` is the cover frame the reel renderer reports: where the hook
+    is on screen (for question hooks only the question). A draft the folder
+    scan created before the render result arrived gets it afterwards.
+    """
     config = ToolsConfig.get_config()
     if not config.is_instagram_configured():
         return None
     filename = Path(str(filename)).name
+    cover_ms = _cover_ms(cover_ms)
     existing = ReelPost.objects.filter(filename=filename).first()
     if existing:
+        if (cover_ms and not existing.thumb_offset_ms
+                and existing.status == ReelPost.STATUS_DRAFT):
+            existing.thumb_offset_ms = cover_ms
+            existing.save(update_fields=['thumb_offset_ms', 'updated_at'])
         return existing
 
     license_obj = None
@@ -197,10 +207,20 @@ def create_draft(filename: str, number=None) -> ReelPost | None:
             'caption': render_caption(config.instagram_caption_template, values),
             'collaborators': ', '.join(collaborators_for(license_obj)),
             'share_to_feed': config.instagram_share_to_feed,
+            'thumb_offset_ms': cover_ms or 0,
             'scheduled_at': scheduled_at,
         },
     )
     return post
+
+
+def _cover_ms(value) -> int:
+    """The renderer's cover time in ms; anything unusable counts as none."""
+    try:
+        value = int(value)
+    except (TypeError, ValueError):
+        return 0
+    return value if 0 < value < 15 * 60 * 1000 else 0
 
 
 REEL_VIDEO_SUFFIXES = ('.mp4', '.mov', '.m4v')

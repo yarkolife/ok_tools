@@ -272,7 +272,11 @@ def start_reel(
 
 
 def get_job(job_id: str) -> dict:
-    """Status of a render job: {status: queued|rendering|done|error, file, output, error}."""
+    """Status of a render job: {status: queued|rendering|done|error, file, output, error}.
+
+    Reels also carry ``cover_frame``/``cover_ms``: where the hook is on screen
+    (question hooks: only the question), used as the Instagram cover.
+    """
     return _get(f"/api/reel/{job_id}")
 
 
