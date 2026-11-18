@@ -572,3 +572,32 @@ def test_instagram_off_hides_posts_but_keeps_reel_features(client, config, admin
     assert 'id_instagram_enabled' in page.content.decode()  # the switch stays reachable
     assert notification_config.is_enabled('media_files.missing_reel')
     assert not notification_config.is_enabled('tools.instagram_story_reminder')
+
+
+@pytest.mark.parametrize('tag, expected', [
+    ('Kultur', '#Kultur'),
+    ('#Kultur', '#Kultur'),
+    ('offener kanal', '#OffenerKanal'),
+    ('#Campus Talk', '#CampusTalk'),
+    ('Sachsen-Anhalt', '#SachsenAnhalt'),
+    ('OKMQ live', '#OKMQLive'),
+    ('jugend_medien', '#jugend_medien'),
+    ('# ', ''),
+])
+def test_license_tags_become_one_hashtag_each(tag, expected):
+    assert reel_posts._hashtag(tag) == expected
+
+
+def test_fixed_hashtags_with_and_without_hash_sign():
+    assert reel_posts.hashtags_for([], '#Offener Kanal #OKMQ, #Saalekreis') == (
+        '#OffenerKanal #OKMQ #Saalekreis')
+    assert reel_posts.hashtags_for([], 'OKMQ, Merseburg Saalekreis') == '#OKMQ #Merseburg #Saalekreis'
+
+
+def test_license_tag_with_several_hashtags_is_split():
+    # Real tags from production.
+    assert reel_posts.hashtags_for(['#Langen Wochen #Nachhaltigkeit']) == '#LangenWochen #Nachhaltigkeit'
+    assert reel_posts.hashtags_for(['#Claymation # Wierd #Trickfilm #Hochschule Merseburg']) == (
+        '#Claymation #Wierd #Trickfilm #HochschuleMerseburg')
+    assert reel_posts.hashtags_for(['Hochschule Merseburg', '#Gesang #musik']) == (
+        '#HochschuleMerseburg #Gesang #musik')

@@ -117,8 +117,27 @@ def collaborators_for(license_obj) -> list[str]:
 
 
 def _hashtag(tag: str) -> str:
-    word = re.sub(r'[^\w]', '', str(tag).replace(' ', ''))
+    """One hashtag from a tag, with or without "#".
+
+    Several words become one, each starting with a capital letter so the tag
+    stays readable ("offener kanal" -> "#OffenerKanal"); "_" stays inside a word.
+    """
+    words = [w for w in re.split(r'[^\w]+', str(tag)) if w]
+    if len(words) > 1:
+        words = [w[:1].upper() + w[1:] for w in words]
+    word = ''.join(words)
     return f'#{word}' if word else ''
+
+
+def split_hashtags(text: str) -> list[str]:
+    """Tags typed in one field: "#Offener Kanal #OKMQ" or "OKMQ, Merseburg".
+
+    With "#" each "#" starts a tag (spaces join words); without, spaces and
+    commas separate the tags.
+    """
+    text = text or ''
+    pattern = r'[#,]+' if '#' in text else r'[\s,]+'
+    return [t.strip() for t in re.split(pattern, text) if t.strip()]
 
 
 def hashtags_for(tags, fixed: str = '') -> str:
@@ -135,9 +154,12 @@ def hashtags_for(tags, fixed: str = '') -> str:
                 found.append(tag)
         return found
 
-    fixed_tags = unique(re.split(r'[\s,]+', fixed or ''))[:ReelPost.MAX_HASHTAGS]
+    fixed_tags = unique(split_hashtags(fixed))[:ReelPost.MAX_HASHTAGS]
     room = ReelPost.MAX_HASHTAGS - len(fixed_tags)
-    license_tags = unique(tags or [], fixed_tags)[:room]
+    # A license tag may hold several ("#Gesang #musik"); without "#" it is one,
+    # even with spaces ("Hochschule Merseburg").
+    words = [w for t in (tags or []) for w in re.split(r'[#,]+', str(t)) if w.strip()]
+    license_tags = unique(words, fixed_tags)[:room]
     return ' '.join(license_tags + fixed_tags)
 
 

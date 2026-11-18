@@ -13,6 +13,7 @@ CHANGELOG
   * New profile field "Instagram-Konto" (own profile page and profile admin). The account is invited as collab to the reels of the author's broadcasts, before the matching partners, at most 3 accounts.
 * **tools: At most 5 hashtags per Instagram post**
   * Instagram allows 5 hashtags per post since December 2025 (before: 30). Drafts now get at most 5: the fixed hashtags always, the license tags fill the rest. The post form rejects a caption with more than 5.
+  * License tags with or without "#" become one hashtag each; several words join with capitals ("offener kanal" → `#OffenerKanal`). A license tag holding several hashtags ("#Gesang #musik") is split at each "#"; before, it became one long hashtag. "Feste Hashtags" follows the same rule.
 
 2026-11-18 (Version 4.78.0)
 ==========================
