@@ -11,6 +11,8 @@ CHANGELOG
   * `{sendetermin}` and `{uhrzeit}` stay placeholders in the draft, like `{mediathek}`, and are filled in when the post is published, from the broadcast plan as it is then. Before, a reel rendered before the broadcast was planned or moved kept a missing or old time.
 * **registration: Instagram account in the profile**
   * New profile field "Instagram-Konto" (own profile page and profile admin). The account is invited as collab to the reels of the author's broadcasts, before the matching partners, at most 3 accounts.
+* **tools: At most 5 hashtags per Instagram post**
+  * Instagram allows 5 hashtags per post since December 2025 (before: 30). Drafts now get at most 5: the fixed hashtags always, the license tags fill the rest. The post form rejects a caption with more than 5.
 
 2026-11-18 (Version 4.78.0)
 ==========================

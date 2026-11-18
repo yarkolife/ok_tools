@@ -1364,7 +1364,8 @@ class ReelPost(models.Model):
 
     # Instagram limits for a reel caption.
     CAPTION_MAX_LENGTH = 2200
-    MAX_HASHTAGS = 30
+    # Instagram allows 5 hashtags per post since December 2025 (it was 30).
+    MAX_HASHTAGS = 5
     MAX_MENTIONS = 20
     MAX_COLLABORATORS = 3
 

@@ -121,8 +121,16 @@ def test_caption_starts_with_the_hook_and_has_the_fixed_hashtags(config, home_li
         FILENAME, 19082, hook={'zeile1': 'Hast du ihn verpasst?', 'zeile2': 'Der Campus Talk'})
 
     assert post.caption.startswith('Hast du ihn verpasst? Der Campus Talk\n\nHoMe live\n\n')
-    # Fixed hashtags after the license tags, "#hochschule" only once.
-    assert post.caption.endswith('#Hochschule #CampusTalk #OffenerKanal #Merseburg')
+    # Fixed hashtags after the license tags, "hochschule" only once.
+    assert post.caption.endswith('#CampusTalk #OffenerKanal #hochschule #Merseburg')
+
+
+def test_at_most_five_hashtags_and_the_fixed_ones_always_fit():
+    tags = ['Kultur', 'Musik', 'Sport', 'Politik']
+    assert reel_posts.hashtags_for(tags, '#OKMQ #Merseburg #Saalekreis') == (
+        '#Kultur #Musik #OKMQ #Merseburg #Saalekreis')
+    assert reel_posts.hashtags_for(tags) == '#Kultur #Musik #Sport #Politik'
+    assert reel_posts.hashtags_for(tags, '#a #b #c #d #e #f') == '#a #b #c #d #e'
 
 
 @pytest.mark.django_db
@@ -219,7 +227,7 @@ def test_no_draft_while_posting_is_off(config):
 
 @pytest.mark.django_db
 def test_limits_are_checked():
-    post = ReelPost(filename='x.mp4', caption='#a ' * 31, collaborators='a, b, c, d')
+    post = ReelPost(filename='x.mp4', caption='#a ' * 6, collaborators='a, b, c, d')
     with pytest.raises(ValidationError) as exc:
         post.full_clean()
     assert set(exc.value.message_dict) == {'caption', 'collaborators'}

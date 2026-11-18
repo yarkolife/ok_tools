@@ -122,13 +122,23 @@ def _hashtag(tag: str) -> str:
 
 
 def hashtags_for(tags, fixed: str = '') -> str:
-    """License tags plus the fixed hashtags, without duplicates (any case)."""
-    found = []
-    for tag in list(tags or []) + re.split(r'[\s,]+', fixed or ''):
-        tag = _hashtag(tag)
-        if tag and tag.lower() not in {t.lower() for t in found}:
-            found.append(tag)
-    return ' '.join(found[:ReelPost.MAX_HASHTAGS])
+    """License tags, then the fixed hashtags; no duplicates (any case).
+
+    Instagram allows only ``MAX_HASHTAGS`` per post: the fixed hashtags always
+    get their place, the license tags fill what is left.
+    """
+    def unique(words, taken=()):
+        found = []
+        for word in words:
+            tag = _hashtag(word)
+            if tag and tag.lower() not in {t.lower() for t in [*taken, *found]}:
+                found.append(tag)
+        return found
+
+    fixed_tags = unique(re.split(r'[\s,]+', fixed or ''))[:ReelPost.MAX_HASHTAGS]
+    room = ReelPost.MAX_HASHTAGS - len(fixed_tags)
+    license_tags = unique(tags or [], fixed_tags)[:room]
+    return ' '.join(license_tags + fixed_tags)
 
 
 def hook_text(hook) -> str:

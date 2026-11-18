@@ -287,7 +287,7 @@ Erscheint erst, wenn das Reel-Studio eingerichtet ist.
 | Instagram-API, Version | Instagram-Login (`graph.instagram.com`, Token gilt 60 Tage und wird automatisch erneuert) oder Facebook-Login. |
 | Konto-ID, Zugriffstoken | Aus der Meta-App des Kontos. Der Token wird nie angezeigt; „Token erneuert am“ zeigt die letzte Erneuerung. |
 | Bildunterschrift (Vorlage) | Platzhalter `{hook}` (der Hook aus dem Reel), `{titel}`, `{untertitel}`, `{beschreibung}`, `{autor}`, `{sendetermin}`, `{uhrzeit}`, `{mediathek}`, `{hashtags}`. Zeilen, deren Platzhalter leer sind, entfallen. Wird die Bildunterschrift zu lang, endet die Beschreibung am letzten passenden Satzende. `{sendetermin}`, `{uhrzeit}` und `{mediathek}` bleiben im Entwurf stehen und werden erst beim Veröffentlichen eingesetzt, mit dem dann aktuellen Sendeplan. |
-| Feste Hashtags | Kommen in jedem Post nach den Tags der Freistellung dazu, z. B. `#OffenerKanal #Merseburg`; doppelte entfallen. |
+| Feste Hashtags | Kommen in jedem Post nach den Tags der Freistellung dazu, z. B. `#OKMQ #Merseburg #Saalekreis`; doppelte entfallen. Instagram erlaubt höchstens 5 Hashtags je Post: Die festen bekommen immer ihren Platz, Tags der Freistellung füllen den Rest. Darum höchstens 3 feste Hashtags eintragen. |
 | Auch im Feed zeigen | Aus: Das Reel erscheint nur im Reels-Tab. |
 | Verbindung | **Verbindung testen** prüft Konto-ID und Token bei Instagram, ohne etwas zu veröffentlichen. |
 
