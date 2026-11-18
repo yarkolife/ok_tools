@@ -102,13 +102,88 @@ def test_rendered_reel_becomes_a_draft(config, home_license):
     assert post.collaborators == 'hs_merseburg'
     # Posted in the morning of the broadcast day, with the reminder mail.
     assert timezone.localtime(post.scheduled_at) == timezone.make_aware(datetime(2026, 11, 13, 9, 0))
-    assert post.caption.startswith('HoMe live\n\nCampus Talk\n\n📺 Freitag, 13.11.2026 im Offenen Kanal')
-    # The Mediathek link is filled in when the post is published.
+    # Without a hook its line is left out; broadcast day and Mediathek link
+    # are filled in when the post is published.
+    assert post.caption.startswith('HoMe live\n\nCampus Talk\n\n📺 {sendetermin} im Offenen Kanal')
     assert '▶️ Mediathek: {mediathek}' in post.caption
     assert post.caption.endswith('#Hochschule #CampusTalk')
     # Once per file.
     assert reel_posts.create_draft(FILENAME, 19082) == post
     assert ReelPost.objects.count() == 1
+
+
+@pytest.mark.django_db
+def test_caption_starts_with_the_hook_and_has_the_fixed_hashtags(config, home_license):
+    config.instagram_fixed_hashtags = '#OffenerKanal, hochschule #Merseburg'
+    config.save()
+
+    post = reel_posts.create_draft(
+        FILENAME, 19082, hook={'zeile1': 'Hast du ihn verpasst?', 'zeile2': 'Der Campus Talk'})
+
+    assert post.caption.startswith('Hast du ihn verpasst? Der Campus Talk\n\nHoMe live\n\n')
+    # Fixed hashtags after the license tags, "#hochschule" only once.
+    assert post.caption.endswith('#Hochschule #CampusTalk #OffenerKanal #Merseburg')
+
+
+@pytest.mark.django_db
+def test_author_with_an_instagram_account_is_invited_first(config, home_license):
+    home_license.profile.instagram = 'max.muster'
+    home_license.profile.save()
+    InstagramPartner.objects.create(name='HoMe', keywords='HoMe', usernames='hs_merseburg, Max.Muster')
+
+    assert reel_posts.collaborators_for(home_license) == ['max.muster', 'hs_merseburg']
+
+
+@pytest.mark.parametrize('text, limit, expected', [
+    ('Kurz.', 50, 'Kurz.'),
+    ('Erster Satz. Zweiter Satz! Dritter Satz?', 30, 'Erster Satz. Zweiter Satz!'),
+    ('Version 2.0 kommt. Ende', 15, 'Version 2.0…'),
+    ('Ein langer Satz ohne Ende', 15, 'Ein langer…'),
+])
+def test_shorten_cuts_at_a_sentence_end(text, limit, expected):
+    assert reel_posts.shorten(text, limit) == expected
+    assert len(reel_posts.shorten(text, limit)) <= limit
+
+
+@pytest.mark.django_db
+def test_long_description_is_cut_at_a_sentence_end(config, home_license):
+    home_license.description = 'Ein ganzer Satz über den Campus. ' * 100
+    home_license.save()
+
+    post = reel_posts.create_draft(FILENAME, 19082)
+
+    # Room is kept for the link and the broadcast day filled in later.
+    assert len(post.caption) <= ReelPost.CAPTION_MAX_LENGTH - reel_posts.LATE_RESERVE
+    assert 'den Campus.\n\n📺 {sendetermin}' in post.caption
+    assert post.caption.endswith('#Hochschule #CampusTalk')
+
+
+@pytest.mark.django_db
+def test_broadcast_time_is_taken_from_the_plan_when_publishing(config, home_license):
+    post = ReelPost.objects.create(
+        filename=FILENAME, license=home_license,
+        caption='Hallo\n📺 {sendetermin} im Offenen Kanal\num {uhrzeit}',
+        status=ReelPost.STATUS_APPROVED, scheduled_at=timezone.now() - timedelta(minutes=1))
+
+    with mock.patch('tools.reel_posts._plan_entry', return_value={'start': '18:30:00'}), \
+            mock.patch('tools.services.instagram.requests.post',
+                       return_value=_response(payload={'id': 'C1'})) as post_call:
+        assert reel_posts.start_publishing(reel_posts.claim(post.pk))
+
+    assert post_call.call_args.kwargs['data']['caption'] == (
+        'Hallo\n📺 Freitag, 13.11.2026, 18:30 Uhr im Offenen Kanal\num 18:30')
+
+
+@pytest.mark.django_db
+def test_render_task_passes_the_hook_to_the_draft(config, home_license):
+    from tools.tasks import _create_reel_post_draft
+
+    _create_reel_post_draft({'file': f'/out/{FILENAME}', 'cover_ms': 1220},
+                            {'zeile1': 'Wer?', 'zeile2': ''})
+
+    post = ReelPost.objects.get(filename=FILENAME)
+    assert post.caption.startswith('Wer?\n\nHoMe live')
+    assert post.thumb_offset_ms == 1220
 
 
 @pytest.mark.django_db

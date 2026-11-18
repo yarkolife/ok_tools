@@ -83,6 +83,10 @@ class UserDataForm(forms.ModelForm):
         value = self.cleaned_data.get('mobile_number')
         return validate_phone_number(value, 'mobile_number')
 
+    def clean_instagram(self):
+        """Store the username without @."""
+        return (self.cleaned_data.get('instagram') or '').strip().lstrip('@')
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
@@ -93,6 +97,7 @@ class UserDataForm(forms.ModelForm):
             'gender',
             'phone_number',
             'mobile_number',
+            'instagram',
             'birthday',
             'street',
             'house_number',

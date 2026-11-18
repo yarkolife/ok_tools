@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import BaseUserManager
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _, gettext
@@ -198,7 +199,16 @@ class Profile(ExportModelOperationsMixin('profile'), models.Model):
     # mobile (optional)
     mobile_number = models.CharField(
         _('mobile number'), blank=True, null=True, max_length=30)
-    
+    # Instagram username: invited as collab to the reels of the own broadcasts.
+    instagram = models.CharField(
+        _('Instagram account'), blank=True, default='', max_length=31,
+        validators=[RegexValidator(
+            r'^@?[A-Za-z0-9._]{1,30}$',
+            _('Only an Instagram username: letters, digits, dot and underscore.'))],
+        help_text=_('Username without @. Reels of your broadcasts invite this '
+                    'account as collaborator on Instagram.'),
+    )
+
     # ID document number
     ausweisnummer = models.CharField(
         _('ID document number'), blank=True, null=True, max_length=50,

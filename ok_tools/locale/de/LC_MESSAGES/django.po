@@ -7487,3 +7487,12 @@ msgstr "Raum hinzufügen und Anfrage absenden"
 
 msgid "Add room and reserve"
 msgstr "Raum hinzufügen und reservieren"
+
+msgid "Instagram account"
+msgstr "Instagram-Konto"
+
+msgid "Only an Instagram username: letters, digits, dot and underscore."
+msgstr "Nur ein Instagram-Benutzername: Buchstaben, Ziffern, Punkt und Unterstrich."
+
+msgid "Username without @. Reels of your broadcasts invite this account as collaborator on Instagram."
+msgstr "Benutzername ohne @. Reels Ihrer Sendungen laden dieses Konto auf Instagram als Mitwirkende ein."

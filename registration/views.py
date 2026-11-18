@@ -218,7 +218,7 @@ class EditProfileView(generic.View):
                 else:
                     field.widget.attrs.update({'class': 'form-control'})
 
-        ALWAYS_WRITABLE = ['phone_number', 'mobile_number']
+        ALWAYS_WRITABLE = ['phone_number', 'mobile_number', 'instagram']
         # if verified only ALWAY_WRITABLE fields are writeable
         if profile.verified:
             for field in form.fields:

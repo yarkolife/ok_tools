@@ -144,6 +144,18 @@
                     {% endif %}
                     <div class="form-text">{% trans "Mobile number" %}</div>
                 </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.instagram.id_for_label }}" class="form-label">
+                        <i class="bi bi-instagram me-1"></i>{{ form.instagram.label }}
+                    </label>
+                    {{ form.instagram }}
+                    {% if form.instagram.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.instagram.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="form-text">{{ form.instagram.help_text }}</div>
+                </div>
             </div>
         </div>
     </div>

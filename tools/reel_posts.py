@@ -98,18 +98,47 @@ def partners_for(license_obj) -> list[InstagramPartner]:
 
 
 def collaborators_for(license_obj) -> list[str]:
-    """Collab usernames for a license, at most the 3 Instagram allows."""
-    names = []
+    """Collab usernames for a license, at most the 3 Instagram allows.
+
+    The author's own account (profile) comes first, then matching partners.
+    """
+    candidates = []
+    profile = getattr(license_obj, 'profile', None) if license_obj is not None else None
+    own = str(getattr(profile, 'instagram', '') or '').strip().lstrip('@')
+    if own:
+        candidates.append(own)
     for partner in partners_for(license_obj):
-        for name in partner.username_list():
-            if name.lower() not in {n.lower() for n in names}:
-                names.append(name)
+        candidates.extend(partner.username_list())
+    names = []
+    for name in candidates:
+        if name.lower() not in {n.lower() for n in names}:
+            names.append(name)
     return names[:ReelPost.MAX_COLLABORATORS]
 
 
 def _hashtag(tag: str) -> str:
     word = re.sub(r'[^\w]', '', str(tag).replace(' ', ''))
     return f'#{word}' if word else ''
+
+
+def hashtags_for(tags, fixed: str = '') -> str:
+    """License tags plus the fixed hashtags, without duplicates (any case)."""
+    found = []
+    for tag in list(tags or []) + re.split(r'[\s,]+', fixed or ''):
+        tag = _hashtag(tag)
+        if tag and tag.lower() not in {t.lower() for t in found}:
+            found.append(tag)
+    return ' '.join(found[:ReelPost.MAX_HASHTAGS])
+
+
+def hook_text(hook) -> str:
+    """The reel's hook (``{"zeile1", "zeile2"}``) as one line."""
+    if isinstance(hook, str):
+        return hook.strip()
+    if not isinstance(hook, dict):
+        return ''
+    parts = [str(hook.get(k) or '').strip() for k in ('zeile1', 'zeile2')]
+    return ' '.join(p for p in parts if p)
 
 
 def _plan_entry(number, day: date | None) -> dict:
@@ -124,8 +153,53 @@ def _plan_entry(number, day: date | None) -> dict:
     return entries[0] if entries else {}
 
 
+def shorten(text: str, limit: int) -> str:
+    """Cut ``text`` to ``limit`` characters at the end of a sentence.
+
+    Without a sentence end in the allowed part it is cut after a word, with "…".
+    """
+    text = (text or '').strip()
+    if len(text) <= limit:
+        return text
+    if limit <= 0:
+        return ''
+    part = text[:limit + 1]
+    ends = [m.end() for m in re.finditer(r'[.!?…](?=\s|$)', part) if m.end() <= limit]
+    if ends:
+        return part[:ends[-1]].strip()
+    cut = text[:max(limit - 1, 0)]
+    if ' ' in cut:
+        cut = cut[:cut.rindex(' ')]
+    return (cut.rstrip(' ,;:-') + '…') if cut else ''
+
+
 def render_caption(template: str, values: dict) -> str:
     """Fill the template; drop lines whose placeholders are all empty."""
+    text = _fill(template, values)
+    if len(text) <= ReelPost.CAPTION_MAX_LENGTH:
+        return text
+    return shorten(text, ReelPost.CAPTION_MAX_LENGTH)
+
+
+# Filled in only when the post is published: the Mediathek link usually exists
+# only on the broadcast day, and the broadcast time may still change in the plan.
+LATE_PLACEHOLDERS = ('sendetermin', 'uhrzeit', 'mediathek')
+# Room kept free in a draft for the late placeholders (link, day and time).
+LATE_RESERVE = 200
+
+
+def fit_caption(template: str, values: dict, limit: int = ReelPost.CAPTION_MAX_LENGTH) -> str:
+    """Fill the template; a too long caption loses the end of the description."""
+    text = _fill(template, values)
+    over = len(text) - limit
+    description = str(values.get('beschreibung') or '')
+    if over > 0 and description and '{beschreibung}' in (template or ''):
+        values = dict(values, beschreibung=shorten(description, len(description) - over))
+        text = _fill(template, values)
+    return text if len(text) <= limit else shorten(text, limit)
+
+
+def _fill(template: str, values: dict) -> str:
     lines = []
     for line in (template or '').replace('\r\n', '\n').split('\n'):
         keys = _PLACEHOLDER.findall(line)
@@ -135,11 +209,11 @@ def render_caption(template: str, values: dict) -> str:
         lines.append(_PLACEHOLDER.sub(
             lambda m: str(values.get(m.group(1), m.group(0))), line))
     text = '\n'.join(lines)
-    text = re.sub(r'\n{3,}', '\n\n', text).strip()
-    return text[:ReelPost.CAPTION_MAX_LENGTH]
+    return re.sub(r'\n{3,}', '\n\n', text).strip()
 
 
-def caption_values(license_obj, day: date | None, plan_entry: dict) -> dict:
+def caption_values(license_obj, day: date | None, plan_entry: dict,
+                   hook=None, fixed_hashtags: str = '') -> dict:
     """The values for the caption placeholders."""
     author = str(plan_entry.get('sender_responsible') or plan_entry.get('author') or '').strip()
     if not author and license_obj is not None and getattr(license_obj, 'profile', None):
@@ -148,6 +222,7 @@ def caption_values(license_obj, day: date | None, plan_entry: dict) -> dict:
     start = str(plan_entry.get('start') or '')[:5]
     tags = license_obj.tags if license_obj is not None and isinstance(license_obj.tags, list) else []
     return {
+        'hook': hook_text(hook),
         'titel': getattr(license_obj, 'title', '') or str(plan_entry.get('title') or ''),
         'untertitel': getattr(license_obj, 'subtitle', '') or '',
         'beschreibung': getattr(license_obj, 'description', '') or '',
@@ -157,16 +232,17 @@ def caption_values(license_obj, day: date | None, plan_entry: dict) -> dict:
             if day else ''),
         'uhrzeit': start,
         'mediathek': getattr(license_obj, 'mediathek_url', '') or '',
-        'hashtags': ' '.join(h for h in (_hashtag(t) for t in tags) if h),
+        'hashtags': hashtags_for(tags, fixed_hashtags),
     }
 
 
-def create_draft(filename: str, number=None, cover_ms=None) -> ReelPost | None:
+def create_draft(filename: str, number=None, cover_ms=None, hook=None) -> ReelPost | None:
     """Create the post draft for a rendered reel (once per file).
 
     ``cover_ms`` is the cover frame the reel renderer reports: where the hook
     is on screen (for question hooks only the question). A draft the folder
     scan created before the render result arrived gets it afterwards.
+    ``hook`` is the hook shown in the reel (``{hook}`` in the caption).
     """
     config = ToolsConfig.get_config()
     if not config.is_instagram_configured():
@@ -195,16 +271,18 @@ def create_draft(filename: str, number=None, cover_ms=None) -> ReelPost | None:
         # Posted in the morning of the broadcast day, together with the reminder mail.
         scheduled_at = timezone.make_aware(datetime.combine(day, config.reel_reminder_time))
 
-    values = caption_values(license_obj, day, entry)
-    # The Mediathek link usually exists only on the broadcast day; it stays a
-    # placeholder in the draft and is filled in when the post is published.
-    values.pop('mediathek')
+    values = caption_values(license_obj, day, entry, hook=hook,
+                            fixed_hashtags=config.instagram_fixed_hashtags)
+    # Link, broadcast day and time stay placeholders until the post is published.
+    for key in LATE_PLACEHOLDERS:
+        values.pop(key)
 
     post, _created = ReelPost.objects.get_or_create(
         filename=filename,
         defaults={
             'license': license_obj,
-            'caption': render_caption(config.instagram_caption_template, values),
+            'caption': fit_caption(config.instagram_caption_template, values,
+                                   ReelPost.CAPTION_MAX_LENGTH - LATE_RESERVE),
             'collaborators': ', '.join(collaborators_for(license_obj)),
             'share_to_feed': config.instagram_share_to_feed,
             'thumb_offset_ms': cover_ms or 0,
@@ -318,6 +396,13 @@ def mediathek_url(license_obj) -> str:
         return ''
 
 
+def broadcast_values(post: ReelPost) -> dict:
+    """``{sendetermin}`` and ``{uhrzeit}`` from the plan as it is now."""
+    day = reel_date_from_filename(post.filename)
+    values = caption_values(post.license, day, _plan_entry(post.number, day))
+    return {'sendetermin': values['sendetermin'], 'uhrzeit': values['uhrzeit']}
+
+
 def public_video_url(filename: str) -> str:
     from .tasks import _reel_public_download_url
     return _reel_public_download_url(filename)
@@ -372,6 +457,7 @@ def start_publishing(post: ReelPost) -> bool:
         if not video_url.startswith('https://'):
             _fail(post, 'SITE_BASE_URL must be a public https address, Instagram downloads the video from there.')
             return False
+        late = {}
         if '{mediathek}' in post.caption:
             link = mediathek_url(post.license)
             if (not link and not _published_on_demand(post) and post.scheduled_at
@@ -380,7 +466,11 @@ def start_publishing(post: ReelPost) -> bool:
                 post.status = ReelPost.STATUS_APPROVED
                 post.save(update_fields=['status', 'updated_at'])
                 return False
-            post.caption = render_caption(post.caption, {'mediathek': link})
+            late['mediathek'] = link
+        if '{sendetermin}' in post.caption or '{uhrzeit}' in post.caption:
+            late.update(broadcast_values(post))
+        if late:
+            post.caption = render_caption(post.caption, late)
             post.save(update_fields=['caption', 'updated_at'])
         try:
             post.container_id = instagram.create_reel_container(

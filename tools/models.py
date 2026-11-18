@@ -1082,17 +1082,26 @@ class ToolsConfig(models.Model):
     instagram_caption_template = models.TextField(
         blank=True,
         default=(
-            '{titel}\n\n{beschreibung}\n\n'
+            '{hook}\n\n{titel}\n\n{beschreibung}\n\n'
             '📺 {sendetermin} im Offenen Kanal\n'
             '▶️ Mediathek: {mediathek}\n\n{hashtags}'
         ),
         verbose_name=_('Instagram caption template'),
         help_text=_(
-            'Placeholders: {titel}, {untertitel}, {beschreibung}, {autor}, '
-            '{sendetermin} (day, date and the time if planned), {uhrzeit}, '
-            '{mediathek}, {hashtags} (from the license tags). A line whose '
-            'placeholders are all empty is left out.'
+            'Placeholders: {hook} (the hook shown in the reel), {titel}, {untertitel}, '
+            '{beschreibung} (shortened at a sentence end if the caption gets too long), '
+            '{autor}, {sendetermin} (day, date and the time if planned), {uhrzeit}, '
+            '{mediathek}, {hashtags} (license tags and the fixed hashtags). '
+            '{sendetermin}, {uhrzeit} and {mediathek} are filled in when the post is '
+            'published. A line whose placeholders are all empty is left out.'
         ),
+    )
+    instagram_fixed_hashtags = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name=_('Fixed hashtags'),
+        help_text=_('Added to {hashtags} in every post, e.g. "#OffenerKanal #Merseburg". '
+                    'Duplicates of license tags are left out.'),
     )
     instagram_share_to_feed = models.BooleanField(
         default=True,

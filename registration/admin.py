@@ -266,7 +266,7 @@ class ProfileAdmin(ExportMixin, ModelAdmin):
             'fields': ('okuser', 'first_name', 'last_name', 'gender', 'birthday')
         }),
         (_('Contact Information'), {
-            'fields': ('phone_number', 'mobile_number', 'street', 'house_number', 'zipcode', 'city')
+            'fields': ('phone_number', 'mobile_number', 'instagram', 'street', 'house_number', 'zipcode', 'city')
         }),
         (_('ID Document'), {
             'fields': ('ausweisnummer',),

@@ -265,13 +265,6 @@ msgid ""
 msgstr ""
 "%(chars)s von %(max_chars)s Zeichen, %(tags)s von %(max_tags)s Hashtags"
 
-#: admin.py:798
-#, python-brace-format
-msgid ""
-"{mediathek} is replaced by the Mediathek link when the post is published."
-msgstr ""
-"{mediathek} wird beim Veröffentlichen durch den Mediathek-Link ersetzt."
-
 #: admin.py:804
 msgid "You may not approve or publish Instagram posts."
 msgstr "Sie dürfen keine Instagram-Posts freigeben oder veröffentlichen."
@@ -1718,19 +1711,6 @@ msgstr "Instagram-Token erneuert am"
 #: models.py:1089
 msgid "Instagram caption template"
 msgstr "Instagram-Bildunterschrift (Vorlage)"
-
-#: models.py:1091
-#, python-brace-format
-msgid ""
-"Placeholders: {titel}, {untertitel}, {beschreibung}, {autor}, {sendetermin} "
-"(day, date and the time if planned), {uhrzeit}, {mediathek}, {hashtags} "
-"(from the license tags). A line whose placeholders are all empty is left "
-"out."
-msgstr ""
-"Platzhalter: {titel}, {untertitel}, {beschreibung}, {autor}, {sendetermin} "
-"(Tag, Datum und Uhrzeit, falls geplant), {uhrzeit}, {mediathek}, {hashtags} "
-"(aus den Tags der Freistellung). Eine Zeile, deren Platzhalter alle leer "
-"sind, entfällt."
 
 #: models.py:1099 models.py:1364 templates/tools/reel_post_approve.html:45
 msgid "Also show in the feed"
@@ -4102,3 +4082,17 @@ msgstr "%(count)s Entwurf/Entwürfe angelegt."
 #: admin.py
 msgid "No new drafts: every finished reel from today on already has a post."
 msgstr "Keine neuen Entwürfe: Jedes fertige Reel ab heute hat schon einen Post."
+
+#, python-brace-format
+msgid "Placeholders: {hook} (the hook shown in the reel), {titel}, {untertitel}, {beschreibung} (shortened at a sentence end if the caption gets too long), {autor}, {sendetermin} (day, date and the time if planned), {uhrzeit}, {mediathek}, {hashtags} (license tags and the fixed hashtags). {sendetermin}, {uhrzeit} and {mediathek} are filled in when the post is published. A line whose placeholders are all empty is left out."
+msgstr "Platzhalter: {hook} (der Hook aus dem Reel), {titel}, {untertitel}, {beschreibung} (wird bei zu langer Bildunterschrift am Satzende gekürzt), {autor}, {sendetermin} (Tag, Datum und Uhrzeit, falls geplant), {uhrzeit}, {mediathek}, {hashtags} (Tags der Freistellung und feste Hashtags). {sendetermin}, {uhrzeit} und {mediathek} werden erst beim Veröffentlichen eingesetzt. Eine Zeile, deren Platzhalter alle leer sind, entfällt."
+
+msgid "Fixed hashtags"
+msgstr "Feste Hashtags"
+
+#, python-brace-format
+msgid "Added to {hashtags} in every post, e.g. \"#OffenerKanal #Merseburg\". Duplicates of license tags are left out."
+msgstr "Kommen in jedem Post zu {hashtags} dazu, z. B. „#OffenerKanal #Merseburg“. Doppelte Tags der Freistellung entfallen."
+
+msgid "%(placeholders)s are filled in when the post is published (broadcast day and time from the plan, Mediathek link)."
+msgstr "%(placeholders)s werden beim Veröffentlichen eingesetzt (Sendetag und Uhrzeit aus dem Plan, Mediathek-Link)."

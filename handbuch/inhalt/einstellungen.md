@@ -286,7 +286,8 @@ Erscheint erst, wenn das Reel-Studio eingerichtet ist.
 | Instagram-Posting aktiviert | Für jedes Reel wird ein Post-Entwurf angelegt; freigegebene Posts werden zur Uhrzeit der Reel-Erinnerung veröffentlicht. Aus: Es bleibt bei der E-Mail mit Download-Link. |
 | Instagram-API, Version | Instagram-Login (`graph.instagram.com`, Token gilt 60 Tage und wird automatisch erneuert) oder Facebook-Login. |
 | Konto-ID, Zugriffstoken | Aus der Meta-App des Kontos. Der Token wird nie angezeigt; „Token erneuert am“ zeigt die letzte Erneuerung. |
-| Bildunterschrift (Vorlage) | Platzhalter `{titel}`, `{untertitel}`, `{beschreibung}`, `{autor}`, `{sendetermin}`, `{uhrzeit}`, `{mediathek}`, `{hashtags}`. Zeilen, deren Platzhalter leer sind, entfallen. |
+| Bildunterschrift (Vorlage) | Platzhalter `{hook}` (der Hook aus dem Reel), `{titel}`, `{untertitel}`, `{beschreibung}`, `{autor}`, `{sendetermin}`, `{uhrzeit}`, `{mediathek}`, `{hashtags}`. Zeilen, deren Platzhalter leer sind, entfallen. Wird die Bildunterschrift zu lang, endet die Beschreibung am letzten passenden Satzende. `{sendetermin}`, `{uhrzeit}` und `{mediathek}` bleiben im Entwurf stehen und werden erst beim Veröffentlichen eingesetzt, mit dem dann aktuellen Sendeplan. |
+| Feste Hashtags | Kommen in jedem Post nach den Tags der Freistellung dazu, z. B. `#OffenerKanal #Merseburg`; doppelte entfallen. |
 | Auch im Feed zeigen | Aus: Das Reel erscheint nur im Reels-Tab. |
 | Verbindung | **Verbindung testen** prüft Konto-ID und Token bei Instagram, ohne etwas zu veröffentlichen. |
 
@@ -328,7 +329,7 @@ Listen, die in Auswahlfeldern anderer Seiten erscheinen. Neue Einträge über
 | Projektkategorien, Zielgruppen | Auswahl in Projekten | |
 | Video-Kodierungspresets | Auflösung, Bildrate, Codec und Bitrate zum Umwandeln und Rendern | Der Name (z. B. `1080p25_9000k`) wird in den Mediendateien-Einstellungen eingetragen. |
 | Video-Presets, Preset-Overlays | Intro, Outro und Text-Einblendungen für das Overlay-Rendering | Nur nötig, wenn Overlay-Rendering genutzt wird. |
-| Instagram-Partner | Partner, deren Konten bei passenden Reels als Collab eingeladen werden | Nur sichtbar, wenn Instagram-Posting an ist. Stichwörter werden in Titel und Beschreibung gesucht; Konten ohne @. |
+| Instagram-Partner | Partner, deren Konten bei passenden Reels als Collab eingeladen werden | Nur sichtbar, wenn Instagram-Posting an ist. Stichwörter werden in Titel und Beschreibung gesucht; Konten ohne @. Zuerst eingeladen wird das Instagram-Konto aus dem Profil der Autorin bzw. des Autors (Feld „Instagram-Konto“); höchstens 3 Konten. |
 
 ## 13. System und was nur der Server-Betreuer einstellt {#system}
 

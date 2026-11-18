@@ -1,6 +1,17 @@
 CHANGELOG
 =========
 
+2026-11-18 (Version 4.79.0)
+==========================
+
+* **tools: Instagram caption with the reel's hook, fixed hashtags and the current broadcast time**
+  * New placeholder `{hook}`: the hook text chosen in the Reel Studio (both lines) becomes the first line of the caption, the part Instagram shows before "mehr". Templates still at the old default get the line at the top during the update.
+  * A caption that would be too long no longer gets cut off mid-word: the description ends at the last sentence that fits, keeping room for the link and broadcast day added later.
+  * New setting "Feste Hashtags" (Tools configuration, Instagram): added to `{hashtags}` in every post after the license tags, duplicates in any case left out.
+  * `{sendetermin}` and `{uhrzeit}` stay placeholders in the draft, like `{mediathek}`, and are filled in when the post is published, from the broadcast plan as it is then. Before, a reel rendered before the broadcast was planned or moved kept a missing or old time.
+* **registration: Instagram account in the profile**
+  * New profile field "Instagram-Konto" (own profile page and profile admin). The account is invited as collab to the reels of the author's broadcasts, before the matching partners, at most 3 accounts.
+
 2026-11-18 (Version 4.78.0)
 ==========================
 

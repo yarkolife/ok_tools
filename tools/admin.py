@@ -192,6 +192,7 @@ class ToolsConfigAdmin(SecretFieldsMixin, ModelAdmin):
                 'instagram_access_token',
                 'instagram_token_refreshed_at',
                 'instagram_caption_template',
+                'instagram_fixed_hashtags',
                 'instagram_share_to_feed',
                 'instagram_connection',
             ),
@@ -832,8 +833,11 @@ class ReelPostAdmin(InstagramOnlyMixin, ModelAdmin):
             'chars': len(caption), 'max_chars': ReelPost.CAPTION_MAX_LENGTH,
             'tags': len(re.findall(r'#\w', caption)), 'max_tags': ReelPost.MAX_HASHTAGS,
         }
-        if '{mediathek}' in caption:
-            text += '. ' + str(_('{mediathek} is replaced by the Mediathek link when the post is published.'))
+        late = ['{%s}' % k for k in ('sendetermin', 'uhrzeit', 'mediathek') if '{%s}' % k in caption]
+        if late:
+            text += '. ' + str(_('%(placeholders)s are filled in when the post is published '
+                                 '(broadcast day and time from the plan, Mediathek link).')) % {
+                'placeholders': ', '.join(late)}
         return text
 
     def _may_publish(self, request):

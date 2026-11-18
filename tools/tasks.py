@@ -1018,11 +1018,11 @@ def okmq_render_reel_task(self, *, payload):
     from .services import okmq_reel
     result = okmq_reel.render_reel_blocking(**payload)
     _record_rendered_reel_video(payload, result)
-    _create_reel_post_draft(result)
+    _create_reel_post_draft(result, (payload or {}).get('hook'))
     return result
 
 
-def _create_reel_post_draft(result: dict) -> None:
+def _create_reel_post_draft(result: dict, hook=None) -> None:
     """Prepare the Instagram post for a finished reel, if posting is on."""
     filename = Path(str((result or {}).get('file') or '')).name
     if not filename:
@@ -1035,7 +1035,8 @@ def _create_reel_post_draft(result: dict) -> None:
     try:
         from .reel_posts import create_draft
         # cover_ms: where the renderer shows the hook -> Instagram cover frame.
-        create_draft(filename, number, cover_ms=(result or {}).get('cover_ms'))
+        # hook: the text shown in the reel -> {hook} in the caption.
+        create_draft(filename, number, cover_ms=(result or {}).get('cover_ms'), hook=hook)
     except Exception:
         # The reel itself is fine; a missing draft can be added by hand.
         logger.exception('Could not create the Instagram post draft for %s', filename)
