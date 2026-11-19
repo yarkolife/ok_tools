@@ -292,7 +292,7 @@ graph TB
   - Three separate gate levels: settings flag, channel switch, personal subscription
   - Subscription presets instead of Django groups
   - Twenty-four event types across rental, licenses, media_files, austausch, planung, registration, tools and system, all declared in code
-  - Missing-cover action items are limited to premiere licenses with no previous contribution
+  - Missing-cover action items are limited to premieres: licenses not on air on an earlier day (airings imported ahead from DISA do not count)
   - Filters (module, type, date range, age) with bulk actions, plus postponing until tomorrow and permanent suppression per object
   - Adoption report (`stats.py`, admin page and `notification_stats` command) built only from data the feature already records
 

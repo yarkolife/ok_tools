@@ -4,8 +4,8 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.79.0
-**Last Updated**: 18 November 2026
+**Current Version**: 4.79.1
+**Last Updated**: 19 November 2026
 
 Features
 ========
@@ -460,6 +460,9 @@ Production deployments run separate Celery workers for general tasks, video/audi
 
 Tests
 =====
+
+Development rules (branches, commits, versions, code style, tests) are in
+``DEVELOPMENT.md``.
 
 Tests can be run inside Docker containers::
 
