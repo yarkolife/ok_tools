@@ -320,6 +320,11 @@ def theme_script(request) -> str:
     return _versioned("ok_tools/js/ok_theme.js")
 
 
+def submit_guard_script(request) -> str:
+    """Swallow a second click on a submit button while the page is loading."""
+    return _versioned("ok_tools/js/submit_guard.js")
+
+
 def select2_i18n_script(request) -> str:
     """German texts for the select2 dropdowns of the change list filters."""
     return _versioned("ok_tools/js/select2_i18n.js")

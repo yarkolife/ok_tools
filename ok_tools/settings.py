@@ -369,6 +369,7 @@ if ADMIN_UNFOLD_ENABLED:
         ],
         "SCRIPTS": [
             "ok_tools.admin_nav.theme_script",
+            "ok_tools.admin_nav.submit_guard_script",
             "ok_tools.admin_nav.select2_i18n_script",
         ],
         "SIDEBAR": {

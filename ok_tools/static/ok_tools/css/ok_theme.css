@@ -244,6 +244,13 @@ html.dark [style*="color: #17a2b8"], html.dark [style*="color:#17a2b8"] { color:
 .ok-link:hover { text-decoration: underline; }
 .ok-btn-row { display: flex; flex-wrap: wrap; gap: 6px; }
 
+/* Submit button after the first click, until the page answers (submit_guard.js) */
+.ok-submitting {
+    opacity: .6;
+    cursor: progress !important;
+    pointer-events: none;
+}
+
 /* Extra buttons below the change form (e.g. print / PDF of a license) */
 .ok-extra-submit {
     display: flex;

@@ -5,6 +5,7 @@ CHANGELOG
 ==========================
 
 * Fixed: A reel could fail on Facebook with "Read timed out (read timeout=30)": the upload call only answers after Facebook has downloaded the reel from our server, which can take longer than 30 seconds, especially with several reels at once. The upload now waits up to 5 minutes, and the Facebook video ID is kept as soon as Facebook assigns it.
+* Fixed: A slow page let a button be clicked twice, which sent the form twice; a video was then encoded twice (two `_v1`/`_v2` files, both encodes blocking the workers). In the admin, every submit button of a POST form is now shown as busy after the first click and a second click is ignored until the page answers; buttons that open a new tab or a download are released after a few seconds. In addition, "Render video", "Render preview" and "Render with intro/outro" skip a video whose render of the same kind is still running and say so.
 
 2026-11-19 (Version 4.80.1)
 ==========================

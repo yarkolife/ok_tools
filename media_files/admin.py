@@ -37,6 +37,23 @@ from media_files.rendering.templates import build_template_context
 
 logger = logging.getLogger('django')
 
+
+def render_running(source, **flags) -> bool:
+    """True while a render of the same kind for this source is in progress.
+
+    Operations older than 12 hours are ignored: a worker that died leaves
+    its operation "in progress" for good and must not block a new render.
+    """
+    query = FileOperation.objects.filter(
+        operation_type='RENDER', status='IN_PROGRESS',
+        performed_at__gte=timezone.now() - timedelta(hours=12),
+        details__source_video_id=source.id,
+    )
+    for key, value in flags.items():
+        query = query.filter(**{f'details__{key}': value})
+    return query.exists()
+
+
 def _is_archive_protected() -> bool:
     """Return True if ARCHIVE deletion protection is enabled (DB config with env fallback)."""
     try:
@@ -1056,6 +1073,15 @@ class VideoFileAdmin(ModelAdmin):
         failed = 0
 
         for source in queryset:
+            if render_running(source, plain_encode=True):
+                # A second click (or tab) would encode the same file again.
+                self.message_user(
+                    request,
+                    _("{name} is already being rendered; wait until it is finished.").format(
+                        name=source.filename),
+                    level=messages.WARNING,
+                )
+                continue
             logger.info(
                 "Queuing plain encode for %s with encode=%s",
                 source.full_path,
@@ -1193,6 +1219,15 @@ class VideoFileAdmin(ModelAdmin):
         failed = 0
 
         for source in queryset:
+            if render_running(source, preview=True):
+                # A second click (or tab) would encode the same file again.
+                self.message_user(
+                    request,
+                    _("{name} is already being rendered; wait until it is finished.").format(
+                        name=source.filename),
+                    level=messages.WARNING,
+                )
+                continue
             license_obj = source.get_license()
             if not license_obj:
                 failed += 1
@@ -1541,6 +1576,15 @@ class VideoFileAdmin(ModelAdmin):
         failed = 0
 
         for source in queryset:
+            if render_running(source, overlay_type='full_intro_outro'):
+                # A second click (or tab) would encode the same file again.
+                self.message_user(
+                    request,
+                    _("{name} is already being rendered; wait until it is finished.").format(
+                        name=source.filename),
+                    level=messages.WARNING,
+                )
+                continue
             license_obj = source.get_license()
             if not license_obj:
                 failed += 1
