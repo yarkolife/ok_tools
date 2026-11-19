@@ -4,7 +4,25 @@
 
 {% block submit_buttons_bottom %}
     {{ block.super }}
-    <div class="submit-row">
-        <input form="{{ opts.model_name }}_form" type="submit" value="{% translate 'Print application' %}" name='_print_application'>
+    <div class="submit-row ok-extra-submit">
+        {# formtarget: the PDF opens in a new tab, the profile stays open here. #}
+        <button form="{{ opts.model_name }}_form" type="submit" name="_print_application" value="1"
+                formtarget="_blank" class="ok-btn ok-btn--secondary">
+            {% if ADMIN_UNFOLD_ENABLED %}<span class="material-symbols-outlined" aria-hidden="true">print</span>{% endif %}
+            {% translate 'Print application' %}
+        </button>
     </div>
+    {% if ADMIN_UNFOLD_ENABLED %}
+    <script>
+    // Put the print button into Unfold's sticky submit bar, next to Close / Delete.
+    (function () {
+        var row = document.currentScript.previousElementSibling;
+        var bar = document.querySelector('#submit-row .container');
+        var left = bar && bar.querySelector(':scope > .mr-auto');
+        if (!row || !bar) return;
+        row.classList.add('ok-extra-submit--in-bar');
+        if (left) { bar.insertBefore(row, left); } else { bar.appendChild(row); }
+    })();
+    </script>
+    {% endif %}
 {% endblock %}

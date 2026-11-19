@@ -569,8 +569,9 @@
 {% block submit_buttons_bottom %}
     {{ block.super }}
     <div class="submit-row ok-extra-submit">
+        {# formtarget: the PDF opens in a new tab, the license stays open here. #}
         <button form="{{ opts.model_name }}_form" type="submit" name="_print_license" value="1"
-                class="ok-btn ok-btn--secondary">
+                formtarget="_blank" class="ok-btn ok-btn--secondary">
             {% if ADMIN_UNFOLD_ENABLED %}<span class="material-symbols-outlined" aria-hidden="true">print</span>{% endif %}
             {% translate 'Print license' %}
         </button>

@@ -264,6 +264,18 @@ def test__registration__admin__response_change__1(db, user, browser):
     assert user.profile.last_name in pdfToText(browser.contents)
 
 
+def test__registration__admin__print_application_opens_new_tab(
+        db, user, browser):
+    """The print button is a styled button that keeps the profile open."""
+    browser.login_admin()
+
+    browser.open(a_change_url(user.profile.id))
+
+    assert 'name="_print_application"' in browser.contents
+    assert 'formtarget="_blank"' in browser.contents
+    assert 'class="ok-btn ok-btn--secondary"' in browser.contents
+
+
 def test__registration__admin__YearFilter__1(browser, user_dict):
     """Filter profiles after creation year."""
     year = datetime.datetime.now().year

@@ -59,7 +59,7 @@ KAPITEL: Tuple[Kapitel, ...] = (
             '(geführt oder mit dem Scanner) und zurücknehmen.'
         ),
         version='4.79.0',
-        stand=date(2026, 11, 18),
+        stand=date(2026, 11, 19),
         icon='inventory_2',
         requires=('inventory', 'rental'),
         pfade=(

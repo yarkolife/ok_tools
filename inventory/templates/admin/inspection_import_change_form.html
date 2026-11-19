@@ -3,7 +3,23 @@
 
 {% block submit_buttons_bottom %}
     {{ block.super }}
-    <div class="submit-row">
-        <input form="{{ opts.model_name }}_form" type="submit" value="{% translate 'Import' %}" name='_import_disa'>
+    <div class="submit-row ok-extra-submit">
+        <button form="{{ opts.model_name }}_form" type="submit" name="_run_import" value="1" class="ok-btn">
+            {% if ADMIN_UNFOLD_ENABLED %}<span class="material-symbols-outlined" aria-hidden="true">upload</span>{% endif %}
+            {% translate 'Import' %}
+        </button>
     </div>
+    {% if ADMIN_UNFOLD_ENABLED %}
+    <script>
+    // Put the import button into Unfold's sticky submit bar.
+    (function () {
+        var row = document.currentScript.previousElementSibling;
+        var bar = document.querySelector('#submit-row .container');
+        var left = bar && bar.querySelector(':scope > .mr-auto');
+        if (!row || !bar) return;
+        row.classList.add('ok-extra-submit--in-bar');
+        if (left) { bar.insertBefore(row, left); } else { bar.appendChild(row); }
+    })();
+    </script>
+    {% endif %}
 {% endblock %}

@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+2026-11-19 (Version 4.79.2)
+==========================
+
+* Fixed: "Antrag drucken" on the profile page looked like a link and replaced the profile with the PDF. It is now a button in the bottom bar next to the other buttons and opens the application form in a new tab, so the profile stays open. "Print license" on the license page opens its PDF in a new tab the same way.
+* Fixed: The "Import" button on an inventory or inspection import only saved the file and imported nothing; the import was only reachable through the list action. The button now looks like a button, starts the import of this file and returns to its page with the result message.
+
 2026-11-19 (Version 4.79.1)
 ==========================
 

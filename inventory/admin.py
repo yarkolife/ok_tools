@@ -20,6 +20,7 @@ from django.contrib.admin import RelatedOnlyFieldListFilter
 from django.core.management import call_command
 from django.db import IntegrityError
 from django.db import transaction
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
@@ -653,8 +654,36 @@ class AuditLogAdmin(ExportMixin, ModelAdmin):
     get_changes_display.short_description = _('Changes')
 
 
+class RunImportButtonMixin:
+    """Run the import action for the saved object from its "Import" button.
+
+    The button used to only save the object; the import itself was reachable
+    through the list action alone.
+    """
+
+    run_import_name = '_run_import'
+
+    def _run_import_response(self, request, obj):
+        self.import_files(request, self.model.objects.filter(pk=obj.pk))
+        return HttpResponseRedirect(reverse(
+            f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change',
+            args=[obj.pk]))
+
+    def response_add(self, request, obj, post_url_continue=None):
+        """Start the import right after adding when the button was used."""
+        if self.run_import_name in request.POST:
+            return self._run_import_response(request, obj)
+        return super().response_add(request, obj, post_url_continue)
+
+    def response_change(self, request, obj):
+        """Start the import after saving when the button was used."""
+        if self.run_import_name in request.POST:
+            return self._run_import_response(request, obj)
+        return super().response_change(request, obj)
+
+
 @admin.register(InventoryImport)
-class InventoryImportAdmin(ModelAdmin):
+class InventoryImportAdmin(RunImportButtonMixin, ModelAdmin):
     """Admin interface for InventoryImport."""
 
     change_form_template = 'admin/inventory_import_change_form.html'
@@ -777,7 +806,7 @@ class InspectionAdmin(ModelAdmin):
 
 
 @admin.register(InspectionImport)
-class InspectionImportAdmin(ModelAdmin):
+class InspectionImportAdmin(RunImportButtonMixin, ModelAdmin):
     """Admin interface for InspectionImport."""
 
     change_form_template = 'admin/inspection_import_change_form.html'
