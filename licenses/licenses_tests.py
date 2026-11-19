@@ -1516,3 +1516,20 @@ def test__licenses__admin__LicenseAdmin__first_confirm_fills_metadata(
     assert lr.confirmed
     assert lr.confirmed_at is not None
     assert lr.confirmed_by is not None
+
+
+def test__licenses__admin__LicenseAdmin__confirm_action_is_in_history(
+        browser, user, license):
+    """The list action writes the confirmation into the license history."""
+    from django.contrib.admin.models import CHANGE
+    from django.contrib.admin.models import LogEntry
+
+    browser.login_admin()
+    browser.open(A_LICENSE_URL)
+    browser.getControl(name='_selected_action').controls[0].selected = True
+    browser.getControl(name='action').value = 'confirm'
+    browser.getControl(name='index').click()
+
+    entry = LogEntry.objects.get(object_id=str(license.pk))
+    assert entry.action_flag == CHANGE
+    assert entry.change_message

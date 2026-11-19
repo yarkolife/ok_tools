@@ -85,7 +85,7 @@ KAPITEL: Tuple[Kapitel, ...] = (
             'und was nur in der .env eingestellt wird.'
         ),
         version='4.79.0',
-        stand=date(2026, 11, 18),
+        stand=date(2026, 11, 19),
         icon='settings',
         pfade=(
             'ok_tools/admin.py',

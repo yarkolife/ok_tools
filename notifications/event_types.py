@@ -319,8 +319,9 @@ MEDIA_MISSING_REEL = register(EventType(
     module='media_files',
     label=_('Planned own production without a reel'),
     description=_(
-        'The license is confirmed, its full video is available and the own '
-        'production is scheduled, but no reel was rendered yet. Only premieres '
+        'The full video of the own production is available and it is '
+        'scheduled, but no reel was rendered yet (the license does not have '
+        'to be confirmed). Only premieres '
         '(no contribution yet) and repeats that already have a Mediathek URL '
         'are reported — a repeat without a Mediathek link has nothing for '
         'the reel to point at.'),

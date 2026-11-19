@@ -227,31 +227,34 @@ def _missing_asset_activity(events: List[NotificationEvent]) -> Set[int]:
     own = own_license_numbers(numbers)
     if own is None:
         return set()
+    from notifications.checks import repeat_keys
+
     License = apps.get_model('licenses.License')
-    confirmed = set(
-        License.objects.filter(
-            number__in=own, confirmed=True, is_live=False)
-        .values_list('number', flat=True)
-    )
-    eligible_numbers = confirmed & numbers_with_video(confirmed)
-    Contribution = apps.get_model('contributions.Contribution')
-    repeated_numbers = set(
-        Contribution.objects.filter(license__number__in=eligible_numbers)
-        .values_list('license__number', flat=True)
-    )
-    premiere_numbers = eligible_numbers - repeated_numbers
-    missing_by_type = {
-        'media_files.missing_reel': (
-            eligible_numbers - numbers_with_reel(eligible_numbers)),
-        'media_files.missing_cover': (
-            premiere_numbers - numbers_with_cover(premiere_numbers)),
+    # A reel only needs the video; a cover still waits for the confirmation.
+    not_live = {
+        number: confirmed for number, confirmed in
+        License.objects.filter(number__in=own, is_live=False)
+        .values_list('number', 'confirmed')
     }
+    with_video = numbers_with_video(set(not_live))
+    reel_numbers = set(not_live) & with_video
+    reel_missing = reel_numbers - numbers_with_reel(reel_numbers)
+    cover_numbers = {
+        number for number in reel_numbers if not_live[number]}
+    cover_missing = cover_numbers - numbers_with_cover(cover_numbers)
+    repeats = repeat_keys(planned_keys)
     active = set()
     for event in events:
         day = event_dates[event.pk]
         number = _number((event.payload or {}).get('number'))
-        if ((day, number) in planned_keys
-                and number in missing_by_type[event.event_type]):
+        if (day, number) not in planned_keys:
+            continue
+        if event.event_type == 'media_files.missing_reel':
+            still_open = number in reel_missing
+        else:
+            still_open = (number in cover_missing
+                          and (day, number) not in repeats)
+        if still_open:
             active.add(event.pk)
     return active
 

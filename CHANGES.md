@@ -14,6 +14,9 @@ CHANGELOG
 * **tools: At most 5 hashtags per Instagram post**
   * Instagram allows 5 hashtags per post since December 2025 (before: 30). Drafts now get at most 5: the fixed hashtags always, the license tags fill the rest. The post form rejects a caption with more than 5.
   * License tags with or without "#" become one hashtag each; several words join with capitals ("offener kanal" → `#OffenerKanal`). A license tag holding several hashtags ("#Gesang #musik") is split at each "#"; before, it became one long hashtag. "Feste Hashtags" follows the same rule.
+* Fixed: The reminders "Planned own production without a reel" and "Post the reel today" waited until the license was confirmed, although the reel only needs the full video. A planned own production with its video now gets the reminder whether the license is confirmed or not. The cover reminder still needs a confirmed license.
+* Fixed: Reel and cover reminders treated a premiere as a repeat as soon as the playout schedule with its airings was imported (DISA), because any contribution counted. Premieres without a Mediathek URL then got no reminder at all, and premieres with one got it only when the URL was set after the broadcast. An airing is now a repeat only if the license was on air on an earlier day.
+* Fixed: Confirming or unconfirming licenses with the action in the license list left no entry in the license history; it is now recorded there like a change in the form.
 
 2026-11-18 (Version 4.78.0)
 ==========================

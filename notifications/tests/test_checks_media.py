@@ -172,6 +172,29 @@ def test_missing_reel_reports_own_planned_production(synced, license,
     assert findings[0].payload['number'] == license.number
 
 
+def test_missing_reel_does_not_wait_for_confirmation(synced, license,
+                                                    own_authority, storage):
+    """A reel is cut from the video; the licence need not be confirmed yet."""
+    _plan_own_license(license, own_authority, storage)
+    license.confirmed = False
+    license.save(update_fields=['confirmed'])
+
+    findings = run_check('media_files.missing_reel')
+
+    assert len(findings) == 1
+    assert findings[0].payload['confirmed'] is False
+
+
+def test_missing_cover_still_needs_a_confirmed_license(synced, license,
+                                                      own_authority, storage):
+    """Only the reel checks dropped the confirmation condition."""
+    _plan_own_license(license, own_authority, storage)
+    license.confirmed = False
+    license.save(update_fields=['confirmed'])
+
+    assert run_check('media_files.missing_cover') == []
+
+
 def test_missing_reel_ignores_other_channels(synced, license, own_authority,
                                              storage):
     """Material of another channel is not our reel to make."""
@@ -195,6 +218,38 @@ def _make_repeat(license_obj):
         broadcast_date=timezone.now() - timedelta(days=30),
         live=False,
     )
+
+
+def _import_airings(license_obj, *days_ahead):
+    """Contributions imported from the playout schedule ahead of airing."""
+    from contributions.models import Contribution
+
+    for days in days_ahead:
+        Contribution.objects.create(
+            license=license_obj,
+            broadcast_date=timezone.now() + timedelta(days=days),
+            live=False,
+        )
+
+
+def test_missing_reel_treats_imported_future_airings_as_premiere(
+        synced, license, own_authority, storage):
+    """The premiere's own contribution, imported early, is no earlier airing."""
+    _plan_own_license(license, own_authority, storage)
+    _import_airings(license, 1, 2, 3)
+
+    findings = run_check('media_files.missing_reel')
+
+    assert len(findings) == 1
+
+
+def test_missing_cover_treats_imported_future_airings_as_premiere(
+        synced, license, own_authority, storage):
+    """A cover is asked for the premiere even if its airings are imported."""
+    _plan_own_license(license, own_authority, storage)
+    _import_airings(license, 1, 2)
+
+    assert len(run_check('media_files.missing_cover')) == 1
 
 
 def test_missing_reel_skips_a_repeat_without_a_mediathek_url(

@@ -1500,6 +1500,12 @@ class LicenseAdmin(ExportMixin, ModelAdmin):
                     update_fields.append('confirmed_by')
 
             obj.save(update_fields=update_fields)
+            # The list action bypasses the change form, so without this the
+            # confirmation would never show up in the license history.
+            self.log_change(request, obj, [
+                {'changed': {'fields': [str(License._meta.get_field(
+                    'confirmed').verbose_name)]}},
+            ])
             updated += 1
 
         return updated

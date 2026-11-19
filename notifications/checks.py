@@ -493,11 +493,12 @@ def check_format_mismatch(params: Dict[str, int]) -> List[Finding]:
     return findings
 
 
-def _own_planned_entries(horizon_days: int):
+def _own_planned_entries(horizon_days: int, require_confirmed: bool = True):
     """Return planned entries of own productions within the horizon.
 
     Shared by the reel and the cover check: same selection, different
-    question about the result.
+    question about the result. A reel can be cut from the video before the
+    license is confirmed, so the reel checks pass ``require_confirmed=False``.
     """
     from notifications.org import own_license_numbers
     from planung import selectors as planung_selectors
@@ -522,11 +523,11 @@ def _own_planned_entries(horizon_days: int):
         # mean reporting other channels' material as ours.
         return [], None
     License = apps.get_model('licenses.License')
-    confirmed = set(
-        License.objects.filter(
-            number__in=own, confirmed=True, is_live=False)
-        .values_list('number', flat=True))
-    eligible = confirmed & _numbers_with_video(confirmed)
+    licenses = License.objects.filter(number__in=own, is_live=False)
+    if require_confirmed:
+        licenses = licenses.filter(confirmed=True)
+    candidates = set(licenses.values_list('number', flat=True))
+    eligible = candidates & _numbers_with_video(candidates)
     return [
         entry for entry in entries if entry['number'] in eligible
     ], eligible
@@ -549,7 +550,7 @@ def _missing_asset_findings(code: str, entries, have_numbers) -> List[Finding]:
             'number': entry['number'],
             'title': entry['title'],
             'start': entry['start'],
-            'confirmed': True,
+            'confirmed': getattr(licenses.get(entry['number']), 'confirmed', False),
             'video_available': True,
             'url': links.planung_calendar_url(entry['date']),
         }
@@ -565,41 +566,71 @@ def _missing_asset_findings(code: str, entries, have_numbers) -> List[Finding]:
     return findings
 
 
-def _reel_relevant_numbers(numbers, scope=None):
-    """Restrict reel work to material a reel would actually promote.
+def repeat_keys(keys) -> set:
+    """Return the ``(day, number)`` airings that are repeats.
 
-    A reel advertises something the audience can watch. A premiere -- a licence
-    without a contribution yet -- always qualifies. A repeat only qualifies
-    when it is in the Mediathek, and whether such repeats are wanted at all is
-    the ``scope`` setting; a repeat that is nowhere online is never reported,
-    because the reel would have nothing to point at.
+    An airing is a repeat when the licence already went on air on an earlier
+    day. Contributions are imported from the playout schedule ahead of time,
+    so "has any contribution" would turn a premiere into a repeat as soon as
+    its own airing -- or a later one -- is imported.
+    """
+    keys = set(keys)
+    if not keys:
+        return set()
+    from django.db.models import Min
+
+    Contribution = apps.get_model('contributions.Contribution')
+    first_airing = dict(
+        Contribution.objects
+        .filter(license__number__in={number for _day, number in keys})
+        .values('license__number')
+        .annotate(first=Min('broadcast_date'))
+        .values_list('license__number', 'first')
+    )
+    repeats = set()
+    for day, number in keys:
+        first = first_airing.get(number)
+        if first is not None and timezone.localdate(first) < day:
+            repeats.add((day, number))
+    return repeats
+
+
+def _reel_relevant_entries(entries, scope=None):
+    """Restrict reel work to airings a reel would actually promote.
+
+    A reel advertises something the audience can watch. A premiere -- the
+    licence has not been on air on an earlier day -- always qualifies. A
+    repeat only qualifies when it is in the Mediathek, and whether such
+    repeats are wanted at all is the ``scope`` setting; a repeat that is
+    nowhere online is never reported, because the reel would have nothing to
+    point at.
     """
     from notifications.event_types import REEL_SCOPE_PREMIERES
     from notifications.event_types import REEL_SCOPE_PREMIERES_AND_MEDIATHEK
 
-    License = apps.get_model('licenses.License')
-    Contribution = apps.get_model('contributions.Contribution')
-
-    numbers = set(numbers)
-    if not numbers:
-        return numbers
-    repeated = set(
-        Contribution.objects.filter(license__number__in=numbers)
-        .values_list('license__number', flat=True)
-    )
-    premieres = numbers - repeated
+    if not entries:
+        return []
+    repeats = repeat_keys(
+        (entry['date'], entry['number']) for entry in entries)
     if scope == REEL_SCOPE_PREMIERES:
-        return premieres
-    if scope not in (None, REEL_SCOPE_PREMIERES_AND_MEDIATHEK):
-        logger.warning('Unknown reel scope %r, falling back to %r',
-                       scope, REEL_SCOPE_PREMIERES_AND_MEDIATHEK)
-    in_mediathek = set(
-        License.objects.filter(number__in=repeated)
-        .exclude(mediathek_url='')
-        .exclude(mediathek_url__isnull=True)
-        .values_list('number', flat=True)
-    )
-    return premieres | in_mediathek
+        in_mediathek = set()
+    else:
+        if scope not in (None, REEL_SCOPE_PREMIERES_AND_MEDIATHEK):
+            logger.warning('Unknown reel scope %r, falling back to %r',
+                           scope, REEL_SCOPE_PREMIERES_AND_MEDIATHEK)
+        License = apps.get_model('licenses.License')
+        in_mediathek = set(
+            License.objects
+            .filter(number__in={number for _day, number in repeats})
+            .exclude(mediathek_url='')
+            .exclude(mediathek_url__isnull=True)
+            .values_list('number', flat=True)
+        )
+    return [
+        entry for entry in entries
+        if (entry['date'], entry['number']) not in repeats
+        or entry['number'] in in_mediathek
+    ]
 
 
 @scan_check('media_files.missing_reel')
@@ -607,12 +638,11 @@ def check_missing_reel(params: Dict[str, int]) -> List[Finding]:
     """Find own productions going on air soon without a rendered reel."""
     from media_files.utils import numbers_with_reel
 
-    entries, own = _own_planned_entries(params.get('horizon_days', 3))
+    entries, own = _own_planned_entries(
+        params.get('horizon_days', 3), require_confirmed=False)
     if own is None or not entries:
         return []
-    relevant = _reel_relevant_numbers({entry['number'] for entry in entries},
-                                      params.get('scope'))
-    entries = [entry for entry in entries if entry['number'] in relevant]
+    entries = _reel_relevant_entries(entries, params.get('scope'))
     if not entries:
         return []
     return _missing_asset_findings(
@@ -628,14 +658,11 @@ def check_missing_cover(params: Dict[str, int]) -> List[Finding]:
     entries, own = _own_planned_entries(params.get('horizon_days', 3))
     if own is None or not entries:
         return []
-    Contribution = apps.get_model('contributions.Contribution')
-    repeated_numbers = set(
-        Contribution.objects.filter(license__number__in=own)
-        .values_list('license__number', flat=True)
-    )
+    repeats = repeat_keys(
+        (entry['date'], entry['number']) for entry in entries)
     premiere_entries = [
         entry for entry in entries
-        if entry['number'] not in repeated_numbers
+        if (entry['date'], entry['number']) not in repeats
     ]
     return _missing_asset_findings(
         'media_files.missing_cover', premiere_entries,
@@ -647,12 +674,10 @@ def check_reel_post_today(params: Dict[str, int]) -> List[Finding]:
     """Find ready reels that somebody has to publish on the air date."""
     from media_files.utils import numbers_with_reel
 
-    entries, own = _own_planned_entries(0)
+    entries, own = _own_planned_entries(0, require_confirmed=False)
     if own is None or not entries:
         return []
-    relevant = _reel_relevant_numbers({entry['number'] for entry in entries},
-                                      params.get('scope'))
-    entries = [entry for entry in entries if entry['number'] in relevant]
+    entries = _reel_relevant_entries(entries, params.get('scope'))
     if not entries:
         return []
     reel_numbers = numbers_with_reel(
