@@ -1770,3 +1770,9 @@ msgstr "Keine Parameter"
 
 msgid "Changes apply from the next check."
 msgstr "Gilt ab der nächsten Prüfung."
+
+msgid "Facebook reel failed"
+msgstr "Facebook-Reel fehlgeschlagen"
+
+msgid "A reel published on Instagram could not be published on the Facebook page. Instagram is not affected; the post shows the reason and can be sent to Facebook again."
+msgstr "Ein auf Instagram veröffentlichtes Reel konnte nicht auf der Facebook-Seite veröffentlicht werden. Instagram ist nicht betroffen; der Beitrag zeigt den Grund und kann erneut zu Facebook geschickt werden."

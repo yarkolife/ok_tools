@@ -4096,3 +4096,78 @@ msgstr "Kommen in jedem Post zu {hashtags} dazu, z. B. „#OffenerKanal #Mersebu
 
 msgid "%(placeholders)s are filled in when the post is published (broadcast day and time from the plan, Mediathek link)."
 msgstr "%(placeholders)s werden beim Veröffentlichen eingesetzt (Sendetag und Uhrzeit aus dem Plan, Mediathek-Link)."
+
+#, python-format
+msgid "Facebook page not reachable: %(error)s"
+msgstr "Facebook-Seite nicht erreichbar: %(error)s"
+
+#, python-format
+msgid "Reels are also published on the Facebook page \"%(name)s\"."
+msgstr "Reels werden auch auf der Facebook-Seite „%(name)s“ veröffentlicht."
+
+msgid "Facebook is switched on but not used: it needs Facebook Login as Instagram API and the page ID."
+msgstr "Facebook ist eingeschaltet, wird aber nicht genutzt: Dafür braucht es Facebook-Login als Instagram-API und die Seiten-ID."
+
+msgid "Facebook"
+msgstr "Facebook"
+
+msgid "Published on the Facebook page after Instagram, with the same caption and without collab accounts."
+msgstr "Wird nach Instagram auf der Facebook-Seite veröffentlicht, mit derselben Bildunterschrift und ohne Collab-Konten."
+
+#, python-format
+msgid "%(post)s goes to Instagram only: %(reason)s"
+msgstr "%(post)s geht nur auf Instagram: %(reason)s"
+
+msgid "Publish on Facebook again"
+msgstr "Erneut auf Facebook veröffentlichen"
+
+msgid "Facebook posting is switched off or not configured."
+msgstr "Facebook-Veröffentlichung ist ausgeschaltet oder nicht eingerichtet."
+
+#, python-format
+msgid "%(count)s reel(s) are being published on Facebook."
+msgstr "%(count)s Reel(s) werden auf Facebook veröffentlicht."
+
+msgid "Only reels published on Instagram and not on Facebook yet can be sent to Facebook."
+msgstr "Nur Reels, die auf Instagram und noch nicht auf Facebook veröffentlicht sind, können zu Facebook geschickt werden."
+
+msgid "Also publish on Facebook"
+msgstr "Auch auf Facebook veröffentlichen"
+
+msgid "After a reel is published on Instagram it is published on the Facebook page as well, with the same caption and without collab accounts. Needs Facebook Login and a token with pages_manage_posts for the page."
+msgstr "Nach der Veröffentlichung auf Instagram wird das Reel auch auf der Facebook-Seite veröffentlicht, mit derselben Bildunterschrift und ohne Collab-Konten. Braucht Facebook-Login und ein Token mit pages_manage_posts für die Seite."
+
+msgid "Facebook page ID"
+msgstr "Facebook-Seiten-ID"
+
+msgid "Numeric ID of the Facebook page linked to the Instagram account."
+msgstr "Numerische ID der Facebook-Seite, die mit dem Instagram-Konto verknüpft ist."
+
+msgid "Not planned"
+msgstr "Nicht vorgesehen"
+
+msgid "Waiting for Instagram"
+msgstr "Wartet auf Instagram"
+
+msgid "Not possible"
+msgstr "Nicht möglich"
+
+msgid "Facebook video ID"
+msgstr "Facebook-Video-ID"
+
+msgid "Facebook link"
+msgstr "Facebook-Link"
+
+msgid "Published on Facebook at"
+msgstr "Auf Facebook veröffentlicht am"
+
+msgid "Facebook error"
+msgstr "Facebook-Fehler"
+
+#, python-format
+msgid "Facebook accepts reels of %(min)s to %(max)s seconds; this one is %(len)s seconds."
+msgstr "Facebook nimmt Reels von %(min)s bis %(max)s Sekunden an; dieses ist %(len)s Sekunden lang."
+
+#, python-format
+msgid "Facebook allows %(max)s reels through the API within 24 hours."
+msgstr "Facebook erlaubt %(max)s Reels über die API innerhalb von 24 Stunden."

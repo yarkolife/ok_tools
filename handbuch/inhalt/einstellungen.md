@@ -289,7 +289,8 @@ Erscheint erst, wenn das Reel-Studio eingerichtet ist.
 | Bildunterschrift (Vorlage) | Platzhalter `{hook}` (der Hook aus dem Reel), `{titel}`, `{untertitel}`, `{beschreibung}`, `{autor}`, `{sendetermin}`, `{uhrzeit}`, `{mediathek}`, `{hashtags}`. Zeilen, deren Platzhalter leer sind, entfallen. Wird die Bildunterschrift zu lang, endet die Beschreibung am letzten passenden Satzende. `{sendetermin}`, `{uhrzeit}` und `{mediathek}` bleiben im Entwurf stehen und werden erst beim Veröffentlichen eingesetzt, mit dem dann aktuellen Sendeplan. |
 | Feste Hashtags | Kommen in jedem Post nach den Tags der Freistellung dazu, z. B. `#OKMQ #Merseburg #Saalekreis`; doppelte entfallen. Instagram erlaubt höchstens 5 Hashtags je Post: Die festen bekommen immer ihren Platz, Tags der Freistellung füllen den Rest. Darum höchstens 3 feste Hashtags eintragen. |
 | Auch im Feed zeigen | Aus: Das Reel erscheint nur im Reels-Tab. |
-| Verbindung | **Verbindung testen** prüft Konto-ID und Token bei Instagram, ohne etwas zu veröffentlichen. |
+| Auch auf Facebook veröffentlichen, Facebook-Seiten-ID | Nach Instagram wird dasselbe Reel auf der Facebook-Seite veröffentlicht, mit derselben Bildunterschrift, ohne Collab-Konten. Nur mit Facebook-Login; der Token braucht `pages_show_list`, `pages_read_engagement` und `pages_manage_posts` für die Seite. Facebook nimmt Reels von 3 bis 90 Sekunden und höchstens 30 am Tag; andere gehen nur auf Instagram (Hinweis beim Freigeben). Schlägt Facebook fehl, bleibt der Instagram-Post unberührt; in der Post-Liste schickt **Erneut auf Facebook veröffentlichen** das Reel noch einmal. |
+| Verbindung | **Verbindung testen** prüft Konto-ID und Token bei Instagram, ohne etwas zu veröffentlichen, und mit Facebook auch die Seite. |
 
 ## 11. Benachrichtigungen {#benachrichtigungen}
 

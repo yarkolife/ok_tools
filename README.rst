@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.79.3
+**Current Version**: 4.80.0
 **Last Updated**: 19 November 2026
 
 Features
@@ -133,6 +133,10 @@ Features
     reel renderer (the moment the hook is on screen, for question hooks only the question); the caption starts with
     the reel's hook, cuts a long description at a sentence end, adds fixed hashtags and fills in broadcast day, time
     and Mediathek link only when publishing; the author's Instagram account from the profile is invited as collab
+  - **Reels on Facebook**: with Facebook Login, a reel published on Instagram is published on the channel's Facebook
+    page as well (Reels Publishing API, same caption, no collab accounts); status and link per post, a separate
+    notification if Facebook fails, "Publish on Facebook again" in the post list; reels outside 3-90 seconds or over
+    Facebook's 30 reels a day stay on Instagram, with a warning when approving
   - Optional module (enabled via TOOLS_ENABLED setting)
 
 - **Manual (Handbuch)** - In-app manual for the staff (menu "Help") with the chapters "Inventar und Ausleihe" and "Einstellungen für Administratoren"; chapters show the release they were checked against and note when the installed version is newer; `python handbuch/aktualitaet.py --bump` confirms chapters whose pages did not change

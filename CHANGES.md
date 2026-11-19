@@ -1,6 +1,15 @@
 CHANGELOG
 =========
 
+2026-11-19 (Version 4.80.0)
+==========================
+
+* **tools: Reels are published on the Facebook page as well**
+  * The Instagram API cannot share a reel to Facebook (the app's "also share to Facebook" switch does not apply to API posts), so reels published automatically appeared on Instagram only. With "Also publish on Facebook" and the page ID (Tools configuration, Instagram) a reel is published on the Facebook page right after Instagram, through the page's Reels Publishing API, with the same caption and without collab accounts.
+  * Needs Facebook Login as Instagram API and a token with `pages_show_list`, `pages_read_engagement` and `pages_manage_posts` for the page; the page token is read from it. "Test connection" also checks the page.
+  * Each post shows its Facebook status, link and error. A Facebook failure never touches the Instagram post; it raises its own notification ("Facebook reel failed") and the action "Publish on Facebook again" sends the reel once more, also reels published before this release.
+  * Facebook accepts reels of 3 to 90 seconds and 30 API reels in 24 hours; approving a post that breaks one of these warns that it goes to Instagram only.
+
 2026-11-19 (Version 4.79.3)
 ==========================
 

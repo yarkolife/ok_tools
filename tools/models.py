@@ -1108,6 +1108,24 @@ class ToolsConfig(models.Model):
         verbose_name=_('Also show in the feed'),
         help_text=_('Off: the reel only appears in the Reels tab.'),
     )
+    # The Instagram API cannot share a reel to Facebook, so it is published a
+    # second time on the page, with the same system user token.
+    facebook_enabled = models.BooleanField(
+        default=False,
+        verbose_name=_('Also publish on Facebook'),
+        help_text=_(
+            'After a reel is published on Instagram it is published on the Facebook '
+            'page as well, with the same caption and without collab accounts. Needs '
+            'Facebook Login and a token with pages_manage_posts for the page.'
+        ),
+    )
+    facebook_page_id = models.CharField(
+        max_length=40,
+        blank=True,
+        default='',
+        verbose_name=_('Facebook page ID'),
+        help_text=_('Numeric ID of the Facebook page linked to the Instagram account.'),
+    )
 
     class Meta:
         verbose_name = _('Tools Configuration')
@@ -1256,6 +1274,15 @@ class ToolsConfig(models.Model):
             and self.instagram_access_token
         )
 
+    def is_facebook_configured(self) -> bool:
+        """True when reels also go to the Facebook page."""
+        return bool(
+            self.is_instagram_configured()
+            and self.facebook_enabled
+            and self.facebook_page_id
+            and self.instagram_api_host == 'graph.facebook.com'
+        )
+
     INSTAGRAM_PUBLISH_TASK_NAME = 'tools.tasks.publish_due_reel_posts'
     INSTAGRAM_REFRESH_TASK_NAME = 'tools.tasks.refresh_instagram_token'
 
@@ -1362,6 +1389,24 @@ class ReelPost(models.Model):
         (STATUS_FAILED, _('Failed')),
     ]
 
+    FACEBOOK_PENDING = 'pending'
+    FACEBOOK_PUBLISHING = 'publishing'
+    FACEBOOK_PUBLISHED = 'published'
+    FACEBOOK_FAILED = 'failed'
+    FACEBOOK_SKIPPED = 'skipped'
+    FACEBOOK_STATUS_CHOICES = [
+        ('', _('Not planned')),
+        (FACEBOOK_PENDING, _('Waiting for Instagram')),
+        (FACEBOOK_PUBLISHING, _('Publishing')),
+        (FACEBOOK_PUBLISHED, _('Published')),
+        (FACEBOOK_FAILED, _('Failed')),
+        (FACEBOOK_SKIPPED, _('Not possible')),
+    ]
+    # Facebook limits for reels published through the API.
+    FACEBOOK_MIN_SECONDS = 3
+    FACEBOOK_MAX_SECONDS = 90
+    FACEBOOK_DAILY_LIMIT = 30
+
     # Instagram limits for a reel caption.
     CAPTION_MAX_LENGTH = 2200
     # Instagram allows 5 hashtags per post since December 2025 (it was 30).
@@ -1424,6 +1469,20 @@ class ReelPost(models.Model):
     permalink = models.URLField(blank=True, verbose_name=_('Instagram link'))
     published_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Published at'))
     error_message = models.TextField(blank=True, verbose_name=_('Error'))
+    facebook_status = models.CharField(
+        max_length=12,
+        blank=True,
+        default='',
+        choices=FACEBOOK_STATUS_CHOICES,
+        db_index=True,
+        verbose_name=_('Facebook'),
+    )
+    facebook_video_id = models.CharField(max_length=40, blank=True, verbose_name=_('Facebook video ID'))
+    facebook_permalink = models.URLField(blank=True, verbose_name=_('Facebook link'))
+    facebook_published_at = models.DateTimeField(
+        null=True, blank=True, verbose_name=_('Published on Facebook at'))
+    facebook_checks = models.PositiveSmallIntegerField(default=0)
+    facebook_error = models.TextField(blank=True, verbose_name=_('Facebook error'))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
 

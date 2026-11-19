@@ -16,6 +16,7 @@ from datetime import datetime
 from datetime import timedelta
 from django.db import transaction
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from pathlib import Path
 import logging
 import re
@@ -545,12 +546,14 @@ def check_and_publish(post: ReelPost) -> str:
         post.published_at = timezone.now()
         post.error_message = ''
         post.save()
+        queue_facebook(post)
         return 'published'
 
     if status_code == 'PUBLISHED':
         post.status = ReelPost.STATUS_PUBLISHED
         post.published_at = post.published_at or timezone.now()
         post.save(update_fields=['status', 'published_at', 'updated_at'])
+        queue_facebook(post)
         return 'published'
 
     if status_code in ('ERROR', 'EXPIRED'):
@@ -565,6 +568,160 @@ def check_and_publish(post: ReelPost) -> str:
     if post.status_checks >= STATUS_CHECK_LIMIT:
         _fail(post, 'Instagram is still processing the video after 5 minutes. '
                     'Approve the post again later; the upload is kept for 24 hours.')
+        return 'failed'
+    return 'wait'
+
+
+# ---------------------------------------------------------------------------
+# Facebook: the same reel on the page, after Instagram
+# ---------------------------------------------------------------------------
+
+# Facebook usually needs a minute or two; checked every minute, then given up.
+FACEBOOK_CHECK_INTERVAL = 60
+FACEBOOK_CHECK_LIMIT = 15
+
+
+def facebook_active() -> bool:
+    """Reels also go to the Facebook page (gate for the Facebook notification)."""
+    try:
+        return ToolsConfig.get_config().is_facebook_configured()
+    except Exception:
+        return False
+
+
+def reel_seconds(post: ReelPost) -> float | None:
+    """Length of the reel file in seconds, or None if it cannot be read."""
+    import subprocess
+
+    from django.conf import settings
+
+    config = ToolsConfig.get_config()
+    path = config.resolve_reel_output_file(post.filename)
+    if path is None:
+        return None
+    ffprobe = getattr(settings, 'TOOLS_FFPROBE_PATH', '') or config.ffprobe_path or 'ffprobe'
+    try:
+        result = subprocess.run(
+            [ffprobe, '-v', 'error', '-show_entries', 'format=duration',
+             '-of', 'default=noprint_wrappers=1:nokey=1', str(path)],
+            capture_output=True, text=True, timeout=30)
+        return float(result.stdout.strip())
+    except (OSError, ValueError, subprocess.SubprocessError):
+        logger.warning('Could not read the length of reel %s', post.filename)
+        return None
+
+
+def facebook_problem(post: ReelPost) -> str:
+    """Why the reel cannot go to Facebook, or '' if nothing is known against it."""
+    seconds = reel_seconds(post)
+    if seconds is not None and not (
+            ReelPost.FACEBOOK_MIN_SECONDS <= seconds <= ReelPost.FACEBOOK_MAX_SECONDS):
+        return str(_('Facebook accepts reels of %(min)s to %(max)s seconds; this one is %(len)s seconds.') % {
+            'min': ReelPost.FACEBOOK_MIN_SECONDS, 'max': ReelPost.FACEBOOK_MAX_SECONDS,
+            'len': round(seconds)})
+    today = ReelPost.objects.filter(
+        facebook_published_at__gte=timezone.now() - timedelta(hours=24)).exclude(pk=post.pk).count()
+    if today >= ReelPost.FACEBOOK_DAILY_LIMIT:
+        return str(_('Facebook allows %(max)s reels through the API within 24 hours.') % {
+            'max': ReelPost.FACEBOOK_DAILY_LIMIT})
+    return ''
+
+
+def _fail_facebook(post: ReelPost, message: str, *, status=ReelPost.FACEBOOK_FAILED) -> None:
+    post.facebook_status = status
+    post.facebook_error = message
+    post.save(update_fields=['facebook_status', 'facebook_error', 'updated_at'])
+    logger.warning('Facebook reel of post %s: %s', post.pk, message)
+    if status != ReelPost.FACEBOOK_FAILED:
+        return
+    try:
+        from notifications.services import emit
+        emit('tools.facebook_post_failed', obj=post,
+             payload={'post': post.filename, 'error': message[:200]},
+             dedup_key=f'tools.facebook_post_failed|{post.pk}|{timezone.now():%Y%m%d%H%M}')
+    except Exception:
+        logger.exception('Could not report the failed Facebook reel %s', post.pk)
+
+
+def queue_facebook(post: ReelPost) -> bool:
+    """Mark a post published on Instagram for Facebook; True if it should go there."""
+    if not facebook_active() or post.facebook_status:
+        return False
+    post.facebook_status = ReelPost.FACEBOOK_PENDING
+    post.save(update_fields=['facebook_status', 'updated_at'])
+    return True
+
+
+def claim_facebook(post_id: int, *, retry: bool = False) -> ReelPost | None:
+    """Move a post to Facebook "publishing"; None if it is not waiting for it."""
+    allowed = [ReelPost.FACEBOOK_PENDING]
+    if retry:
+        allowed += [ReelPost.FACEBOOK_FAILED, ReelPost.FACEBOOK_SKIPPED]
+    with transaction.atomic():
+        claimed = ReelPost.objects.filter(
+            pk=post_id, status=ReelPost.STATUS_PUBLISHED, facebook_status__in=allowed,
+        ).update(facebook_status=ReelPost.FACEBOOK_PUBLISHING, facebook_error='',
+                 facebook_checks=0, updated_at=timezone.now())
+    return ReelPost.objects.get(pk=post_id) if claimed else None
+
+
+def start_facebook(post: ReelPost) -> bool:
+    """Upload and publish the reel on the page; True if status checks should follow."""
+    from .services import facebook
+
+    config = ToolsConfig.get_config()
+    if not config.is_facebook_configured():
+        _fail_facebook(post, 'Facebook posting is switched off or not configured.')
+        return False
+    problem = facebook_problem(post)
+    if problem:
+        _fail_facebook(post, problem, status=ReelPost.FACEBOOK_SKIPPED)
+        return False
+    if config.resolve_reel_output_file(post.filename) is None:
+        _fail_facebook(post, 'The reel file was not found in the reel output folder.')
+        return False
+    video_url = public_video_url(post.filename)
+    if not video_url.startswith('https://'):
+        _fail_facebook(post, 'SITE_BASE_URL must be a public https address, Facebook downloads the video from there.')
+        return False
+    try:
+        # The caption already carries the broadcast time and Mediathek link
+        # filled in for Instagram.
+        post.facebook_video_id = facebook.publish_reel(
+            config, video_url=video_url, description=post.caption)
+    except facebook.FacebookError as exc:
+        _fail_facebook(post, str(exc))
+        return False
+    post.save(update_fields=['facebook_video_id', 'updated_at'])
+    return True
+
+
+def check_facebook(post: ReelPost) -> str:
+    """Check the Facebook reel once; ``'published'``, ``'failed'`` or ``'wait'``."""
+    from .services import facebook
+
+    config = ToolsConfig.get_config()
+    try:
+        state, detail = facebook.reel_status(config, post.facebook_video_id)
+    except facebook.FacebookError as exc:
+        _fail_facebook(post, str(exc))
+        return 'failed'
+    if state == 'error':
+        _fail_facebook(post, f'Facebook could not process the reel: {detail}'.strip(': '))
+        return 'failed'
+    if state == 'published':
+        post.facebook_status = ReelPost.FACEBOOK_PUBLISHED
+        post.facebook_permalink = detail
+        post.facebook_published_at = timezone.now()
+        post.facebook_error = ''
+        post.save(update_fields=['facebook_status', 'facebook_permalink', 'facebook_published_at',
+                                 'facebook_error', 'updated_at'])
+        return 'published'
+    post.facebook_checks += 1
+    post.save(update_fields=['facebook_checks', 'updated_at'])
+    if post.facebook_checks >= FACEBOOK_CHECK_LIMIT:
+        _fail_facebook(post, 'Facebook is still processing the reel after 15 minutes; '
+                             'check the page before publishing it there again.')
         return 'failed'
     return 'wait'
 

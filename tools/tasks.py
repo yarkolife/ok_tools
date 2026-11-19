@@ -1173,6 +1173,41 @@ def check_reel_post(post_id):
     elif outcome == 'published':
         from .reel_posts import STORY_REMINDER_DELAY
         send_reel_story_reminder.apply_async(args=[post_id], countdown=STORY_REMINDER_DELAY)
+        post.refresh_from_db(fields=['facebook_status'])
+        if post.facebook_status == ReelPost.FACEBOOK_PENDING:
+            publish_reel_to_facebook.delay(post_id)
+    return {'status': outcome}
+
+
+@shared_task(name='tools.tasks.publish_reel_to_facebook')
+def publish_reel_to_facebook(post_id, retry=False):
+    """Publish a reel that is on Instagram on the Facebook page as well."""
+    from .reel_posts import FACEBOOK_CHECK_INTERVAL
+    from .reel_posts import claim_facebook
+    from .reel_posts import start_facebook
+    post = claim_facebook(post_id, retry=retry)
+    if post is None:
+        return {'status': 'skipped'}
+    if start_facebook(post):
+        check_facebook_reel.apply_async(args=[post_id], countdown=FACEBOOK_CHECK_INTERVAL)
+        return {'status': 'uploaded', 'video_id': post.facebook_video_id}
+    post.refresh_from_db()
+    return {'status': post.facebook_status}
+
+
+@shared_task(name='tools.tasks.check_facebook_reel')
+def check_facebook_reel(post_id):
+    """Check the Facebook reel until it is published (or failed)."""
+    from .models import ReelPost
+    from .reel_posts import FACEBOOK_CHECK_INTERVAL
+    from .reel_posts import check_facebook
+    post = ReelPost.objects.filter(
+        pk=post_id, facebook_status=ReelPost.FACEBOOK_PUBLISHING).exclude(facebook_video_id='').first()
+    if post is None:
+        return {'status': 'skipped'}
+    outcome = check_facebook(post)
+    if outcome == 'wait':
+        check_facebook_reel.apply_async(args=[post_id], countdown=FACEBOOK_CHECK_INTERVAL)
     return {'status': outcome}
 
 

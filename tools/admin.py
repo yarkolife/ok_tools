@@ -194,6 +194,8 @@ class ToolsConfigAdmin(SecretFieldsMixin, ModelAdmin):
                 'instagram_caption_template',
                 'instagram_fixed_hashtags',
                 'instagram_share_to_feed',
+                'facebook_enabled',
+                'facebook_page_id',
                 'instagram_connection',
             ),
             'description': _(
@@ -271,6 +273,20 @@ class ToolsConfigAdmin(SecretFieldsMixin, ModelAdmin):
                 text += ' ' + _('Posts in the last 24 hours: %(used)s of %(total)s.') % {
                     'used': info.get('quota_usage') or 0, 'total': info['quota_total']}
             messages.success(request, text)
+        if config.is_facebook_configured():
+            from .services import facebook
+
+            try:
+                page = facebook.page_info(config)
+            except facebook.FacebookError as exc:
+                messages.error(request, _('Facebook page not reachable: %(error)s') % {'error': exc})
+            else:
+                messages.success(request, _('Reels are also published on the Facebook page "%(name)s".') % {
+                    'name': page.get('name') or config.facebook_page_id})
+        elif config.facebook_enabled:
+            messages.warning(request, _(
+                'Facebook is switched on but not used: it needs Facebook Login as Instagram API '
+                'and the page ID.'))
         return redirect('admin:tools_toolsconfig_change', config.pk)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -747,16 +763,19 @@ class ReelPostAdmin(InstagramOnlyMixin, ModelAdmin):
     """Instagram posts of rendered reels: check, approve, follow up."""
 
     list_display = ['filename', 'license_title', 'scheduled_at', 'status_badge',
-                    'collaborators', 'instagram_link']
-    list_filter = ['status', 'scheduled_at']
+                    'collaborators', 'instagram_link', 'facebook_column']
+    list_filter = ['status', 'facebook_status', 'scheduled_at']
     search_fields = ['filename', 'caption', 'license__title', 'license__number']
     date_hierarchy = 'scheduled_at'
     raw_id_fields = ['license']
-    actions = ['approve_action', 'publish_now_action', 'back_to_draft_action']
+    actions = ['approve_action', 'publish_now_action', 'back_to_draft_action',
+               'facebook_again_action']
     change_list_template = 'admin/tools/reelpost/change_list.html'
     readonly_fields = ['status', 'reel_preview', 'caption_info', 'approved_by', 'approved_at',
                        'instagram_link', 'published_at', 'media_id', 'container_id',
-                       'error_message', 'created_at', 'updated_at']
+                       'error_message', 'created_at', 'updated_at',
+                       'facebook_status', 'facebook_column', 'facebook_published_at',
+                       'facebook_video_id', 'facebook_error']
     fieldsets = (
         (None, {
             'fields': ('status', 'error_message', 'filename', 'license', 'reel_preview'),
@@ -769,7 +788,33 @@ class ReelPostAdmin(InstagramOnlyMixin, ModelAdmin):
             'fields': ('approved_by', 'approved_at', 'instagram_link', 'published_at',
                        'media_id', 'container_id', 'created_at', 'updated_at'),
         }),
+        (_('Facebook'), {
+            'fields': ('facebook_status', 'facebook_column', 'facebook_published_at',
+                       'facebook_video_id', 'facebook_error'),
+            'description': _('Published on the Facebook page after Instagram, with the same '
+                             'caption and without collab accounts.'),
+        }),
     )
+
+    def get_fieldsets(self, request, obj=None):
+        """The Facebook section only where reels also go to the page, or went there."""
+        fieldsets = super().get_fieldsets(request, obj)
+        if not self._facebook_on() and not (obj and obj.facebook_status):
+            fieldsets = [fs for fs in fieldsets if str(fs[0]) != str(_('Facebook'))]
+        return fieldsets
+
+    def get_list_display(self, request):
+        columns = list(super().get_list_display(request))
+        if not self._facebook_on():
+            columns.remove('facebook_column')
+        return columns
+
+    @staticmethod
+    def _facebook_on() -> bool:
+        try:
+            return ToolsConfig.get_config().is_facebook_configured()
+        except Exception:
+            return False
 
     def get_readonly_fields(self, request, obj=None):
         fields = list(super().get_readonly_fields(request, obj))
@@ -814,6 +859,20 @@ class ReelPostAdmin(InstagramOnlyMixin, ModelAdmin):
             return '-'
         return format_html('<a href="{}" target="_blank" rel="noopener">{}</a>',
                            obj.permalink, _('Open'))
+
+    @admin.display(description=_('Facebook'))
+    def facebook_column(self, obj):
+        if obj.facebook_permalink:
+            return format_html('<a href="{}" target="_blank" rel="noopener">{}</a>',
+                               obj.facebook_permalink, _('Open'))
+        if not obj.facebook_status:
+            return '-'
+        colour = {
+            ReelPost.FACEBOOK_FAILED: 'var(--ok-danger, #c62828)',
+            ReelPost.FACEBOOK_SKIPPED: 'var(--ok-warning-ink, #8a5a00)',
+        }.get(obj.facebook_status, 'inherit')
+        return format_html('<span style="color:{}" title="{}">{}</span>', colour,
+                           obj.facebook_error, obj.get_facebook_status_display())
 
     @admin.display(description=_('Reel'))
     def reel_preview(self, obj):
@@ -863,6 +922,12 @@ class ReelPostAdmin(InstagramOnlyMixin, ModelAdmin):
                                   level=messages.ERROR)
                 continue
             done += 1
+            if self._facebook_on():
+                from .reel_posts import facebook_problem
+                problem = facebook_problem(post)
+                if problem:
+                    self.message_user(request, _('%(post)s goes to Instagram only: %(reason)s') % {
+                        'post': post, 'reason': problem}, level=messages.WARNING)
         if not done:
             return
         if now:
@@ -905,6 +970,31 @@ class ReelPostAdmin(InstagramOnlyMixin, ModelAdmin):
             self.message_user(request, _('No new drafts: every finished reel from today on already has a post.'),
                               level=messages.WARNING)
         return redirect('admin:tools_reelpost_changelist')
+
+    @admin.action(description=_('Publish on Facebook again'))
+    def facebook_again_action(self, request, queryset):
+        from .tasks import publish_reel_to_facebook
+        if not self._may_publish(request):
+            return
+        if not self._facebook_on():
+            self.message_user(request, _('Facebook posting is switched off or not configured.'),
+                              level=messages.ERROR)
+            return
+        posts = queryset.filter(status=ReelPost.STATUS_PUBLISHED, facebook_status__in=[
+            ReelPost.FACEBOOK_FAILED, ReelPost.FACEBOOK_SKIPPED, ''])
+        count = 0
+        for post in posts:
+            if not post.facebook_status:
+                post.facebook_status = ReelPost.FACEBOOK_FAILED
+                post.save(update_fields=['facebook_status', 'updated_at'])
+            publish_reel_to_facebook.delay(post.pk, retry=True)
+            count += 1
+        if count:
+            self.message_user(request, _('%(count)s reel(s) are being published on Facebook.') % {
+                'count': count})
+        else:
+            self.message_user(request, _('Only reels published on Instagram and not on Facebook yet '
+                                         'can be sent to Facebook.'), level=messages.WARNING)
 
     @admin.action(description=_('Back to draft'))
     def back_to_draft_action(self, request, queryset):

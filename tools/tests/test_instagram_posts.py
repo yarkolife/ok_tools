@@ -601,3 +601,174 @@ def test_license_tag_with_several_hashtags_is_split():
         '#Claymation #Wierd #Trickfilm #HochschuleMerseburg')
     assert reel_posts.hashtags_for(['Hochschule Merseburg', '#Gesang #musik']) == (
         '#HochschuleMerseburg #Gesang #musik')
+
+
+# ---------------------------------------------------------------------------
+# Facebook: the same reel on the page, after Instagram
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def facebook(config):
+    config.instagram_api_host = 'graph.facebook.com'
+    config.facebook_enabled = True
+    config.facebook_page_id = '1017'
+    config.save()
+    return config
+
+
+def _published_on_instagram(license_obj=None, caption='Hallo'):
+    return ReelPost.objects.create(
+        filename=FILENAME, license=license_obj, caption=caption,
+        status=ReelPost.STATUS_PUBLISHING, container_id='C1', container_created_at=timezone.now())
+
+
+def _instagram_finishes():
+    return (
+        mock.patch('tools.services.instagram.requests.get', side_effect=[
+            _response(payload={'status_code': 'FINISHED'}),
+            _response(payload={'permalink': 'https://www.instagram.com/reel/abc/'})]),
+        mock.patch('tools.services.instagram.requests.post',
+                   return_value=_response(payload={'id': 'M1'})),
+    )
+
+
+@pytest.mark.django_db
+def test_reel_goes_to_facebook_after_instagram(facebook, home_license):
+    post = _published_on_instagram(home_license, caption='Hallo\n#Campus')
+    ig_get, ig_post = _instagram_finishes()
+    from tools.tasks import check_reel_post
+    with ig_get, ig_post, mock.patch('tools.tasks.send_reel_story_reminder.apply_async'), \
+            mock.patch('tools.tasks.publish_reel_to_facebook.delay') as to_facebook:
+        check_reel_post(post.pk)
+    post.refresh_from_db()
+    assert post.status == ReelPost.STATUS_PUBLISHED
+    assert post.facebook_status == ReelPost.FACEBOOK_PENDING
+    to_facebook.assert_called_once_with(post.pk)
+
+    from tools.tasks import publish_reel_to_facebook
+    page_token = _response(payload={'access_token': 'PAGE'})
+    with mock.patch('tools.reel_posts.reel_seconds', return_value=30.0), \
+            mock.patch('tools.services.facebook.requests.get', return_value=page_token), \
+            mock.patch('tools.services.facebook.requests.post', side_effect=[
+                _response(payload={'video_id': 'V1'}),
+                _response(payload={'success': True}),
+                _response(payload={'success': True})]) as fb_post, \
+            mock.patch('tools.tasks.check_facebook_reel.apply_async') as check_later:
+        assert publish_reel_to_facebook(post.pk)['status'] == 'uploaded'
+    start, upload, finish = fb_post.call_args_list
+    assert start.args[0] == 'https://graph.facebook.com/v27.0/1017/video_reels'
+    assert start.kwargs['data'] == {'upload_phase': 'start', 'access_token': 'PAGE'}
+    assert upload.args[0] == 'https://rupload.facebook.com/video-upload/v27.0/V1'
+    assert upload.kwargs['headers']['Authorization'] == 'OAuth PAGE'
+    assert upload.kwargs['headers']['file_url'].startswith('https://portal.example.org/')
+    assert finish.kwargs['data']['upload_phase'] == 'finish'
+    assert finish.kwargs['data']['video_state'] == 'PUBLISHED'
+    assert finish.kwargs['data']['description'] == 'Hallo\n#Campus'
+    check_later.assert_called_once()
+
+    from tools.tasks import check_facebook_reel
+    with mock.patch('tools.services.facebook.requests.get', side_effect=[
+            page_token, _response(payload={'status': {'video_status': 'processing'}})]), \
+            mock.patch('tools.tasks.check_facebook_reel.apply_async') as again:
+        assert check_facebook_reel(post.pk)['status'] == 'wait'
+    again.assert_called_once()
+    with mock.patch('tools.services.facebook.requests.get', side_effect=[
+            page_token, _response(payload={
+                'status': {'video_status': 'ready', 'publishing_phase': {'status': 'complete'}},
+                'permalink_url': '/reel/555/'})]):
+        assert check_facebook_reel(post.pk)['status'] == 'published'
+    post.refresh_from_db()
+    assert post.facebook_status == ReelPost.FACEBOOK_PUBLISHED
+    assert post.facebook_permalink == 'https://www.facebook.com/reel/555/'
+    assert post.facebook_published_at is not None
+
+
+@pytest.mark.django_db
+def test_without_facebook_instagram_works_as_before(config, home_license):
+    post = _published_on_instagram(home_license)
+    ig_get, ig_post = _instagram_finishes()
+    from tools.tasks import check_reel_post
+    with ig_get, ig_post, mock.patch('tools.tasks.send_reel_story_reminder.apply_async'), \
+            mock.patch('tools.tasks.publish_reel_to_facebook.delay') as to_facebook:
+        check_reel_post(post.pk)
+    post.refresh_from_db()
+    assert post.status == ReelPost.STATUS_PUBLISHED and post.facebook_status == ''
+    to_facebook.assert_not_called()
+
+
+@pytest.mark.django_db
+def test_facebook_is_only_used_with_facebook_login(facebook):
+    facebook.instagram_api_host = 'graph.instagram.com'
+    facebook.save()
+    assert not facebook.is_facebook_configured()
+
+
+@pytest.mark.django_db
+def test_facebook_error_leaves_instagram_alone_and_notifies(facebook):
+    post = ReelPost.objects.create(filename=FILENAME, status=ReelPost.STATUS_PUBLISHED,
+                                   facebook_status=ReelPost.FACEBOOK_PENDING)
+    error = {'error': {'message': 'Permissions error', 'code': 200}}
+    with mock.patch('tools.reel_posts.reel_seconds', return_value=30.0), \
+            mock.patch('tools.services.facebook.requests.get', return_value=_response(400, error)), \
+            mock.patch('notifications.services.emit') as emit:
+        assert not reel_posts.start_facebook(reel_posts.claim_facebook(post.pk))
+    post.refresh_from_db()
+    assert post.status == ReelPost.STATUS_PUBLISHED
+    assert post.facebook_status == ReelPost.FACEBOOK_FAILED
+    assert post.facebook_error == 'Permissions error (code 200)'
+    assert emit.call_args.args[0] == 'tools.facebook_post_failed'
+    # A failed reel is only sent again on request.
+    assert reel_posts.claim_facebook(post.pk) is None
+    assert reel_posts.claim_facebook(post.pk, retry=True) is not None
+
+
+@pytest.mark.django_db
+def test_too_long_reel_is_not_sent_to_facebook(facebook):
+    post = ReelPost.objects.create(filename=FILENAME, status=ReelPost.STATUS_PUBLISHED,
+                                   facebook_status=ReelPost.FACEBOOK_PENDING)
+    with mock.patch('tools.reel_posts.reel_seconds', return_value=120.0), \
+            mock.patch('tools.services.facebook.requests.post') as fb_post, \
+            mock.patch('notifications.services.emit') as emit:
+        assert not reel_posts.start_facebook(reel_posts.claim_facebook(post.pk))
+    post.refresh_from_db()
+    assert post.facebook_status == ReelPost.FACEBOOK_SKIPPED
+    assert '90' in post.facebook_error
+    fb_post.assert_not_called()
+    emit.assert_not_called()
+
+
+@pytest.mark.django_db
+def test_facebook_daily_limit(facebook):
+    for index in range(ReelPost.FACEBOOK_DAILY_LIMIT):
+        ReelPost.objects.create(filename=f'{index}_Reel_261113.mp4',
+                                facebook_published_at=timezone.now())
+    post = ReelPost.objects.create(filename=FILENAME)
+    with mock.patch('tools.reel_posts.reel_seconds', return_value=30.0):
+        assert '30' in reel_posts.facebook_problem(post)
+
+
+@pytest.mark.django_db
+def test_facebook_processing_error_is_reported(facebook):
+    post = ReelPost.objects.create(filename=FILENAME, status=ReelPost.STATUS_PUBLISHED,
+                                   facebook_status=ReelPost.FACEBOOK_PUBLISHING,
+                                   facebook_video_id='V1')
+    with mock.patch('tools.services.facebook.requests.get', side_effect=[
+            _response(payload={'access_token': 'PAGE'}),
+            _response(payload={'status': {'video_status': 'error', 'processing_phase': {
+                'status': 'error', 'errors': [{'message': 'Bad aspect ratio'}]}}})]), \
+            mock.patch('notifications.services.emit'):
+        assert reel_posts.check_facebook(post) == 'failed'
+    post.refresh_from_db()
+    assert post.facebook_status == ReelPost.FACEBOOK_FAILED
+    assert 'Bad aspect ratio' in post.facebook_error
+
+
+@pytest.mark.django_db
+def test_admin_sends_a_published_reel_to_facebook_again(client, facebook, admin_user):
+    post = ReelPost.objects.create(filename=FILENAME, status=ReelPost.STATUS_PUBLISHED,
+                                   facebook_status=ReelPost.FACEBOOK_FAILED, facebook_error='x')
+    client.force_login(admin_user)
+    with mock.patch('tools.tasks.publish_reel_to_facebook.delay') as to_facebook:
+        client.post(reverse('admin:tools_reelpost_changelist'), {
+            'action': 'facebook_again_action', '_selected_action': [post.pk]})
+    to_facebook.assert_called_once_with(post.pk, retry=True)

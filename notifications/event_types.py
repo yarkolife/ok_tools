@@ -663,6 +663,22 @@ TOOLS_INSTAGRAM_POST_FAILED = register(EventType(
     feature_check='tools.reel_posts.instagram_active',
 ))
 
+TOOLS_FACEBOOK_POST_FAILED = register(EventType(
+    code='tools.facebook_post_failed',
+    module='tools',
+    label=_('Facebook reel failed'),
+    description=_(
+        'A reel published on Instagram could not be published on the Facebook '
+        'page. Instagram is not affected; the post shows the reason and can be '
+        'sent to Facebook again.'),
+    message=_('{post}: {error}'),
+    category=CATEGORY_ACTION_REQUIRED,
+    source=SOURCE_SIGNAL,
+    model='tools.ReelPost',
+    settings_flag='TOOLS_ENABLED',
+    feature_check='tools.reel_posts.facebook_active',
+))
+
 TOOLS_INSTAGRAM_STORY_REMINDER = register(EventType(
     code='tools.instagram_story_reminder',
     module='tools',
