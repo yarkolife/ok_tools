@@ -693,7 +693,52 @@ def start_facebook(post: ReelPost) -> bool:
         _fail_facebook(post, str(exc))
         return False
     post.save(update_fields=['facebook_video_id', 'updated_at'])
+    _set_facebook_cover(post)
     return True
+
+
+def cover_frame(post: ReelPost) -> bytes | None:
+    """The reel's cover frame (``thumb_offset_ms``) as JPEG, or None."""
+    import subprocess
+    import tempfile
+
+    from django.conf import settings
+
+    config = ToolsConfig.get_config()
+    path = config.resolve_reel_output_file(post.filename)
+    if path is None:
+        return None
+    ffmpeg = getattr(settings, 'TOOLS_FFMPEG_PATH', '') or config.ffmpeg_path or 'ffmpeg'
+    with tempfile.TemporaryDirectory() as folder:
+        target = Path(folder) / 'cover.jpg'
+        try:
+            subprocess.run(
+                [ffmpeg, '-v', 'error', '-ss', f'{post.thumb_offset_ms / 1000:.3f}', '-i', str(path),
+                 '-frames:v', '1', '-q:v', '2', '-y', str(target)],
+                capture_output=True, timeout=60, check=True)
+            return target.read_bytes()
+        except (OSError, subprocess.SubprocessError):
+            logger.warning('Could not cut the cover frame of reel %s', post.filename)
+            return None
+
+
+def _set_facebook_cover(post: ReelPost) -> None:
+    """Give the Facebook reel the cover frame Instagram gets.
+
+    Without a frame (0, reels from before the renderer chose one) Facebook
+    picks its own. A failure only costs the cover, never the reel.
+    """
+    from .services import facebook
+
+    if post.thumb_offset_ms <= 0:
+        return
+    image = cover_frame(post)
+    if not image:
+        return
+    try:
+        facebook.set_cover(ToolsConfig.get_config(), post.facebook_video_id, image)
+    except facebook.FacebookError as exc:
+        logger.warning('Facebook cover of post %s not set: %s', post.pk, exc)
 
 
 def check_facebook(post: ReelPost) -> str:

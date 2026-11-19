@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+2026-11-19 (Version 4.80.1)
+==========================
+
+* Fixed: Reels on the Facebook page got a cover chosen by Facebook instead of the frame the reel renderer picked for Instagram. The frame at "Cover frame (ms)" is now cut from the reel and set as the cover of the Facebook reel. Reels without a cover frame (0) keep Facebook's choice; if the cover cannot be set, the reel is published anyway.
+
 2026-11-19 (Version 4.80.0)
 ==========================
 

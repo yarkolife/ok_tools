@@ -683,6 +683,65 @@ def test_reel_goes_to_facebook_after_instagram(facebook, home_license):
     assert post.facebook_published_at is not None
 
 
+def _facebook_publish_calls():
+    return [
+        _response(payload={'video_id': 'V1'}),
+        _response(payload={'success': True}),
+        _response(payload={'success': True}),
+    ]
+
+
+@pytest.mark.django_db
+def test_facebook_reel_gets_the_instagram_cover_frame(facebook):
+    post = ReelPost.objects.create(filename=FILENAME, status=ReelPost.STATUS_PUBLISHED,
+                                   facebook_status=ReelPost.FACEBOOK_PENDING, thumb_offset_ms=1600)
+    with mock.patch('tools.reel_posts.reel_seconds', return_value=30.0), \
+            mock.patch('tools.reel_posts.cover_frame', return_value=b'JPEG') as frame, \
+            mock.patch('tools.services.facebook.requests.get',
+                       return_value=_response(payload={'access_token': 'PAGE'})), \
+            mock.patch('tools.services.facebook.requests.post',
+                       side_effect=_facebook_publish_calls() + [
+                           _response(payload={'success': True})]) as fb_post:
+        assert reel_posts.start_facebook(reel_posts.claim_facebook(post.pk))
+    frame.assert_called_once()
+    cover = fb_post.call_args_list[-1]
+    assert cover.args[0] == 'https://graph.facebook.com/v27.0/V1/thumbnails'
+    assert cover.kwargs['data'] == {'is_preferred': 'true', 'access_token': 'PAGE'}
+    assert cover.kwargs['files']['source'][1] == b'JPEG'
+
+
+@pytest.mark.django_db
+def test_facebook_cover_problems_do_not_stop_the_reel(facebook):
+    post = ReelPost.objects.create(filename=FILENAME, status=ReelPost.STATUS_PUBLISHED,
+                                   facebook_status=ReelPost.FACEBOOK_PENDING, thumb_offset_ms=1600)
+    error = _response(400, {'error': {'message': 'No permission', 'code': 200}})
+    with mock.patch('tools.reel_posts.reel_seconds', return_value=30.0), \
+            mock.patch('tools.reel_posts.cover_frame', return_value=b'JPEG'), \
+            mock.patch('tools.services.facebook.requests.get',
+                       return_value=_response(payload={'access_token': 'PAGE'})), \
+            mock.patch('tools.services.facebook.requests.post',
+                       side_effect=_facebook_publish_calls() + [error]):
+        assert reel_posts.start_facebook(reel_posts.claim_facebook(post.pk))
+    post.refresh_from_db()
+    assert post.facebook_status == ReelPost.FACEBOOK_PUBLISHING
+    assert post.facebook_video_id == 'V1'
+
+
+@pytest.mark.django_db
+def test_reel_without_a_cover_frame_keeps_facebooks_choice(facebook):
+    post = ReelPost.objects.create(filename=FILENAME, status=ReelPost.STATUS_PUBLISHED,
+                                   facebook_status=ReelPost.FACEBOOK_PENDING, thumb_offset_ms=0)
+    with mock.patch('tools.reel_posts.reel_seconds', return_value=30.0), \
+            mock.patch('tools.reel_posts.cover_frame') as frame, \
+            mock.patch('tools.services.facebook.requests.get',
+                       return_value=_response(payload={'access_token': 'PAGE'})), \
+            mock.patch('tools.services.facebook.requests.post',
+                       side_effect=_facebook_publish_calls()) as fb_post:
+        assert reel_posts.start_facebook(reel_posts.claim_facebook(post.pk))
+    frame.assert_not_called()
+    assert len(fb_post.call_args_list) == 3
+
+
 @pytest.mark.django_db
 def test_without_facebook_instagram_works_as_before(config, home_license):
     post = _published_on_instagram(home_license)

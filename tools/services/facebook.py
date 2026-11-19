@@ -58,10 +58,11 @@ def _result(response) -> dict:
     return data if isinstance(data, dict) else {}
 
 
-def _request(method: str, url: str, *, params=None, headers=None) -> dict:
+def _request(method: str, url: str, *, params=None, headers=None, files=None) -> dict:
     try:
         if method == 'POST':
-            response = requests.post(url, data=params or {}, headers=headers, timeout=TIMEOUT)
+            response = requests.post(url, data=params or {}, headers=headers, files=files,
+                                     timeout=TIMEOUT)
         else:
             response = requests.get(url, params=params or {}, headers=headers, timeout=TIMEOUT)
     except requests.RequestException as exc:
@@ -112,6 +113,16 @@ def publish_reel(config, *, video_url: str, description: str = '') -> str:
     if not finished.get('success', True):
         raise FacebookError('Facebook did not publish the reel.')
     return video_id
+
+
+def set_cover(config, video_id: str, image: bytes) -> None:
+    """Upload a JPEG as the preferred cover of a published reel."""
+    token = page_token(config)
+    data = _request('POST', f'{_graph(config)}/{video_id}/thumbnails',
+                    params={'is_preferred': 'true', 'access_token': token},
+                    files={'source': ('cover.jpg', image, 'image/jpeg')})
+    if not data.get('success', True):
+        raise FacebookError('Facebook did not accept the cover.')
 
 
 def reel_status(config, video_id: str) -> tuple[str, str]:
