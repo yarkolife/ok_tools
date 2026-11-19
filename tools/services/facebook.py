@@ -24,6 +24,9 @@ import requests
 logger = logging.getLogger('django')
 
 TIMEOUT = 30
+# The upload call only answers after Facebook has downloaded the reel from
+# our server; that takes longer than an ordinary API call.
+UPLOAD_TIMEOUT = 300
 GRAPH_HOST = 'graph.facebook.com'
 UPLOAD_HOST = 'rupload.facebook.com'
 
@@ -58,13 +61,14 @@ def _result(response) -> dict:
     return data if isinstance(data, dict) else {}
 
 
-def _request(method: str, url: str, *, params=None, headers=None, files=None) -> dict:
+def _request(method: str, url: str, *, params=None, headers=None, files=None,
+             timeout=TIMEOUT) -> dict:
     try:
         if method == 'POST':
             response = requests.post(url, data=params or {}, headers=headers, files=files,
-                                     timeout=TIMEOUT)
+                                     timeout=timeout)
         else:
-            response = requests.get(url, params=params or {}, headers=headers, timeout=TIMEOUT)
+            response = requests.get(url, params=params or {}, headers=headers, timeout=timeout)
     except requests.RequestException as exc:
         raise FacebookError(f'Facebook is not reachable: {exc}') from exc
     return _result(response)
@@ -90,17 +94,24 @@ def page_info(config) -> dict:
     return {'name': data.get('name', ''), 'link': data.get('link', '')}
 
 
-def publish_reel(config, *, video_url: str, description: str = '') -> str:
-    """Upload a reel from its public URL and publish it; return the video ID."""
+def publish_reel(config, *, video_url: str, description: str = '', started=None) -> str:
+    """Upload a reel from its public URL and publish it; return the video ID.
+
+    ``started(video_id)`` is called as soon as Facebook has assigned the ID,
+    so a later failure can still be traced to that video.
+    """
     token = page_token(config)
     reels = f'{_graph(config)}/{config.facebook_page_id}/video_reels'
-    started = _request('POST', reels, params={'upload_phase': 'start', 'access_token': token})
-    video_id = str(started.get('video_id') or '')
+    session = _request('POST', reels, params={'upload_phase': 'start', 'access_token': token})
+    video_id = str(session.get('video_id') or '')
     if not video_id:
         raise FacebookError('Facebook returned no video ID.')
+    if started is not None:
+        started(video_id)
     uploaded = _request(
         'POST', f'https://{UPLOAD_HOST}/video-upload/{_version(config)}/{video_id}',
-        headers={'Authorization': f'OAuth {token}', 'file_url': video_url})
+        headers={'Authorization': f'OAuth {token}', 'file_url': video_url},
+        timeout=UPLOAD_TIMEOUT)
     if not uploaded.get('success'):
         raise FacebookError('Facebook did not accept the video upload.')
     finished = _request('POST', reels, params={

@@ -684,11 +684,15 @@ def start_facebook(post: ReelPost) -> bool:
     if not video_url.startswith('https://'):
         _fail_facebook(post, 'SITE_BASE_URL must be a public https address, Facebook downloads the video from there.')
         return False
+    def remember(video_id):
+        post.facebook_video_id = video_id
+        post.save(update_fields=['facebook_video_id', 'updated_at'])
+
     try:
         # The caption already carries the broadcast time and Mediathek link
         # filled in for Instagram.
         post.facebook_video_id = facebook.publish_reel(
-            config, video_url=video_url, description=post.caption)
+            config, video_url=video_url, description=post.caption, started=remember)
     except facebook.FacebookError as exc:
         _fail_facebook(post, str(exc))
         return False

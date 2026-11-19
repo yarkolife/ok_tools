@@ -728,6 +728,27 @@ def test_facebook_cover_problems_do_not_stop_the_reel(facebook):
 
 
 @pytest.mark.django_db
+def test_facebook_upload_waits_for_the_download_and_keeps_the_video_id(facebook):
+    import requests
+
+    post = ReelPost.objects.create(filename=FILENAME, status=ReelPost.STATUS_PUBLISHED,
+                                   facebook_status=ReelPost.FACEBOOK_PENDING)
+    with mock.patch('tools.reel_posts.reel_seconds', return_value=30.0), \
+            mock.patch('tools.services.facebook.requests.get',
+                       return_value=_response(payload={'access_token': 'PAGE'})), \
+            mock.patch('tools.services.facebook.requests.post', side_effect=[
+                _response(payload={'video_id': 'V1'}),
+                requests.ReadTimeout('Read timed out.')]) as fb_post, \
+            mock.patch('notifications.services.emit'):
+        assert not reel_posts.start_facebook(reel_posts.claim_facebook(post.pk))
+    from tools.services import facebook as facebook_api
+    assert fb_post.call_args_list[1].kwargs['timeout'] == facebook_api.UPLOAD_TIMEOUT
+    post.refresh_from_db()
+    assert post.facebook_status == ReelPost.FACEBOOK_FAILED
+    assert post.facebook_video_id == 'V1'
+
+
+@pytest.mark.django_db
 def test_reel_without_a_cover_frame_keeps_facebooks_choice(facebook):
     post = ReelPost.objects.create(filename=FILENAME, status=ReelPost.STATUS_PUBLISHED,
                                    facebook_status=ReelPost.FACEBOOK_PENDING, thumb_offset_ms=0)

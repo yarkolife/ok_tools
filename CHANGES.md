@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+2026-11-19 (Version 4.80.2)
+==========================
+
+* Fixed: A reel could fail on Facebook with "Read timed out (read timeout=30)": the upload call only answers after Facebook has downloaded the reel from our server, which can take longer than 30 seconds, especially with several reels at once. The upload now waits up to 5 minutes, and the Facebook video ID is kept as soon as Facebook assigns it.
+
 2026-11-19 (Version 4.80.1)
 ==========================
 
