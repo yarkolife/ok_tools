@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+2026-11-19 (Version 4.79.3)
+==========================
+
+* Fixed: "Planned own production without a cover" ran on installations without cover generation. There is no cover directory there, so every planned premiere with a video would have been reported. The reminder now only runs when cover generation is switched on and has an output directory, like the reel reminders only run with a working Reel Studio.
+
 2026-11-19 (Version 4.79.2)
 ==========================
 

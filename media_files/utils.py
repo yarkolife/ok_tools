@@ -1203,6 +1203,15 @@ def get_cover_output_dir() -> str:
         return ''
 
 
+def cover_generation_active() -> bool:
+    """Covers are generated here, so a missing one is worth reporting.
+
+    Without cover generation there is no cover directory, every licence would
+    count as "without cover" and the reminder would fire for each premiere.
+    """
+    return bool(get_cover_output_dir())
+
+
 def has_cover(number, cover_output_dir: Optional[str] = None) -> bool:
     """Return whether a canonical cover file exists for a license number."""
     directory = (

@@ -379,6 +379,16 @@ def _configure_reel_studio(enabled=True):
     return config_obj
 
 
+def _configure_covers(directory):
+    """Switch cover generation on, writing covers to ``directory``."""
+    from media_files.models import MediaFilesConfig
+
+    media_config = MediaFilesConfig.get_config()
+    media_config.cover_enabled = True
+    media_config.cover_output_dir = str(directory)
+    media_config.save()
+
+
 def _reel_feed_row(client, license_obj, authority, storage, admin_user):
     """Store the reel finding and return its row as the feed page serves it."""
     from notifications import selectors
@@ -471,6 +481,23 @@ def test_missing_cover_reports_own_planned_production(synced, license,
     assert run_check('media_files.missing_cover') == []
 
 
+def test_missing_cover_is_off_without_cover_generation(synced, tmp_path,
+                                                      settings):
+    """No cover generation, no cover reminder: it would hit every premiere."""
+    from media_files.models import MediaFilesConfig
+
+    settings.MEDIA_FILES_ENABLED = True
+    media_config = MediaFilesConfig.get_config()
+    media_config.cover_enabled = False
+    media_config.save()
+    assert config.is_enabled('media_files.missing_cover') is False
+
+    media_config.cover_enabled = True
+    media_config.cover_output_dir = str(tmp_path)
+    media_config.save()
+    assert config.is_enabled('media_files.missing_cover') is True
+
+
 def test_missing_cover_ignores_license_with_previous_contribution(
         synced, license, contribution_dict, own_authority, storage):
     """Only the premiere needs a cover; repetitions reuse existing assets."""
@@ -483,12 +510,13 @@ def test_missing_cover_ignores_license_with_previous_contribution(
 
 
 def test_missing_cover_event_resolves_after_first_contribution(
-        synced, license, contribution_dict, own_authority, storage):
+        synced, license, contribution_dict, own_authority, storage, tmp_path):
     """A stored cover task disappears once the premiere was broadcast."""
     from notifications.process_state import inactive_event_ids
     from notifications.services import emit
     from ok_tools.testing import create_contribution
 
+    _configure_covers(tmp_path)
     _plan_own_license(license, own_authority, storage)
     finding = run_check('media_files.missing_cover')[0]
     event = emit(
@@ -687,12 +715,13 @@ def test_task_failures_are_grouped_by_task(synced, db):
 # ---------------------------------------------------------------------------
 
 def test_committed_plan_emits_missing_asset_events_immediately(
-        synced, license, own_authority, storage):
+        synced, license, own_authority, storage, tmp_path):
     """A newly committed plan need not wait for tomorrow's digest scan."""
     from media_files.models import VideoFile
     from planung.models import TagesPlan
 
     _configure_reel_studio()
+    _configure_covers(tmp_path)
     profile = license.profile
     profile.media_authority = own_authority
     profile.save()

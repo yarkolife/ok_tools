@@ -354,6 +354,9 @@ MEDIA_MISSING_COVER = register(EventType(
     source=SOURCE_SCAN,
     model='licenses.License',
     settings_flag='MEDIA_FILES_ENABLED',
+    # Only where covers are generated; otherwise every premiere would count
+    # as missing one.
+    feature_check='media_files.utils.cover_generation_active',
     params=(
         ParamSpec(
             name='horizon_days',
