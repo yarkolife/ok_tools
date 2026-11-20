@@ -73,9 +73,12 @@ Entwurf: über den Link das Einverständnis bestätigen und einreichen. Sonst
 geht er direkt zur Freigabe.
 
 !!! warnung ""
-    E-Mails ohne Code, von unbekannten Adressen oder von Personen ohne das
-    Recht, Beiträge anzulegen, werden ohne Antwort ignoriert. Den Code nicht
-    weitergeben.
+    E-Mails von unbekannten Adressen oder von Personen ohne das Recht,
+    Beiträge anzulegen, werden ohne Antwort ignoriert. Fehlt nur der Code (oder
+    ist er veraltet), bekommt die Absenderin bzw. der Absender eine kurze
+    Nachricht – ohne den Code; den aktuellen zeigt **Neuer Beitrag**. Den Code
+    nicht weitergeben; die Verwaltung kann ihn jederzeit in der
+    Beitrags-Konfiguration ändern, z. B. wenn jemand das Team verlässt.
 
 ## 3. Prüfen und freigeben, auch am Handy {#freigeben}
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-20 14:25+0000\n"
+"POT-Creation-Date: 2026-11-20 14:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -694,6 +694,27 @@ msgstr "Bitte ändern und erneut einreichen:"
 #, python-format
 msgid "Post not approved: %(titel)s"
 msgstr "Beitrag nicht freigegeben: %(titel)s"
+
+#: templates/email/beitrag_code_fehlt_body.txt:1
+#, python-format
+msgid ""
+"Your mail \"%(subject)s\" did not become a post: the code for posts was "
+"missing in the subject, or it is an old one."
+msgstr "Aus deiner E-Mail „%(subject)s“ ist kein Beitrag geworden: Der Code für Beiträge fehlte im Betreff, oder es ist ein alter."
+
+#: templates/email/beitrag_code_fehlt_body.txt:3
+msgid ""
+"The current code and the address are shown on the page \"New post\" (login "
+"needed):"
+msgstr "Den aktuellen Code und die Adresse zeigt die Seite „Neuer Beitrag“ (Anmeldung nötig):"
+
+#: templates/email/beitrag_code_fehlt_body.txt:6
+msgid "Send the mail again with the code in the subject."
+msgstr "Bitte die E-Mail mit dem Code im Betreff erneut senden."
+
+#: templates/email/beitrag_code_fehlt_subject.txt:1
+msgid "Your mail was not taken as a post"
+msgstr "Deine E-Mail wurde nicht als Beitrag übernommen"
 
 #: templates/email/beitrag_eingang_body.txt:1
 #, python-format

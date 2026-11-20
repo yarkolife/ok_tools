@@ -137,3 +137,32 @@ def tell_author_received(beitrag: Beitrag, submitted: bool) -> None:
         'fotos': beitrag.fotos.count(),
         'url': absolute_url(reverse(f'beitraege:{page}', args=[beitrag.pk])),
     })
+
+
+def tell_code_missing(user, subject: str) -> None:
+    """Tell a colleague that the mail lacked the code (the code is not repeated).
+
+    Marked as an automatic reply, so out-of-office answers do not bounce back
+    and our own mailbox ignores answers to it.
+    """
+    from .workflow import absolute_url
+    from django.core.mail import EmailMessage
+    from django.template.loader import render_to_string
+    from django.urls import reverse
+
+    if not user.email:
+        return
+    language = (getattr(settings, 'LANGUAGE_CODE', 'de') or 'de').split('-')[0]
+    context = {'subject': subject, 'url': absolute_url(reverse('beitraege:neu'))}
+    try:
+        with translation.override(language):
+            title = render_to_string('email/beitrag_code_fehlt_subject.txt', context).strip()
+            body = render_to_string('email/beitrag_code_fehlt_body.txt', context)
+        EmailMessage(
+            subject=' '.join(title.splitlines()), body=body,
+            from_email=(getattr(settings, 'DEFAULT_FROM_EMAIL', '') or getattr(settings, 'EMAIL_HOST_USER', '')),
+            to=[user.email],
+            headers={'Auto-Submitted': 'auto-replied', 'X-Auto-Response-Suppress': 'All'},
+        ).send()
+    except Exception:
+        logger.exception('Could not tell %s about the missing code', user.email)

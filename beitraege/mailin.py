@@ -4,7 +4,9 @@ Staff send a mail to the posts mailbox: subject = title, text = text,
 attached photos = photos. Every 5 minutes the mailbox is read over IMAP.
 
 Only mails that pass all checks become posts; the others are marked as
-read and ignored without an answer (no mail to forged or unknown senders):
+read and ignored without an answer (no mail to forged or unknown senders),
+except one case: staff allowed to add posts who forgot the code (or used an
+old one) get a short note, without the code, at their address on file.
 
 - the subject contains the code of the post configuration (a sender address
   alone can be forged),
@@ -49,7 +51,16 @@ _PREFIX = re.compile(r'^\s*((re|aw|fwd?|wg)\s*:\s*)+', re.I)
 
 
 class Ignored(Exception):
-    """The mail is not taken; the message says why (for the log only)."""
+    """The mail is not taken; the message says why (for the log).
+
+    ``tell`` is the staff member to inform: only set when a person allowed to
+    add posts wrote without the code, never for unknown or forged senders.
+    """
+
+    def __init__(self, reason, tell=None, subject=''):
+        super().__init__(reason)
+        self.tell = tell
+        self.subject = subject
 
 
 def _text_of(message) -> str:
@@ -108,13 +119,15 @@ def parse(raw: bytes, config: BeitragsConfig) -> dict:
     if (message.get('Auto-Submitted', 'no') or 'no').lower() != 'no' or message.get('X-Autoreply'):
         raise Ignored('automatic mail')
     subject = str(message.get('Subject', '') or '')
-    code = (config.mail_code or '').strip()
-    if not code or code.lower() not in subject.lower():
-        raise Ignored('code missing in the subject')
     sender = parseaddr(str(message.get('From', '')))[1].strip().lower()
     user = get_user_model().objects.filter(email__iexact=sender, is_active=True).first()
     if user is None or not user.has_perm('beitraege.add_beitrag'):
         raise Ignored(f'sender {sender!r} may not add posts')
+    code = (config.mail_code or '').strip()
+    if not code or code.lower() not in subject.lower():
+        # A colleague with an old or forgotten code is told; the reply goes to
+        # the address on file only, so a forged sender reaches nobody else.
+        raise Ignored('code missing in the subject', tell=user, subject=subject)
 
     text = _text_of(message)
     title = re.sub(re.escape(code), '', subject, flags=re.I)
@@ -149,6 +162,9 @@ def import_mail(raw: bytes, config: BeitragsConfig | None = None) -> Beitrag | N
         data = parse(raw, config)
     except Ignored as reason:
         logger.info('Mail for posts ignored: %s', reason)
+        if reason.tell is not None:
+            from .notify import tell_code_missing
+            tell_code_missing(reason.tell, reason.subject)
         return None
     if data['message_id'] and Beitrag.objects.filter(mail_message_id=data['message_id']).exists():
         logger.info('Mail %s was imported before', data['message_id'])

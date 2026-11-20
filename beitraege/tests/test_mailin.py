@@ -83,14 +83,25 @@ def test_photos_without_consent_stay_a_draft_for_the_author(mailbox, reporter):
 
 
 @pytest.mark.parametrize('kwargs', [
-    {'subject': 'Sommerfest ohne Code'},
     {'sender': 'fremd@example.org'},
+    {'sender': 'fremd@example.org', 'subject': 'ohne Code'},
     {'headers': {'Auto-Submitted': 'auto-replied'}},
+    {'headers': {'Auto-Submitted': 'auto-replied'}, 'subject': 'ohne Code'},
 ])
 def test_mails_that_fail_a_check_are_ignored_silently(mailbox, reporter, kwargs):
     OKUser.objects.create_user('fremd@example.org', password='pw')  # no right to add posts
     assert mailin.import_mail(_mail(**kwargs), mailbox) is None
     assert not Beitrag.objects.exists() and mail.outbox == []
+
+
+def test_colleague_without_the_code_gets_a_note_without_the_code(mailbox, reporter):
+    assert mailin.import_mail(_mail(subject='Sommerfest im Hof'), mailbox) is None
+    assert not Beitrag.objects.exists()
+    note = mail.outbox[0]
+    assert note.to == ['reporter@example.org']
+    assert note.extra_headers['Auto-Submitted'] == 'auto-replied'
+    assert 'Sommerfest im Hof' in note.body and '/beitraege/neu/' in note.body
+    assert '#okpost' not in note.body and '#okpost' not in note.subject
 
 
 def test_a_mail_is_never_imported_twice(mailbox, reporter):

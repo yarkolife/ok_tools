@@ -1,0 +1,1 @@
+{% load i18n %}{% trans "Your mail was not taken as a post" %}

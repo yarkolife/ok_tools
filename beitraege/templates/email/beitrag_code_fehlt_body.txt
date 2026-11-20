@@ -1,0 +1,7 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate %}Your mail "{{ subject }}" did not become a post: the code for posts was missing in the subject, or it is an old one.{% endblocktranslate %}
+
+{% trans 'The current code and the address are shown on the page "New post" (login needed):' %}
+{{ url }}
+
+{% trans "Send the mail again with the code in the subject." %}
+{% endautoescape %}
