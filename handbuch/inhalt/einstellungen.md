@@ -402,6 +402,40 @@ Wechsel werden auch die bereits veröffentlichten Reels sichtbar.
 | Systemnutzer erscheint nicht unter Unternehmenseinstellungen → Systemnutzer | Normal: Meta legt ihn beim Anmelden (Schritt 6) selbst an. Rechte ändern Sie über die Konfiguration und eine neue Anmeldung, nicht dort. |
 | Neuer Token nötig (Seite gewechselt, Rechte geändert) | Schritte 6–8 wiederholen; der alte Token bleibt bis zum Ersetzen gültig. |
 
+### Beiträge: Instagram, Facebook und Website {#beitraege}
+
+Nur wenn das Modul Beiträge aktiv ist (`BEITRAEGE_ENABLED` in der `.env`).
+Wie Beiträge geschrieben und freigegeben werden, steht im Kapitel
+[Beiträge](../beitraege/).
+
+**Beitrags-Konfiguration** (Kachel):
+
+| Feld | Wirkung |
+|---|---|
+| Auf Instagram / Facebook veröffentlichen | Nutzen Konto, Seite und Token aus dem Abschnitt Instagram oben (Facebook nur mit Facebook-Login und Seiten-ID). |
+| Auf der Website veröffentlichen, WordPress-Adresse, -Benutzer, -Anwendungspasswort | Die WordPress-Website des Senders. Das Anwendungspasswort legen Sie in WordPress unter *Benutzer → Profil → Anwendungspasswörter* an; der Benutzer braucht das Recht, Beiträge zu veröffentlichen. Beiträge erscheinen dort sofort, mit Titelbild und Galerie. |
+| Freigabe per E-Mail | Freigebende bekommen eine E-Mail mit persönlichem Link zur Prüfseite (ohne Anmeldung, 7 Tage gültig). Aus: nur die Benachrichtigung in OK-Tools. |
+| Verbindung | **Verbindungen testen** prüft Website, Instagram und Facebook, ohne etwas zu veröffentlichen. |
+
+**Themen** (*Einstellungen & Stammdaten → Themen*): Jeder Beitrag gehört zu
+einem Thema; „Aktuell“ ist für alles, was in kein anderes passt.
+
+| Feld | Wirkung |
+|---|---|
+| Hashtags | Kommen in jeden Instagram- und Facebook-Text des Themas. Instagram erlaubt höchstens 5 Hashtags je Beitrag. |
+| Signatur auf Instagram / Facebook / Website | Letzte Zeilen des Textes auf der jeweiligen Plattform, z. B. „Mehr dazu: Link in Bio“. |
+| WordPress-Kategorien, -Schlagwörter | Namen, durch Komma getrennt; fehlende legt OK-Tools auf der Website an. |
+| Instagram / Facebook / Website voreingestellt | Welche Plattformen beim Schreiben angehakt sind. |
+| Freigebende | Wer Beiträge dieses Themas freigeben darf. |
+
+**Rechte** (*Nutzer & Projekte*): „Beitrag hinzufügen“ zum Schreiben (z. B.
+für alle Mitarbeitenden über eine Gruppe), „Darf Beiträge aller Themen
+freigeben“ für Freigebende aller Themen. Eine Freigabe genügt.
+
+Die periodische Aufgabe „Beiträge: freigegebene Beiträge veröffentlichen“
+läuft alle 5 Minuten und veröffentlicht Beiträge mit geplanter Zeit; sie wird
+beim Speichern der Beitrags-Konfiguration eingerichtet.
+
 ## 11. Benachrichtigungen {#benachrichtigungen}
 
 **Benachrichtigungs-Konfiguration** (Kachel): Hauptschalter für alle

@@ -1776,3 +1776,36 @@ msgstr "Facebook-Reel fehlgeschlagen"
 
 msgid "A reel published on Instagram could not be published on the Facebook page. Instagram is not affected; the post shows the reason and can be sent to Facebook again."
 msgstr "Ein auf Instagram veröffentlichtes Reel konnte nicht auf der Facebook-Seite veröffentlicht werden. Instagram ist nicht betroffen; der Beitrag zeigt den Grund und kann erneut zu Facebook geschickt werden."
+
+msgid "Posts"
+msgstr "Beiträge"
+
+msgid "Post waiting for approval"
+msgstr "Beitrag wartet auf Freigabe"
+
+msgid "A post (photos and text for Instagram, Facebook and the website) was submitted. Approvers of its topic and of every topic can check and approve it; one approval publishes it on all its platforms."
+msgstr "Ein Beitrag (Fotos und Text für Instagram, Facebook und die Website) wurde eingereicht. Freigebende des Themas und aller Themen können ihn prüfen und freigeben; eine Freigabe veröffentlicht ihn auf allen seinen Plattformen."
+
+#, python-brace-format
+msgid "{thema}: {titel}"
+msgstr "{thema}: {titel}"
+
+msgid "Post sent back"
+msgstr "Beitrag zurückgegeben"
+
+msgid "An approver sent a post back to its author with a reason."
+msgstr "Eine freigebende Person hat einen Beitrag mit Begründung zurückgegeben."
+
+#, python-brace-format
+msgid "{titel}: {grund}"
+msgstr "{titel}: {grund}"
+
+msgid "Post could not be published"
+msgstr "Beitrag konnte nicht veröffentlicht werden"
+
+msgid "An approved post could not be published on one or more platforms. The other platforms are not affected; the post shows the reason and can be published again."
+msgstr "Ein freigegebener Beitrag konnte auf einer oder mehreren Plattformen nicht veröffentlicht werden. Die anderen Plattformen sind nicht betroffen; der Beitrag zeigt den Grund und kann erneut veröffentlicht werden."
+
+#, python-brace-format
+msgid "{titel}: {fehler}"
+msgstr "{titel}: {fehler}"

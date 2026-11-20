@@ -1,0 +1,95 @@
+Ein Beitrag ist ein Text mit bis zu 10 Fotos, der einmal geschrieben und nach
+**einer** Freigabe auf Instagram, Facebook und der Website veröffentlicht
+wird. Jede Plattform bekommt ihren eigenen Text: Er entsteht aus dem Beitrag
+und seinem Thema (Hashtags, Signatur) und kann vor der Freigabe geändert
+werden.
+
+[TOC]
+
+## 1. So läuft ein Beitrag {#ablauf}
+
+1. Jemand schreibt den Beitrag – am Handy direkt vor Ort oder am Rechner –
+   und reicht ihn ein.
+2. Alle, die das Thema freigeben dürfen, bekommen eine Benachrichtigung in
+   OK-Tools und eine E-Mail mit einem persönlichen Link.
+3. Eine dieser Personen prüft und gibt frei. **Eine Freigabe genügt.**
+4. OK-Tools veröffentlicht den Beitrag sofort oder zur gewählten Zeit auf
+   allen eingeschalteten Plattformen und trägt die Links ein.
+
+Wer was darf, legt die Verwaltung fest: Beiträge schreiben können alle mit dem
+Recht „Beitrag hinzufügen“, freigeben die Freigebenden eines Themas und alle
+mit dem Recht „Darf Beiträge aller Themen freigeben“.
+
+## 2. Beitrag am Handy schreiben {#schreiben}
+
+Die Seite **Neuer Beitrag** öffnen: in der Beitragsliste der Knopf **Neuer
+Beitrag (Handy)** oder direkt `https://<portal>/beitraege/neu/`. Tipp: die
+Seite im Handy-Browser „Zum Home-Bildschirm“ hinzufügen.
+
+![Formular „Neuer Beitrag“ mit Thema, Titel, Text, Fotos und Plattformen](bilder/b01-neuer-beitrag.jpg "Neuer Beitrag: einmal ausfüllen, für alle Plattformen.")
+
+| Feld | Hinweis |
+|---|---|
+| Thema | Bestimmt Hashtags, Signaturen, die Kategorie auf der Website und wer freigibt. Passt kein Thema, „Aktuell“ wählen. |
+| Titel, Text | Der Titel steht auf Instagram und Facebook oben, auf der Website ist er die Überschrift. |
+| Fotos | Bis zu 10, direkt aus der Kamera oder der Galerie; iPhone-Fotos (HEIC) gehen auch. Das erste ist das Titelbild. |
+| Einverständnis | Pflicht, sobald Fotos dabei sind: Alle erkennbaren Personen sind mit der Veröffentlichung einverstanden. |
+| Link | Z. B. die Mediathek. Auf Facebook und der Website anklickbar; auf Instagram nicht, darum steht er dort nicht im Text. |
+| Veröffentlichen auf | Voreingestellt vom Thema; nur eingerichtete Plattformen erscheinen. |
+| Veröffentlichen am | Leer: direkt nach der Freigabe. Sonst zur angegebenen Zeit. |
+
+**Zur Freigabe einreichen** schickt den Beitrag an die Freigebenden.
+
+!!! hinweis ""
+    Fotos werden beim Veröffentlichen automatisch aufbereitet: aufrecht
+    gedreht, ohne Standort- und Kameradaten, für Instagram im Format 4:5
+    zugeschnitten (der Ausschnitt lässt sich in der Verwaltung beim Foto unter
+    „Bildausschnitt“ verschieben).
+
+## 3. Prüfen und freigeben, auch am Handy {#freigeben}
+
+Der Link in der E-Mail öffnet die Prüfseite ohne Anmeldung; er ist persönlich
+und 7 Tage gültig. In OK-Tools führt **Prüfseite öffnen** im Beitrag dorthin.
+
+![Prüfseite mit Fotos und den Texten für Facebook, Instagram und Website](bilder/b02-beitrag-pruefen.jpg "Prüfseite: so erscheint der Beitrag auf jeder Plattform.")
+
+![Knöpfe Freigeben und Zurückgeben mit Feld für den Grund](bilder/b03-freigeben.jpg "Freigeben oder mit Grund zurückgeben.")
+
+- **Freigeben und veröffentlichen** (bzw. „zur geplanten Zeit“): Damit ist
+  der Beitrag für alle Plattformen freigegeben.
+- **An die Autorin / den Autor zurückgeben** mit einem Grund: Die Person
+  bekommt eine Benachrichtigung und eine E-Mail, ändert den Beitrag und
+  reicht ihn neu ein.
+- **Texte oder Fotos in OK-Tools ändern**: öffnet den Beitrag in der
+  Verwaltung.
+
+Fehlt etwas (z. B. ein Foto für Instagram, das Einverständnis oder mehr als
+5 Hashtags im Instagram-Text), steht der Grund über dem Knopf und die
+Freigabe ist gesperrt.
+
+## 4. In der Verwaltung {#verwaltung}
+
+*Tagesgeschäft → Beiträge* zeigt alle Beiträge mit Status und den Links auf
+die veröffentlichten Posts.
+
+- Im Beitrag stehen unten die **Fotos** (Reihenfolge, Bildausschnitt) und die
+  **Plattformen** mit ihrem Text. Ein hier geänderter Text bleibt so, auch
+  wenn später der Beitragstext geändert wird; die anderen werden neu
+  zusammengesetzt.
+- Wird ein freigegebener, noch nicht veröffentlichter Beitrag geändert, muss
+  er neu freigegeben werden.
+- Aktionen in der Liste: **Zur Freigabe einreichen**, **Freigeben**,
+  **Fehlgeschlagene Plattformen erneut veröffentlichen**.
+
+| Status | Bedeutung |
+|---|---|
+| Entwurf | Noch nicht eingereicht. |
+| Wartet auf Freigabe | Eingereicht; die Freigebenden sind benachrichtigt. |
+| Freigegeben | Wartet auf die geplante Zeit (oder wird gleich veröffentlicht). |
+| Veröffentlicht | Auf allen gewählten Plattformen online. |
+| Teilweise veröffentlicht / Fehlgeschlagen | Mindestens eine Plattform hat nicht geklappt; der Grund steht bei der Plattform. Die anderen sind trotzdem online. |
+| Zurückgegeben | Mit Grund an die Autorin / den Autor zurück. |
+
+!!! warnung ""
+    Ein veröffentlichter Post lässt sich nicht still zurücknehmen. Löschen
+    oder ändern auf Instagram, Facebook oder der Website geht nur dort.

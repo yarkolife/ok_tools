@@ -679,6 +679,45 @@ TOOLS_FACEBOOK_POST_FAILED = register(EventType(
     feature_check='tools.reel_posts.facebook_active',
 ))
 
+BEITRAEGE_SUBMITTED = register(EventType(
+    code='beitraege.submitted',
+    module='beitraege',
+    label=_('Post waiting for approval'),
+    description=_(
+        'A post (photos and text for Instagram, Facebook and the website) was '
+        'submitted. Approvers of its topic and of every topic can check and '
+        'approve it; one approval publishes it on all its platforms.'),
+    message=_('{thema}: {titel}'),
+    category=CATEGORY_ACTION_REQUIRED,
+    source=SOURCE_SIGNAL,
+    settings_flag='BEITRAEGE_ENABLED',
+))
+
+BEITRAEGE_REJECTED = register(EventType(
+    code='beitraege.rejected',
+    module='beitraege',
+    label=_('Post sent back'),
+    description=_('An approver sent a post back to its author with a reason.'),
+    message=_('{titel}: {grund}'),
+    category=CATEGORY_ACTION_REQUIRED,
+    source=SOURCE_SIGNAL,
+    settings_flag='BEITRAEGE_ENABLED',
+))
+
+BEITRAEGE_FAILED = register(EventType(
+    code='beitraege.failed',
+    module='beitraege',
+    label=_('Post could not be published'),
+    description=_(
+        'An approved post could not be published on one or more platforms. The '
+        'other platforms are not affected; the post shows the reason and can be '
+        'published again.'),
+    message=_('{titel}: {fehler}'),
+    category=CATEGORY_PROBLEM,
+    source=SOURCE_SIGNAL,
+    settings_flag='BEITRAEGE_ENABLED',
+))
+
 TOOLS_INSTAGRAM_STORY_REMINDER = register(EventType(
     code='tools.instagram_story_reminder',
     module='tools',

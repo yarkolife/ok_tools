@@ -1,0 +1,12 @@
+{% extends "beitraege/_base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="card state-done">
+  <h1>{{ title }}</h1>
+  <p>{% blocktranslate with titel=beitrag.titel thema=beitrag.thema.name %}"{{ titel }}" ({{ thema }}) is waiting for approval. The approvers have been told.{% endblocktranslate %}</p>
+  {% if may_approve %}
+    <a class="button" href="{% url 'beitraege:pruefen' beitrag.pk %}">{% trans "Check and approve it yourself" %}</a>
+  {% endif %}
+  <a class="button" href="{% url 'beitraege:neu' %}" style="background:transparent;color:var(--brand);border:1px solid var(--line)">{% trans "Write another post" %}</a>
+</div>
+{% endblock %}

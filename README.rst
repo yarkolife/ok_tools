@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.80.3
+**Current Version**: 4.81.0
 **Last Updated**: 20 November 2026
 
 Features
@@ -138,6 +138,22 @@ Features
     notification if Facebook fails, "Publish on Facebook again" in the post list; reels outside 3-90 seconds or over
     Facebook's 30 reels a day stay on Instagram, with a warning when approving
   - Optional module (enabled via TOOLS_ENABLED setting)
+
+- **Posts (Beiträge)** - One post with up to 10 photos, published on Instagram, Facebook and the website after one
+  approval (optional, ``BEITRAEGE_ENABLED``)
+
+  - Mobile page "Neuer Beitrag" for staff with the right to add posts: photos from the camera or gallery (HEIC
+    included), text, link, topic, platforms and an optional publishing time
+  - Topics per channel (e.g. Aktuell, Medienpädagogik) with hashtags, a signature per platform, WordPress
+    categories/tags, default platforms and their approvers; "approve all posts" covers every topic
+  - Every platform gets its own text built from the post and the topic, editable before approval; one approval
+    publishes on all platforms; approvers get a notification and a personal mail link to check and approve on the
+    phone without login
+  - Instagram photo or carousel (4:5 crop, focus adjustable), Facebook page post with several photos and a
+    clickable link, WordPress post (REST API, application password) with featured image, gallery, categories and
+    tags; photos are turned upright and stripped of location data
+  - Each platform keeps its own status and link; a failure raises a notification and can be published again
+    without touching the platforms that worked
 
 - **Manual (Handbuch)** - In-app manual for the staff (menu "Help") with the chapters "Inventar und Ausleihe" and "Einstellungen für Administratoren"; chapters show the release they were checked against and note when the installed version is newer; `python handbuch/aktualitaet.py --bump` confirms chapters whose pages did not change
 - **Version in the admin** - Installed version and commit shown at the bottom of the sidebar

@@ -1,0 +1,7 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with titel=beitrag.titel von=von.get_full_name|default:von.email %}Your post "{{ titel }}" was not approved by {{ von }}.{% endblocktranslate %}
+
+{% trans "Reason" %}: {{ beitrag.rejection_note|default:"-" }}
+
+{% trans "Change it and submit it again:" %}
+{{ url }}
+{% endautoescape %}

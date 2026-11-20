@@ -1,0 +1,11 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block object-tools-items %}
+  {% if ADMIN_UNFOLD_ENABLED %}<ul class="object-tools">{% endif %}
+  {{ block.super }}
+  <li>
+    <a href="{% url 'beitraege:neu' %}" class="addlink" title="{% trans 'The simple form for the phone: photos, text, topic, submit.' %}">{% trans "New post (phone)" %}</a>
+  </li>
+  {% if ADMIN_UNFOLD_ENABLED %}</ul>{% endif %}
+{% endblock %}

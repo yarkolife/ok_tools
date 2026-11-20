@@ -1,0 +1,40 @@
+{% extends "beitraege/_base.html" %}
+{% load i18n %}
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="card">
+  {% csrf_token %}
+  <h1>{{ title }}</h1>
+  <p class="meta">{% trans "Written once, published on the platforms you choose after one approval." %}</p>
+  {% if form.non_field_errors %}<ul class="errorlist">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+
+  <label for="{{ form.thema.id_for_label }}">{{ form.thema.label }}</label>
+  {{ form.thema }}{{ form.thema.errors }}
+
+  <label for="{{ form.titel.id_for_label }}">{{ form.titel.label }}</label>
+  {{ form.titel }}{{ form.titel.errors }}
+
+  <label for="{{ form.text.id_for_label }}">{{ form.text.label }}</label>
+  {{ form.text }}{{ form.text.errors }}
+
+  <label for="{{ form.fotos.id_for_label }}">{{ form.fotos.label }}</label>
+  {{ form.fotos }}
+  <div class="help">{{ form.fotos.help_text }}</div>{{ form.fotos.errors }}
+
+  <label class="check">{{ form.einwilligung }} <span>{{ form.einwilligung.label }}</span></label>
+  {{ form.einwilligung.errors }}
+
+  <label for="{{ form.link.id_for_label }}">{{ form.link.label }}</label>
+  {{ form.link }}
+  <div class="help">{{ form.link.help_text }}</div>{{ form.link.errors }}
+
+  <label>{{ form.plattformen.label }}</label>
+  <div class="choices">{% for choice in form.plattformen %}<label>{{ choice.tag }} {{ choice.choice_label }}</label>{% endfor %}</div>
+  {{ form.plattformen.errors }}
+
+  <label for="{{ form.publish_at.id_for_label }}">{{ form.publish_at.label }}</label>
+  {{ form.publish_at }}
+  <div class="help">{{ form.publish_at.help_text }}</div>{{ form.publish_at.errors }}
+
+  <button type="submit">{% trans "Submit for approval" %}</button>
+</form>
+{% endblock %}

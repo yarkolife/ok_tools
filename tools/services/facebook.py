@@ -126,6 +126,43 @@ def publish_reel(config, *, video_url: str, description: str = '', started=None)
     return video_id
 
 
+def publish_photos(config, *, image_urls, message: str = '') -> str:
+    """Publish a page post with the photos (from public URLs); return its ID.
+
+    Every photo is uploaded unpublished first, then one post carries them
+    all, so the page shows a single post and not one per photo.
+    """
+    token = page_token(config)
+    page = f'{_graph(config)}/{config.facebook_page_id}'
+    media_ids = []
+    for url in image_urls:
+        photo = _request('POST', f'{page}/photos', params={
+            'url': url, 'published': 'false', 'access_token': token}, timeout=UPLOAD_TIMEOUT)
+        if not photo.get('id'):
+            raise FacebookError('Facebook returned no photo ID.')
+        media_ids.append(str(photo['id']))
+    params = {'message': message or '', 'access_token': token}
+    for index, media_id in enumerate(media_ids):
+        params[f'attached_media[{index}]'] = f'{{"media_fbid":"{media_id}"}}'
+    post = _request('POST', f'{page}/feed', params=params)
+    post_id = str(post.get('id') or '')
+    if not post_id:
+        raise FacebookError('Facebook returned no post ID.')
+    return post_id
+
+
+def post_permalink(config, post_id: str) -> str:
+    """Public link of a page post, or '' if unknown."""
+    try:
+        token = page_token(config)
+        data = _request('GET', f'{_graph(config)}/{post_id}', params={
+            'fields': 'permalink_url', 'access_token': token})
+    except FacebookError:
+        logger.warning('Could not read the link of Facebook post %s', post_id)
+        return ''
+    return str(data.get('permalink_url') or '')
+
+
 def set_cover(config, video_id: str, image: bytes) -> None:
     """Upload a JPEG as the preferred cover of a published reel."""
     token = page_token(config)

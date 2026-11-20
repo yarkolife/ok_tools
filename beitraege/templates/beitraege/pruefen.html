@@ -1,0 +1,45 @@
+{% extends "beitraege/_base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="card state-{{ state }}">
+  <h1>{{ title }}</h1>
+  {% if message %}<p>{{ message }}</p>{% endif %}
+  {% if beitrag %}
+    <p class="meta">{{ beitrag.thema.name }} · {% trans "by" %} {{ beitrag.created_by|default:"-" }} · {{ beitrag.created_at|date:"d.m.Y H:i" }}
+      {% if beitrag.publish_at %}<br>{% trans "Publish at" %}: {{ beitrag.publish_at|date:"d.m.Y H:i" }}{% endif %}</p>
+    <h2>{{ beitrag.titel }}</h2>
+    {% if fotos %}
+      <div class="photos">{% for f in fotos %}<img src="{% url 'beitraege:foto' f.token 'web' %}" alt="" loading="lazy">{% endfor %}</div>
+    {% endif %}
+  {% endif %}
+</div>
+
+{% if beitrag %}
+  {% for ziel in ziele %}
+    <div class="card">
+      <h2>{{ ziel.get_plattform_display }}{% if ziel.status %} · {{ ziel.get_status_display }}{% endif %}</h2>
+      <div class="text">{{ ziel.text }}{% if ziel.plattform == 'website' and beitrag.link %}
+
+{{ beitrag.link }}{% endif %}</div>
+      {% if ziel.permalink %}<p><a href="{{ ziel.permalink }}" target="_blank" rel="noopener">{% trans "Open" %}</a></p>{% endif %}
+      {% if ziel.error %}<p class="problems">{{ ziel.error }}</p>{% endif %}
+    </div>
+  {% endfor %}
+
+  {% if state == 'confirm' %}
+    <form method="post" class="card">
+      {% csrf_token %}
+      {% if problems %}
+        <ul class="problems">{% for p in problems %}<li>{{ p }}</li>{% endfor %}</ul>
+      {% endif %}
+      <button type="submit" name="aktion" value="freigeben" {% if problems %}disabled style="opacity:.5"{% endif %}>
+        {% if beitrag.publish_at %}{% trans "Approve (publish at its time)" %}{% else %}{% trans "Approve and publish" %}{% endif %}
+      </button>
+      <label for="grund">{% trans "Reason (for sending it back)" %}</label>
+      <textarea id="grund" name="grund" rows="3"></textarea>
+      <button type="submit" name="aktion" value="ablehnen" class="secondary">{% trans "Send back to the author" %}</button>
+      <p class="help"><a href="{{ admin_url }}">{% trans "Change texts or photos in OK-Tools" %}</a></p>
+    </form>
+  {% endif %}
+{% endif %}
+{% endblock %}

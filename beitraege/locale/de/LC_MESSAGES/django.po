@@ -1,0 +1,676 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-20 12:11+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: admin.py:29 models.py:328
+msgid "Platforms"
+msgstr "Plattformen"
+
+#: admin.py:31
+msgid ""
+"Instagram and Facebook use the account, page and token entered in the Tools "
+"configuration (section Instagram)."
+msgstr ""
+"Instagram und Facebook nutzen Konto, Seite und Token aus der Werkzeuge-"
+"Konfiguration (Abschnitt Instagram)."
+
+#: admin.py:34
+msgid "Website (WordPress)"
+msgstr "Website (WordPress)"
+
+#: admin.py:46
+msgid "Connection"
+msgstr "Verbindung"
+
+#: admin.py:51
+msgid "Test connections"
+msgstr "Verbindungen testen"
+
+#: admin.py:68
+#, python-format
+msgid "Website: %(error)s"
+msgstr "Website: %(error)s"
+
+#: admin.py:70
+#, python-format
+msgid "Website: connected as %(name)s (%(roles)s)."
+msgstr "Website: verbunden als %(name)s (%(roles)s)."
+
+#: admin.py:78
+#, python-format
+msgid "Instagram: %(error)s"
+msgstr "Instagram: %(error)s"
+
+#: admin.py:80
+#, python-format
+msgid "Instagram: @%(name)s."
+msgstr "Instagram: @%(name)s."
+
+#: admin.py:86
+#, python-format
+msgid "Facebook: %(error)s"
+msgstr "Facebook: %(error)s"
+
+#: admin.py:88
+#, python-format
+msgid "Facebook: page \"%(name)s\"."
+msgstr "Facebook: Seite „%(name)s“."
+
+#: admin.py:92 admin.py:108 models.py:24
+msgid "Website"
+msgstr "Website"
+
+#: admin.py:94
+#, python-format
+msgid "%(platform)s is switched on but not set up completely."
+msgstr "%(platform)s ist eingeschaltet, aber nicht vollständig eingerichtet."
+
+#: admin.py:107
+msgid "Texts"
+msgstr "Texte"
+
+#: admin.py:109
+msgid "Platforms by default"
+msgstr "Plattformen (Voreinstellung)"
+
+#: admin.py:110 admin.py:161
+msgid "Approval"
+msgstr "Freigabe"
+
+#: admin.py:120
+msgid "Preview"
+msgstr "Vorschau"
+
+#: admin.py:138 forms.py:40 models.py:212 models.py:322
+msgid "Link"
+msgstr "Link"
+
+#: admin.py:142 models.py:306 templates/beitraege/pruefen.html:24
+msgid "Open"
+msgstr "Öffnen"
+
+#: admin.py:178
+msgid "The post was changed and needs a new approval."
+msgstr "Der Beitrag wurde geändert und muss neu freigegeben werden."
+
+#: admin.py:196 models.py:223 models.py:320
+msgid "Status"
+msgstr "Status"
+
+#: admin.py:209
+msgid "Links"
+msgstr "Links"
+
+#: admin.py:216
+msgid "Check and approve"
+msgstr "Prüfen und freigeben"
+
+#: admin.py:221
+msgid "Open the check page"
+msgstr "Prüfseite öffnen"
+
+#: admin.py:223 templates/beitraege/neu.html:38
+msgid "Submit for approval"
+msgstr "Zur Freigabe einreichen"
+
+#: admin.py:229
+#, python-format
+msgid "%(count)s post(s) submitted; the approvers have been told."
+msgstr ""
+"%(count)s Beitrag/Beiträge eingereicht; die Freigebenden sind benachrichtigt."
+
+#: admin.py:232
+msgid "Approve"
+msgstr "Freigeben"
+
+#: admin.py:244
+#, python-format
+msgid "%(count)s post(s) approved."
+msgstr "%(count)s Beitrag/Beiträge freigegeben."
+
+#: admin.py:246
+msgid "Publish failed platforms again"
+msgstr "Fehlgeschlagene Plattformen erneut veröffentlichen"
+
+#: admin.py:254
+#, python-format
+msgid "%(count)s post(s) are being published again."
+msgstr "%(count)s Beitrag/Beiträge werden erneut veröffentlicht."
+
+#: apps.py:12
+msgid "Posts"
+msgstr "Beiträge"
+
+#: forms.py:27 workflow.py:115
+#, python-format
+msgid "At most %(max)s photos."
+msgstr "Höchstens %(max)s Fotos."
+
+#: forms.py:31
+#, python-format
+msgid "%(name)s is not a photo that can be read (JPEG, PNG, HEIC)."
+msgstr "%(name)s ist kein lesbares Foto (JPEG, PNG, HEIC)."
+
+#: forms.py:36 models.py:179 models.py:215
+msgid "Topic"
+msgstr "Thema"
+
+#: forms.py:38 models.py:210
+msgid "Title"
+msgstr "Titel"
+
+#: forms.py:39 models.py:211
+msgid "Text"
+msgstr "Text"
+
+#: forms.py:41 models.py:213
+msgid "E.g. the Mediathek; clickable on Facebook and the website."
+msgstr "Z. B. die Mediathek; auf Facebook und der Website anklickbar."
+
+#: forms.py:42 models.py:286
+msgid "Photos"
+msgstr "Fotos"
+
+#: forms.py:43
+msgid "Up to 10 photos; the first one is the cover."
+msgstr "Bis zu 10 Fotos; das erste ist das Titelbild."
+
+#: forms.py:45 models.py:218
+msgid "Everybody recognisable on the photos agreed to the publication."
+msgstr ""
+"Alle erkennbaren Personen auf den Fotos sind mit der Veröffentlichung "
+"einverstanden."
+
+#: forms.py:48
+msgid "Publish on"
+msgstr "Veröffentlichen auf"
+
+#: forms.py:50 models.py:220 templates/beitraege/pruefen.html:9
+msgid "Publish at"
+msgstr "Veröffentlichen am"
+
+#: forms.py:53 models.py:221
+msgid "Empty: right after the approval."
+msgstr "Leer: direkt nach der Freigabe."
+
+#: forms.py:66
+msgid "Confirm the consent before sending photos."
+msgstr "Bitte das Einverständnis bestätigen, bevor Fotos gesendet werden."
+
+#: forms.py:68
+msgid "Choose at least one platform."
+msgstr "Bitte mindestens eine Plattform wählen."
+
+#: models.py:22
+msgid "Instagram"
+msgstr "Instagram"
+
+#: models.py:23
+msgid "Facebook"
+msgstr "Facebook"
+
+#: models.py:33
+msgid "Publish on Instagram"
+msgstr "Auf Instagram veröffentlichen"
+
+#: models.py:34
+msgid "Uses the Instagram account and token of the Tools configuration."
+msgstr "Nutzt Instagram-Konto und Token aus der Werkzeuge-Konfiguration."
+
+#: models.py:38
+msgid "Publish on Facebook"
+msgstr "Auf Facebook veröffentlichen"
+
+#: models.py:39
+msgid ""
+"Uses the Facebook page and token of the Tools configuration (Facebook Login)."
+msgstr ""
+"Nutzt Facebook-Seite und Token aus der Werkzeuge-Konfiguration (Facebook-"
+"Login)."
+
+#: models.py:43
+msgid "Publish on the website"
+msgstr "Auf der Website veröffentlichen"
+
+#: models.py:44
+msgid "WordPress website, through its REST API and an application password."
+msgstr "WordPress-Website, über die REST-API und ein Anwendungspasswort."
+
+#: models.py:48
+msgid "WordPress address"
+msgstr "WordPress-Adresse"
+
+#: models.py:49
+msgid "Address of the website, e.g. https://www.example.de"
+msgstr "Adresse der Website, z. B. https://www.example.de"
+
+#: models.py:52
+msgid "WordPress user"
+msgstr "WordPress-Benutzer"
+
+#: models.py:53
+msgid "User with the right to publish posts."
+msgstr "Benutzer mit dem Recht, Beiträge zu veröffentlichen."
+
+#: models.py:56
+msgid "WordPress application password"
+msgstr "WordPress-Anwendungspasswort"
+
+#: models.py:57
+msgid "Users → Profile → Application passwords in WordPress."
+msgstr "In WordPress unter Benutzer → Profil → Anwendungspasswörter."
+
+#: models.py:61
+msgid "Approval by mail"
+msgstr "Freigabe per E-Mail"
+
+#: models.py:62
+msgid ""
+"Approvers get a mail with a link to check and approve the post on the phone."
+msgstr ""
+"Freigebende bekommen eine E-Mail mit einem Link, um den Beitrag am Handy zu "
+"prüfen und freizugeben."
+
+#: models.py:66 models.py:67 models.py:70
+msgid "Post configuration"
+msgstr "Beitrags-Konfiguration"
+
+#: models.py:129
+msgid "Posts: publish approved posts"
+msgstr "Beiträge: freigegebene Beiträge veröffentlichen"
+
+#: models.py:146
+msgid "Name"
+msgstr "Name"
+
+#: models.py:148
+msgid "Hashtags"
+msgstr "Hashtags"
+
+#: models.py:149
+msgid "Added to every post of this topic, e.g. \"#Medienbildung #Merseburg\"."
+msgstr ""
+"Kommen in jeden Beitrag dieses Themas, z. B. „#Medienbildung #Merseburg“."
+
+#: models.py:152
+msgid "Signature on Instagram"
+msgstr "Signatur auf Instagram"
+
+#: models.py:153
+msgid "Last lines of every Instagram post of this topic."
+msgstr "Letzte Zeilen jedes Instagram-Beitrags dieses Themas."
+
+#: models.py:155
+msgid "Signature on Facebook"
+msgstr "Signatur auf Facebook"
+
+#: models.py:157
+msgid "Signature on the website"
+msgstr "Signatur auf der Website"
+
+#: models.py:159
+msgid "WordPress categories"
+msgstr "WordPress-Kategorien"
+
+#: models.py:160
+msgid ""
+"Category names on the website, comma separated; missing ones are created."
+msgstr ""
+"Kategorienamen auf der Website, durch Komma getrennt; fehlende werden "
+"angelegt."
+
+#: models.py:163
+msgid "WordPress tags"
+msgstr "WordPress-Schlagwörter"
+
+#: models.py:164
+msgid "Tag names on the website, comma separated; missing ones are created."
+msgstr ""
+"Schlagwörter auf der Website, durch Komma getrennt; fehlende werden angelegt."
+
+#: models.py:166
+msgid "Instagram by default"
+msgstr "Instagram voreingestellt"
+
+#: models.py:167
+msgid "Facebook by default"
+msgstr "Facebook voreingestellt"
+
+#: models.py:168
+msgid "Website by default"
+msgstr "Website voreingestellt"
+
+#: models.py:171
+msgid "Approvers"
+msgstr "Freigebende"
+
+#: models.py:172
+msgid ""
+"May approve posts of this topic. People with \"approve all posts\" may "
+"approve every topic."
+msgstr ""
+"Dürfen Beiträge dieses Themas freigeben. Wer „Beiträge aller Themen "
+"freigeben“ hat, darf jedes Thema freigeben."
+
+#: models.py:175
+msgid "Active"
+msgstr "Aktiv"
+
+#: models.py:176 models.py:278
+msgid "Order"
+msgstr "Reihenfolge"
+
+#: models.py:180
+msgid "Topics"
+msgstr "Themen"
+
+#: models.py:199
+msgid "Draft"
+msgstr "Entwurf"
+
+#: models.py:200
+msgctxt "beitrag"
+msgid "Waiting for approval"
+msgstr "Wartet auf Freigabe"
+
+#: models.py:201 views.py:109
+msgid "Approved"
+msgstr "Freigegeben"
+
+#: models.py:202 models.py:307
+msgid "Publishing"
+msgstr "Wird veröffentlicht"
+
+#: models.py:203 models.py:308
+msgid "Published"
+msgstr "Veröffentlicht"
+
+#: models.py:204
+msgid "Partly published"
+msgstr "Teilweise veröffentlicht"
+
+#: models.py:205 models.py:309
+msgid "Failed"
+msgstr "Fehlgeschlagen"
+
+#: models.py:206
+msgid "Rejected"
+msgstr "Zurückgegeben"
+
+#: models.py:217
+msgid "Consent of the people shown"
+msgstr "Einverständnis der abgebildeten Personen"
+
+#: models.py:226
+msgid "Created by"
+msgstr "Erstellt von"
+
+#: models.py:229
+msgid "Approved by"
+msgstr "Freigegeben von"
+
+#: models.py:230
+msgid "Approved at"
+msgstr "Freigegeben am"
+
+#: models.py:231
+msgid "Reason for rejection"
+msgstr "Grund der Rückgabe"
+
+#: models.py:232
+msgid "Created at"
+msgstr "Erstellt am"
+
+#: models.py:233
+msgid "Updated at"
+msgstr "Geändert am"
+
+#: models.py:236 models.py:276 models.py:313
+msgctxt "beitrag"
+msgid "Post"
+msgstr "Beitrag"
+
+#: models.py:237
+msgctxt "beitrag"
+msgid "Posts"
+msgstr "Beiträge"
+
+#: models.py:240
+msgid "Can approve posts of every topic"
+msgstr "Darf Beiträge aller Themen freigeben"
+
+#: models.py:277 models.py:285
+msgid "Photo"
+msgstr "Foto"
+
+#: models.py:280
+msgid "Crop position (%)"
+msgstr "Bildausschnitt (%)"
+
+#: models.py:281
+msgid "Where the 4:5 crop for Instagram sits: 0 top, 50 middle, 100 bottom."
+msgstr "Lage des 4:5-Ausschnitts für Instagram: 0 oben, 50 Mitte, 100 unten."
+
+#: models.py:314 models.py:327
+msgid "Platform"
+msgstr "Plattform"
+
+#: models.py:315
+msgid "Publish here"
+msgstr "Hier veröffentlichen"
+
+#: models.py:316
+msgid "Text on this platform"
+msgstr "Text auf dieser Plattform"
+
+#: models.py:317
+msgid "Built from the post and its topic; may be changed."
+msgstr "Aus Beitrag und Thema erstellt; kann geändert werden."
+
+#: models.py:321
+msgid "ID on the platform"
+msgstr "ID auf der Plattform"
+
+#: models.py:323
+msgid "Published at"
+msgstr "Veröffentlicht am"
+
+#: models.py:324
+msgid "Error"
+msgstr "Fehler"
+
+#: templates/admin/beitraege/beitrag/change_list.html:8
+msgid "The simple form for the phone: photos, text, topic, submit."
+msgstr "Das einfache Formular fürs Handy: Fotos, Text, Thema, einreichen."
+
+#: templates/admin/beitraege/beitrag/change_list.html:8
+msgid "New post (phone)"
+msgstr "Neuer Beitrag (Handy)"
+
+#: templates/beitraege/eingereicht.html:6
+#, python-format
+msgid ""
+"\"%(titel)s\" (%(thema)s) is waiting for approval. The approvers have been "
+"told."
+msgstr ""
+"„%(titel)s“ (%(thema)s) wartet auf Freigabe. Die Freigebenden sind "
+"benachrichtigt."
+
+#: templates/beitraege/eingereicht.html:8
+msgid "Check and approve it yourself"
+msgstr "Selbst prüfen und freigeben"
+
+#: templates/beitraege/eingereicht.html:10
+msgid "Write another post"
+msgstr "Weiteren Beitrag schreiben"
+
+#: templates/beitraege/neu.html:7
+msgid "Written once, published on the platforms you choose after one approval."
+msgstr ""
+"Einmal schreiben – nach einer Freigabe auf den gewählten Plattformen "
+"veröffentlicht."
+
+#: templates/beitraege/pruefen.html:8
+msgid "by"
+msgstr "von"
+
+#: templates/beitraege/pruefen.html:36
+msgid "Approve (publish at its time)"
+msgstr "Freigeben (zur geplanten Zeit veröffentlichen)"
+
+#: templates/beitraege/pruefen.html:36
+msgid "Approve and publish"
+msgstr "Freigeben und veröffentlichen"
+
+#: templates/beitraege/pruefen.html:38
+msgid "Reason (for sending it back)"
+msgstr "Grund (für die Rückgabe)"
+
+#: templates/beitraege/pruefen.html:40
+msgid "Send back to the author"
+msgstr "An die Autorin / den Autor zurückgeben"
+
+#: templates/beitraege/pruefen.html:41
+msgid "Change texts or photos in OK-Tools"
+msgstr "Texte oder Fotos in OK-Tools ändern"
+
+#: templates/email/beitrag_abgelehnt_body.txt:1
+#, python-format
+msgid "Your post \"%(titel)s\" was not approved by %(von)s."
+msgstr "Dein Beitrag „%(titel)s“ wurde von %(von)s nicht freigegeben."
+
+#: templates/email/beitrag_abgelehnt_body.txt:3
+msgid "Reason"
+msgstr "Grund"
+
+#: templates/email/beitrag_abgelehnt_body.txt:5
+msgid "Change it and submit it again:"
+msgstr "Bitte ändern und erneut einreichen:"
+
+#: templates/email/beitrag_abgelehnt_subject.txt:1
+#, python-format
+msgid "Post not approved: %(titel)s"
+msgstr "Beitrag nicht freigegeben: %(titel)s"
+
+#: templates/email/beitrag_freigabe_body.txt:1
+#, python-format
+msgid "Hello %(name)s,"
+msgstr "Hallo %(name)s,"
+
+#: templates/email/beitrag_freigabe_body.txt:3
+#, python-format
+msgid "%(autor)s has submitted a post in the topic \"%(thema)s\"."
+msgstr "%(autor)s hat einen Beitrag im Thema „%(thema)s“ eingereicht."
+
+#: templates/email/beitrag_freigabe_body.txt:7
+msgid "Check and approve it here (also on the phone, no login needed):"
+msgstr "Hier prüfen und freigeben (auch am Handy, ohne Anmeldung):"
+
+#: templates/email/beitrag_freigabe_body.txt:10
+msgid ""
+"The link is personal and valid for 7 days. One approval publishes the post "
+"on all platforms switched on for it."
+msgstr ""
+"Der Link ist persönlich und 7 Tage gültig. Eine Freigabe veröffentlicht den "
+"Beitrag auf allen gewählten Plattformen."
+
+#: templates/email/beitrag_freigabe_subject.txt:1
+#, python-format
+msgid "Post to approve (%(thema)s): %(titel)s"
+msgstr "Beitrag zur Freigabe (%(thema)s): %(titel)s"
+
+#: views.py:51
+msgid "New post"
+msgstr "Neuer Beitrag"
+
+#: views.py:60
+msgid "Post submitted"
+msgstr "Beitrag eingereicht"
+
+#: views.py:79
+msgid "Invalid or expired link"
+msgstr "Ungültiger oder abgelaufener Link"
+
+#: views.py:80
+msgid "This link is invalid or has expired. Open the post in OK-Tools instead."
+msgstr ""
+"Dieser Link ist ungültig oder abgelaufen. Bitte den Beitrag in OK-Tools "
+"öffnen."
+
+#: views.py:100
+msgid "Sent back"
+msgstr "Zurückgegeben"
+
+#: views.py:101
+msgid "The author has been told."
+msgstr "Die Autorin / der Autor ist benachrichtigt."
+
+#: views.py:106
+msgid "The post cannot be approved"
+msgstr "Der Beitrag kann nicht freigegeben werden"
+
+#: views.py:110
+msgid "The post is being published now."
+msgstr "Der Beitrag wird jetzt veröffentlicht."
+
+#: views.py:111
+msgid "The post is published at its time."
+msgstr "Der Beitrag wird zur geplanten Zeit veröffentlicht."
+
+#: views.py:114
+msgid "Nothing to do"
+msgstr "Nichts zu tun"
+
+#: views.py:115 workflow.py:155
+#, python-format
+msgid "This post is already %(status)s."
+msgstr "Dieser Beitrag ist bereits: %(status)s."
+
+#: views.py:118
+msgid "Check the post"
+msgstr "Beitrag prüfen"
+
+#: workflow.py:112
+msgid "No platform is switched on for this post."
+msgstr "Für diesen Beitrag ist keine Plattform eingeschaltet."
+
+#: workflow.py:117
+msgid "Confirm that the people on the photos agreed to the publication."
+msgstr "Bitte bestätigen, dass die Personen auf den Fotos einverstanden sind."
+
+#: workflow.py:121
+msgid "Instagram needs at least one photo."
+msgstr "Instagram braucht mindestens ein Foto."
+
+#: workflow.py:123
+#, python-format
+msgid "The Instagram text has %(count)s of at most %(max)s characters."
+msgstr "Der Instagram-Text hat %(count)s von höchstens %(max)s Zeichen."
+
+#: workflow.py:127
+#, python-format
+msgid "The Instagram text has %(count)s hashtags; Instagram allows %(max)s."
+msgstr "Der Instagram-Text hat %(count)s Hashtags; Instagram erlaubt %(max)s."
+
+#: workflow.py:130
+msgid "The Facebook post is empty."
+msgstr "Der Facebook-Beitrag ist leer."
+
+#: workflow.py:151 workflow.py:172
+msgid "You may not approve posts of this topic."
+msgstr "Du darfst Beiträge dieses Themas nicht freigeben."

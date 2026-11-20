@@ -1,0 +1,1 @@
+{% load i18n %}{% blocktranslate with titel=beitrag.titel %}Post not approved: {{ titel }}{% endblocktranslate %}

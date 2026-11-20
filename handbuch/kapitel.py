@@ -58,8 +58,8 @@ KAPITEL: Tuple[Kapitel, ...] = (
             'Eigentümer festlegen, Etikett drucken und aufkleben, ausleihen '
             '(geführt oder mit dem Scanner) und zurücknehmen.'
         ),
-        version='4.80.0',
-        stand=date(2026, 11, 19),
+        version='4.81.0',
+        stand=date(2026, 11, 20),
         icon='inventory_2',
         requires=('inventory', 'rental'),
         pfade=(
@@ -77,6 +77,27 @@ KAPITEL: Tuple[Kapitel, ...] = (
         ),
     ),
     Kapitel(
+        slug='beitraege',
+        title='Beiträge für Instagram, Facebook und Website',
+        summary=(
+            'Einen Beitrag mit Fotos am Handy schreiben, prüfen und freigeben: '
+            'eine Freigabe veröffentlicht ihn auf Instagram, Facebook und der '
+            'Website, jeweils mit eigenem Text.'
+        ),
+        version='4.81.0',
+        stand=date(2026, 11, 20),
+        icon='campaign',
+        requires=('beitraege',),
+        pfade=(
+            'beitraege/admin.py',
+            'beitraege/forms.py',
+            'beitraege/views.py',
+            'beitraege/workflow.py',
+            'beitraege/templates/',
+            'beitraege/locale/',
+        ),
+    ),
+    Kapitel(
         slug='einstellungen',
         title='Einstellungen für Administratoren',
         summary=(
@@ -84,7 +105,7 @@ KAPITEL: Tuple[Kapitel, ...] = (
             'Feld für Feld, Benachrichtigungen, Stammdaten, periodische Aufgaben '
             'und was nur in der .env eingestellt wird.'
         ),
-        version='4.80.0',
+        version='4.81.0',
         stand=date(2026, 11, 20),
         icon='settings',
         pfade=(

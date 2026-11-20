@@ -77,6 +77,34 @@ def create_reel_container(config, *, video_url: str, caption: str = '',
     return container_id
 
 
+def create_image_container(config, *, image_url: str, caption: str = '',
+                           carousel_item: bool = False) -> str:
+    """Create a photo container (alone, or as an item of a carousel)."""
+    params = {'image_url': image_url}
+    if carousel_item:
+        params['is_carousel_item'] = 'true'
+    else:
+        params['caption'] = caption or ''
+    data = _call('POST', f'{_base_url(config)}/{config.instagram_account_id}/media', config, params)
+    container_id = str(data.get('id') or '')
+    if not container_id:
+        raise InstagramError('Instagram returned no container ID.')
+    return container_id
+
+
+def create_carousel_container(config, *, children, caption: str = '') -> str:
+    """Create a carousel container from 2 to 10 item containers."""
+    data = _call('POST', f'{_base_url(config)}/{config.instagram_account_id}/media', config, {
+        'media_type': 'CAROUSEL',
+        'children': ','.join(children),
+        'caption': caption or '',
+    })
+    container_id = str(data.get('id') or '')
+    if not container_id:
+        raise InstagramError('Instagram returned no container ID.')
+    return container_id
+
+
 def container_status(config, container_id: str) -> tuple[str, str]:
     """Return ``(status_code, status)``; status holds the error text if any."""
     data = _call('GET', f'{_base_url(config)}/{container_id}', config,

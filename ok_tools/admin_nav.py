@@ -48,6 +48,7 @@ MODEL_SECTIONS: dict[str, str] = {
     "contributions.DisaImport": "work",
     "tools.ToolsInterface": "work",
     "tools.ReelPost": "work",
+    "beitraege.Beitrag": "work",
     # Help
     "handbuch.Handbuch": "help",
     "notifications.NotificationsFeed": "work",
@@ -104,6 +105,7 @@ MODEL_SECTIONS: dict[str, str] = {
     "tools.VideoPreset": "settings",
     "tools.PresetOverlay": "settings",
     "tools.InstagramPartner": "settings",
+    "beitraege.Thema": "settings",
     # System: logs, imports, background jobs
     "notifications.NotificationsStats": "system",
     "notifications.NotificationEvent": "system",
@@ -171,6 +173,8 @@ MODEL_ICONS: dict[str, str] = {
     "inventory.Organization": "corporate_fare",
     "tools.ToolsInterface": "handyman",
     "tools.ReelPost": "smart_display",
+    "beitraege.Beitrag": "campaign",
+    "beitraege.Thema": "sell",
     "handbuch.Handbuch": "menu_book",
     "tools.InstagramPartner": "handshake",
     "tools.SlideshowProject": "slideshow",

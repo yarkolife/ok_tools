@@ -191,6 +191,9 @@ DASHBOARD_ENABLED = get_env('DASHBOARD_ENABLED', default=False, cast=bool)
 # Austausch and Tools modules (already optional)
 AUSTAUSCH_ENABLED = get_env('AUSTAUSCH_ENABLED', default=False, cast=bool)
 TOOLS_ENABLED = get_env('TOOLS_ENABLED', default=False, cast=bool)
+# Posts (photos and text) for Instagram, Facebook and the website. Instagram
+# and Facebook use the Meta credentials of the Tools configuration.
+BEITRAEGE_ENABLED = get_env('BEITRAEGE_ENABLED', default=False, cast=bool)
 
 # Admin notifications: daily summary and event feed
 NOTIFICATIONS_ENABLED = get_env('NOTIFICATIONS_ENABLED', default=True, cast=bool)
@@ -233,6 +236,9 @@ if AUSTAUSCH_ENABLED:
 
 if TOOLS_ENABLED:
     INSTALLED_APPS.append("tools")
+
+if BEITRAEGE_ENABLED:
+    INSTALLED_APPS.append("beitraege")
 
 # Notification system: daily summary and event feed inside the admin.
 # It has no module of its own -- it observes whichever modules are enabled.

@@ -138,6 +138,11 @@ if getattr(settings, 'AUSTAUSCH_ENABLED', False):
         path('austausch/', include('austausch.urls', namespace='austausch')),
     )
 
+if getattr(settings, 'BEITRAEGE_ENABLED', False):
+    urlpatterns.append(
+        path('beitraege/', include('beitraege.urls', namespace='beitraege')),
+    )
+
 # Add Tools URLs if module is enabled
 if getattr(settings, 'TOOLS_ENABLED', False):
     urlpatterns.append(
