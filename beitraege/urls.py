@@ -11,6 +11,7 @@ urlpatterns = [
     path('neu/', views.neu, name='neu'),
     path('<int:pk>/eingereicht/', views.eingereicht, name='eingereicht'),
     path('<int:pk>/pruefen/', views.pruefen, name='pruefen'),
+    path('<int:pk>/bearbeiten/', views.bearbeiten, name='bearbeiten'),
     path('freigabe/<str:token>/', views.freigabe, name='freigabe'),
     path('foto/<str:token>/<str:variant>.jpg', views.foto, name='foto'),
 ]

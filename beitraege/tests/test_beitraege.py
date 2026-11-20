@@ -188,12 +188,29 @@ def test_crop_follows_the_focus():
     assert top is None or top[1] == 0
 
 
-def test_photo_rendition_is_served_publicly(client, beitrag):
+def test_photo_previews_need_a_signature_until_approval(client, beitrag, freigeber):
+    from beitraege.links import preview_url
+
     foto = beitrag.fotos.first()
-    response = client.get(reverse('beitraege:foto', args=[foto.token, 'instagram']))
-    assert response.status_code == 200
-    assert response['Content-Type'] == 'image/jpeg'
+    plain = reverse('beitraege:foto', args=[foto.token, 'instagram'])
+    assert client.get(plain).status_code == 404
+    response = client.get(preview_url(foto, 'instagram'))
+    assert response.status_code == 200 and response['Content-Type'] == 'image/jpeg'
+    assert client.get(plain + '?s=forged').status_code == 404
+    # From the approval on, Instagram and Facebook fetch them with the token alone.
+    with mock.patch('beitraege.tasks.publish_beitrag.delay'):
+        workflow.approve(beitrag, freigeber)
+    assert client.get(plain).status_code == 200
     assert client.get(reverse('beitraege:foto', args=['nope', 'web'])).status_code == 404
+
+
+def test_upload_is_kept_without_gps_and_outside_the_public_media(channel, beitrag):
+    foto = BeitragFoto.objects.create(
+        beitrag=beitrag, bild=SimpleUploadedFile('phone.jpg', _jpeg((800, 600), exif_gps=True)))
+    assert foto.bild.name.startswith('.beitraege/') and foto.bild.name.endswith('.jpg')
+    with foto.bild.open('rb') as handle:
+        stored = Image.open(BytesIO(handle.read()))
+    assert stored.format == 'JPEG' and not stored.getexif()
 
 
 # ---------------------------------------------------------------------------
@@ -482,3 +499,72 @@ def test_others_may_not_see_a_post(client, beitrag, db):
     stranger = OKUser.objects.create_user('fremd@example.org', password='pw')
     client.force_login(stranger)
     assert client.get(reverse('beitraege:pruefen', args=[beitrag.pk])).status_code == 403
+
+
+# ---------------------------------------------------------------------------
+# editing on the phone, access
+# ---------------------------------------------------------------------------
+
+def _edit_data(beitrag, **changes):
+    data = {
+        'thema': beitrag.thema.pk, 'titel': beitrag.titel, 'text': beitrag.text,
+        'link': beitrag.link, 'einwilligung': 'on' if beitrag.einwilligung else '',
+        'plattformen': [z.plattform for z in beitrag.ziele.filter(aktiv=True)],
+    }
+    data.update(changes)
+    return data
+
+
+def test_author_fixes_a_returned_post_and_submits_it_again(client, beitrag, autor, freigeber):
+    workflow.submit(beitrag)
+    with mock.patch('beitraege.notify._mail'):
+        workflow.reject(beitrag, freigeber, 'Anderes Foto bitte')
+    first, second = beitrag.fotos.all()
+    client.force_login(autor)
+    page = client.get(reverse('beitraege:bearbeiten', args=[beitrag.pk]))
+    assert page.status_code == 200 and b'text_instagram' not in page.content  # authors: no platform texts
+    with mock.patch('notifications.services.emit') as emit:
+        response = client.post(reverse('beitraege:bearbeiten', args=[beitrag.pk]), _edit_data(
+            beitrag, text='Neuer Text', **{f'entfernen_{first.pk}': '1', f'fokus_{second.pk}': '0'}))
+    assert response.status_code == 302
+    beitrag.refresh_from_db()
+    assert beitrag.status == Beitrag.STATUS_SUBMITTED and beitrag.text == 'Neuer Text'
+    assert list(beitrag.fotos.values_list('pk', 'fokus_y')) == [(second.pk, 0)]
+    assert 'Neuer Text' in beitrag.ziele.get(plattform=PLATFORM_INSTAGRAM).text
+    assert emit.call_args.args[0] == 'beitraege.submitted'
+
+
+def test_approver_changes_the_text_of_one_platform(client, beitrag, freigeber):
+    workflow.submit(beitrag)
+    client.force_login(freigeber)
+    client.post(reverse('beitraege:bearbeiten', args=[beitrag.pk]), _edit_data(
+        beitrag, text_facebook='Nur für Facebook'))
+    ziel = beitrag.ziele.get(plattform=PLATFORM_FACEBOOK)
+    assert ziel.text == 'Nur für Facebook' and ziel.text_bearbeitet
+    beitrag.refresh_from_db()
+    assert beitrag.status == Beitrag.STATUS_SUBMITTED
+
+
+def test_approved_posts_and_strangers_cannot_edit(client, beitrag, autor, freigeber, db):
+    stranger = OKUser.objects.create_user('fremd2@example.org', password='pw')
+    client.force_login(stranger)
+    assert client.get(reverse('beitraege:bearbeiten', args=[beitrag.pk])).status_code == 403
+    with mock.patch('beitraege.tasks.publish_beitrag.delay'):
+        workflow.approve(beitrag, freigeber)
+    client.force_login(autor)
+    assert client.get(reverse('beitraege:bearbeiten', args=[beitrag.pk])).status_code == 403
+
+
+def test_my_posts_is_only_for_staff_working_with_posts(client, channel, db):
+    member = OKUser.objects.create_user('mitglied@example.org', password='pw')
+    client.force_login(member)
+    assert client.get(reverse('beitraege:meine')).status_code == 403
+
+
+def test_returned_post_mail_links_to_the_phone_page(beitrag, freigeber, settings):
+    settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+    workflow.submit(beitrag)
+    mail.outbox.clear()
+    workflow.reject(beitrag, freigeber, 'Bitte kürzen')
+    body = mail.outbox[0].body
+    assert f'/beitraege/{beitrag.pk}/bearbeiten/' in body and '/admin/' not in body

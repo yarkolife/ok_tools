@@ -123,7 +123,9 @@ class BeitragFotoInline(TabularInline):
     def preview(self, obj):
         if not obj or not obj.pk:
             return '-'
-        url = reverse('beitraege:foto', args=[obj.token, 'instagram'])
+        from .links import preview_url
+
+        url = preview_url(obj, 'instagram')
         return format_html('<img src="{}" style="height:90px;border-radius:4px" alt="">', url)
 
 

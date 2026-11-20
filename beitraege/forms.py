@@ -32,7 +32,9 @@ class MultiplePhotoField(forms.FileField):
         return cleaned
 
 
-class NeuerBeitragForm(forms.Form):
+class BeitragForm(forms.Form):
+    """Write a post, or change it (``existing_photos`` already attached)."""
+
     thema = forms.ModelChoiceField(queryset=Thema.objects.none(), label=_('Topic'),
                                    empty_label=None)
     titel = forms.CharField(max_length=200, label=_('Title'))
@@ -52,12 +54,16 @@ class NeuerBeitragForm(forms.Form):
         input_formats=['%Y-%m-%dT%H:%M'],
         help_text=_('Empty: right after the approval.'))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, existing_photos: int = 0, **kwargs):
         super().__init__(*args, **kwargs)
+        self.existing_photos = existing_photos
+        if existing_photos:
+            self.fields['fotos'].label = _('Add photos')
+            self.fields['fotos'].help_text = _('Up to 10 photos in all.')
         self.fields['thema'].queryset = Thema.objects.filter(is_active=True)
         available = BeitragsConfig.get_config().configured_platforms()
         self.fields['plattformen'].choices = [c for c in PLATFORM_CHOICES if c[0] in available]
-        if not self.is_bound:
+        if not self.is_bound and not self.initial.get('plattformen'):
             self.fields['plattformen'].initial = available
 
     def clean(self):

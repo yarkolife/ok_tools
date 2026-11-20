@@ -133,6 +133,12 @@ server {
         add_header Cache-Control "public, max-age=3600";
     }
 
+    # Photos of posts (originals and renditions) are only served by Django,
+    # with a token or a signed preview link.
+    location ^~ /media/.beitraege/ {
+        return 404;
+    }
+
     # Media files
     location /media/ {
         alias /var/www/media/;

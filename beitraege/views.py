@@ -1,16 +1,25 @@
-"""Mobile pages: write a post, check and approve it, photos for Meta.
+"""Mobile pages: write, edit, check and approve a post; photos for Meta.
+
+None of these pages lives below /admin, which a channel may only open from
+its office network: staff on the road log in at /profile/login/.
 
 - "Neuer Beitrag" needs a login and the right to add posts.
-- The check page opens for approvers who are logged in, or without login
-  from the personal link in the approval mail. Opening only shows the post;
-  approving needs the button (POST), because mail scanners open links on
-  their own.
-- Photo renditions are public under an unguessable token: Instagram and
-  Facebook download them from there when publishing.
+- "Meine Beiträge" lists the own posts and those waiting for the approver.
+- "Bearbeiten": the author and the approvers change a post until it is
+  approved; approvers also the text per platform and the crop of a photo.
+- The check page opens for approvers (logged in, or from the personal link
+  in the approval mail) and read-only for the author. Opening only shows
+  the post; approving needs the button (POST), because mail scanners open
+  links on their own.
+- Photo renditions: public under their token once the post is approved
+  (Instagram and Facebook download them), before that only with a signed
+  preview link.
 """
 
 from . import workflow
-from .forms import NeuerBeitragForm
+from .forms import BeitragForm
+from .links import preview_allowed
+from .links import previews
 from .models import Beitrag
 from .models import BeitragFoto
 from .models import in_platform_order
@@ -27,17 +36,27 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 from django.views.decorators.http import require_http_methods
 from pathlib import Path
+
+
+CROP_CHOICES = [(0, gettext_lazy('top')), (25, '25 %'), (50, gettext_lazy('middle')),
+                (75, '75 %'), (100, gettext_lazy('bottom'))]
+
+
+def _works_with_posts(user) -> bool:
+    """Staff who write or approve posts."""
+    return bool(user.has_perm('beitraege.add_beitrag') or user.has_perm('beitraege.freigeben_alle')
+                or user.beitrag_themen.exists())
 
 
 @login_required
 @permission_required('beitraege.add_beitrag', raise_exception=True)
 @require_http_methods(['GET', 'POST'])
 def neu(request):
-    form = NeuerBeitragForm(request.POST or None, request.FILES or None)
+    form = BeitragForm(request.POST or None, request.FILES or None)
     if request.method == 'POST' and form.is_valid():
         data = form.cleaned_data
         with transaction.atomic():
@@ -58,6 +77,8 @@ def meine(request):
     """The own posts and, for approvers, the posts waiting for them."""
     from django.db.models import Q
 
+    if not _works_with_posts(request.user):
+        raise PermissionDenied
     own = Beitrag.objects.filter(created_by=request.user).select_related('thema')[:30]
     waiting = []
     submitted = Beitrag.objects.filter(status=Beitrag.STATUS_SUBMITTED).select_related('thema', 'created_by')
@@ -87,6 +108,70 @@ def eingereicht(request, pk):
 
 @login_required
 @require_http_methods(['GET', 'POST'])
+def bearbeiten(request, pk):
+    beitrag = get_object_or_404(Beitrag.objects.select_related('thema'), pk=pk)
+    if not beitrag.may_edit(request.user):
+        raise PermissionDenied
+    is_approver = beitrag.may_approve(request.user)
+    fotos = list(beitrag.fotos.all())
+    ziele = in_platform_order(beitrag.ziele.all())
+    initial = {
+        'thema': beitrag.thema, 'titel': beitrag.titel, 'text': beitrag.text, 'link': beitrag.link,
+        'einwilligung': beitrag.einwilligung, 'publish_at': beitrag.publish_at,
+        'plattformen': [z.plattform for z in ziele if z.aktiv],
+    }
+    form = BeitragForm(request.POST or None, request.FILES or None, initial=initial,
+                       existing_photos=len(fotos))
+    if request.method == 'POST' and form.is_valid():
+        data = form.cleaned_data
+        remove = {f.pk for f in fotos if request.POST.get(f'entfernen_{f.pk}')}
+        kept = [f for f in fotos if f.pk not in remove]
+        if len(kept) + len(data['fotos']) > Beitrag.MAX_PHOTOS:
+            form.add_error('fotos', _('At most %(max)s photos.') % {'max': Beitrag.MAX_PHOTOS})
+        elif (kept or data['fotos']) and not data['einwilligung']:
+            form.add_error('einwilligung', _('Confirm the consent before sending photos.'))
+        else:
+            with transaction.atomic():
+                for field in ('thema', 'titel', 'text', 'einwilligung', 'publish_at'):
+                    setattr(beitrag, field, data[field])
+                beitrag.link = data['link'] or ''
+                beitrag.save()
+                BeitragFoto.objects.filter(beitrag=beitrag, pk__in=remove).delete()
+                for foto in kept:
+                    value = request.POST.get(f'fokus_{foto.pk}')
+                    if value is not None and value.isdigit() and int(value) != foto.fokus_y:
+                        foto.fokus_y = max(0, min(100, int(value)))
+                        foto.save(update_fields=['fokus_y'])
+                start = max([f.position for f in kept], default=-1) + 1
+                for offset, upload in enumerate(data['fotos']):
+                    BeitragFoto.objects.create(beitrag=beitrag, bild=upload, position=start + offset)
+                if is_approver:
+                    for ziel in beitrag.ziele.all():
+                        text = request.POST.get(f'text_{ziel.plattform}')
+                        if text is not None and text.strip() != ziel.text.strip():
+                            ziel.text = text.strip()
+                            workflow.mark_edited(ziel)
+                            ziel.save()
+                workflow.ensure_ziele(beitrag, platforms=data['plattformen'])
+                resubmit = beitrag.status in (Beitrag.STATUS_DRAFT, Beitrag.STATUS_REJECTED)
+                if resubmit:
+                    workflow.submit(beitrag)
+            if resubmit and not is_approver:
+                return redirect('beitraege:eingereicht', pk=beitrag.pk)
+            return redirect('beitraege:pruefen', pk=beitrag.pk)
+    return render(request, 'beitraege/bearbeiten.html', {
+        'title': _('Edit post'),
+        'beitrag': beitrag,
+        'form': form,
+        'fotos': previews(fotos),
+        'crop_choices': CROP_CHOICES,
+        'ziele': ziele if is_approver else [],
+        'resubmit': beitrag.status in (Beitrag.STATUS_DRAFT, Beitrag.STATUS_REJECTED),
+    })
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
 def pruefen(request, pk):
     beitrag = get_object_or_404(Beitrag.objects.select_related('thema'), pk=pk)
     return _check_page(request, beitrag, request.user)
@@ -106,35 +191,27 @@ def freigabe(request, token):
 
 
 def _check_page(request, beitrag, user):
-    may_approve = beitrag.may_approve(user)
-    if not may_approve:
-        # The author may look at the own post (status, links), not approve it.
-        if beitrag.created_by_id is None or beitrag.created_by_id != getattr(user, 'pk', None):
-            raise PermissionDenied
-        return render(request, 'beitraege/pruefen.html', {
-            'beitrag': beitrag,
-            'ziele': in_platform_order(beitrag.ziele.filter(aktiv=True)),
-            'autor': person_name(beitrag.created_by),
-            'fotos': beitrag.fotos.all(),
-            'state': 'view',
-            'title': beitrag.get_status_display(),
-            'message': beitrag.rejection_note if beitrag.status == Beitrag.STATUS_REJECTED else '',
-        })
     context = {
         'beitrag': beitrag,
         'ziele': in_platform_order(beitrag.ziele.filter(aktiv=True)),
         'autor': person_name(beitrag.created_by),
-        'fotos': beitrag.fotos.all(),
-        'problems': workflow.problems(beitrag),
-        'admin_url': reverse('admin:beitraege_beitrag_change', args=[beitrag.pk]),
-        'approver': user,
+        'fotos': previews(beitrag.fotos.all()),
+        'may_edit': beitrag.may_edit(request.user),
     }
-    open_states = (Beitrag.STATUS_DRAFT, Beitrag.STATUS_SUBMITTED, Beitrag.STATUS_REJECTED)
+    if not beitrag.may_approve(user):
+        # The author may look at the own post (status, links), not approve it.
+        if beitrag.created_by_id is None or beitrag.created_by_id != getattr(user, 'pk', None):
+            raise PermissionDenied
+        context.update(state='view', title=beitrag.get_status_display(),
+                       message=beitrag.rejection_note if beitrag.status == Beitrag.STATUS_REJECTED else '')
+        return render(request, 'beitraege/pruefen.html', context)
+    context.update(problems=workflow.problems(beitrag), approver=user)
+    open_states = Beitrag.EDITABLE
     if request.method == 'POST' and beitrag.status in open_states:
         if request.POST.get('aktion') == 'ablehnen':
             workflow.reject(beitrag, user, request.POST.get('grund', '').strip())
             context.update(state='done', title=_('Sent back'),
-                           message=_('The author has been told.'))
+                           message=_('The author has been told.'), may_edit=False)
             return render(request, 'beitraege/pruefen.html', context)
         try:
             workflow.approve(beitrag, user)
@@ -142,7 +219,7 @@ def _check_page(request, beitrag, user):
             context.update(state='error', title=_('The post cannot be approved'),
                            message='; '.join(exc.messages))
             return render(request, 'beitraege/pruefen.html', context, status=400)
-        context.update(state='done', title=_('Approved'), message=(
+        context.update(state='done', may_edit=False, title=_('Approved'), message=(
             _('The post is being published now.') if beitrag.publish_at is None
             else _('The post is published at its time.')))
         return render(request, 'beitraege/pruefen.html', context)
@@ -156,16 +233,20 @@ def _check_page(request, beitrag, user):
 
 
 def foto(request, token, variant):
-    """A JPEG rendition of a photo, made once and kept next to the uploads."""
+    """A JPEG rendition of a photo, made once and kept out of the public media."""
     if variant not in images.VARIANTS:
         raise Http404()
-    photo = BeitragFoto.objects.filter(token=token).first()
+    photo = BeitragFoto.objects.select_related('beitrag').filter(token=token).first()
     if photo is None:
         raise Http404()
-    cache = Path(settings.MEDIA_ROOT) / 'beitraege' / 'cache'
+    if photo.beitrag.status not in Beitrag.PHOTOS_PUBLIC and not preview_allowed(photo, request.GET.get('s')):
+        raise Http404()
+    cache = Path(settings.MEDIA_ROOT) / '.beitraege' / 'cache'
     target = cache / f'{photo.token}-{variant}-{photo.fokus_y}.jpg'
     if not target.exists():
         cache.mkdir(parents=True, exist_ok=True)
         with photo.bild.open('rb') as handle:
             target.write_bytes(images.rendition(handle, variant, photo.fokus_y))
-    return FileResponse(target.open('rb'), content_type='image/jpeg')
+    response = FileResponse(target.open('rb'), content_type='image/jpeg')
+    response['Cache-Control'] = 'private, max-age=3600'
+    return response

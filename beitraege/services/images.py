@@ -78,6 +78,24 @@ def rendition(source, variant: str, fokus_y: int = 50) -> bytes:
     return output.getvalue()
 
 
+ORIGINAL_LONG_SIDE = 4096
+
+
+def clean_original(source) -> bytes:
+    """The upload as it is kept: upright JPEG without any metadata.
+
+    Uploads land below MEDIA_ROOT, which the web server may serve; a photo
+    from a phone must never sit there with its GPS position.
+    """
+    image = open_upright(source)
+    image.thumbnail((ORIGINAL_LONG_SIDE, ORIGINAL_LONG_SIDE), Image.Resampling.LANCZOS)
+    output = BytesIO()
+    clean = Image.new('RGB', image.size)
+    clean.paste(image)
+    clean.save(output, 'JPEG', quality=94, optimize=True)
+    return output.getvalue()
+
+
 def is_readable(source) -> bool:
     """True if the upload is a photo Pillow can open (JPEG, PNG, HEIC, ...)."""
     try:

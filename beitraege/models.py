@@ -259,6 +259,16 @@ class Beitrag(models.Model):
     def __str__(self):
         return self.titel
 
+    EDITABLE = (STATUS_DRAFT, STATUS_SUBMITTED, STATUS_REJECTED)
+    # From the approval on, Instagram and Facebook may download the photos.
+    PHOTOS_PUBLIC = (STATUS_APPROVED, STATUS_PUBLISHING, STATUS_PUBLISHED, STATUS_PARTIAL, STATUS_FAILED)
+
+    def may_edit(self, user) -> bool:
+        """Author and approvers, as long as the post is not approved yet."""
+        if self.status not in self.EDITABLE or not getattr(user, 'is_authenticated', False):
+            return False
+        return self.created_by_id == user.pk or self.may_approve(user)
+
     def may_approve(self, user) -> bool:
         """Approvers of the topic and people allowed to approve every topic."""
         if not getattr(user, 'is_authenticated', False) or not user.is_active:
@@ -282,7 +292,9 @@ class Beitrag(models.Model):
 
 def _foto_path(instance, filename):
     suffix = Path(filename).suffix.lower() or '.jpg'
-    return f'beitraege/{instance.beitrag_id or "neu"}/{uuid.uuid4().hex}{suffix}'
+    # A folder starting with a dot: web servers in front of /media/ do not
+    # serve it (nginx: location ~ /\. deny), only Django does.
+    return f'.beitraege/{instance.beitrag_id or "neu"}/{uuid.uuid4().hex}{suffix}'
 
 
 class BeitragFoto(models.Model):
@@ -308,6 +320,15 @@ class BeitragFoto(models.Model):
     def save(self, *args, **kwargs):
         if not self.token:
             self.token = uuid.uuid4().hex
+        if self.bild and not getattr(self.bild, '_committed', True):
+            # A new upload: keep it only as an upright JPEG without EXIF/GPS.
+            from .services import images
+            from django.core.files.base import ContentFile
+
+            self.bild.file.seek(0)
+            content = images.clean_original(self.bild.file)
+            name = Path(self.bild.name).stem + '.jpg'
+            self.bild.save(name, ContentFile(content), save=False)
         super().save(*args, **kwargs)
 
 

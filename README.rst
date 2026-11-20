@@ -154,6 +154,9 @@ Features
     tags; photos are turned upright and stripped of location data
   - Each platform keeps its own status and link; a failure raises a notification and can be published again
     without touching the platforms that worked
+  - Works from a phone outside the office network (nothing below ``/admin``): "Meine Beiträge", editing and
+    resubmitting returned posts, approver edits of platform texts and crops
+  - Photos stored without EXIF/GPS outside the public media; previews only through signed links until approval
 
 - **Manual (Handbuch)** - In-app manual for the staff (menu "Help") with the chapters "Inventar und Ausleihe" and "Einstellungen für Administratoren"; chapters show the release they were checked against and note when the installed version is newer; `python handbuch/aktualitaet.py --bump` confirms chapters whose pages did not change
 - **Version in the admin** - Installed version and commit shown at the bottom of the sidebar

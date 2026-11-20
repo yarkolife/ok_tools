@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-20 13:01+0000\n"
+"POT-Creation-Date: 2026-11-20 13:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: admin.py:31 models.py:344
+#: admin.py:31 models.py:366
 msgid "Platforms"
 msgstr "Plattformen"
 
@@ -86,7 +86,7 @@ msgstr "Texte"
 msgid "Platforms by default"
 msgstr "Plattformen (Voreinstellung)"
 
-#: admin.py:112 admin.py:172
+#: admin.py:112 admin.py:174
 msgid "Approval"
 msgstr "Freigabe"
 
@@ -94,61 +94,61 @@ msgstr "Freigabe"
 msgid "Preview"
 msgstr "Vorschau"
 
-#: admin.py:149 forms.py:40 models.py:228 models.py:338
+#: admin.py:151 forms.py:42 models.py:228 models.py:360
 msgid "Link"
 msgstr "Link"
 
-#: admin.py:153 models.py:322 templates/beitraege/pruefen.html:28
+#: admin.py:155 models.py:344 templates/beitraege/pruefen.html:28
 msgid "Open"
 msgstr "Öffnen"
 
-#: admin.py:189
+#: admin.py:191
 msgid "The post was changed and needs a new approval."
 msgstr "Der Beitrag wurde geändert und muss neu freigegeben werden."
 
-#: admin.py:207 models.py:239 models.py:336
+#: admin.py:209 models.py:239 models.py:358
 msgid "Status"
 msgstr "Status"
 
-#: admin.py:220 models.py:242
+#: admin.py:222 models.py:242
 msgid "Created by"
 msgstr "Erstellt von"
 
-#: admin.py:224
+#: admin.py:226
 msgid "Links"
 msgstr "Links"
 
-#: admin.py:232
+#: admin.py:234
 msgid "Check and approve"
 msgstr "Prüfen und freigeben"
 
-#: admin.py:237
+#: admin.py:239
 msgid "Open the check page"
 msgstr "Prüfseite öffnen"
 
-#: admin.py:239 templates/beitraege/neu.html:38
+#: admin.py:241 templates/beitraege/neu.html:38
 msgid "Submit for approval"
 msgstr "Zur Freigabe einreichen"
 
-#: admin.py:245
+#: admin.py:247
 #, python-format
 msgid "%(count)s post(s) submitted; the approvers have been told."
 msgstr "%(count)s Beitrag/Beiträge eingereicht; die Freigebenden sind benachrichtigt."
 
-#: admin.py:248
+#: admin.py:250
 msgid "Approve"
 msgstr "Freigeben"
 
-#: admin.py:260
+#: admin.py:262
 #, python-format
 msgid "%(count)s post(s) approved."
 msgstr "%(count)s Beitrag/Beiträge freigegeben."
 
-#: admin.py:262
+#: admin.py:264
 msgid "Publish failed platforms again"
 msgstr "Fehlgeschlagene Plattformen erneut veröffentlichen"
 
-#: admin.py:270
+#: admin.py:272
 #, python-format
 msgid "%(count)s post(s) are being published again."
 msgstr "%(count)s Beitrag/Beiträge werden erneut veröffentlicht."
@@ -157,7 +157,7 @@ msgstr "%(count)s Beitrag/Beiträge werden erneut veröffentlicht."
 msgid "Posts"
 msgstr "Beiträge"
 
-#: forms.py:27 workflow.py:115
+#: forms.py:27 views.py:130 workflow.py:115
 #, python-format
 msgid "At most %(max)s photos."
 msgstr "Höchstens %(max)s Fotos."
@@ -167,51 +167,59 @@ msgstr "Höchstens %(max)s Fotos."
 msgid "%(name)s is not a photo that can be read (JPEG, PNG, HEIC)."
 msgstr "%(name)s ist kein lesbares Foto (JPEG, PNG, HEIC)."
 
-#: forms.py:36 models.py:195 models.py:231
+#: forms.py:38 models.py:195 models.py:231
 msgid "Topic"
 msgstr "Thema"
 
-#: forms.py:38 models.py:226
+#: forms.py:40 models.py:226
 msgid "Title"
 msgstr "Titel"
 
-#: forms.py:39 models.py:227
+#: forms.py:41 models.py:227
 msgid "Text"
 msgstr "Text"
 
-#: forms.py:41 models.py:229
+#: forms.py:43 models.py:229
 msgid "E.g. the Mediathek; clickable on Facebook and the website."
 msgstr "Z. B. die Mediathek; auf Facebook und der Website anklickbar."
 
-#: forms.py:42 models.py:302
+#: forms.py:44 models.py:314 templates/beitraege/bearbeiten.html:20
 msgid "Photos"
 msgstr "Fotos"
 
-#: forms.py:43
+#: forms.py:45
 msgid "Up to 10 photos; the first one is the cover."
 msgstr "Bis zu 10 Fotos; das erste ist das Titelbild."
 
-#: forms.py:45 models.py:234
+#: forms.py:47 models.py:234
 msgid "Everybody recognisable on the photos agreed to the publication."
 msgstr "Alle erkennbaren Personen auf den Fotos sind mit der Veröffentlichung einverstanden."
 
-#: forms.py:48
+#: forms.py:50
 msgid "Publish on"
 msgstr "Veröffentlichen auf"
 
-#: forms.py:50 models.py:236 templates/beitraege/pruefen.html:9
+#: forms.py:52 models.py:236 templates/beitraege/pruefen.html:9
 msgid "Publish at"
 msgstr "Veröffentlichen am"
 
-#: forms.py:53 models.py:237
+#: forms.py:55 models.py:237
 msgid "Empty: right after the approval."
 msgstr "Leer: direkt nach der Freigabe."
 
-#: forms.py:66
+#: forms.py:61
+msgid "Add photos"
+msgstr "Fotos hinzufügen"
+
+#: forms.py:62
+msgid "Up to 10 photos in all."
+msgstr "Insgesamt bis zu 10 Fotos."
+
+#: forms.py:72 views.py:132
 msgid "Confirm the consent before sending photos."
 msgstr "Bitte das Einverständnis bestätigen, bevor Fotos gesendet werden."
 
-#: forms.py:68
+#: forms.py:74
 msgid "Choose at least one platform."
 msgstr "Bitte mindestens eine Plattform wählen."
 
@@ -360,7 +368,7 @@ msgstr "Dürfen Beiträge dieses Themas freigeben. Wer „Beiträge aller Themen
 msgid "Active"
 msgstr "Aktiv"
 
-#: models.py:192 models.py:294
+#: models.py:192 models.py:306
 msgid "Order"
 msgstr "Reihenfolge"
 
@@ -377,15 +385,15 @@ msgctxt "beitrag"
 msgid "Waiting for approval"
 msgstr "Wartet auf Freigabe"
 
-#: models.py:217 views.py:145
+#: models.py:217 views.py:222
 msgid "Approved"
 msgstr "Freigegeben"
 
-#: models.py:218 models.py:323
+#: models.py:218 models.py:345
 msgid "Publishing"
 msgstr "Wird veröffentlicht"
 
-#: models.py:219 models.py:324
+#: models.py:219 models.py:346
 msgid "Published"
 msgstr "Veröffentlicht"
 
@@ -393,7 +401,7 @@ msgstr "Veröffentlicht"
 msgid "Partly published"
 msgstr "Teilweise veröffentlicht"
 
-#: models.py:221 models.py:325
+#: models.py:221 models.py:347
 msgid "Failed"
 msgstr "Fehlgeschlagen"
 
@@ -425,7 +433,7 @@ msgstr "Erstellt am"
 msgid "Updated at"
 msgstr "Geändert am"
 
-#: models.py:252 models.py:292 models.py:329
+#: models.py:252 models.py:304 models.py:351
 msgctxt "beitrag"
 msgid "Post"
 msgstr "Beitrag"
@@ -439,43 +447,43 @@ msgstr "Beiträge"
 msgid "Can approve posts of every topic"
 msgstr "Darf Beiträge aller Themen freigeben"
 
-#: models.py:293 models.py:301
+#: models.py:305 models.py:313
 msgid "Photo"
 msgstr "Foto"
 
-#: models.py:296
+#: models.py:308
 msgid "Crop position (%)"
 msgstr "Bildausschnitt (%)"
 
-#: models.py:297
+#: models.py:309
 msgid "Where the 4:5 crop for Instagram sits: 0 top, 50 middle, 100 bottom."
 msgstr "Lage des 4:5-Ausschnitts für Instagram: 0 oben, 50 Mitte, 100 unten."
 
-#: models.py:330 models.py:343
+#: models.py:352 models.py:365
 msgid "Platform"
 msgstr "Plattform"
 
-#: models.py:331
+#: models.py:353
 msgid "Publish here"
 msgstr "Hier veröffentlichen"
 
-#: models.py:332
+#: models.py:354
 msgid "Text on this platform"
 msgstr "Text auf dieser Plattform"
 
-#: models.py:333
+#: models.py:355
 msgid "Built from the post and its topic; may be changed."
 msgstr "Aus Beitrag und Thema erstellt; kann geändert werden."
 
-#: models.py:337
+#: models.py:359
 msgid "ID on the platform"
 msgstr "ID auf der Plattform"
 
-#: models.py:339
+#: models.py:361
 msgid "Published at"
 msgstr "Veröffentlicht am"
 
-#: models.py:340
+#: models.py:362
 msgid "Error"
 msgstr "Fehler"
 
@@ -487,15 +495,41 @@ msgstr "Das einfache Formular fürs Handy: Fotos, Text, Thema, einreichen."
 msgid "New post (phone)"
 msgstr "Neuer Beitrag (Handy)"
 
-#: templates/beitraege/_base.html:57 templates/beitraege/eingereicht.html:10
-#: views.py:70
+#: templates/beitraege/_base.html:61 templates/beitraege/eingereicht.html:10
+#: views.py:91
 msgid "My posts"
 msgstr "Meine Beiträge"
 
-#: templates/beitraege/_base.html:57 templates/beitraege/meine.html:4
-#: views.py:53
+#: templates/beitraege/_base.html:61 templates/beitraege/meine.html:4
+#: views.py:72
 msgid "New post"
 msgstr "Neuer Beitrag"
+
+#: templates/beitraege/bearbeiten.html:25
+msgid "Crop for Instagram"
+msgstr "Ausschnitt für Instagram"
+
+#: templates/beitraege/bearbeiten.html:29
+msgid "Remove"
+msgstr "Entfernen"
+
+#: templates/beitraege/bearbeiten.html:54
+msgid "Text per platform"
+msgstr "Text je Plattform"
+
+#: templates/beitraege/bearbeiten.html:55
+msgid ""
+"Built from the post and its topic. A text changed here is kept when the post "
+"changes."
+msgstr "Aus Beitrag und Thema erstellt. Ein hier geänderter Text bleibt, auch wenn der Beitrag später geändert wird."
+
+#: templates/beitraege/bearbeiten.html:62
+msgid "Save and submit again"
+msgstr "Speichern und erneut einreichen"
+
+#: templates/beitraege/bearbeiten.html:62
+msgid "Save"
+msgstr "Speichern"
 
 #: templates/beitraege/eingereicht.html:6
 #, python-format
@@ -548,9 +582,9 @@ msgstr "Grund (für die Rückgabe)"
 msgid "Send back to the author"
 msgstr "An die Autorin / den Autor zurückgeben"
 
-#: templates/beitraege/pruefen.html:45
-msgid "Change texts or photos in OK-Tools"
-msgstr "Texte oder Fotos in OK-Tools ändern"
+#: templates/beitraege/pruefen.html:49 views.py:163
+msgid "Edit post"
+msgstr "Beitrag bearbeiten"
 
 #: templates/email/beitrag_abgelehnt_body.txt:1
 #, python-format
@@ -595,48 +629,60 @@ msgstr "Der Link ist persönlich und 7 Tage gültig. Eine Freigabe veröffentlic
 msgid "Post to approve (%(thema)s): %(titel)s"
 msgstr "Beitrag zur Freigabe (%(thema)s): %(titel)s"
 
-#: views.py:83
+#: views.py:45
+msgid "top"
+msgstr "oben"
+
+#: views.py:45
+msgid "middle"
+msgstr "Mitte"
+
+#: views.py:46
+msgid "bottom"
+msgstr "unten"
+
+#: views.py:104
 msgid "Post submitted"
 msgstr "Beitrag eingereicht"
 
-#: views.py:102
+#: views.py:187
 msgid "Invalid or expired link"
 msgstr "Ungültiger oder abgelaufener Link"
 
-#: views.py:103
+#: views.py:188
 msgid "This link is invalid or has expired. Open the post in OK-Tools instead."
 msgstr "Dieser Link ist ungültig oder abgelaufen. Bitte den Beitrag in OK-Tools öffnen."
 
-#: views.py:136
+#: views.py:213
 msgid "Sent back"
 msgstr "Zurückgegeben"
 
-#: views.py:137
+#: views.py:214
 msgid "The author has been told."
 msgstr "Die Autorin / der Autor ist benachrichtigt."
 
-#: views.py:142
+#: views.py:219
 msgid "The post cannot be approved"
 msgstr "Der Beitrag kann nicht freigegeben werden"
 
-#: views.py:146
+#: views.py:223
 msgid "The post is being published now."
 msgstr "Der Beitrag wird jetzt veröffentlicht."
 
-#: views.py:147
+#: views.py:224
 msgid "The post is published at its time."
 msgstr "Der Beitrag wird zur geplanten Zeit veröffentlicht."
 
-#: views.py:150
+#: views.py:227
 msgid "Nothing to do"
 msgstr "Nichts zu tun"
 
-#: views.py:151 workflow.py:155
+#: views.py:228 workflow.py:155
 #, python-format
 msgid "This post is already %(status)s."
 msgstr "Dieser Beitrag ist bereits: %(status)s."
 
-#: views.py:154
+#: views.py:231
 msgid "Check the post"
 msgstr "Beitrag prüfen"
 
@@ -669,3 +715,6 @@ msgstr "Der Facebook-Beitrag ist leer."
 #: workflow.py:151 workflow.py:172
 msgid "You may not approve posts of this topic."
 msgstr "Du darfst Beiträge dieses Themas nicht freigeben."
+
+#~ msgid "Change texts or photos in OK-Tools"
+#~ msgstr "Texte oder Fotos in OK-Tools ändern"

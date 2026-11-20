@@ -41,10 +41,15 @@ Seite im Handy-Browser „Zum Home-Bildschirm“ hinzufügen.
 **Zur Freigabe einreichen** schickt den Beitrag an die Freigebenden.
 
 !!! hinweis ""
-    Fotos werden beim Veröffentlichen automatisch aufbereitet: aufrecht
-    gedreht, ohne Standort- und Kameradaten, für Instagram im Format 4:5
-    zugeschnitten (der Ausschnitt lässt sich in der Verwaltung beim Foto unter
-    „Bildausschnitt“ verschieben).
+    Alles geht auch außerhalb des Büros: unter `https://<portal>/profile/login/`
+    anmelden (wie im Mitgliederbereich), dann **Neuer Beitrag**. Die Verwaltung
+    (`/admin`) braucht man dafür nicht; sie ist von außen oft gesperrt.
+
+!!! hinweis ""
+    Fotos werden schon beim Hochladen aufrecht gedreht und ohne Standort- und
+    Kameradaten gespeichert. Für Instagram werden sie auf 4:5 zugeschnitten;
+    den Ausschnitt wählt man unter **Beitrag bearbeiten**. Vor der Freigabe
+    sind die Fotos nur über die Prüf- und Bearbeitungsseiten zu sehen.
 
 ## 3. Prüfen und freigeben, auch am Handy {#freigeben}
 
@@ -60,16 +65,21 @@ und 7 Tage gültig. In OK-Tools führt **Prüfseite öffnen** im Beitrag dorthin
 - **An die Autorin / den Autor zurückgeben** mit einem Grund: Die Person
   bekommt eine Benachrichtigung und eine E-Mail, ändert den Beitrag und
   reicht ihn neu ein.
-- **Texte oder Fotos in OK-Tools ändern**: öffnet den Beitrag in der
-  Verwaltung.
+- **Beitrag bearbeiten**: Text, Fotos, Ausschnitt für Instagram und – für
+  Freigebende – der Text je Plattform, auch am Handy.
 
 Beim Instagram-Text zeigt die Seite die Fotos so, wie Instagram sie
-zuschneidet (4:5). Passt ein Ausschnitt nicht, in der Verwaltung beim Foto den
-„Bildausschnitt“ ändern.
+zuschneidet (4:5). Passt ein Ausschnitt nicht: **Beitrag bearbeiten** →
+„Ausschnitt für Instagram“.
 
 Fehlt etwas (z. B. ein Foto für Instagram, das Einverständnis oder mehr als
 5 Hashtags im Instagram-Text), steht der Grund über dem Knopf und die
 Freigabe ist gesperrt.
+
+**Zurückgegeben?** Der Link in der E-Mail öffnet **Beitrag bearbeiten**: Text
+ändern, Fotos entfernen oder hinzufügen, den Ausschnitt für Instagram wählen
+und **Speichern und erneut einreichen**. Bearbeiten lässt sich ein Beitrag,
+bis er freigegeben ist.
 
 **Meine Beiträge** (oben auf jeder Beitragsseite, `https://<portal>/beitraege/`):
 die eigenen Beiträge mit Status und, für Freigebende, alles, was auf ihre

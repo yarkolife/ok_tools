@@ -109,7 +109,7 @@ def tell_author_rejected(beitrag: Beitrag, by) -> None:
         _mail(author.email, 'abgelehnt', {
             'beitrag': beitrag,
             'von': person_name(by),
-            'url': absolute_url(reverse('admin:beitraege_beitrag_change', args=[beitrag.pk])),
+            'url': absolute_url(reverse('beitraege:bearbeiten', args=[beitrag.pk])),
         })
 
 

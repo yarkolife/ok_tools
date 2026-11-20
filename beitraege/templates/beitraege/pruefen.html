@@ -9,7 +9,7 @@
       {% if beitrag.publish_at %}<br>{% trans "Publish at" %}: {{ beitrag.publish_at|date:"d.m.Y H:i" }}{% endif %}</p>
     <h2>{{ beitrag.titel }}</h2>
     {% if fotos %}
-      <div class="photos natural">{% for f in fotos %}<img src="{% url 'beitraege:foto' f.token 'web' %}" alt="" loading="lazy">{% endfor %}</div>
+      <div class="photos natural">{% for p in fotos %}<img src="{{ p.web }}" alt="" loading="lazy">{% endfor %}</div>
     {% endif %}
   {% endif %}
 </div>
@@ -20,7 +20,7 @@
       <h2>{{ ziel.get_plattform_display }}{% if ziel.status %} · {{ ziel.get_status_display }}{% endif %}</h2>
       {% if ziel.plattform == 'instagram' and fotos %}
         <p class="meta">{% trans "Instagram shows the photos cut to 4:5:" %}</p>
-        <div class="photos ig">{% for f in fotos %}<img src="{% url 'beitraege:foto' f.token 'instagram' %}" alt="" loading="lazy">{% endfor %}</div>
+        <div class="photos ig">{% for p in fotos %}<img src="{{ p.instagram }}" alt="" loading="lazy">{% endfor %}</div>
       {% endif %}
       <div class="text">{{ ziel.text }}{% if ziel.plattform == 'website' and beitrag.link %}
 
@@ -42,8 +42,10 @@
       <label for="grund">{% trans "Reason (for sending it back)" %}</label>
       <textarea id="grund" name="grund" rows="3"></textarea>
       <button type="submit" name="aktion" value="ablehnen" class="secondary">{% trans "Send back to the author" %}</button>
-      <p class="help"><a href="{{ admin_url }}">{% trans "Change texts or photos in OK-Tools" %}</a></p>
     </form>
   {% endif %}
+{% endif %}
+{% if may_edit and beitrag %}
+  <a class="button" href="{% url 'beitraege:bearbeiten' beitrag.pk %}" style="background:transparent;color:var(--brand);border:1px solid var(--line)">{% trans "Edit post" %}</a>
 {% endif %}
 {% endblock %}
