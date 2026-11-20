@@ -292,6 +292,116 @@ Erscheint erst, wenn das Reel-Studio eingerichtet ist.
 | Auch auf Facebook veröffentlichen, Facebook-Seiten-ID | Nach Instagram wird dasselbe Reel auf der Facebook-Seite veröffentlicht, mit derselben Bildunterschrift und demselben Titelbild-Frame, ohne Collab-Konten. Nur mit Facebook-Login; der Token braucht `pages_show_list`, `pages_read_engagement` und `pages_manage_posts` für die Seite. Facebook nimmt Reels von 3 bis 90 Sekunden und höchstens 30 am Tag; andere gehen nur auf Instagram (Hinweis beim Freigeben). Schlägt Facebook fehl, bleibt der Instagram-Post unberührt; in der Post-Liste schickt **Erneut auf Facebook veröffentlichen** das Reel noch einmal. |
 | Verbindung | **Verbindung testen** prüft Konto-ID und Token bei Instagram, ohne etwas zu veröffentlichen, und mit Facebook auch die Seite. |
 
+### Meta-App einrichten: Instagram und Facebook anbinden {#meta-app}
+
+Einmalig je Sender. Danach veröffentlicht OK-Tools freigegebene Reels auf
+Instagram und, wenn gewünscht, direkt danach auf der Facebook-Seite. Die
+Instagram-Schnittstelle selbst kann ein Reel nicht auf Facebook teilen (der
+Schalter „Auch auf Facebook teilen“ der App gilt nicht für Posts über die
+Schnittstelle), darum wird es auf der Seite ein zweites Mal veröffentlicht.
+
+**Voraussetzungen**
+
+- Ein professionelles Instagram-Konto (Business oder Creator), das mit der
+  Facebook-Seite des Senders verknüpft ist.
+- Ein Meta-Business-Portfolio, dem Seite und Instagram-Konto gehören; Sie
+  haben darin volle Rechte.
+- OK-Tools ist unter einer öffentlichen https-Adresse erreichbar
+  (`SITE_BASE_URL`): Instagram und Facebook laden das Video von dort.
+- Das Reel-Studio ist eingerichtet, sonst fehlt der Abschnitt Instagram.
+
+!!! hinweis ""
+    Nur Instagram ohne Facebook-Seite geht auch: In der Meta-App „Instagram
+    Login“ wählen und in OK-Tools **Instagram-API: Instagram-Login**. Der Token
+    gilt dann 60 Tage und wird automatisch erneuert. Reels auf Facebook gibt es
+    nur mit Facebook-Login, wie unten beschrieben.
+
+**1. App anlegen.** Auf [developers.facebook.com](https://developers.facebook.com)
+unter **Meine Apps → App erstellen** eine App vom Typ **Business** anlegen
+und dem Business-Portfolio des Senders zuordnen.
+
+**2. Anwendungsfälle.** Im Dashboard **Anwendungsfälle hinzufügen**:
+„Messaging und Content auf Instagram verwalten“ und „Alles auf deiner Seite
+verwalten“. Im zweiten unter **Anpassen → Berechtigungen und Features** bei
+`pages_manage_posts` auf **Hinzufügen** klicken („Bereit zum Testen“ genügt).
+
+**3. App-Einstellungen → Allgemein.** App-Domain (z. B. `portal.example.de`),
+**URL zur Datenschutzrichtlinie** und **Anleitung zur Datenlöschung**
+(beides `https://<portal>/privacy_policy/`), Kategorie „Business und Seiten“,
+ein quadratisches App-Symbol (ab 1024 × 1024) und die Kontaktdaten des
+Datenschutzbeauftragten (oder des Vereins). Bei **Country** das richtige
+Land wählen. Speichern.
+
+**4. Weiterleitungs-URL.** Unter **Anwendungsfälle → Instagram → Anpassen →
+API setup with Unified login** bei **Neue Weiterleitungs-URL registrieren**
+`https://<portal>/` eintragen und speichern.
+
+**5. Login-Konfiguration.** **Facebook Login for Business → Konfigurationen
+→ Konfiguration erstellen** (nicht „Mit Vorlage“):
+
+- Login-Variante **Allgemein**, Zugriffstoken **Systemnutzer-Zugriffstoken**,
+  Ablauf **Nie**;
+- Assets: **Seiten** und **Instagram-Konten**;
+- Berechtigungen: `instagram_basic`, `instagram_content_publish`,
+  `instagram_manage_comments`, `instagram_manage_messages`,
+  `pages_show_list`, `pages_read_engagement`, `pages_manage_posts`.
+
+Die **Konfigurations-ID** notieren. Der Instagram-Assistent meldet danach
+„Keine kompatiblen Konfigurationen“ und bietet kein „Token generieren“ an,
+weil die Konfiguration auch Seiten enthält. Das ist richtig so; der Token
+entsteht in den nächsten zwei Schritten.
+
+**6. Anmelden.** Diese Adresse im Browser öffnen, in dem Sie bei Facebook
+angemeldet sind (`<App-ID>`, `<Konfigurations-ID>` und `<portal>` ersetzen):
+
+    https://www.facebook.com/dialog/oauth?client_id=<App-ID>&config_id=<Konfigurations-ID>&display=popup&override_default_response_type=true&redirect_uri=https://<portal>/&response_type=code
+
+Im Dialog das Business-Portfolio, **die Facebook-Seite** und **das
+Instagram-Konto** auswählen und alle Berechtigungen bestätigen. Danach landet
+der Browser auf `https://<portal>/?code=…`. Den Wert nach `code=` (bis vor
+`#`) kopieren.
+
+**7. Code gegen den Token tauschen.** Der Code gilt etwa 10 Minuten. Den
+App-Geheimcode finden Sie unter **App-Einstellungen → Allgemein**. Auf einem
+Rechner mit `curl` (in einer Zeile):
+
+    curl "https://graph.facebook.com/v27.0/oauth/access_token?client_id=<App-ID>&client_secret=<App-Geheimcode>&redirect_uri=https://<portal>/&code=<Code>"
+
+Die Antwort enthält `access_token`: das ist der Token für OK-Tools. Er läuft
+nicht ab. Kontrolle (Seite und verknüpftes Instagram-Konto):
+
+    curl "https://graph.facebook.com/v27.0/me/accounts?fields=id,name,instagram_business_account&access_token=<Token>"
+
+`id` ist die **Facebook-Seiten-ID**, `instagram_business_account.id` die
+**Instagram-Konto-ID**. Ist die Liste leer, wurde in Schritt 6 keine Seite
+ausgewählt.
+
+!!! warnung ""
+    App-Geheimcode und Token sind Zugangsdaten: nicht per E-Mail oder Chat
+    weitergeben und nirgends speichern außer im Feld „Zugriffstoken“.
+
+**8. In OK-Tools eintragen.** **Konfiguration → Werkzeuge → Instagram**:
+Instagram-Posting aktiviert, **Instagram-API: Facebook-Login**, Version
+`v27.0`, Konto-ID, Zugriffstoken, **Auch auf Facebook veröffentlichen** und
+die Facebook-Seiten-ID. Speichern und **Verbindung testen**: Es müssen das
+Instagram-Konto und die Facebook-Seite erscheinen.
+
+**9. App veröffentlichen.** Links **Veröffentlichen → Veröffentlichen**
+(Live-Modus). Solange die App im Entwicklungsmodus („Unveröffentlicht“) ist,
+sehen nur Personen mit einer Rolle in der App die Reels auf der Facebook-Seite;
+alle anderen sehen ein schwarzes Bild. Instagram betrifft das nicht. Mit dem
+Wechsel werden auch die bereits veröffentlichten Reels sichtbar.
+
+**Typische Probleme**
+
+| Meldung oder Beobachtung | Ursache und Abhilfe |
+|---|---|
+| „No access to the Facebook page“ beim Verbindungstest, `me/accounts` leer | Die Konfiguration enthält keine Seiten oder beim Anmelden wurde keine Seite gewählt: Schritt 5 prüfen, Schritte 6–8 wiederholen. |
+| Facebook zeigt den Reel nur dem eigenen Konto | App im Entwicklungsmodus: Schritt 9. |
+| „Facebook nimmt Reels von 3 bis 90 Sekunden an“ | Das Reel ist zu lang; es geht nur auf Instagram. |
+| Systemnutzer erscheint nicht unter Unternehmenseinstellungen → Systemnutzer | Normal: Meta legt ihn beim Anmelden (Schritt 6) selbst an. Rechte ändern Sie über die Konfiguration und eine neue Anmeldung, nicht dort. |
+| Neuer Token nötig (Seite gewechselt, Rechte geändert) | Schritte 6–8 wiederholen; der alte Token bleibt bis zum Ersetzen gültig. |
+
 ## 11. Benachrichtigungen {#benachrichtigungen}
 
 **Benachrichtigungs-Konfiguration** (Kachel): Hauptschalter für alle
