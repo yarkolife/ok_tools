@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+2026-11-20 (Version 4.80.3)
+==========================
+
+* Fixed: In the dark theme the opened action menu of every list (and other plain dropdowns) showed dark text on a dark grey background and could hardly be read. The admin now declares its dark colour scheme to the browser, and the entries use the theme's surface and text colours.
+
 2026-11-19 (Version 4.80.2)
 ==========================
 

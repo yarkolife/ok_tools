@@ -244,6 +244,17 @@ html.dark [style*="color: #17a2b8"], html.dark [style*="color:#17a2b8"] { color:
 .ok-link:hover { text-decoration: underline; }
 .ok-btn-row { display: flex; flex-wrap: wrap; gap: 6px; }
 
+/* Native dropdowns (the action menu of every change list, plain selects in
+   forms): the browser draws the open list itself and, without a colour
+   scheme, used a dark grey background with the select's dark text. */
+html.dark { color-scheme: dark; }
+html.dark select option,
+html.dark select optgroup {
+    background-color: var(--ok-surface);
+    color: var(--ok-ink);
+}
+html.dark select option:disabled { color: var(--ok-ink-4); }
+
 /* Submit button after the first click, until the page answers (submit_guard.js) */
 .ok-submitting {
     opacity: .6;
