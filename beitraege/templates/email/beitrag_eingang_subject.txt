@@ -1,0 +1,1 @@
+{% load i18n %}{% blocktranslate with titel=beitrag.titel %}Post received: {{ titel }}{% endblocktranslate %}

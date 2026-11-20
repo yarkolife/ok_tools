@@ -157,6 +157,8 @@ Features
   - Works from a phone outside the office network (nothing below ``/admin``): "Meine Beiträge", editing and
     resubmitting returned posts, approver edits of platform texts and crops
   - Photos stored without EXIF/GPS outside the public media; previews only through signed links until approval
+  - Posts by mail: text and photos to a posts mailbox with a code in the subject, fetched over IMAP every 5 minutes;
+    only staff with the right to add posts, others ignored silently; receipt mail with a link to the post
 
 - **Manual (Handbuch)** - In-app manual for the staff (menu "Help") with the chapters "Inventar und Ausleihe" and "Einstellungen für Administratoren"; chapters show the release they were checked against and note when the installed version is newer; `python handbuch/aktualitaet.py --bump` confirms chapters whose pages did not change
 - **Version in the admin** - Installed version and commit shown at the bottom of the sidebar

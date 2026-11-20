@@ -72,6 +72,24 @@ class BeitragsConfig(models.Model):
         max_length=200, blank=True, verbose_name=_('WordPress application password'),
         help_text=_('Users → Profile → Application passwords in WordPress.'),
     )
+    mail_enabled = models.BooleanField(
+        default=False,
+        verbose_name=_('Posts by mail'),
+        help_text=_('Staff send a mail with text and photos to a mailbox; OK-Tools turns it into a post.'),
+    )
+    imap_host = models.CharField(max_length=200, blank=True, verbose_name=_('IMAP server'))
+    imap_port = models.PositiveIntegerField(default=993, verbose_name=_('IMAP port'),
+                                            help_text=_('993 for IMAP over SSL.'))
+    imap_user = models.CharField(max_length=200, blank=True, verbose_name=_('IMAP user'))
+    imap_password = models.CharField(max_length=200, blank=True, verbose_name=_('IMAP password'))
+    imap_folder = models.CharField(max_length=100, default='INBOX', verbose_name=_('IMAP folder'))
+    mail_address = models.EmailField(
+        blank=True, verbose_name=_('Address for posts'),
+        help_text=_('Shown to staff; mails to it are fetched from the IMAP mailbox above.'))
+    mail_code = models.CharField(
+        max_length=50, blank=True, verbose_name=_('Code in the subject'),
+        help_text=_('Only mails whose subject contains this code are taken, e.g. "#okpost". The '
+                    'sender alone is no proof: a sender address can be forged.'))
     approval_mail = models.BooleanField(
         default=True,
         verbose_name=_('Approval by mail'),
@@ -94,6 +112,10 @@ class BeitragsConfig(models.Model):
     def is_website_configured(self) -> bool:
         return bool(self.website_enabled and self.wordpress_url and self.wordpress_user
                     and self.wordpress_app_password)
+
+    def is_mail_configured(self) -> bool:
+        return bool(self.mail_enabled and self.imap_host and self.imap_user and self.imap_password
+                    and self.mail_code)
 
     @staticmethod
     def meta_config():
@@ -127,6 +149,7 @@ class BeitragsConfig(models.Model):
         return [platform for platform, ready in checks if ready]
 
     PUBLISH_TASK_NAME = 'beitraege.tasks.publish_due_beitraege'
+    MAIL_TASK_NAME = 'beitraege.tasks.fetch_mail_beitraege'
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -148,6 +171,16 @@ class BeitragsConfig(models.Model):
                     'interval': every_5,
                     'crontab': None,
                     'enabled': bool(self.configured_platforms()),
+                    'kwargs': json.dumps({}),
+                },
+            )
+            PeriodicTask.objects.update_or_create(
+                name=str(_('Posts: fetch posts sent by mail')),
+                defaults={
+                    'task': self.MAIL_TASK_NAME,
+                    'interval': every_5,
+                    'crontab': None,
+                    'enabled': self.is_mail_configured(),
                     'kwargs': json.dumps({}),
                 },
             )
@@ -245,6 +278,9 @@ class Beitrag(models.Model):
                                     verbose_name=_('Approved by'))
     approved_at = models.DateTimeField(null=True, blank=True, verbose_name=_('Approved at'))
     rejection_note = models.TextField(blank=True, verbose_name=_('Reason for rejection'))
+    mail_message_id = models.CharField(
+        max_length=255, blank=True, default='', db_index=True, editable=False,
+        help_text='Message-ID of the mail the post came from; a mail is never imported twice.')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created at'))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
 

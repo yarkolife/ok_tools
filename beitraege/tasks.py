@@ -25,3 +25,11 @@ def publish_beitrag(beitrag_id):
     if beitrag is None:
         return {'status': 'skipped'}
     return {'status': publish(beitrag)}
+
+
+@shared_task(name='beitraege.tasks.fetch_mail_beitraege')
+def fetch_mail_beitraege():
+    """Read the posts mailbox (every 5 minutes)."""
+    from .mailin import fetch
+
+    return fetch()

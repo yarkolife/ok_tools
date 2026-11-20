@@ -26,7 +26,7 @@ from ok_tools.admin_secrets import SecretFieldsMixin
 class BeitragsConfigAdmin(SecretFieldsMixin, ModelAdmin):
     """Channels for posts; Instagram and Facebook use the Tools credentials."""
 
-    secret_fields = ('wordpress_app_password',)
+    secret_fields = ('wordpress_app_password', 'imap_password')
     fieldsets = (
         (_('Platforms'), {
             'fields': ('instagram_enabled', 'facebook_enabled', 'website_enabled', 'approval_mail'),
@@ -35,6 +35,13 @@ class BeitragsConfigAdmin(SecretFieldsMixin, ModelAdmin):
         }),
         (_('Website (WordPress)'), {
             'fields': ('wordpress_url', 'wordpress_user', 'wordpress_app_password', 'connection'),
+        }),
+        (_('Posts by mail'), {
+            'fields': ('mail_enabled', 'mail_address', 'mail_code', 'imap_host', 'imap_port',
+                       'imap_user', 'imap_password', 'imap_folder'),
+            'description': _('Every 5 minutes OK-Tools reads new mails of this mailbox. Only mails '
+                             'with the code in the subject from staff allowed to add posts are taken; '
+                             'all others are marked as read and ignored without an answer.'),
         }),
     )
     readonly_fields = ('connection',)
@@ -71,6 +78,18 @@ class BeitragsConfigAdmin(SecretFieldsMixin, ModelAdmin):
             else:
                 messages.success(request, _('Website: connected as %(name)s (%(roles)s).') % {
                     'name': user['name'], 'roles': ', '.join(user['roles']) or '-'})
+        if config.is_mail_configured():
+            from . import mailin
+            try:
+                unseen = mailin.check(config)
+            except Exception as exc:
+                messages.error(request, _('Mailbox: %(error)s') % {'error': exc})
+            else:
+                messages.success(request, _('Mailbox: connected, %(count)s unread mail(s).') % {
+                    'count': unseen})
+        elif config.mail_enabled:
+            messages.warning(request, _('Posts by mail is switched on but server, user, password '
+                                        'or the code is missing.'))
         meta = config.meta_config()
         if config.is_instagram_configured():
             from tools.services import instagram

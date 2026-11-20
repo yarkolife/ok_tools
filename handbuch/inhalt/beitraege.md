@@ -51,6 +51,32 @@ Seite im Handy-Browser „Zum Home-Bildschirm“ hinzufügen.
     den Ausschnitt wählt man unter **Beitrag bearbeiten**. Vor der Freigabe
     sind die Fotos nur über die Prüf- und Bearbeitungsseiten zu sehen.
 
+### Per E-Mail einreichen {#email}
+
+Ist es eingerichtet, steht unten auf **Neuer Beitrag** die Adresse und der
+Code für den Betreff. Dann genügt eine E-Mail – auch vom Handy, ohne
+Anmeldung:
+
+- **An**: die Beitrags-Adresse, **von** der eigenen Adresse, die in OK-Tools
+  hinterlegt ist.
+- **Betreff**: der Code (z. B. `#okpost`) und der Titel, z. B.
+  „#okpost Sommerfest im Hof“. Ein Thema in eckigen Klammern wählt das Thema:
+  „#okpost Sommerfest [Bildung]“.
+- **Text**: der Beitragstext. Die Signatur ab der Zeile `-- ` fällt weg.
+- **Anhänge**: bis zu 10 Fotos.
+- Optionale Zeilen im Text: `Thema: Bildung`, `Link: https://…`,
+  `Einverständnis: ja`.
+
+OK-Tools holt das Postfach alle 5 Minuten ab und schickt eine Bestätigung mit
+Link. Mit Fotos und **ohne** „Einverständnis: ja“ bleibt der Beitrag ein
+Entwurf: über den Link das Einverständnis bestätigen und einreichen. Sonst
+geht er direkt zur Freigabe.
+
+!!! warnung ""
+    E-Mails ohne Code, von unbekannten Adressen oder von Personen ohne das
+    Recht, Beiträge anzulegen, werden ohne Antwort ignoriert. Den Code nicht
+    weitergeben.
+
 ## 3. Prüfen und freigeben, auch am Handy {#freigeben}
 
 Der Link in der E-Mail öffnet die Prüfseite ohne Anmeldung; er ist persönlich
@@ -80,6 +106,8 @@ Freigabe ist gesperrt.
 ändern, Fotos entfernen oder hinzufügen, den Ausschnitt für Instagram wählen
 und **Speichern und erneut einreichen**. Bearbeiten lässt sich ein Beitrag,
 bis er freigegeben ist.
+
+![Seite „Beitrag bearbeiten“ mit Fotos, Ausschnitt für Instagram und Entfernen](bilder/b04-beitrag-bearbeiten.jpg "Beitrag bearbeiten: Fotos, Ausschnitt und Texte am Handy ändern.")
 
 **Meine Beiträge** (oben auf jeder Beitragsseite, `https://<portal>/beitraege/`):
 die eigenen Beiträge mit Status und, für Freigebende, alles, was auf ihre

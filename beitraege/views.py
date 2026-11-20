@@ -69,7 +69,13 @@ def neu(request):
             workflow.ensure_ziele(beitrag, platforms=data['plattformen'])
             workflow.submit(beitrag)
         return redirect('beitraege:eingereicht', pk=beitrag.pk)
-    return render(request, 'beitraege/neu.html', {'form': form, 'title': _('New post')})
+    from .models import BeitragsConfig
+
+    config = BeitragsConfig.get_config()
+    return render(request, 'beitraege/neu.html', {
+        'form': form, 'title': _('New post'),
+        'mail': config if config.is_mail_configured() and config.mail_address else None,
+    })
 
 
 @login_required

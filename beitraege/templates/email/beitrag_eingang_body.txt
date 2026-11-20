@@ -1,0 +1,5 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with titel=beitrag.titel thema=beitrag.thema.name %}Your mail has become the post "{{ titel }}" in the topic "{{ thema }}" with {{ fotos }} photo(s).{% endblocktranslate %}
+
+{% if submitted %}{% trans "It is waiting for approval now. You can look at it here:" %}{% else %}{% trans "It is a draft: please confirm that the people on the photos agreed to the publication, check the texts and submit it here:" %}{% endif %}
+{{ url }}
+{% endautoescape %}

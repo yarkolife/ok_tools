@@ -415,7 +415,9 @@ Wie Beiträge geschrieben und freigegeben werden, steht im Kapitel
 | Auf Instagram / Facebook veröffentlichen | Nutzen Konto, Seite und Token aus dem Abschnitt Instagram oben (Facebook nur mit Facebook-Login und Seiten-ID). |
 | Auf der Website veröffentlichen, WordPress-Adresse, -Benutzer, -Anwendungspasswort | Die WordPress-Website des Senders. Das Anwendungspasswort legen Sie in WordPress unter *Benutzer → Profil → Anwendungspasswörter* an; der Benutzer braucht das Recht, Beiträge zu veröffentlichen. Beiträge erscheinen dort sofort, mit Titelbild und Galerie. |
 | Freigabe per E-Mail | Freigebende bekommen eine E-Mail mit persönlichem Link zur Prüfseite (ohne Anmeldung, 7 Tage gültig). Aus: nur die Benachrichtigung in OK-Tools. |
-| Verbindung | **Verbindungen testen** prüft Website, Instagram und Facebook, ohne etwas zu veröffentlichen. |
+| Beiträge per E-Mail, Adresse für Beiträge, Code im Betreff | Mitarbeitende schicken Text und Fotos an diese Adresse; der Code muss im Betreff stehen (Absenderadressen lassen sich fälschen). Übernommen werden nur E-Mails von Personen mit dem Recht „Beitrag hinzufügen“; alle anderen werden ohne Antwort ignoriert. Am besten ein eigenes Postfach nur dafür anlegen. |
+| IMAP-Server, -Port, -Benutzer, -Passwort, -Ordner | Zugang zu diesem Postfach (IMAP über SSL, Port 993). Gelesene E-Mails werden als gelesen markiert. |
+| Verbindung | **Verbindungen testen** prüft Website, Instagram, Facebook und das Postfach, ohne etwas zu veröffentlichen. |
 
 **Themen** (*Einstellungen & Stammdaten → Themen*): Jeder Beitrag gehört zu
 einem Thema; „Aktuell“ ist für alles, was in kein anderes passt.
@@ -432,9 +434,9 @@ einem Thema; „Aktuell“ ist für alles, was in kein anderes passt.
 für alle Mitarbeitenden über eine Gruppe), „Darf Beiträge aller Themen
 freigeben“ für Freigebende aller Themen. Eine Freigabe genügt.
 
-Die periodische Aufgabe „Beiträge: freigegebene Beiträge veröffentlichen“
-läuft alle 5 Minuten und veröffentlicht Beiträge mit geplanter Zeit; sie wird
-beim Speichern der Beitrags-Konfiguration eingerichtet.
+Die periodischen Aufgaben „Beiträge: freigegebene Beiträge veröffentlichen“
+und „Beiträge: per E-Mail gesendete Beiträge abholen“ laufen alle 5 Minuten;
+sie werden beim Speichern der Beitrags-Konfiguration eingerichtet.
 
 ## 11. Benachrichtigungen {#benachrichtigungen}
 

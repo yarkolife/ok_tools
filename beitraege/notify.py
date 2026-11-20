@@ -122,3 +122,18 @@ def tell_failed(beitrag: Beitrag) -> None:
         'titel': beitrag.titel,
         'fehler': errors[:300],
     }, recipients=recipients or None)
+
+
+def tell_author_received(beitrag: Beitrag, submitted: bool) -> None:
+    """Receipt for a post sent by mail, with the link to check or finish it."""
+    author = beitrag.created_by
+    if author is None or not author.email:
+        return
+    from .workflow import absolute_url
+    page = 'pruefen' if submitted else 'bearbeiten'
+    _mail(author.email, 'eingang', {
+        'beitrag': beitrag,
+        'submitted': submitted,
+        'fotos': beitrag.fotos.count(),
+        'url': absolute_url(reverse(f'beitraege:{page}', args=[beitrag.pk])),
+    })

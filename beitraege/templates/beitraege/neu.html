@@ -37,4 +37,10 @@
 
   <button type="submit">{% trans "Submit for approval" %}</button>
 </form>
+{% if mail %}
+  <div class="card">
+    <h2>{% trans "Or by mail" %}</h2>
+    <p class="help">{% blocktranslate with address=mail.mail_address code=mail.mail_code %}Send text and photos to {{ address }} with "{{ code }}" in the subject. Subject = title, attachments = photos. Optional lines: "Thema: …", "Link: …", "Einverständnis: ja".{% endblocktranslate %}</p>
+  </div>
+{% endif %}
 {% endblock %}
