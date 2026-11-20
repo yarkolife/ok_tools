@@ -13,6 +13,8 @@ from . import workflow
 from .forms import NeuerBeitragForm
 from .models import Beitrag
 from .models import BeitragFoto
+from .models import in_platform_order
+from .models import person_name
 from .services import images
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -52,6 +54,27 @@ def neu(request):
 
 
 @login_required
+def meine(request):
+    """The own posts and, for approvers, the posts waiting for them."""
+    from django.db.models import Q
+
+    own = Beitrag.objects.filter(created_by=request.user).select_related('thema')[:30]
+    waiting = []
+    submitted = Beitrag.objects.filter(status=Beitrag.STATUS_SUBMITTED).select_related('thema', 'created_by')
+    if not request.user.has_perm('beitraege.freigeben_alle'):
+        submitted = submitted.filter(Q(thema__freigeber=request.user))
+    for beitrag in submitted.distinct().order_by('created_at'):
+        beitrag.autor_name = person_name(beitrag.created_by)
+        waiting.append(beitrag)
+    return render(request, 'beitraege/meine.html', {
+        'title': _('My posts'),
+        'own': own,
+        'waiting': waiting,
+        'may_write': request.user.has_perm('beitraege.add_beitrag'),
+    })
+
+
+@login_required
 def eingereicht(request, pk):
     beitrag = get_object_or_404(Beitrag, pk=pk)
     if beitrag.created_by_id != request.user.pk and not beitrag.may_approve(request.user):
@@ -83,11 +106,24 @@ def freigabe(request, token):
 
 
 def _check_page(request, beitrag, user):
-    if not beitrag.may_approve(user):
-        raise PermissionDenied
+    may_approve = beitrag.may_approve(user)
+    if not may_approve:
+        # The author may look at the own post (status, links), not approve it.
+        if beitrag.created_by_id is None or beitrag.created_by_id != getattr(user, 'pk', None):
+            raise PermissionDenied
+        return render(request, 'beitraege/pruefen.html', {
+            'beitrag': beitrag,
+            'ziele': in_platform_order(beitrag.ziele.filter(aktiv=True)),
+            'autor': person_name(beitrag.created_by),
+            'fotos': beitrag.fotos.all(),
+            'state': 'view',
+            'title': beitrag.get_status_display(),
+            'message': beitrag.rejection_note if beitrag.status == Beitrag.STATUS_REJECTED else '',
+        })
     context = {
         'beitrag': beitrag,
-        'ziele': beitrag.ziele.filter(aktiv=True),
+        'ziele': in_platform_order(beitrag.ziele.filter(aktiv=True)),
+        'autor': person_name(beitrag.created_by),
         'fotos': beitrag.fotos.all(),
         'problems': workflow.problems(beitrag),
         'admin_url': reverse('admin:beitraege_beitrag_change', args=[beitrag.pk]),

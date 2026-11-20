@@ -8,6 +8,7 @@ right name, and it expires after a week.
 
 from .models import Beitrag
 from .models import BeitragsConfig
+from .models import person_name
 from django.conf import settings
 from django.core import signing
 from django.urls import reverse
@@ -82,15 +83,15 @@ def tell_approvers(beitrag: Beitrag) -> None:
     _emit('beitraege.submitted', beitrag, {
         'titel': beitrag.titel,
         'thema': beitrag.thema.name,
-        'autor': str(author or ''),
+        'autor': person_name(author),
     }, recipients=approvers)
     if not BeitragsConfig.get_config().approval_mail:
         return
     for user in approvers:
         _mail(user.email, 'freigabe', {
             'beitrag': beitrag,
-            'empfaenger': user,
-            'autor': author,
+            'empfaenger': person_name(user),
+            'autor': person_name(author),
             'url': approval_url(beitrag, user),
         })
 
@@ -107,7 +108,7 @@ def tell_author_rejected(beitrag: Beitrag, by) -> None:
         from .workflow import absolute_url
         _mail(author.email, 'abgelehnt', {
             'beitrag': beitrag,
-            'von': by,
+            'von': person_name(by),
             'url': absolute_url(reverse('admin:beitraege_beitrag_change', args=[beitrag.pk])),
         })
 

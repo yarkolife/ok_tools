@@ -5,11 +5,11 @@
   <h1>{{ title }}</h1>
   {% if message %}<p>{{ message }}</p>{% endif %}
   {% if beitrag %}
-    <p class="meta">{{ beitrag.thema.name }} · {% trans "by" %} {{ beitrag.created_by|default:"-" }} · {{ beitrag.created_at|date:"d.m.Y H:i" }}
+    <p class="meta">{{ beitrag.thema.name }} · {% trans "by" %} {{ autor }} · {{ beitrag.created_at|date:"d.m.Y H:i" }}
       {% if beitrag.publish_at %}<br>{% trans "Publish at" %}: {{ beitrag.publish_at|date:"d.m.Y H:i" }}{% endif %}</p>
     <h2>{{ beitrag.titel }}</h2>
     {% if fotos %}
-      <div class="photos">{% for f in fotos %}<img src="{% url 'beitraege:foto' f.token 'web' %}" alt="" loading="lazy">{% endfor %}</div>
+      <div class="photos natural">{% for f in fotos %}<img src="{% url 'beitraege:foto' f.token 'web' %}" alt="" loading="lazy">{% endfor %}</div>
     {% endif %}
   {% endif %}
 </div>
@@ -18,6 +18,10 @@
   {% for ziel in ziele %}
     <div class="card">
       <h2>{{ ziel.get_plattform_display }}{% if ziel.status %} · {{ ziel.get_status_display }}{% endif %}</h2>
+      {% if ziel.plattform == 'instagram' and fotos %}
+        <p class="meta">{% trans "Instagram shows the photos cut to 4:5:" %}</p>
+        <div class="photos ig">{% for f in fotos %}<img src="{% url 'beitraege:foto' f.token 'instagram' %}" alt="" loading="lazy">{% endfor %}</div>
+      {% endif %}
       <div class="text">{{ ziel.text }}{% if ziel.plattform == 'website' and beitrag.link %}
 
 {{ beitrag.link }}{% endif %}</div>

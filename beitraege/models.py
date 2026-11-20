@@ -23,6 +23,22 @@ PLATFORM_CHOICES = [
     (PLATFORM_FACEBOOK, _('Facebook')),
     (PLATFORM_WEBSITE, _('Website')),
 ]
+# Pages list the platforms in this order, not alphabetically.
+PLATFORM_ORDER = [code for code, _label in PLATFORM_CHOICES]
+
+
+def in_platform_order(ziele) -> list:
+    """Instagram, Facebook, website."""
+    return sorted(ziele, key=lambda ziel: PLATFORM_ORDER.index(ziel.plattform))
+
+
+def person_name(user) -> str:
+    """First and last name from the profile; the mail address as a fallback."""
+    if user is None:
+        return '-'
+    profile = getattr(user, 'profile', None)
+    name = ' '.join(filter(None, [getattr(profile, 'first_name', ''), getattr(profile, 'last_name', '')]))
+    return name.strip() or user.email or str(user)
 
 
 class BeitragsConfig(models.Model):

@@ -11,6 +11,7 @@ CHANGELOG
   * Submitting tells the approvers in OK-Tools and by mail with a personal link (7 days, no login) to a check page for the phone: approve, or send back with a reason (the author is told). One approval publishes on all platforms of the post, right away or at its time (checked every 5 minutes).
   * Publishing: Instagram photo or carousel (4:5, 1080 × 1350, crop position adjustable), Facebook page post with all photos, WordPress post through the REST API with an application password (Post configuration). Photos are turned upright and stripped of EXIF and location data. Every platform keeps its own status, link and error; a failure raises "Post could not be published" and "Publish failed platforms again" only retries those.
   * Instagram and Facebook use the account, page and token of the Tools configuration; nothing else has to be set up at Meta.
+  * "Meine Beiträge" (`/beitraege/`) lists the own posts with their status and, for approvers, the posts waiting for them; authors can open their own post read-only. Pages, mails and the post list show people by name, platforms in the order Instagram, Facebook, website, and the check page shows the photos as Instagram will cut them (4:5).
 
 2026-11-20 (Version 4.80.3)
 ==========================

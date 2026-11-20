@@ -51,7 +51,7 @@ Seite im Handy-Browser „Zum Home-Bildschirm“ hinzufügen.
 Der Link in der E-Mail öffnet die Prüfseite ohne Anmeldung; er ist persönlich
 und 7 Tage gültig. In OK-Tools führt **Prüfseite öffnen** im Beitrag dorthin.
 
-![Prüfseite mit Fotos und den Texten für Facebook, Instagram und Website](bilder/b02-beitrag-pruefen.jpg "Prüfseite: so erscheint der Beitrag auf jeder Plattform.")
+![Prüfseite mit Fotos, dem 4:5-Ausschnitt für Instagram und den Texten je Plattform](bilder/b02-beitrag-pruefen.jpg "Prüfseite: so erscheint der Beitrag auf jeder Plattform.")
 
 ![Knöpfe Freigeben und Zurückgeben mit Feld für den Grund](bilder/b03-freigeben.jpg "Freigeben oder mit Grund zurückgeben.")
 
@@ -63,9 +63,18 @@ und 7 Tage gültig. In OK-Tools führt **Prüfseite öffnen** im Beitrag dorthin
 - **Texte oder Fotos in OK-Tools ändern**: öffnet den Beitrag in der
   Verwaltung.
 
+Beim Instagram-Text zeigt die Seite die Fotos so, wie Instagram sie
+zuschneidet (4:5). Passt ein Ausschnitt nicht, in der Verwaltung beim Foto den
+„Bildausschnitt“ ändern.
+
 Fehlt etwas (z. B. ein Foto für Instagram, das Einverständnis oder mehr als
 5 Hashtags im Instagram-Text), steht der Grund über dem Knopf und die
 Freigabe ist gesperrt.
+
+**Meine Beiträge** (oben auf jeder Beitragsseite, `https://<portal>/beitraege/`):
+die eigenen Beiträge mit Status und, für Freigebende, alles, was auf ihre
+Freigabe wartet. Ein eigener Beitrag lässt sich dort ansehen (Status, Links,
+Grund einer Rückgabe), freigeben können ihn nur die Freigebenden.
 
 ## 4. In der Verwaltung {#verwaltung}
 

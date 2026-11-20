@@ -7,6 +7,7 @@ from django.urls import path
 app_name = 'beitraege'
 
 urlpatterns = [
+    path('', views.meine, name='meine'),
     path('neu/', views.neu, name='neu'),
     path('<int:pk>/eingereicht/', views.eingereicht, name='eingereicht'),
     path('<int:pk>/pruefen/', views.pruefen, name='pruefen'),

@@ -1,11 +1,13 @@
 """Admin of posts, topics and the post configuration."""
 
 from . import workflow
+from .models import PLATFORM_ORDER
 from .models import Beitrag
 from .models import BeitragFoto
 from .models import BeitragZiel
 from .models import BeitragsConfig
 from .models import Thema
+from .models import person_name
 from django.contrib import admin
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -135,6 +137,15 @@ class BeitragZielInline(TabularInline):
     def has_add_permission(self, request, obj=None):
         return False
 
+    def get_queryset(self, request):
+        from django.db.models import Case
+        from django.db.models import IntegerField
+        from django.db.models import When
+
+        order = Case(*[When(plattform=code, then=index) for index, code in enumerate(PLATFORM_ORDER)],
+                     output_field=IntegerField())
+        return super().get_queryset(request).order_by(order)
+
     @admin.display(description=_('Link'))
     def link_display(self, obj):
         if not obj.permalink:
@@ -146,7 +157,7 @@ class BeitragZielInline(TabularInline):
 class BeitragAdmin(ModelAdmin):
     """Posts: write, check, approve, follow up."""
 
-    list_display = ['titel', 'thema', 'status_badge', 'publish_at', 'created_by', 'created_at', 'links']
+    list_display = ['titel', 'thema', 'status_badge', 'publish_at', 'autor', 'created_at', 'links']
     list_filter = ['status', 'thema']
     search_fields = ['titel', 'text']
     date_hierarchy = 'created_at'
@@ -206,11 +217,16 @@ class BeitragAdmin(ModelAdmin):
         return format_html('<strong style="color:{}">{}</strong>',
                            colours.get(obj.status, 'inherit'), obj.get_status_display())
 
+    @admin.display(description=_('Created by'), ordering='created_by')
+    def autor(self, obj):
+        return person_name(obj.created_by)
+
     @admin.display(description=_('Links'))
     def links(self, obj):
         parts = [format_html('<a href="{}" target="_blank" rel="noopener">{}</a>', z.permalink,
                              z.get_plattform_display())
-                 for z in obj.ziele.all() if z.permalink]
+                 for z in sorted(obj.ziele.all(), key=lambda z: PLATFORM_ORDER.index(z.plattform))
+                 if z.permalink]
         return format_html(' · '.join(['{}'] * len(parts)), *parts) if parts else '-'
 
     @admin.display(description=_('Check and approve'))

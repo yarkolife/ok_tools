@@ -1,6 +1,6 @@
-{% load i18n %}{% autoescape off %}{% blocktranslate with name=empfaenger.get_full_name|default:empfaenger.email %}Hello {{ name }},{% endblocktranslate %}
+{% load i18n %}{% autoescape off %}{% blocktranslate with name=empfaenger %}Hello {{ name }},{% endblocktranslate %}
 
-{% blocktranslate with autor=autor|default:"-" thema=beitrag.thema.name %}{{ autor }} has submitted a post in the topic "{{ thema }}".{% endblocktranslate %}
+{% blocktranslate with autor=autor thema=beitrag.thema.name %}{{ autor }} has submitted a post in the topic "{{ thema }}".{% endblocktranslate %}
 
 {{ beitrag.titel }}
 

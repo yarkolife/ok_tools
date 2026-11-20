@@ -429,3 +429,56 @@ def test_one_failing_platform_does_not_stop_the_others(beitrag, freigeber):
             mock.patch('beitraege.services.wordpress.requests.request') as wp_again:
         assert workflow.publish(post) == Beitrag.STATUS_PUBLISHED
     wp_again.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# names, order, "my posts"
+# ---------------------------------------------------------------------------
+
+def test_person_name_uses_the_profile(db, user, autor):
+    from beitraege.models import person_name
+
+    profile = user.profile
+    profile.first_name, profile.last_name = 'Max', 'Mustermann'
+    profile.save()
+    assert person_name(user) == 'Max Mustermann'
+    assert person_name(autor) == 'autor@example.org'  # no profile: the mail address
+    assert person_name(None) == '-'
+
+
+def test_check_page_lists_instagram_facebook_website_and_the_4_5_crop(client, beitrag, freigeber):
+    workflow.submit(beitrag)
+    client.force_login(freigeber)
+    page = client.get(reverse('beitraege:pruefen', args=[beitrag.pk])).content.decode()
+    assert page.index('<h2>Instagram') < page.index('<h2>Facebook') < page.index('<h2>Website')
+    assert '/instagram.jpg' in page
+
+
+def test_my_posts_shows_own_posts_and_those_waiting_for_me(client, beitrag, autor, freigeber):
+    workflow.submit(beitrag)
+    client.force_login(autor)
+    page = client.get(reverse('beitraege:meine')).content.decode()
+    assert 'Workshop im Studio' in page
+
+    client.force_login(freigeber)
+    page = client.get(reverse('beitraege:meine')).content.decode()
+    assert 'Workshop im Studio' in page and reverse('beitraege:pruefen', args=[beitrag.pk]) in page
+
+
+def test_author_sees_the_own_post_but_cannot_approve(client, beitrag, autor):
+    workflow.submit(beitrag)
+    client.force_login(autor)
+    response = client.get(reverse('beitraege:pruefen', args=[beitrag.pk]))
+    assert response.status_code == 200
+    assert b'name="aktion"' not in response.content
+    with mock.patch('beitraege.tasks.publish_beitrag.delay') as publish:
+        client.post(reverse('beitraege:pruefen', args=[beitrag.pk]), {'aktion': 'freigeben'})
+    publish.assert_not_called()
+    beitrag.refresh_from_db()
+    assert beitrag.status == Beitrag.STATUS_SUBMITTED
+
+
+def test_others_may_not_see_a_post(client, beitrag, db):
+    stranger = OKUser.objects.create_user('fremd@example.org', password='pw')
+    client.force_login(stranger)
+    assert client.get(reverse('beitraege:pruefen', args=[beitrag.pk])).status_code == 403
