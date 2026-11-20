@@ -18,7 +18,10 @@ werden.
 
 Wer was darf, legt die Verwaltung fest: Beiträge schreiben können alle mit dem
 Recht „Beitrag hinzufügen“, freigeben die Freigebenden eines Themas und alle
-mit dem Recht „Darf Beiträge aller Themen freigeben“.
+mit dem Recht „Darf Beiträge aller Themen freigeben“. Benachrichtigt werden
+nur diese ausdrücklich genannten Personen: Superuser dürfen zwar freigeben,
+bekommen aber keine E-Mails und sehen unter **Meine Beiträge** nichts zur
+Freigabe, solange sie nicht selbst als Freigebende eingetragen sind.
 
 ## 2. Beitrag am Handy schreiben {#schreiben}
 

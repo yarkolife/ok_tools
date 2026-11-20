@@ -22,6 +22,7 @@ from .links import preview_allowed
 from .links import previews
 from .models import Beitrag
 from .models import BeitragFoto
+from .models import approves_all
 from .models import in_platform_order
 from .models import person_name
 from .services import images
@@ -88,7 +89,7 @@ def meine(request):
     own = Beitrag.objects.filter(created_by=request.user).select_related('thema')[:30]
     waiting = []
     submitted = Beitrag.objects.filter(status=Beitrag.STATUS_SUBMITTED).select_related('thema', 'created_by')
-    if not request.user.has_perm('beitraege.freigeben_alle'):
+    if not approves_all(request.user):  # superusers see only topics they are named for
         submitted = submitted.filter(Q(thema__freigeber=request.user))
     for beitrag in submitted.distinct().order_by('created_at'):
         beitrag.autor_name = person_name(beitrag.created_by)

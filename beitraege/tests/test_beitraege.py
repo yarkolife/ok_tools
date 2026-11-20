@@ -299,6 +299,18 @@ def test_approve_all_permission_covers_every_topic(beitrag, db):
     assert boss in beitrag.approvers()
 
 
+def test_superusers_may_approve_but_are_only_told_when_named(client, beitrag, freigeber, db):
+    admin = OKUser.objects.create_superuser('admin@example.org', password='pw')
+    assert beitrag.may_approve(admin)
+    assert list(beitrag.approvers()) == [freigeber]
+    Beitrag.objects.filter(pk=beitrag.pk).update(status=Beitrag.STATUS_SUBMITTED)
+    client.force_login(admin)
+    assert beitrag.titel not in client.get(reverse('beitraege:meine')).content.decode()
+    beitrag.thema.freigeber.add(admin)
+    assert admin in beitrag.approvers()
+    assert beitrag.titel in client.get(reverse('beitraege:meine')).content.decode()
+
+
 def test_sending_back_tells_the_author(client, beitrag, freigeber, settings):
     settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
     from beitraege.notify import approval_token

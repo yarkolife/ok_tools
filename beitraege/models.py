@@ -32,6 +32,23 @@ def in_platform_order(ziele) -> list:
     return sorted(ziele, key=lambda ziel: PLATFORM_ORDER.index(ziel.plattform))
 
 
+def approve_all_q():
+    """Users given "approve posts of every topic" explicitly (not superusers by default)."""
+    from django.db.models import Q
+
+    return Q(user_permissions__codename='freigeben_alle',
+             user_permissions__content_type__app_label='beitraege') | Q(
+        groups__permissions__codename='freigeben_alle',
+        groups__permissions__content_type__app_label='beitraege')
+
+
+def approves_all(user) -> bool:
+    """True for people named as approvers of every topic (see :func:`approve_all_q`)."""
+    from django.contrib.auth import get_user_model
+
+    return get_user_model().objects.filter(pk=user.pk).filter(approve_all_q()).exists()
+
+
 def person_name(user) -> str:
     """First and last name from the profile; the mail address as a fallback."""
     if user is None:
@@ -313,17 +330,18 @@ class Beitrag(models.Model):
                     or self.thema.freigeber.filter(pk=user.pk).exists())
 
     def approvers(self):
-        """Everybody who may approve this post (active users with a mail address)."""
+        """The approvers to tell (active users with a mail address).
+
+        Only people named explicitly: approvers of the topic and those given
+        "approve posts of every topic" (directly or by group). Superusers
+        may approve too, but are not told unless they are named.
+        """
         from django.contrib.auth import get_user_model
         from django.db.models import Q
 
         User = get_user_model()
-        everything = Q(is_superuser=True) | Q(user_permissions__codename='freigeben_alle',
-                                               user_permissions__content_type__app_label='beitraege') | Q(
-            groups__permissions__codename='freigeben_alle',
-            groups__permissions__content_type__app_label='beitraege')
         return User.objects.filter(is_active=True).filter(
-            everything | Q(beitrag_themen=self.thema)).exclude(email='').distinct()
+            approve_all_q() | Q(beitrag_themen=self.thema)).exclude(email='').distinct()
 
 
 def _foto_path(instance, filename):
