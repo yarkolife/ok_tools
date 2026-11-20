@@ -91,6 +91,7 @@ KAPITEL: Tuple[Kapitel, ...] = (
         pfade=(
             'beitraege/admin.py',
             'beitraege/forms.py',
+            'beitraege/pwa.py',
             'beitraege/views.py',
             'beitraege/workflow.py',
             'beitraege/templates/',

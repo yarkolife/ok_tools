@@ -1,0 +1,9 @@
+{% extends "beitraege/_base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="card state-invalid">
+  <h1>{{ title }}</h1>
+  <p>{% trans "The phone is offline. Posts are only saved with a connection: try again in a moment." %}</p>
+  <button type="button" onclick="location.reload()">{% trans "Try again" %}</button>
+</div>
+{% endblock %}

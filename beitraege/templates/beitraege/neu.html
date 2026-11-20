@@ -19,6 +19,7 @@
   <label for="{{ form.fotos.id_for_label }}">{{ form.fotos.label }}</label>
   {{ form.fotos }}
   <div class="help">{{ form.fotos.help_text }}</div>{{ form.fotos.errors }}
+  <div class="help problems" id="geteilt" hidden></div>
 
   <label class="check">{{ form.einwilligung }} <span>{{ form.einwilligung.label }}</span></label>
   {{ form.einwilligung.errors }}
@@ -43,4 +44,48 @@
     <p class="help">{% blocktranslate with address=mail.mail_address code=mail.mail_code %}Send text and photos to {{ address }} with "{{ code }}" in the subject. Subject = title, attachments = photos. Optional lines: "Thema: …", "Link: …", "Einverständnis: ja".{% endblocktranslate %}</p>
   </div>
 {% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+// Photos shared from the gallery (Android app): the service worker kept them.
+(function () {
+  if (!/[?&]geteilt=1/.test(location.search) || !window.caches) return;
+  var base = '{% url "beitraege:teilen" %}';
+  var note = document.getElementById('geteilt');
+  caches.open('beitraege-geteilt').then(function (cache) {
+    return cache.match(base + 'meta').then(function (r) { return r ? r.json() : null; }).then(function (meta) {
+      if (!meta) return;
+      var reads = [];
+      for (var i = 0; i < meta.count; i++) {
+        reads.push(cache.match(base + i).then(function (r) {
+          if (!r) return null;
+          var name = decodeURIComponent(r.headers.get('X-Name') || 'foto.jpg');
+          var type = r.headers.get('Content-Type') || '';
+          return r.blob().then(function (b) { return new File([b], name, {type: type}); });
+        }));
+      }
+      return Promise.all(reads).then(function (files) {
+        files = files.filter(Boolean);
+        var input = document.getElementById('{{ form.fotos.id_for_label }}');
+        if (files.length && input && window.DataTransfer) {
+          var list = new DataTransfer();
+          files.forEach(function (f) { list.items.add(f); });
+          input.files = list.files;
+        }
+        var title = document.getElementById('{{ form.titel.id_for_label }}');
+        var text = document.getElementById('{{ form.text.id_for_label }}');
+        var link = document.getElementById('{{ form.link.id_for_label }}');
+        var url = meta.url || ((meta.text || '').match(/https?:\/\/\S+/) || [''])[0];
+        if (title && !title.value && meta.title) title.value = meta.title;
+        if (text && !text.value && meta.text) text.value = meta.text.replace(url, '').trim();
+        if (link && !link.value && url) link.value = url;
+        var msg = '{% trans "{count} shared photos added." %}'.replace('{count}', files.length);
+        if (meta.more) msg += ' {% trans "Only the first 10 photos are taken." %}';
+        if (files.length) { note.textContent = msg; note.hidden = false; }
+        return caches.delete('beitraege-geteilt');
+      });
+    });
+  }).catch(function () {});
+})();
+</script>
 {% endblock %}

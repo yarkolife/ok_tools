@@ -6,6 +6,12 @@
   <meta name="robots" content="noindex">
   <meta name="color-scheme" content="light dark">
   <title>{{ title }} — OK Tools</title>
+  <link rel="manifest" href="{% url 'beitraege:manifest' %}">
+  <link rel="apple-touch-icon" href="{% url 'beitraege:icon' 180 %}">
+  <meta name="theme-color" content="#1d5d7a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="{% trans 'Posts' %}">
   <style>
     :root { --bg: #f4f6f8; --card: #fff; --ink: #1d2733; --ink-2: #5b6673; --line: #dde3e9;
             --field: #fff; --brand: #1d5d7a; --ok: #0a6b2d; --bad: #c62828; --warn: #8a5a00; }
@@ -33,7 +39,7 @@
     .choices label { display: inline-flex; gap: 8px; align-items: center; font-weight: 400; margin: 6px 0; }
     .errorlist { color: var(--bad); margin: 4px 0 0; padding: 0; list-style: none; font-size: 14px; }
     button, .button { display: block; width: 100%; margin-top: 16px; padding: 13px; border: 0; border-radius: 8px;
-             background: var(--brand); color: #fff; font: 600 16px/1.2 inherit; text-align: center;
+             background: var(--brand); color: #fff; font-family: inherit; font-size: 16px; font-weight: 600; line-height: 1.2; text-align: center;
              text-decoration: none; cursor: pointer; }
     button.secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); }
     .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; }
@@ -54,12 +60,62 @@
     .state-invalid h1, .state-error h1 { color: var(--bad); }
     .problems { color: var(--warn); }
     a { color: var(--brand); }
+    .install[hidden] { display: none; }
+    .install p { margin: 0 0 6px; }
+    .install .actions { display: flex; gap: 12px; align-items: center; }
+    .install .actions button { width: auto; margin: 6px 0 0; padding: 10px 16px; }
+    .install .actions a { font-size: 14px; }
   </style>
 </head>
 <body>
 <main>
 {% if user.is_authenticated and state != 'invalid' %}<nav class="topnav"><a href="{% url 'beitraege:meine' %}">{% trans "My posts" %}</a>{% if perms.beitraege.add_beitrag %}<a href="{% url 'beitraege:neu' %}">{% trans "New post" %}</a>{% endif %}</nav>{% endif %}
 {% block content %}{% endblock %}
+{% if user.is_authenticated and state != 'invalid' %}
+<div class="card install" id="install" hidden>
+  <h2>{% trans "Use as an app" %}</h2>
+  <p id="install-android" hidden>{% trans "Install the post pages on the home screen: they open like an app, and photos can be shared from the gallery straight into a new post." %}</p>
+  <p id="install-ios" hidden>{% blocktranslate %}In Safari tap <strong>Share</strong> (the square with the arrow) and then <strong>Add to Home Screen</strong>.{% endblocktranslate %}</p>
+  <div class="actions"><button type="button" id="install-button" hidden>{% trans "Install app" %}</button><a href="#" id="install-later">{% trans "Not now" %}</a></div>
+</div>
+{% endif %}
 </main>
+<script>
+(function () {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('{% url "beitraege:sw" %}', {scope: '{% url "beitraege:meine" %}'}).catch(function () {});
+  }
+  var box = document.getElementById('install');
+  if (!box) return;
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  var later = false;
+  try { later = Date.now() < Number(localStorage.getItem('beitraege-install-later') || 0); } catch (e) {}
+  if (standalone || later) return;
+  document.getElementById('install-later').addEventListener('click', function (event) {
+    event.preventDefault();
+    box.hidden = true;
+    try { localStorage.setItem('beitraege-install-later', String(Date.now() + 30 * 864e5)); } catch (e) {}
+  });
+  var ua = navigator.userAgent;
+  var ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  if (ios) {
+    document.getElementById('install-ios').hidden = false;
+    box.hidden = false;
+    return;
+  }
+  window.addEventListener('beforeinstallprompt', function (event) {
+    event.preventDefault();
+    var button = document.getElementById('install-button');
+    document.getElementById('install-android').hidden = false;
+    button.hidden = false;
+    box.hidden = false;
+    button.addEventListener('click', function () {
+      event.prompt();
+      event.userChoice.finally(function () { box.hidden = true; });
+    }, {once: true});
+  });
+})();
+</script>
+{% block scripts %}{% endblock %}
 </body>
 </html>

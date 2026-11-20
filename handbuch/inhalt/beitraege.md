@@ -24,7 +24,8 @@ mit dem Recht „Darf Beiträge aller Themen freigeben“.
 
 Die Seite **Neuer Beitrag** öffnen: in der Beitragsliste der Knopf **Neuer
 Beitrag (Handy)** oder direkt `https://<portal>/beitraege/neu/`. Tipp: die
-Seite im Handy-Browser „Zum Home-Bildschirm“ hinzufügen.
+Beitragsseiten als App auf das Handy legen (siehe [Als App auf dem
+Handy](#app)).
 
 ![Formular „Neuer Beitrag“ mit Thema, Titel, Text, Fotos und Plattformen](bilder/b01-neuer-beitrag.jpg "Neuer Beitrag: einmal ausfüllen, für alle Plattformen.")
 
@@ -50,6 +51,48 @@ Seite im Handy-Browser „Zum Home-Bildschirm“ hinzufügen.
     Kameradaten gespeichert. Für Instagram werden sie auf 4:5 zugeschnitten;
     den Ausschnitt wählt man unter **Beitrag bearbeiten**. Vor der Freigabe
     sind die Fotos nur über die Prüf- und Bearbeitungsseiten zu sehen.
+
+### Als App auf dem Handy {#app}
+
+Die Beitragsseiten lassen sich wie eine App auf den Startbildschirm legen:
+eigenes Symbol, Vollbild ohne Adresszeile, Start auf **Meine Beiträge**. Aus
+einem App-Store muss nichts installiert werden. Oben auf den Beitragsseiten
+erscheint dafür der Kasten **Als App nutzen** (mit **Später** für 30 Tage
+ausblenden).
+
+![Kasten „Als App nutzen“ mit dem Knopf „App installieren“ unter „Meine Beiträge“](bilder/b05-als-app.jpg "Als App nutzen: einmal installieren, dann wie eine App öffnen.")
+
+**Android (Chrome, Samsung Internet, Edge):**
+
+1. `https://<portal>/beitraege/` öffnen und anmelden.
+2. **App installieren** im Kasten tippen – oder im Browsermenü ⋮
+   **App installieren** bzw. **Zum Startbildschirm hinzufügen**.
+3. Das Symbol „Beiträge“ liegt jetzt auf dem Startbildschirm.
+
+Fotos direkt aus der Galerie: In Google Fotos oder der Galerie Fotos
+auswählen, **Teilen** → **Beiträge** (sicher verfügbar, wenn die App über
+Chrome installiert wurde). Es öffnet sich **Neuer Beitrag** mit den
+Fotos (bis zu 10) und, wenn mitgeteilt, Text und Link. Thema, Einverständnis
+und Plattformen wählen, einreichen.
+
+**iPhone und iPad (Safari, ab iOS 16.4 auch Chrome):**
+
+1. `https://<portal>/beitraege/` in Safari öffnen.
+2. Unten auf **Teilen** tippen (das Quadrat mit dem Pfeil nach oben).
+3. **Zum Home-Bildschirm** wählen und **Hinzufügen** tippen.
+4. Die App über das neue Symbol öffnen und **dort einmal anmelden**: Die App
+   hat auf dem iPhone eigene Cookies, die Anmeldung aus Safari gilt dort
+   nicht.
+
+Auf dem iPhone erscheint die App nicht im Teilen-Menü der Fotos-App; Fotos
+wählt man in **Neuer Beitrag** unter „Fotos“ (Kamera oder Mediathek).
+
+!!! hinweis ""
+    Die App ist dieselbe Seite wie im Browser: Neuerungen kommen ohne Update
+    an. Ohne Netz zeigt sie „Keine Verbindung“; Beiträge werden nur mit
+    Verbindung gespeichert. Die Anmeldung gilt zwei Wochen, danach einmal neu
+    anmelden. Beiträge speichert die App nicht auf dem Handy; geteilte Fotos nur
+    kurz, bis **Neuer Beitrag** sie übernimmt.
 
 ### Per E-Mail einreichen {#email}
 

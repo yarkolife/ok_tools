@@ -1,5 +1,6 @@
 """URLs of posts."""
 
+from . import pwa
 from . import views
 from django.urls import path
 
@@ -14,4 +15,9 @@ urlpatterns = [
     path('<int:pk>/bearbeiten/', views.bearbeiten, name='bearbeiten'),
     path('freigabe/<str:token>/', views.freigabe, name='freigabe'),
     path('foto/<str:token>/<str:variant>.jpg', views.foto, name='foto'),
+    path('manifest.webmanifest', pwa.manifest, name='manifest'),
+    path('sw.js', pwa.service_worker, name='sw'),
+    path('icon-<int:size>.png', pwa.icon, name='icon'),
+    path('offline/', pwa.offline, name='offline'),
+    path('teilen/', pwa.teilen, name='teilen'),
 ]
