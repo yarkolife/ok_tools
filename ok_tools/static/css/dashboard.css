@@ -260,20 +260,20 @@ body {
 
 /* Override for rental dashboard workflow steps */
 .workflow-step .stats-card {
-    padding: 0.25rem 0.5rem !important;
-    height: 60px !important;
+    padding: 0.4rem 0.25rem !important;
+    height: auto !important;
     min-height: 60px !important;
-    max-height: 60px !important;
+    max-height: none !important;
 }
 
 /* Even more specific override */
 .workflow-step .stats-card.stats-card-primary,
 .workflow-step .stats-card.stats-card-success,
 .workflow-step .stats-card.stats-card-warning {
-    height: 60px !important;
+    height: 100% !important;
     min-height: 60px !important;
-    max-height: 60px !important;
-    padding: 0.25rem 0.5rem !important;
+    max-height: none !important;
+    padding: 0.4rem 0.25rem !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
@@ -936,7 +936,7 @@ body {
 
 /* Compact stats cards for rental dashboard - more specific */
 .workflow-step .stats-card {
-    padding: 0.25rem 0.5rem !important;
+    padding: 0.4rem 0.25rem !important;
     border-radius: 0.375rem;
     text-align: center;
     cursor: pointer;
@@ -944,12 +944,22 @@ body {
     border: 1px solid transparent;
     color: white;
     min-height: 60px !important;
-    max-height: 60px !important;
-    height: 60px !important;
+    max-height: none !important;
+    height: 100% !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
-    margin: 0.1rem;
+    margin: 0;
+    min-width: 0;
+}
+
+/* The caption stays inside the card, also with large text: it may wrap
+   or break the word instead of spilling over the edges. */
+.workflow-step .stats-card .stats-caption {
+    max-width: 100%;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+    hyphens: auto;
 }
 
 .workflow-step .stats-card:hover {
@@ -975,6 +985,13 @@ body {
 
 .workflow-step .stats-card-warning {
     background-color: #ffc107;
+    color: #212529;
+}
+
+/* Yellow card: dark icon, number and caption (white is unreadable on it). */
+.workflow-step .stats-card-warning .stats-icon-small,
+.workflow-step .stats-card-warning .stats-number {
+    color: #212529 !important;
 }
 
 /* Profile Card Styles */

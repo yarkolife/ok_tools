@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+2026-11-22 (Version 4.82.1)
+==========================
+
+* Fixed: on the phone the "Übersicht" tiles on the booking page were too small, the captions ("Zurückgegeben", "Überfällig") hung out of the tiles. The tiles now grow with the text, the caption wraps inside, and the yellow tile has dark text.
+
 2026-11-22 (Version 4.82.0)
 ==========================
 
