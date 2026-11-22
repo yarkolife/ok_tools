@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+2026-11-22 (Version 4.81.1)
+==========================
+
+* Fixed: on the post pages the links "Meine Beiträge" and "Neuer Beitrag" at the top were small text links, and "Neuer Beitrag" appeared a second time as a big button. Now two tabs (44 px high, the open page highlighted, staying on top while scrolling) replace both; staff without the right to write posts get a back link instead. The post list shows the status as a coloured label, the number of posts waiting for approval and an arrow per row; an empty list offers "Neuer Beitrag".
+* Fixed: on the iPhone the box "Als App nutzen" showed the button "App installieren", which does nothing there, and said "In Safari" also in other browsers. Now only the steps are shown, for every browser; "Später" is a button. Buttons in the dark theme use dark text on the light blue for contrast.
+
 2026-11-20 (Version 4.81.0)
 ==========================
 

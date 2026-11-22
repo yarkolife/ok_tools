@@ -1,16 +1,14 @@
 {% extends "beitraege/_base.html" %}
 {% load i18n %}
 {% block content %}
-{% if may_write %}<a class="button" href="{% url 'beitraege:neu' %}" style="margin:0 0 14px">{% trans "New post" %}</a>{% endif %}
-
 {% if waiting %}
   <div class="card">
-    <h1>{% trans "Waiting for my approval" %}</h1>
+    <h1>{% trans "Waiting for my approval" %} <span class="pill submitted">{{ waiting|length }}</span></h1>
     {% for b in waiting %}
-      <a class="row-link" href="{% url 'beitraege:pruefen' b.pk %}">
+      <a class="row-link" href="{% url 'beitraege:pruefen' b.pk %}"><span>
         <strong>{{ b.titel }}</strong>
         <span class="meta">{{ b.thema.name }} · {{ b.autor_name }} · {{ b.created_at|date:"d.m. H:i" }}</span>
-      </a>
+      </span></a>
     {% endfor %}
   </div>
 {% endif %}
@@ -18,13 +16,16 @@
 <div class="card">
   <h1>{{ title }}</h1>
   {% for b in own %}
-    <a class="row-link" href="{% url 'beitraege:pruefen' b.pk %}">
+    <a class="row-link" href="{% url 'beitraege:pruefen' b.pk %}"><span>
       <strong>{{ b.titel }}</strong>
-      <span class="meta">{{ b.thema.name }} · {{ b.get_status_display }} · {{ b.created_at|date:"d.m. H:i" }}</span>
+      <span class="meta"><span class="pill {{ b.status }}">{{ b.get_status_display }}</span> {{ b.thema.name }} · {{ b.created_at|date:"d.m. H:i" }}</span>
       {% if b.status == 'rejected' and b.rejection_note %}<span class="problems">{{ b.rejection_note }}</span>{% endif %}
-    </a>
+    </span></a>
   {% empty %}
-    <p class="meta">{% trans "No posts yet." %}</p>
+    <div class="empty">
+      <p class="meta">{% trans "No posts yet." %}</p>
+      {% if may_write %}<a class="button" href="{% url 'beitraege:neu' %}">{% trans "New post" %}</a>{% endif %}
+    </div>
   {% endfor %}
 </div>
 {% endblock %}

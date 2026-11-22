@@ -631,9 +631,11 @@ msgstr "Die Beitragsseiten auf den Startbildschirm legen: Sie öffnen sich wie e
 
 #: templates/beitraege/_base.html:78
 msgid ""
-"In Safari tap <strong>Share</strong> (the square with the arrow) and then "
-"<strong>Add to Home Screen</strong>."
-msgstr "In Safari auf <strong>Teilen</strong> tippen (das Quadrat mit dem Pfeil), dann auf <strong>Zum Home-Bildschirm</strong>."
+"Tap <strong>Share</strong> (the square with the arrow, in some browsers "
+"inside the menu) and then <strong>Add to Home Screen</strong>."
+msgstr ""
+"Auf <strong>Teilen</strong> tippen (das Quadrat mit dem Pfeil, in manchen "
+"Browsern im Menü), dann auf <strong>Zum Home-Bildschirm</strong>."
 
 #: templates/beitraege/_base.html:79
 msgid "Install app"

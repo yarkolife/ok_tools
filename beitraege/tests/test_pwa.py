@@ -64,3 +64,17 @@ def test_icon_letters(name, letters):
     from beitraege.pwa import _initials
 
     assert _initials(name) == letters
+
+
+def test_tabs_mark_the_open_page_and_replace_the_extra_button(client, db):
+    user = OKUser.objects.create_user('autor@example.org', password='pw')
+    user.user_permissions.add(Permission.objects.get(codename='add_beitrag'))
+    client.force_login(user)
+    page = client.get(reverse('beitraege:meine')).content.decode()
+    assert 'class="tabs"' in page
+    assert 'href="/beitraege/" aria-current="page"' in page
+    assert 'href="/beitraege/neu/" aria-current' not in page
+    assert page.count('href="/beitraege/neu/"') == 2  # the tab and the button of the empty list
+    page = client.get(reverse('beitraege:neu')).content.decode()
+    assert 'href="/beitraege/neu/" aria-current="page"' in page
+    assert 'href="/beitraege/" aria-current' not in page

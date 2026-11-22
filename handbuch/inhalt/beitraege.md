@@ -78,10 +78,11 @@ Chrome installiert wurde). Es öffnet sich **Neuer Beitrag** mit den
 Fotos (bis zu 10) und, wenn mitgeteilt, Text und Link. Thema, Einverständnis
 und Plattformen wählen, einreichen.
 
-**iPhone und iPad (Safari, ab iOS 16.4 auch Chrome):**
+**iPhone und iPad (Safari, ab iOS 16.4 auch Chrome, Brave und andere):**
 
-1. `https://<portal>/beitraege/` in Safari öffnen.
-2. Unten auf **Teilen** tippen (das Quadrat mit dem Pfeil nach oben).
+1. `https://<portal>/beitraege/` im Browser öffnen.
+2. Auf **Teilen** tippen (das Quadrat mit dem Pfeil nach oben; in Chrome und
+   Brave steckt es im Menü).
 3. **Zum Home-Bildschirm** wählen und **Hinzufügen** tippen.
 4. Die App über das neue Symbol öffnen und **dort einmal anmelden**: Die App
    hat auf dem iPhone eigene Cookies, die Anmeldung aus Safari gilt dort
@@ -158,9 +159,10 @@ bis er freigegeben ist.
 
 ![Seite „Beitrag bearbeiten“ mit Fotos, Ausschnitt für Instagram und Entfernen](bilder/b04-beitrag-bearbeiten.jpg "Beitrag bearbeiten: Fotos, Ausschnitt und Texte am Handy ändern.")
 
-**Meine Beiträge** (oben auf jeder Beitragsseite, `https://<portal>/beitraege/`):
-die eigenen Beiträge mit Status und, für Freigebende, alles, was auf ihre
-Freigabe wartet. Ein eigener Beitrag lässt sich dort ansehen (Status, Links,
+**Meine Beiträge** (oben auf jeder Beitragsseite die Reiter **Meine Beiträge**
+und **Neuer Beitrag**, `https://<portal>/beitraege/`): die eigenen Beiträge mit
+farbigem Status und, für Freigebende, alles, was auf ihre Freigabe wartet (mit
+Anzahl). Ein eigener Beitrag lässt sich dort ansehen (Status, Links,
 Grund einer Rückgabe), freigeben können ihn nur die Freigebenden.
 
 ## 4. In der Verwaltung {#verwaltung}
