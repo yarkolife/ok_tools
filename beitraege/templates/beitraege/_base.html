@@ -36,6 +36,10 @@
       border: 1px solid var(--line); border-radius: 8px; }
     textarea { resize: vertical; }
     input[type=file] { width: 100%; font: inherit; }
+    /* iOS draws date fields wider than their box and with their own look */
+    input[type=datetime-local] { -webkit-appearance: none; appearance: none; display: block; min-width: 0;
+                                 max-width: 100%; min-height: 46px; text-align: left; }
+    input[type=datetime-local]::-webkit-date-and-time-value { text-align: left; }
     .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; }
     .check input { margin-top: 4px; width: 20px; height: 20px; flex: 0 0 auto; }
     .choices { display: flex; flex-wrap: wrap; gap: 8px 18px; }
@@ -44,7 +48,12 @@
     button, .button { display: block; width: 100%; margin-top: 16px; padding: 13px; border: 0; border-radius: 8px;
              background: var(--brand); color: var(--on-brand); font-family: inherit; font-size: 16px; font-weight: 600; line-height: 1.2; text-align: center;
              text-decoration: none; cursor: pointer; }
-    button.secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+    button.secondary, .button.secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+    button.secondary { margin-top: 10px; }
+    button.danger { background: var(--bad); color: var(--bg); }
+    .button.danger-link { background: transparent; color: var(--bad); margin-top: 18px; padding: 10px; font-weight: 600; }
+    .flash { margin: 0 0 14px; padding: 12px 14px; border-radius: 10px; background: var(--brand-soft); color: var(--ink);
+             border: 1px solid var(--line); }
     .photos { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; }
     .photos img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; display: block; }
     .photos.natural img { aspect-ratio: auto; max-height: 160px; object-fit: contain; background: var(--line); }
@@ -105,6 +114,7 @@
 </nav></header>
 {% elif page != 'meine' %}<a class="back" href="{% url 'beitraege:meine' %}">‹ {% trans "My posts" %}</a>
 {% endif %}{% endwith %}{% endif %}
+{% for message in messages %}<div class="flash" role="status">{{ message }}</div>{% endfor %}
 {% block content %}{% endblock %}
 {% if user.is_authenticated and state != 'invalid' %}
 <div class="card install" id="install" hidden>

@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.81.1
+**Current Version**: 4.82.0
 **Last Updated**: 22 November 2026
 
 Features
@@ -161,6 +161,7 @@ Features
     only staff with the right to add posts, others ignored silently; receipt mail with a link to the post
   - Installable as an app on Android and iPhone (PWA, scope ``/beitraege/``); on Android photos can be shared from
     the gallery straight into a new post
+  - Drafts (title only, nobody told) and deleting own posts until the approval, both on the phone
 
 - **Manual (Handbuch)** - In-app manual for the staff (menu "Help") with the chapters "Inventar und Ausleihe" and "Einstellungen für Administratoren"; chapters show the release they were checked against and note when the installed version is newer; `python handbuch/aktualitaet.py --bump` confirms chapters whose pages did not change
 - **Version in the admin** - Installed version and commit shown at the bottom of the sidebar

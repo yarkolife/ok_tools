@@ -16,7 +16,7 @@
 <div class="card">
   <h1>{{ title }}</h1>
   {% for b in own %}
-    <a class="row-link" href="{% url 'beitraege:pruefen' b.pk %}"><span>
+    <a class="row-link" href="{% if b.status == 'draft' %}{% url 'beitraege:bearbeiten' b.pk %}{% else %}{% url 'beitraege:pruefen' b.pk %}{% endif %}"><span>
       <strong>{{ b.titel }}</strong>
       <span class="meta"><span class="pill {{ b.status }}">{{ b.get_status_display }}</span> {{ b.thema.name }} · {{ b.created_at|date:"d.m. H:i" }}</span>
       {% if b.status == 'rejected' and b.rejection_note %}<span class="problems">{{ b.rejection_note }}</span>{% endif %}

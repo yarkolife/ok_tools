@@ -40,9 +40,21 @@ Handy](#app)).
 | Einverständnis | Pflicht, sobald Fotos dabei sind: Alle erkennbaren Personen sind mit der Veröffentlichung einverstanden. |
 | Link | Z. B. die Mediathek. Auf Facebook und der Website anklickbar; auf Instagram nicht, darum steht er dort nicht im Text. |
 | Veröffentlichen auf | Voreingestellt vom Thema; nur eingerichtete Plattformen erscheinen. |
-| Veröffentlichen am | Leer: direkt nach der Freigabe. Sonst zur angegebenen Zeit. |
+| Zu einem festen Zeitpunkt veröffentlichen | Ohne Haken: direkt nach der Freigabe. Mit Haken erscheint das Datumsfeld (vorgeschlagen: morgen 10 Uhr). |
 
 **Zur Freigabe einreichen** schickt den Beitrag an die Freigebenden.
+
+**Noch nicht fertig?** **Als Entwurf speichern** braucht nur den Titel; Text,
+Einverständnis und Plattformen prüft OK-Tools erst beim Einreichen. Niemand
+wird benachrichtigt. Der Entwurf steht unter **Meine Beiträge** (Status
+„Entwurf“); antippen öffnet **Beitrag bearbeiten** zum Weiterschreiben, dort
+wieder **Als Entwurf speichern** oder **Zur Freigabe einreichen**.
+
+**Doch nicht?** Unten auf **Beitrag bearbeiten** steht **Beitrag löschen**
+(nach einer Rückfrage, mit allen Fotos). Löschen kann nur, wer den Beitrag
+geschrieben hat, und nur bis zur Freigabe; ein eingereichter Beitrag
+verschwindet dann auch bei den Freigebenden. Einen neuen Beitrag, den man
+nicht speichern will, einfach verlassen (Reiter **Meine Beiträge**).
 
 !!! hinweis ""
     Alles geht auch außerhalb des Büros: unter `https://<portal>/profile/login/`
@@ -154,8 +166,8 @@ Freigabe ist gesperrt.
 
 **Zurückgegeben?** Der Link in der E-Mail öffnet **Beitrag bearbeiten**: Text
 ändern, Fotos entfernen oder hinzufügen, den Ausschnitt für Instagram wählen
-und **Speichern und erneut einreichen**. Bearbeiten lässt sich ein Beitrag,
-bis er freigegeben ist.
+und **Speichern und erneut einreichen** (oder erst **Als Entwurf speichern**).
+Bearbeiten lässt sich ein Beitrag, bis er freigegeben ist.
 
 ![Seite „Beitrag bearbeiten“ mit Fotos, Ausschnitt für Instagram und Entfernen](bilder/b04-beitrag-bearbeiten.jpg "Beitrag bearbeiten: Fotos, Ausschnitt und Texte am Handy ändern.")
 

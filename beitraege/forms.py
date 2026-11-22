@@ -54,9 +54,12 @@ class BeitragForm(forms.Form):
         input_formats=['%Y-%m-%dT%H:%M'],
         help_text=_('Empty: right after the approval.'))
 
-    def __init__(self, *args, existing_photos: int = 0, **kwargs):
+    def __init__(self, *args, existing_photos: int = 0, draft: bool = False, **kwargs):
         super().__init__(*args, **kwargs)
         self.existing_photos = existing_photos
+        self.draft = draft
+        if draft:  # a draft needs only its title; the rest is checked on submitting
+            self.fields['text'].required = False
         if existing_photos:
             self.fields['fotos'].label = _('Add photos')
             self.fields['fotos'].help_text = _('Up to 10 photos in all.')
@@ -68,6 +71,8 @@ class BeitragForm(forms.Form):
 
     def clean(self):
         data = super().clean()
+        if self.draft:
+            return data
         if data.get('fotos') and not data.get('einwilligung'):
             self.add_error('einwilligung', _('Confirm the consent before sending photos.'))
         if not data.get('plattformen'):

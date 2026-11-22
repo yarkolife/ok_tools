@@ -9,6 +9,9 @@ platform keeps its own status, so a failure on one does not stop the others.
 
 from django.conf import settings
 from django.db import models
+from django.db import transaction
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 from pathlib import Path
@@ -322,6 +325,11 @@ class Beitrag(models.Model):
             return False
         return self.created_by_id == user.pk or self.may_approve(user)
 
+    def may_delete(self, user) -> bool:
+        """The author, as long as the post is not approved yet."""
+        return bool(self.status in self.EDITABLE and getattr(user, 'is_authenticated', False)
+                    and self.created_by_id == user.pk)
+
     def may_approve(self, user) -> bool:
         """Approvers of the topic and people allowed to approve every topic."""
         if not getattr(user, 'is_authenticated', False) or not user.is_active:
@@ -422,3 +430,18 @@ class BeitragZiel(models.Model):
 
     def __str__(self):
         return f'{self.beitrag} · {self.get_plattform_display()}'
+
+
+@receiver(post_delete, sender=BeitragFoto)
+def _delete_photo_files(sender, instance, **kwargs):
+    """Remove the upload and its renditions once the photo row is gone."""
+    name, storage, token = instance.bild.name, instance.bild.storage, instance.token
+
+    def remove():
+        if name:
+            storage.delete(name)
+        cache = Path(settings.MEDIA_ROOT) / '.beitraege' / 'cache'
+        for rendition in cache.glob(f'{token}-*.jpg'):
+            rendition.unlink(missing_ok=True)
+
+    transaction.on_commit(remove)

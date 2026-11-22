@@ -13,6 +13,7 @@ urlpatterns = [
     path('<int:pk>/eingereicht/', views.eingereicht, name='eingereicht'),
     path('<int:pk>/pruefen/', views.pruefen, name='pruefen'),
     path('<int:pk>/bearbeiten/', views.bearbeiten, name='bearbeiten'),
+    path('<int:pk>/loeschen/', views.loeschen, name='loeschen'),
     path('freigabe/<str:token>/', views.freigabe, name='freigabe'),
     path('foto/<str:token>/<str:variant>.jpg', views.foto, name='foto'),
     path('manifest.webmanifest', pwa.manifest, name='manifest'),

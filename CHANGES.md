@@ -1,9 +1,13 @@
 CHANGELOG
 =========
 
-2026-11-22 (Version 4.81.1)
+2026-11-22 (Version 4.82.0)
 ==========================
 
+* **beitraege: drafts on the phone, deleting unapproved posts**
+  * "Neuer Beitrag" and "Beitrag bearbeiten" have a second button "Als Entwurf speichern": a draft needs only a title (text, consent and platforms are checked on submitting), nobody is told, and it waits under "Meine Beiträge" (status "Entwurf"; tapping it opens the edit page). Returned posts can be saved without submitting them again too.
+  * "Beitrag löschen" at the bottom of the edit page, after a confirmation page: only the author, only until the approval. The photo files and their renditions are removed with the photo rows (also when a photo is removed while editing or deleted in the admin).
+  * The publishing time is a switch "Zu einem festen Zeitpunkt veröffentlichen" that shows the date field (proposed: tomorrow 10:00); iOS filled the empty field with the current date and drew it wider than the page.
 * Fixed: on the post pages the links "Meine Beiträge" and "Neuer Beitrag" at the top were small text links, and "Neuer Beitrag" appeared a second time as a big button. Now two tabs (44 px high, the open page highlighted, staying on top while scrolling) replace both; staff without the right to write posts get a back link instead. The post list shows the status as a coloured label, the number of posts waiting for approval and an arrow per row; an empty list offers "Neuer Beitrag".
 * Fixed: on the iPhone the box "Als App nutzen" showed the button "App installieren", which does nothing there, and said "In Safari" also in other browsers. Now only the steps are shown, for every browser; "Später" is a button. Buttons in the dark theme use dark text on the light blue for contrast.
 

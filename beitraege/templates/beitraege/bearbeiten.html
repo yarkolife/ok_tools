@@ -46,9 +46,7 @@
   <div class="choices">{% for choice in form.plattformen %}<label>{{ choice.tag }} {{ choice.choice_label }}</label>{% endfor %}</div>
   {{ form.plattformen.errors }}
 
-  <label for="{{ form.publish_at.id_for_label }}">{{ form.publish_at.label }}</label>
-  {{ form.publish_at }}
-  <div class="help">{{ form.publish_at.help_text }}</div>{{ form.publish_at.errors }}
+  {% include "beitraege/_zeitpunkt.html" %}
 
   {% if ziele %}
     <h2 style="margin-top:22px">{% trans "Text per platform" %}</h2>
@@ -59,6 +57,12 @@
     {% endfor %}
   {% endif %}
 
-  <button type="submit">{% if resubmit %}{% trans "Save and submit again" %}{% else %}{% trans "Save" %}{% endif %}</button>
+  {% if resubmit %}
+    <button type="submit" name="aktion" value="einreichen">{% if beitrag.status == 'draft' %}{% trans "Submit for approval" %}{% else %}{% trans "Save and submit again" %}{% endif %}</button>
+    <button type="submit" name="aktion" value="entwurf" class="secondary" formnovalidate>{% trans "Save as draft" %}</button>
+  {% else %}
+    <button type="submit">{% trans "Save" %}</button>
+  {% endif %}
+  {% if may_delete %}<a class="button danger-link" href="{% url 'beitraege:loeschen' beitrag.pk %}">{% trans "Delete post" %}</a>{% endif %}
 </form>
 {% endblock %}

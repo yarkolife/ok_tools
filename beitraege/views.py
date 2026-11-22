@@ -27,6 +27,7 @@ from .models import in_platform_order
 from .models import person_name
 from .services import images
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import permission_required
 from django.core.exceptions import PermissionDenied
@@ -57,7 +58,8 @@ def _works_with_posts(user) -> bool:
 @permission_required('beitraege.add_beitrag', raise_exception=True)
 @require_http_methods(['GET', 'POST'])
 def neu(request):
-    form = BeitragForm(request.POST or None, request.FILES or None)
+    draft = request.POST.get('aktion') == 'entwurf'
+    form = BeitragForm(request.POST or None, request.FILES or None, draft=draft)
     if request.method == 'POST' and form.is_valid():
         data = form.cleaned_data
         with transaction.atomic():
@@ -67,8 +69,12 @@ def neu(request):
                 publish_at=data['publish_at'], created_by=request.user)
             for position, upload in enumerate(data['fotos']):
                 BeitragFoto.objects.create(beitrag=beitrag, bild=upload, position=position)
-            workflow.ensure_ziele(beitrag, platforms=data['plattformen'])
-            workflow.submit(beitrag)
+            workflow.ensure_ziele(beitrag, platforms=data['plattformen'] or None)
+            if not draft:
+                workflow.submit(beitrag)
+        if draft:
+            messages.success(request, _('Saved as a draft. Tap it below to go on.'))
+            return redirect('beitraege:meine')
         return redirect('beitraege:eingereicht', pk=beitrag.pk)
     from .models import BeitragsConfig
 
@@ -127,15 +133,17 @@ def bearbeiten(request, pk):
         'einwilligung': beitrag.einwilligung, 'publish_at': beitrag.publish_at,
         'plattformen': [z.plattform for z in ziele if z.aktiv],
     }
+    open_draft = beitrag.status in (Beitrag.STATUS_DRAFT, Beitrag.STATUS_REJECTED)
+    keep_draft = open_draft and request.POST.get('aktion') == 'entwurf'
     form = BeitragForm(request.POST or None, request.FILES or None, initial=initial,
-                       existing_photos=len(fotos))
+                       existing_photos=len(fotos), draft=keep_draft)
     if request.method == 'POST' and form.is_valid():
         data = form.cleaned_data
         remove = {f.pk for f in fotos if request.POST.get(f'entfernen_{f.pk}')}
         kept = [f for f in fotos if f.pk not in remove]
         if len(kept) + len(data['fotos']) > Beitrag.MAX_PHOTOS:
             form.add_error('fotos', _('At most %(max)s photos.') % {'max': Beitrag.MAX_PHOTOS})
-        elif (kept or data['fotos']) and not data['einwilligung']:
+        elif (kept or data['fotos']) and not data['einwilligung'] and not keep_draft:
             form.add_error('einwilligung', _('Confirm the consent before sending photos.'))
         else:
             with transaction.atomic():
@@ -159,10 +167,13 @@ def bearbeiten(request, pk):
                             ziel.text = text.strip()
                             workflow.mark_edited(ziel)
                             ziel.save()
-                workflow.ensure_ziele(beitrag, platforms=data['plattformen'])
-                resubmit = beitrag.status in (Beitrag.STATUS_DRAFT, Beitrag.STATUS_REJECTED)
+                workflow.ensure_ziele(beitrag, platforms=data['plattformen'] or None)
+                resubmit = open_draft and not keep_draft
                 if resubmit:
                     workflow.submit(beitrag)
+            if keep_draft:
+                messages.success(request, _('Saved as a draft. Tap it below to go on.'))
+                return redirect('beitraege:meine')
             if resubmit and not is_approver:
                 return redirect('beitraege:eingereicht', pk=beitrag.pk)
             return redirect('beitraege:pruefen', pk=beitrag.pk)
@@ -173,8 +184,24 @@ def bearbeiten(request, pk):
         'fotos': previews(fotos),
         'crop_choices': CROP_CHOICES,
         'ziele': ziele if is_approver else [],
-        'resubmit': beitrag.status in (Beitrag.STATUS_DRAFT, Beitrag.STATUS_REJECTED),
+        'resubmit': open_draft,
+        'may_delete': beitrag.may_delete(request.user),
     })
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def loeschen(request, pk):
+    """The author drops a post that is not approved yet (asks first)."""
+    beitrag = get_object_or_404(Beitrag.objects.select_related('thema'), pk=pk)
+    if not beitrag.may_delete(request.user):
+        raise PermissionDenied
+    if request.method == 'POST':
+        titel = beitrag.titel
+        beitrag.delete()
+        messages.success(request, _('"%(titel)s" has been deleted.') % {'titel': titel})
+        return redirect('beitraege:meine')
+    return render(request, 'beitraege/loeschen.html', {'beitrag': beitrag, 'title': _('Delete post')})
 
 
 @login_required

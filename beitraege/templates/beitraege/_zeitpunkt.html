@@ -1,0 +1,29 @@
+{% load i18n %}<label class="check zeitpunkt-an" hidden><input type="checkbox" id="zeitpunkt-an"{% if form.publish_at.value %} checked{% endif %}> <span>{% trans "Publish at a set time" %}<span class="help" style="display:block">{% trans "Otherwise right after the approval." %}</span></span></label>
+<div id="zeitpunkt">
+  <label for="{{ form.publish_at.id_for_label }}">{{ form.publish_at.label }}</label>
+  {{ form.publish_at }}
+  <div class="help zeitpunkt-help">{{ form.publish_at.help_text }}</div>{{ form.publish_at.errors }}
+</div>
+<script>
+// A switch instead of an empty date field: iOS shows today's date in an empty field.
+(function () {
+  var toggle = document.getElementById('zeitpunkt-an');
+  var box = document.getElementById('zeitpunkt');
+  var input = document.getElementById('{{ form.publish_at.id_for_label }}');
+  if (!toggle || !box || !input) return;
+  toggle.closest('label').hidden = false;
+  box.querySelector('label').hidden = true;
+  box.querySelector('.zeitpunkt-help').hidden = true;
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function show() {
+    box.hidden = !toggle.checked;
+    if (!toggle.checked) { input.value = ''; return; }
+    if (!input.value) {
+      var d = new Date(Date.now() + 864e5);
+      input.value = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T10:00';
+    }
+  }
+  toggle.addEventListener('change', show);
+  show();
+})();
+</script>

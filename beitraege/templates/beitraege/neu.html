@@ -32,11 +32,11 @@
   <div class="choices">{% for choice in form.plattformen %}<label>{{ choice.tag }} {{ choice.choice_label }}</label>{% endfor %}</div>
   {{ form.plattformen.errors }}
 
-  <label for="{{ form.publish_at.id_for_label }}">{{ form.publish_at.label }}</label>
-  {{ form.publish_at }}
-  <div class="help">{{ form.publish_at.help_text }}</div>{{ form.publish_at.errors }}
+  {% include "beitraege/_zeitpunkt.html" %}
 
-  <button type="submit">{% trans "Submit for approval" %}</button>
+  <button type="submit" name="aktion" value="einreichen">{% trans "Submit for approval" %}</button>
+  <button type="submit" name="aktion" value="entwurf" class="secondary" formnovalidate>{% trans "Save as draft" %}</button>
+  <p class="help" style="text-align:center;margin:8px 0 0">{% trans "A draft stays with you until you submit it." %}</p>
 </form>
 {% if mail %}
   <div class="card">
