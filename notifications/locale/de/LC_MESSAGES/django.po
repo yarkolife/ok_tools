@@ -1809,3 +1809,23 @@ msgstr "Ein freigegebener Post konnte auf einer oder mehreren Plattformen nicht 
 #, python-brace-format
 msgid "{titel}: {fehler}"
 msgstr "{titel}: {fehler}"
+
+msgid "Post changed by an approver"
+msgstr "Post beim Prüfen geändert"
+
+msgid "An approver corrected a post before approving it, instead of sending it back. The author is told what the post looks like now."
+msgstr "Eine freigebende Person hat einen Post vor der Freigabe korrigiert, statt ihn zurückzuschicken. Die Autorin oder der Autor sieht, wie der Post jetzt aussieht."
+
+#, python-brace-format
+msgid "{titel}: {von}"
+msgstr "{titel}: {von}"
+
+msgid "Post withdrawn"
+msgstr "Post zurückgezogen"
+
+msgid "An approver took a published post off one or more platforms again (the website keeps it in its trash)."
+msgstr "Eine freigebende Person hat einen veröffentlichten Post von einer oder mehreren Plattformen entfernt (die Website behält ihn im Papierkorb)."
+
+#, python-brace-format
+msgid "{titel}: {plattformen}"
+msgstr "{titel}: {plattformen}"

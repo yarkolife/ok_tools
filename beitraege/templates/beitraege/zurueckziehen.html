@@ -1,0 +1,16 @@
+{% extends "beitraege/_base.html" %}
+{% load i18n %}
+{% block content %}
+<form method="post" class="card">
+  {% csrf_token %}
+  <h1>{{ title }}</h1>
+  <p>{% blocktranslate with titel=beitrag.titel %}Take "{{ titel }}" off these platforms:{% endblocktranslate %}</p>
+  {% for ziel in ziele %}
+    <label class="check"><input type="checkbox" name="p_{{ ziel.plattform }}" value="1" checked>
+      <span>{{ ziel.get_plattform_display }}{% if ziel.permalink %} · <a href="{{ ziel.permalink }}" target="_blank" rel="noopener">{% translate "Open" context "link" %}</a>{% endif %}</span></label>
+  {% endfor %}
+  <p class="help">{% trans "The website keeps the post in its trash, where it can be restored. On Facebook and Instagram it is deleted for good, with its likes and comments." %}</p>
+  <button type="submit" class="danger">{% trans "Withdraw" %}</button>
+  <a class="button secondary" href="{{ back_url }}">{% trans "Keep it" %}</a>
+</form>
+{% endblock %}

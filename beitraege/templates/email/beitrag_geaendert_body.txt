@@ -1,0 +1,5 @@
+{% load i18n %}{% autoescape off %}{% blocktranslate with titel=beitrag.titel von=von %}{{ von }} has changed your post "{{ titel }}" while checking it, instead of sending it back to you.{% endblocktranslate %}
+
+{% trans "See what it looks like now:" %}
+{{ url }}
+{% endautoescape %}

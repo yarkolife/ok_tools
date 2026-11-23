@@ -1,3 +1,14 @@
+2026-11-23 (Version 4.84.0)
+==========================
+
+* **beitraege: approvers correct a post themselves, also from the mail link**
+  * The check page has "Selbst korrigieren" for approvers; it opens the phone edit page, also from the personal link in the approval mail without logging in (new URL `freigabe/<token>/bearbeiten/`). Buttons "Speichern, freigeben und veröffentlichen", "Nur speichern" and "Abbrechen". The author gets a notification (`beitraege.changed`) and a mail that the post was changed. The approval mail says that small fixes can be made there.
+* **beitraege: take an approval back, withdraw a published post**
+  * An approved post that waits for its time can be held back on the check page ("Freigabe zurücknehmen") or with the admin action; it waits for approval again.
+  * "Post zurückziehen" on the check page (and the admin action "Von allen Plattformen zurückziehen"): approvers tick the platforms; the website post goes to the WordPress trash (restorable), Facebook and Instagram delete it. Each platform gets the status "Zurückgezogen", the post too once nothing is online; the author is told (`beitraege.withdrawn`). Withdrawn platforms are never published again.
+  * Instagram allows the deletion only with the permission `instagram_manage_contents` on the Meta token (add it to the login configuration and issue a new token); without it the platform stays published and shows the reason.
+* Fixed: the "Open" link on the check page read "Offen" (the status) instead of "Öffnen".
+
 2026-11-23 (Version 4.83.0)
 ==========================
 

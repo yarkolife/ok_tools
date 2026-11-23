@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.83.0
+**Current Version**: 4.84.0
 **Last Updated**: 23 November 2026
 
 Features
@@ -157,6 +157,10 @@ Features
     without touching the platforms that worked
   - Works from a phone outside the office network (nothing below ``/admin``): "Meine Posts", editing and
     resubmitting returned posts, approver edits of platform texts and crops
+  - Approvers correct a post themselves instead of sending it back, also from the mail link without login, and
+    save and approve in one step; the author is told
+  - Approval taken back while the post waits for its time; published posts withdrawn per platform (website: WordPress
+    trash, Facebook and Instagram: deleted; Instagram needs ``instagram_manage_contents`` on the token)
   - Photos stored without EXIF/GPS outside the public media; previews only through signed links until approval
   - Posts by mail: text and photos to a posts mailbox with a code in the subject, fetched over IMAP every 5 minutes;
     only staff with the right to add posts, others ignored silently; receipt mail with a link to the post

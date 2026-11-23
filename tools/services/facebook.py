@@ -67,6 +67,8 @@ def _request(method: str, url: str, *, params=None, headers=None, files=None,
         if method == 'POST':
             response = requests.post(url, data=params or {}, headers=headers, files=files,
                                      timeout=timeout)
+        elif method == 'DELETE':
+            response = requests.delete(url, params=params or {}, headers=headers, timeout=timeout)
         else:
             response = requests.get(url, params=params or {}, headers=headers, timeout=timeout)
     except requests.RequestException as exc:
@@ -149,6 +151,17 @@ def publish_photos(config, *, image_urls, message: str = '') -> str:
     if not post_id:
         raise FacebookError('Facebook returned no post ID.')
     return post_id
+
+
+def delete_post(config, post_id: str) -> None:
+    """Delete a page post (needs pages_manage_posts); a post already gone counts as deleted."""
+    token = page_token(config)
+    try:
+        _request('DELETE', f'{_graph(config)}/{post_id}', params={'access_token': token})
+    except FacebookError as exc:
+        if '(code 100)' in str(exc) and 'does not exist' in str(exc):
+            return
+        raise
 
 
 def post_permalink(config, post_id: str) -> str:

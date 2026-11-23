@@ -704,6 +704,32 @@ BEITRAEGE_REJECTED = register(EventType(
     settings_flag='BEITRAEGE_ENABLED',
 ))
 
+BEITRAEGE_CHANGED = register(EventType(
+    code='beitraege.changed',
+    module='beitraege',
+    label=_('Post changed by an approver'),
+    description=_(
+        'An approver corrected a post before approving it, instead of sending '
+        'it back. The author is told what the post looks like now.'),
+    message=_('{titel}: {von}'),
+    category=CATEGORY_INFO,
+    source=SOURCE_SIGNAL,
+    settings_flag='BEITRAEGE_ENABLED',
+))
+
+BEITRAEGE_WITHDRAWN = register(EventType(
+    code='beitraege.withdrawn',
+    module='beitraege',
+    label=_('Post withdrawn'),
+    description=_(
+        'An approver took a published post off one or more platforms again '
+        '(the website keeps it in its trash).'),
+    message=_('{titel}: {plattformen}'),
+    category=CATEGORY_INFO,
+    source=SOURCE_SIGNAL,
+    settings_flag='BEITRAEGE_ENABLED',
+))
+
 BEITRAEGE_FAILED = register(EventType(
     code='beitraege.failed',
     module='beitraege',

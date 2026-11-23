@@ -37,6 +37,8 @@ def _call(method: str, url: str, config, params=None) -> dict:
     try:
         if method == 'POST':
             response = requests.post(url, data=params, timeout=TIMEOUT)
+        elif method == 'DELETE':
+            response = requests.delete(url, params=params, timeout=TIMEOUT)
         else:
             response = requests.get(url, params=params, timeout=TIMEOUT)
     except requests.RequestException as exc:
@@ -120,6 +122,24 @@ def publish_container(config, container_id: str) -> str:
     if not media_id:
         raise InstagramError('Instagram returned no media ID.')
     return media_id
+
+
+def delete_media(config, media_id: str) -> None:
+    """Delete a post, carousel or reel (Instagram API with Facebook Login only).
+
+    Needs the permission instagram_manage_contents on the token; without it
+    Instagram answers with a permission error, which is passed on.
+    """
+    try:
+        _call('DELETE', f'{_base_url(config)}/{media_id}', config)
+    except InstagramError as exc:
+        text = str(exc)
+        if '(code 10)' in text or '(code 200)' in text or 'permission' in text.lower():
+            raise InstagramError(
+                'Instagram does not allow the deletion: the access token needs the permission '
+                'instagram_manage_contents (Meta login configuration, then a new token). '
+                f'Instagram said: {text}') from exc
+        raise
 
 
 def media_permalink(config, media_id: str) -> str:

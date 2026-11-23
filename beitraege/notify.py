@@ -113,6 +113,35 @@ def tell_author_rejected(beitrag: Beitrag, by) -> None:
         })
 
 
+def tell_author_changed(beitrag: Beitrag, by) -> None:
+    """The approver corrected the post: the author sees what it looks like now."""
+    author = beitrag.created_by
+    if author is None or author.pk == getattr(by, 'pk', None):
+        return
+    _emit('beitraege.changed', beitrag, {
+        'titel': beitrag.titel,
+        'von': person_name(by),
+    }, recipients=[author])
+    if author.email:
+        from .workflow import absolute_url
+        _mail(author.email, 'geaendert', {
+            'beitrag': beitrag,
+            'von': person_name(by),
+            'url': absolute_url(reverse('beitraege:pruefen', args=[beitrag.pk])),
+        })
+
+
+def tell_author_withdrawn(beitrag: Beitrag, by, platforms) -> None:
+    author = beitrag.created_by
+    if author is None or author.pk == getattr(by, 'pk', None):
+        return
+    _emit('beitraege.withdrawn', beitrag, {
+        'titel': beitrag.titel,
+        'plattformen': ', '.join(platforms),
+        'von': person_name(by),
+    }, recipients=[author])
+
+
 def tell_failed(beitrag: Beitrag) -> None:
     errors = '; '.join(
         f'{z.get_plattform_display()}: {z.error[:120]}'

@@ -7,5 +7,7 @@
 {% trans "Check and approve it here (also on the phone, no login needed):" %}
 {{ url }}
 
+{% trans "Something to fix? Correct it there yourself instead of sending it back." %}
+
 {% trans "The link is personal and valid for 7 days. One approval publishes the post on all platforms switched on for it." %}
 {% endautoescape %}

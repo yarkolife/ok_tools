@@ -264,6 +264,7 @@ class Beitrag(models.Model):
     STATUS_PARTIAL = 'partial'
     STATUS_FAILED = 'failed'
     STATUS_REJECTED = 'rejected'
+    STATUS_WITHDRAWN = 'withdrawn'
     STATUS_CHOICES = [
         (STATUS_DRAFT, _('Draft')),
         (STATUS_SUBMITTED, pgettext_lazy('beitrag', 'Waiting for approval')),
@@ -273,6 +274,7 @@ class Beitrag(models.Model):
         (STATUS_PARTIAL, _('Partly published')),
         (STATUS_FAILED, _('Failed')),
         (STATUS_REJECTED, _('Rejected')),
+        (STATUS_WITHDRAWN, _('Withdrawn')),
     ]
     MAX_PHOTOS = 10
 
@@ -329,6 +331,16 @@ class Beitrag(models.Model):
         """The author, as long as the post is not approved yet."""
         return bool(self.status in self.EDITABLE and getattr(user, 'is_authenticated', False)
                     and self.created_by_id == user.pk)
+
+    def may_withdraw(self, user) -> bool:
+        """Approvers may take a published post off the platforms again."""
+        return (self.status in (self.STATUS_PUBLISHED, self.STATUS_PARTIAL, self.STATUS_FAILED)
+                and self.ziele.filter(status=BeitragZiel.STATUS_PUBLISHED).exists()
+                and self.may_approve(user))
+
+    def may_unapprove(self, user) -> bool:
+        """An approved post that waits for its time may be held back."""
+        return self.status == self.STATUS_APPROVED and self.may_approve(user)
 
     def may_approve(self, user) -> bool:
         """Approvers of the topic and people allowed to approve every topic."""
@@ -401,11 +413,13 @@ class BeitragZiel(models.Model):
     STATUS_PUBLISHING = 'publishing'
     STATUS_PUBLISHED = 'published'
     STATUS_FAILED = 'failed'
+    STATUS_WITHDRAWN = 'withdrawn'
     STATUS_CHOICES = [
         (STATUS_OPEN, _('Open')),
         (STATUS_PUBLISHING, _('Publishing')),
         (STATUS_PUBLISHED, _('Published')),
         (STATUS_FAILED, _('Failed')),
+        (STATUS_WITHDRAWN, _('Withdrawn')),
     ]
 
     beitrag = models.ForeignKey(Beitrag, on_delete=models.CASCADE, related_name='ziele',

@@ -57,12 +57,16 @@
     {% endfor %}
   {% endif %}
 
-  {% if resubmit %}
+  {% if is_approver and beitrag.status == 'submitted' %}
+    <button type="submit" name="aktion" value="freigeben">{% if beitrag.publish_at %}{% trans "Save and approve" %}{% else %}{% trans "Save, approve and publish" %}{% endif %}</button>
+    <button type="submit" name="aktion" value="speichern" class="secondary">{% trans "Only save" %}</button>
+    <a class="button secondary" href="{{ back_url }}">{% trans "Cancel" %}</a>
+  {% elif resubmit %}
     <button type="submit" name="aktion" value="einreichen">{% if beitrag.status == 'draft' %}{% trans "Submit for approval" %}{% else %}{% trans "Save and submit again" %}{% endif %}</button>
     <button type="submit" name="aktion" value="entwurf" class="secondary" formnovalidate>{% trans "Save as draft" %}</button>
   {% else %}
     <button type="submit">{% trans "Save" %}</button>
   {% endif %}
-  {% if may_delete %}<a class="button danger-link" href="{% url 'beitraege:loeschen' beitrag.pk %}">{% trans "Delete post" %}</a>{% endif %}
+  {% if may_delete and not token %}<a class="button danger-link" href="{% url 'beitraege:loeschen' beitrag.pk %}">{% trans "Delete post" %}</a>{% endif %}
 </form>
 {% endblock %}

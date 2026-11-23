@@ -6,7 +6,13 @@ its office network: staff on the road log in at /profile/login/.
 - "Neuer Beitrag" needs a login and the right to add posts.
 - "Meine Beiträge" lists the own posts and those waiting for the approver.
 - "Bearbeiten": the author and the approvers change a post until it is
-  approved; approvers also the text per platform and the crop of a photo.
+  approved; approvers also the text per platform and the crop of a photo,
+  and they may save and approve in one go. From the approval mail the
+  approver edits without logging in (the personal link already allows
+  approving); the author is told about the change.
+- "Zurueckziehen": an approver takes a published post off the platforms
+  (website: WordPress trash; Facebook and Instagram: deleted). An approved
+  post that waits for its time can be held back on the check page.
 - The check page opens for approvers (logged in, or from the personal link
   in the approval mail) and read-only for the author. Opening only shows
   the post; approving needs the button (POST), because mail scanners open
@@ -22,6 +28,7 @@ from .links import preview_allowed
 from .links import previews
 from .models import Beitrag
 from .models import BeitragFoto
+from .models import BeitragZiel
 from .models import approves_all
 from .models import in_platform_order
 from .models import person_name
@@ -38,6 +45,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 from django.views.decorators.http import require_http_methods
@@ -123,9 +131,22 @@ def eingereicht(request, pk):
 @require_http_methods(['GET', 'POST'])
 def bearbeiten(request, pk):
     beitrag = get_object_or_404(Beitrag.objects.select_related('thema'), pk=pk)
-    if not beitrag.may_edit(request.user):
+    return _edit_page(request, beitrag, request.user)
+
+
+@require_http_methods(['GET', 'POST'])
+def freigabe_bearbeiten(request, token):
+    """The approver corrects the post from the link in the mail (no login)."""
+    beitrag, user = _from_token_or_404(token)
+    if not beitrag.may_approve(user):
         raise PermissionDenied
-    is_approver = beitrag.may_approve(request.user)
+    return _edit_page(request, beitrag, user, token=token)
+
+
+def _edit_page(request, beitrag, user, token=None):
+    if not beitrag.may_edit(user):
+        raise PermissionDenied
+    is_approver = beitrag.may_approve(user)
     fotos = list(beitrag.fotos.all())
     ziele = in_platform_order(beitrag.ziele.all())
     initial = {
@@ -146,6 +167,8 @@ def bearbeiten(request, pk):
         elif (kept or data['fotos']) and not data['einwilligung'] and not keep_draft:
             form.add_error('einwilligung', _('Confirm the consent before sending photos.'))
         else:
+            # The multi-file field always counts as changed; new photos are checked themselves.
+            changed = bool(set(form.changed_data) - {'fotos'} or remove or data['fotos'])
             with transaction.atomic():
                 for field in ('thema', 'titel', 'text', 'einwilligung', 'publish_at'):
                     setattr(beitrag, field, data[field])
@@ -157,6 +180,7 @@ def bearbeiten(request, pk):
                     if value is not None and value.isdigit() and int(value) != foto.fokus_y:
                         foto.fokus_y = max(0, min(100, int(value)))
                         foto.save(update_fields=['fokus_y'])
+                        changed = True
                 start = max([f.position for f in kept], default=-1) + 1
                 for offset, upload in enumerate(data['fotos']):
                     BeitragFoto.objects.create(beitrag=beitrag, bild=upload, position=start + offset)
@@ -167,6 +191,7 @@ def bearbeiten(request, pk):
                             ziel.text = text.strip()
                             workflow.mark_edited(ziel)
                             ziel.save()
+                            changed = True
                 workflow.ensure_ziele(beitrag, platforms=data['plattformen'] or None)
                 resubmit = open_draft and not keep_draft
                 if resubmit:
@@ -176,7 +201,22 @@ def bearbeiten(request, pk):
                 return redirect('beitraege:meine')
             if resubmit and not is_approver:
                 return redirect('beitraege:eingereicht', pk=beitrag.pk)
-            return redirect('beitraege:pruefen', pk=beitrag.pk)
+            if changed and is_approver and beitrag.created_by_id != user.pk:
+                from .notify import tell_author_changed
+                tell_author_changed(beitrag, user)
+            check = (redirect('beitraege:freigabe', token=token) if token
+                     else redirect('beitraege:pruefen', pk=beitrag.pk))
+            if is_approver and request.POST.get('aktion') == 'freigeben':
+                try:
+                    workflow.approve(beitrag, user)
+                except ValidationError as exc:
+                    messages.error(request, '; '.join(exc.messages))
+                    return check
+                messages.success(request, _('Saved and approved.') if beitrag.publish_at
+                                 else _('Saved and approved; the post is being published now.'))
+            else:
+                messages.success(request, _('Saved.'))
+            return check
     return render(request, 'beitraege/bearbeiten.html', {
         'title': _('Edit post'),
         'beitrag': beitrag,
@@ -185,7 +225,11 @@ def bearbeiten(request, pk):
         'crop_choices': CROP_CHOICES,
         'ziele': ziele if is_approver else [],
         'resubmit': open_draft,
-        'may_delete': beitrag.may_delete(request.user),
+        'may_delete': beitrag.may_delete(user),
+        'is_approver': is_approver,
+        'token': token,
+        'back_url': (reverse('beitraege:freigabe', args=[token]) if token
+                     else reverse('beitraege:pruefen', args=[beitrag.pk])),
     })
 
 
@@ -221,16 +265,74 @@ def freigabe(request, token):
             'state': 'invalid', 'title': _('Invalid or expired link'),
             'message': _('This link is invalid or has expired. Open the post in OK-Tools instead.'),
         }, status=400)
-    return _check_page(request, beitrag, user)
+    return _check_page(request, beitrag, user, token=token)
 
 
-def _check_page(request, beitrag, user):
+def _from_token_or_404(token):
+    from .notify import from_token
+
+    beitrag, user = from_token(token)
+    if beitrag is None:
+        raise Http404()
+    return beitrag, user
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def zurueckziehen(request, pk):
+    beitrag = get_object_or_404(Beitrag.objects.select_related('thema'), pk=pk)
+    return _withdraw_page(request, beitrag, request.user)
+
+
+@require_http_methods(['GET', 'POST'])
+def freigabe_zurueckziehen(request, token):
+    beitrag, user = _from_token_or_404(token)
+    return _withdraw_page(request, beitrag, user, token=token)
+
+
+def _withdraw_page(request, beitrag, user, token=None):
+    """Take a published post off the platforms again (asks first)."""
+    if not beitrag.may_withdraw(user):
+        raise PermissionDenied
+    published = in_platform_order(beitrag.ziele.filter(status=BeitragZiel.STATUS_PUBLISHED))
+    back = (reverse('beitraege:freigabe', args=[token]) if token
+            else reverse('beitraege:pruefen', args=[beitrag.pk]))
+    if request.method == 'POST':
+        chosen = [z.plattform for z in published if request.POST.get(f'p_{z.plattform}')]
+        if not chosen:
+            messages.error(request, _('Choose at least one platform.'))
+            return redirect(request.path)
+        workflow.withdraw(beitrag, user, platforms=chosen)
+        ziele = in_platform_order(beitrag.ziele.filter(plattform__in=chosen))
+        done = [z.get_plattform_display() for z in ziele if z.status == BeitragZiel.STATUS_WITHDRAWN]
+        if done:
+            from .notify import tell_author_withdrawn
+            tell_author_withdrawn(beitrag, user, done)
+            messages.success(request, _('Withdrawn from: %(platforms)s.') % {'platforms': ', '.join(done)})
+        for ziel in ziele:
+            if ziel.status != BeitragZiel.STATUS_WITHDRAWN:
+                messages.error(request, f'{ziel.get_plattform_display()}: {ziel.error}')
+        return redirect(back)
+    return render(request, 'beitraege/zurueckziehen.html', {
+        'beitrag': beitrag, 'ziele': published, 'back_url': back,
+        'title': _('Withdraw post'),
+    })
+
+
+def _check_page(request, beitrag, user, token=None):
+    may_edit = beitrag.may_edit(user)
     context = {
         'beitrag': beitrag,
         'ziele': in_platform_order(beitrag.ziele.filter(aktiv=True)),
         'autor': person_name(beitrag.created_by),
         'fotos': previews(beitrag.fotos.all()),
-        'may_edit': beitrag.may_edit(request.user),
+        'may_edit': may_edit,
+        'edit_url': ((reverse('beitraege:freigabe_bearbeiten', args=[token]) if token
+                      else reverse('beitraege:bearbeiten', args=[beitrag.pk])) if may_edit else ''),
+        'withdraw_url': ((reverse('beitraege:freigabe_zurueckziehen', args=[token]) if token
+                          else reverse('beitraege:zurueckziehen', args=[beitrag.pk]))
+                         if beitrag.may_withdraw(user) else ''),
+        'may_unapprove': beitrag.may_unapprove(user),
     }
     if not beitrag.may_approve(user):
         # The author may look at the own post (status, links), not approve it.
@@ -241,11 +343,17 @@ def _check_page(request, beitrag, user):
         return render(request, 'beitraege/pruefen.html', context)
     context.update(problems=workflow.problems(beitrag), approver=user)
     open_states = Beitrag.EDITABLE
+    if request.method == 'POST' and request.POST.get('aktion') == 'zurueckhalten':
+        if workflow.unapprove(beitrag, user):
+            messages.success(request, _('The approval is taken back; the post is not published.'))
+        else:
+            messages.error(request, _('Too late: the post is already being published.'))
+        return redirect(request.path)
     if request.method == 'POST' and beitrag.status in open_states:
         if request.POST.get('aktion') == 'ablehnen':
             workflow.reject(beitrag, user, request.POST.get('grund', '').strip())
             context.update(state='done', title=_('Sent back'),
-                           message=_('The author has been told.'), may_edit=False)
+                           message=_('The author has been told.'), may_edit=False, edit_url='')
             return render(request, 'beitraege/pruefen.html', context)
         try:
             workflow.approve(beitrag, user)
@@ -253,7 +361,8 @@ def _check_page(request, beitrag, user):
             context.update(state='error', title=_('The post cannot be approved'),
                            message='; '.join(exc.messages))
             return render(request, 'beitraege/pruefen.html', context, status=400)
-        context.update(state='done', may_edit=False, title=_('Approved'), message=(
+        context.update(state='done', may_edit=False, edit_url='', withdraw_url='',
+                       may_unapprove=beitrag.may_unapprove(user), title=_('Approved'), message=(
             _('The post is being published now.') if beitrag.publish_at is None
             else _('The post is published at its time.')))
         return render(request, 'beitraege/pruefen.html', context)

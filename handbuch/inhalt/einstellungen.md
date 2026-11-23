@@ -344,7 +344,11 @@ API setup with Unified login** bei **Neue Weiterleitungs-URL registrieren**
 - Assets: **Seiten** und **Instagram-Konten**;
 - Berechtigungen: `instagram_basic`, `instagram_content_publish`,
   `instagram_manage_comments`, `instagram_manage_messages`,
-  `pages_show_list`, `pages_read_engagement`, `pages_manage_posts`.
+  `instagram_manage_contents`, `pages_show_list`, `pages_read_engagement`,
+  `pages_manage_posts`. `instagram_manage_contents` braucht nur, wer Posts
+  auf Instagram wieder [zurückziehen](../beitraege/#zurueckziehen) will; ein
+  Zugang ohne dieses Recht veröffentlicht trotzdem. Wird es später ergänzt,
+  die Schritte 6 und 7 wiederholen (neuer Token).
 
 Die **Konfigurations-ID** notieren. Der Instagram-Assistent meldet danach
 „Keine kompatiblen Konfigurationen“ und bietet kein „Token generieren“ an,

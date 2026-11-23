@@ -88,7 +88,7 @@ def ensure_ziele(beitrag: Beitrag, platforms=None) -> list[BeitragZiel]:
             ziel = BeitragZiel(beitrag=beitrag, plattform=plattform, aktiv=defaults[plattform])
         if platforms is not None:
             ziel.aktiv = plattform in platforms and plattform in available
-        if not ziel.text_bearbeitet and ziel.status != BeitragZiel.STATUS_PUBLISHED:
+        if not ziel.text_bearbeitet and ziel.status not in DONE:
             ziel.text = compose(beitrag, plattform)
         ziel.save()
         ziele.append(ziel)
@@ -107,7 +107,7 @@ def mark_edited(ziel: BeitragZiel) -> None:
 def problems(beitrag: Beitrag) -> list[str]:
     """What would stop the post; empty if it can be approved."""
     found = []
-    ziele = [z for z in beitrag.ziele.all() if z.aktiv and z.status != BeitragZiel.STATUS_PUBLISHED]
+    ziele = [z for z in beitrag.ziele.all() if z.aktiv and z.status not in DONE]
     if not ziele:
         found.append(_('No platform is switched on for this post.'))
     fotos = beitrag.fotos.count()
@@ -134,6 +134,10 @@ def problems(beitrag: Beitrag) -> list[str]:
 # ---------------------------------------------------------------------------
 # Submission, approval, rejection
 # ---------------------------------------------------------------------------
+
+# Platforms that are finished: published, or taken off again.
+DONE = (BeitragZiel.STATUS_PUBLISHED, BeitragZiel.STATUS_WITHDRAWN)
+
 
 def submit(beitrag: Beitrag) -> None:
     """Hand the post to the approvers."""
@@ -177,6 +181,70 @@ def reject(beitrag: Beitrag, user, note: str = '') -> None:
     tell_author_rejected(beitrag, user)
 
 
+def unapprove(beitrag: Beitrag, user) -> bool:
+    """Hold back an approved post that has not started; it waits for approval again."""
+    if not beitrag.may_approve(user):
+        raise PermissionDenied(_('You may not approve posts of this topic.'))
+    held = Beitrag.objects.filter(pk=beitrag.pk, status=Beitrag.STATUS_APPROVED).update(
+        status=Beitrag.STATUS_SUBMITTED, approved_by=None, approved_at=None, updated_at=timezone.now())
+    beitrag.refresh_from_db()
+    return bool(held)
+
+
+def withdraw(beitrag: Beitrag, user, platforms=None) -> list[str]:
+    """Take the post off the chosen platforms (all published ones by default).
+
+    The website post goes to the trash of WordPress (it can be restored
+    there), Facebook and Instagram delete it. A platform that refuses keeps
+    its state and its error; the errors are returned.
+    """
+    if not beitrag.may_approve(user):
+        raise PermissionDenied(_('You may not approve posts of this topic.'))
+    removers = {
+        PLATFORM_INSTAGRAM: _withdraw_instagram,
+        PLATFORM_FACEBOOK: _withdraw_facebook,
+        PLATFORM_WEBSITE: _withdraw_website,
+    }
+    errors = []
+    ziele = beitrag.ziele.filter(status=BeitragZiel.STATUS_PUBLISHED)
+    if platforms is not None:
+        ziele = ziele.filter(plattform__in=list(platforms))
+    for ziel in ziele:
+        try:
+            if ziel.remote_id:
+                removers[ziel.plattform](ziel.remote_id)
+        except Exception as exc:
+            logger.warning('Withdrawing post %s from %s failed: %r', beitrag.pk, ziel.plattform, exc)
+            ziel.error = str(exc)[:2000]
+            ziel.save(update_fields=['error'])
+            errors.append(f'{ziel.get_plattform_display()}: {exc}')
+            continue
+        ziel.status = BeitragZiel.STATUS_WITHDRAWN
+        ziel.error = ''
+        ziel.save(update_fields=['status', 'error'])
+    if not beitrag.ziele.filter(status=BeitragZiel.STATUS_PUBLISHED).exists():
+        beitrag.status = Beitrag.STATUS_WITHDRAWN
+    elif not beitrag.ziele.filter(aktiv=True).exclude(status__in=DONE).exists():
+        beitrag.status = Beitrag.STATUS_PUBLISHED
+    beitrag.save(update_fields=['status', 'updated_at'])
+    return errors
+
+
+def _withdraw_instagram(remote_id):
+    from tools.services import instagram
+    instagram.delete_media(BeitragsConfig.meta_config(), remote_id)
+
+
+def _withdraw_facebook(remote_id):
+    from tools.services import facebook
+    facebook.delete_post(BeitragsConfig.meta_config(), remote_id)
+
+
+def _withdraw_website(remote_id):
+    from .services import wordpress
+    wordpress.trash_post(BeitragsConfig.get_config(), remote_id)
+
+
 def is_due(beitrag: Beitrag) -> bool:
     return beitrag.status == Beitrag.STATUS_APPROVED and (
         beitrag.publish_at is None or beitrag.publish_at <= timezone.now())
@@ -203,7 +271,7 @@ def claim(beitrag_id: int) -> Beitrag | None:
 
 def publish(beitrag: Beitrag) -> str:
     """Publish every open platform; return the resulting post status."""
-    for ziel in beitrag.ziele.filter(aktiv=True).exclude(status=BeitragZiel.STATUS_PUBLISHED):
+    for ziel in beitrag.ziele.filter(aktiv=True).exclude(status__in=DONE):
         ziel.status = BeitragZiel.STATUS_PUBLISHING
         ziel.error = ''
         ziel.save(update_fields=['status', 'error'])
@@ -226,7 +294,7 @@ def publish(beitrag: Beitrag) -> str:
         ziel.published_at = timezone.now()
         ziel.save(update_fields=['status', 'remote_id', 'permalink', 'published_at', 'error'])
 
-    active = list(beitrag.ziele.filter(aktiv=True))
+    active = list(beitrag.ziele.filter(aktiv=True).exclude(status=BeitragZiel.STATUS_WITHDRAWN))
     done = [z for z in active if z.status == BeitragZiel.STATUS_PUBLISHED]
     if active and len(done) == len(active):
         beitrag.status = Beitrag.STATUS_PUBLISHED

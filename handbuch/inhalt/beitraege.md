@@ -154,8 +154,15 @@ und 7 Tage gültig. In OK-Tools führt **Prüfseite öffnen** im Post dorthin.
 - **An die Autorin / den Autor zurückgeben** mit einem Grund: Die Person
   bekommt eine Benachrichtigung und eine E-Mail, ändert den Post und
   reicht ihn neu ein.
-- **Post bearbeiten**: Text, Fotos, Ausschnitt für Instagram und – für
-  Freigebende – der Text je Plattform, auch am Handy.
+- **Selbst korrigieren**: Statt den Post wegen einer Kleinigkeit
+  zurückzugeben, ändern Freigebende ihn selbst – Text, Fotos, Ausschnitt für
+  Instagram und der Text je Plattform. Das geht auch direkt über den Link aus
+  der E-Mail, ohne Anmeldung. Unten stehen dann **Speichern, freigeben und
+  veröffentlichen** (alles in einem Schritt), **Nur speichern** (freigeben
+  später) und **Abbrechen**. Die Autorin oder der Autor bekommt eine
+  Benachrichtigung und eine E-Mail, dass der Post geändert wurde.
+
+![Seite „Post bearbeiten“ für Freigebende: Texte je Plattform und die Knöpfe Speichern, freigeben und veröffentlichen, Nur speichern, Abbrechen](bilder/b06-selbst-korrigieren.jpg "Selbst korrigieren: ändern und gleich freigeben.")
 
 Beim Instagram-Text zeigt die Seite die Fotos so, wie Instagram sie
 zuschneidet (4:5). Passt ein Ausschnitt nicht: **Post bearbeiten** →
@@ -178,6 +185,25 @@ farbigem Status und, für Freigebende, alles, was auf ihre Freigabe wartet (mit
 Anzahl). Ein eigener Post lässt sich dort ansehen (Status, Links,
 Grund einer Rückgabe), freigeben können ihn nur die Freigebenden.
 
+### Freigabe zurücknehmen oder Post zurückziehen {#zurueckziehen}
+
+- **Noch nicht veröffentlicht** (freigegeben mit fester Zeit): Auf der
+  Prüfseite **Freigabe zurücknehmen (nicht veröffentlichen)**. Der Post
+  wartet dann wieder auf Freigabe und lässt sich ändern.
+- **Schon veröffentlicht**: Auf der Prüfseite unten **Post zurückziehen**,
+  die Plattformen ankreuzen und **Zurückziehen**. Auf der Website landet der
+  Post im Papierkorb von WordPress und lässt sich dort wiederherstellen. Auf
+  Facebook und Instagram wird er endgültig gelöscht, mit Likes und
+  Kommentaren. Die Autorin oder der Autor wird benachrichtigt.
+
+![Seite „Post zurückziehen“ mit Instagram, Facebook und Webseite zum Ankreuzen](bilder/b07-post-zurueckziehen.jpg "Post zurückziehen: Plattformen wählen.")
+
+Klappt es auf einer Plattform nicht, bleibt der Post dort veröffentlicht und
+der Grund steht bei der Plattform. Instagram erlaubt das Löschen nur, wenn der
+Zugang das Recht `instagram_manage_contents` hat (siehe
+[Meta-App einrichten](../einstellungen/#meta-app)); ohne dieses Recht den Post in
+der Instagram-App löschen.
+
 ## 4. In der Verwaltung {#verwaltung}
 
 *Tagesgeschäft → Posts* zeigt alle Posts mit Status und den Links auf
@@ -190,7 +216,9 @@ die veröffentlichten Posts.
 - Wird ein freigegebener, noch nicht veröffentlichter Post geändert, muss
   er neu freigegeben werden.
 - Aktionen in der Liste: **Zur Freigabe einreichen**, **Freigeben**,
-  **Fehlgeschlagene Plattformen erneut veröffentlichen**.
+  **Fehlgeschlagene Plattformen erneut veröffentlichen**, **Freigabe
+  zurücknehmen (noch nicht veröffentlicht)** und **Von allen Plattformen
+  zurückziehen**.
 
 | Status | Bedeutung |
 |---|---|
@@ -200,7 +228,9 @@ die veröffentlichten Posts.
 | Veröffentlicht | Auf allen gewählten Plattformen online. |
 | Teilweise veröffentlicht / Fehlgeschlagen | Mindestens eine Plattform hat nicht geklappt; der Grund steht bei der Plattform. Die anderen sind trotzdem online. |
 | Zurückgegeben | Mit Grund an die Autorin / den Autor zurück. |
+| Zurückgezogen | Von allen Plattformen wieder entfernt (Website: im Papierkorb). |
 
 !!! warnung ""
-    Ein veröffentlichter Post lässt sich nicht still zurücknehmen. Löschen
-    oder ändern auf Instagram, Facebook oder der Website geht nur dort.
+    Ein veröffentlichter Post lässt sich nur als Ganzes zurückziehen
+    ([oben](#zurueckziehen)), nicht nachträglich ändern. Eine Korrektur des
+    Textes geht nur direkt auf Instagram, Facebook oder der Website.

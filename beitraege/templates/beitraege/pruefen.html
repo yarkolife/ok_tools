@@ -25,7 +25,7 @@
       <div class="text">{{ ziel.text }}{% if ziel.plattform == 'website' and beitrag.link %}
 
 {{ beitrag.link }}{% endif %}</div>
-      {% if ziel.permalink %}<p><a href="{{ ziel.permalink }}" target="_blank" rel="noopener">{% trans "Open" %}</a></p>{% endif %}
+      {% if ziel.permalink %}<p><a href="{{ ziel.permalink }}" target="_blank" rel="noopener">{% translate "Open" context "link" %}</a></p>{% endif %}
       {% if ziel.error %}<p class="problems">{{ ziel.error }}</p>{% endif %}
     </div>
   {% endfor %}
@@ -45,7 +45,16 @@
     </form>
   {% endif %}
 {% endif %}
-{% if may_edit and beitrag %}
-  <a class="button" href="{% url 'beitraege:bearbeiten' beitrag.pk %}" style="background:transparent;color:var(--brand);border:1px solid var(--line)">{% trans "Edit post" %}</a>
+{% if edit_url and beitrag %}
+  <a class="button" href="{{ edit_url }}" style="background:transparent;color:var(--brand);border:1px solid var(--line)">{% if approver %}{% trans "Correct it myself" %}{% else %}{% trans "Edit post" %}{% endif %}</a>
+{% endif %}
+{% if may_unapprove and beitrag.publish_at %}
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" name="aktion" value="zurueckhalten" class="secondary">{% trans "Take the approval back (do not publish)" %}</button>
+  </form>
+{% endif %}
+{% if withdraw_url %}
+  <a class="button danger-link" href="{{ withdraw_url }}">{% trans "Withdraw post" %}</a>
 {% endif %}
 {% endblock %}

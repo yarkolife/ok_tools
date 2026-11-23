@@ -102,6 +102,17 @@ def gallery_block(media: list[dict]) -> str:
             f'{items}\n</figure>\n<!-- /wp:gallery -->')
 
 
+def trash_post(config, post_id) -> None:
+    """Move a post to the trash of the website; it can be restored there."""
+    try:
+        _request(config, 'DELETE', f'posts/{int(post_id)}')
+    except WordPressError as exc:
+        # Already in the trash or deleted by hand: nothing left to do.
+        if 'HTTP 410' in str(exc) or 'HTTP 404' in str(exc):
+            return
+        raise
+
+
 def create_post(config, *, title: str, content: str, featured_media: int | None = None,
                 categories=(), tags=(), status: str = 'publish') -> dict:
     """Create the post; return ``{'id', 'link'}``."""

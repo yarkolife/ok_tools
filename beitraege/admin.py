@@ -7,6 +7,7 @@ from .models import BeitragFoto
 from .models import BeitragZiel
 from .models import BeitragsConfig
 from .models import Thema
+from .models import in_platform_order
 from .models import person_name
 from django import forms
 from django.contrib import admin
@@ -19,6 +20,7 @@ from django.urls import path
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext
 from ok_tools.admin_base import ModelAdmin
 from ok_tools.admin_base import TabularInline
 from ok_tools.admin_secrets import SecretFieldsMixin
@@ -255,7 +257,8 @@ class BeitragZielInline(TabularInline):
     def link_display(self, obj):
         if not obj.permalink:
             return '-'
-        return format_html('<a href="{}" target="_blank" rel="noopener">{}</a>', obj.permalink, _('Open'))
+        return format_html('<a href="{}" target="_blank" rel="noopener">{}</a>', obj.permalink,
+                           pgettext('link', 'Open'))
 
 
 @admin.register(Beitrag)
@@ -268,7 +271,7 @@ class BeitragAdmin(ModelAdmin):
     date_hierarchy = 'created_at'
     inlines = [BeitragFotoInline, BeitragZielInline]
     change_list_template = 'admin/beitraege/beitrag/change_list.html'
-    actions = ['submit_action', 'approve_action', 'retry_action']
+    actions = ['submit_action', 'approve_action', 'retry_action', 'unapprove_action', 'withdraw_action']
     readonly_fields = ['status', 'created_by', 'approved_by', 'approved_at', 'rejection_note',
                        'created_at', 'updated_at', 'check_link']
     fieldsets = (
@@ -318,6 +321,7 @@ class BeitragAdmin(ModelAdmin):
             Beitrag.STATUS_PARTIAL: 'var(--ok-warning, #8a5a00)',
             Beitrag.STATUS_FAILED: 'var(--ok-danger, #c62828)',
             Beitrag.STATUS_REJECTED: 'var(--ok-danger, #c62828)',
+            Beitrag.STATUS_WITHDRAWN: 'var(--ok-muted, #6b7280)',
         }
         return format_html('<strong style="color:{}">{}</strong>',
                            colours.get(obj.status, 'inherit'), obj.get_status_display())
@@ -373,3 +377,29 @@ class BeitragAdmin(ModelAdmin):
             if workflow.retry(beitrag):
                 count += 1
         self.message_user(request, _('%(count)s post(s) are being published again.') % {'count': count})
+
+    @admin.action(description=_('Take the approval back (not published yet)'))
+    def unapprove_action(self, request, queryset):
+        count = 0
+        for beitrag in queryset.filter(status=Beitrag.STATUS_APPROVED):
+            if beitrag.may_approve(request.user) and workflow.unapprove(beitrag, request.user):
+                count += 1
+        self.message_user(request, _('%(count)s approval(s) taken back.') % {'count': count})
+
+    @admin.action(description=_('Withdraw from all platforms'))
+    def withdraw_action(self, request, queryset):
+        from .notify import tell_author_withdrawn
+
+        for beitrag in queryset:
+            if not beitrag.may_withdraw(request.user):
+                continue
+            before = {z.pk for z in beitrag.ziele.filter(status=BeitragZiel.STATUS_PUBLISHED)}
+            errors = workflow.withdraw(beitrag, request.user)
+            done = [z.get_plattform_display() for z in in_platform_order(beitrag.ziele.filter(
+                pk__in=before, status=BeitragZiel.STATUS_WITHDRAWN))]
+            if done:
+                tell_author_withdrawn(beitrag, request.user, done)
+                self.message_user(request, _('%(post)s: withdrawn from %(platforms)s.') % {
+                    'post': beitrag, 'platforms': ', '.join(done)})
+            for error in errors:
+                self.message_user(request, f'{beitrag}: {error}', level=messages.ERROR)
