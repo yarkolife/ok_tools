@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-23 18:03+0000\n"
+"POT-Creation-Date: 2026-11-23 18:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: admin.py:64 admin.py:65
+#: admin.py:65 admin.py:66
 msgid "Authors"
 msgstr "Autorinnen und Autoren"
 
-#: admin.py:78
+#: admin.py:79
 #, python-format
 msgid ""
 "May write posts on the phone and by mail (group \"%(group)s\"). Superusers "
@@ -31,15 +31,15 @@ msgstr ""
 "Superuser und alle, die das Recht „Post hinzufügen“ auf anderem Weg haben, "
 "dürfen es auch."
 
-#: admin.py:94
+#: admin.py:95
 msgid "Who may write"
 msgstr "Wer darf schreiben"
 
-#: admin.py:95 models.py:441
+#: admin.py:96 models.py:446
 msgid "Platforms"
 msgstr "Plattformen"
 
-#: admin.py:97
+#: admin.py:98
 msgid ""
 "Instagram and Facebook use the account, page and token entered in the Tools "
 "configuration (section Instagram)."
@@ -47,15 +47,15 @@ msgstr ""
 "Instagram und Facebook nutzen Konto, Seite und Token aus der Werkzeuge-"
 "Konfiguration (Abschnitt Instagram)."
 
-#: admin.py:100
+#: admin.py:101
 msgid "Website (WordPress)"
 msgstr "Website (WordPress)"
 
-#: admin.py:103 models.py:97
+#: admin.py:105 models.py:102
 msgid "Posts by mail"
 msgstr "Posts per E-Mail"
 
-#: admin.py:106
+#: admin.py:108
 msgid ""
 "Every 5 minutes OK-Tools reads new mails of this mailbox. Only mails with the"
 " code in the subject from staff allowed to add posts are taken; all others "
@@ -66,35 +66,35 @@ msgstr ""
 "anlegen dürfen; alle anderen werden als gelesen markiert und ohne Antwort "
 "ignoriert."
 
-#: admin.py:123
+#: admin.py:125
 msgid "Connection"
 msgstr "Verbindung"
 
-#: admin.py:128
+#: admin.py:130
 msgid "Test connections"
 msgstr "Verbindungen testen"
 
-#: admin.py:145
+#: admin.py:147
 #, python-format
 msgid "Website: %(error)s"
 msgstr "Website: %(error)s"
 
-#: admin.py:147
+#: admin.py:149
 #, python-format
 msgid "Website: connected as %(name)s (%(roles)s)."
 msgstr "Website: verbunden als %(name)s (%(roles)s)."
 
-#: admin.py:154
+#: admin.py:156
 #, python-format
 msgid "Mailbox: %(error)s"
 msgstr "Postfach: %(error)s"
 
-#: admin.py:156
+#: admin.py:158
 #, python-format
 msgid "Mailbox: connected, %(count)s unread mail(s)."
 msgstr "Postfach: verbunden, %(count)s ungelesene E-Mail(s)."
 
-#: admin.py:159
+#: admin.py:161
 msgid ""
 "Posts by mail is switched on but server, user, password or the code is "
 "missing."
@@ -102,126 +102,127 @@ msgstr ""
 "Posts per E-Mail ist eingeschaltet, aber Server, Benutzer, Passwort oder Code"
 " fehlen."
 
-#: admin.py:167
+#: admin.py:169
 #, python-format
 msgid "Instagram: %(error)s"
 msgstr "Instagram: %(error)s"
 
-#: admin.py:169
+#: admin.py:171
 #, python-format
 msgid "Instagram: @%(name)s."
 msgstr "Instagram: @%(name)s."
 
-#: admin.py:175
+#: admin.py:177
 #, python-format
 msgid "Facebook: %(error)s"
 msgstr "Facebook: %(error)s"
 
-#: admin.py:177
+#: admin.py:179
 #, python-format
 msgid "Facebook: page \"%(name)s\"."
 msgstr "Facebook: Seite „%(name)s“."
 
-#: admin.py:181 admin.py:197 models.py:27
+#: admin.py:183 admin.py:199 models.py:27
 msgid "Website"
 msgstr "Website"
 
-#: admin.py:183
+#: admin.py:185
 #, python-format
 msgid "%(platform)s is switched on but not set up completely."
 msgstr "%(platform)s ist eingeschaltet, aber nicht vollständig eingerichtet."
 
-#: admin.py:196
+#: admin.py:198
 msgid "Texts"
 msgstr "Texte"
 
-#: admin.py:198
+#: admin.py:200
 msgid "Platforms by default"
 msgstr "Plattformen (Voreinstellung)"
 
-#: admin.py:199 admin.py:278
+#: admin.py:201 admin.py:281
 msgid "Approval"
 msgstr "Freigabe"
 
-#: admin.py:226
+#: admin.py:228
 msgid "Preview"
 msgstr "Vorschau"
 
-#: admin.py:255 forms.py:42 models.py:283 models.py:435
+#: admin.py:257 forms.py:42 models.py:288 models.py:440
 msgid "Link"
 msgstr "Link"
 
-#: admin.py:259 models.py:418 templates/beitraege/pruefen.html:28
+#: admin.py:262 templates/beitraege/pruefen.html:28
 #: templates/beitraege/zurueckziehen.html:10
+msgctxt "link"
 msgid "Open"
 msgstr "Öffnen"
 
-#: admin.py:295
+#: admin.py:298
 msgid "The post was changed and needs a new approval."
 msgstr "Der Post wurde geändert und muss neu freigegeben werden."
 
-#: admin.py:313 models.py:294 models.py:433
+#: admin.py:316 models.py:299 models.py:438
 msgid "Status"
 msgstr "Status"
 
-#: admin.py:327 models.py:297
+#: admin.py:330 models.py:302
 msgid "Created by"
 msgstr "Erstellt von"
 
-#: admin.py:331
+#: admin.py:334
 msgid "Links"
 msgstr "Links"
 
-#: admin.py:339
+#: admin.py:342
 msgid "Check and approve"
 msgstr "Prüfen und freigeben"
 
-#: admin.py:344
+#: admin.py:347
 msgid "Open the check page"
 msgstr "Prüfseite öffnen"
 
-#: admin.py:346 templates/beitraege/bearbeiten.html:65
+#: admin.py:349 templates/beitraege/bearbeiten.html:65
 #: templates/beitraege/neu.html:37
 msgid "Submit for approval"
 msgstr "Zur Freigabe einreichen"
 
-#: admin.py:352
+#: admin.py:355
 #, python-format
 msgid "%(count)s post(s) submitted; the approvers have been told."
 msgstr "%(count)s Post(s) eingereicht; die Freigebenden sind benachrichtigt."
 
-#: admin.py:355
+#: admin.py:358
 msgid "Approve"
 msgstr "Freigeben"
 
-#: admin.py:367
+#: admin.py:370
 #, python-format
 msgid "%(count)s post(s) approved."
 msgstr "%(count)s Post(s) freigegeben."
 
-#: admin.py:369
+#: admin.py:372
 msgid "Publish failed platforms again"
 msgstr "Fehlgeschlagene Plattformen erneut veröffentlichen"
 
-#: admin.py:377
+#: admin.py:380
 #, python-format
 msgid "%(count)s post(s) are being published again."
 msgstr "%(count)s Post(s) werden erneut veröffentlicht."
 
-#: admin.py:379
+#: admin.py:382
 msgid "Take the approval back (not published yet)"
 msgstr "Freigabe zurücknehmen (noch nicht veröffentlicht)"
 
-#: admin.py:385
+#: admin.py:388
 #, python-format
 msgid "%(count)s approval(s) taken back."
 msgstr "%(count)s Freigabe(n) zurückgenommen."
 
-#: admin.py:387
+#: admin.py:390
 msgid "Withdraw from all platforms"
 msgstr "Von allen Plattformen zurückziehen"
 
-#: admin.py:400
+#: admin.py:403
 #, python-format
 msgid "%(post)s: withdrawn from %(platforms)s."
 msgstr "%(post)s: zurückgezogen von %(platforms)s."
@@ -231,7 +232,7 @@ msgstr "%(post)s: zurückgezogen von %(platforms)s."
 msgid "Posts"
 msgstr "Posts"
 
-#: forms.py:27 views.py:166 workflow.py:115
+#: forms.py:27 views.py:172 workflow.py:115
 #, python-format
 msgid "At most %(max)s photos."
 msgstr "Höchstens %(max)s Fotos."
@@ -241,23 +242,23 @@ msgstr "Höchstens %(max)s Fotos."
 msgid "%(name)s is not a photo that can be read (JPEG, PNG, HEIC)."
 msgstr "%(name)s ist kein lesbares Foto (JPEG, PNG, HEIC)."
 
-#: forms.py:38 models.py:248 models.py:286
+#: forms.py:38 models.py:253 models.py:291
 msgid "Topic"
 msgstr "Thema"
 
-#: forms.py:40 models.py:281
+#: forms.py:40 models.py:286
 msgid "Title"
 msgstr "Titel"
 
-#: forms.py:41 models.py:282
+#: forms.py:41 models.py:287
 msgid "Text"
 msgstr "Text"
 
-#: forms.py:43 models.py:284
+#: forms.py:43 models.py:289
 msgid "E.g. the Mediathek; clickable on Facebook and the website."
 msgstr "Z. B. die Mediathek; auf Facebook und der Website anklickbar."
 
-#: forms.py:44 models.py:388 templates/beitraege/bearbeiten.html:20
+#: forms.py:44 models.py:393 templates/beitraege/bearbeiten.html:20
 msgid "Photos"
 msgstr "Fotos"
 
@@ -265,7 +266,7 @@ msgstr "Fotos"
 msgid "Up to 10 photos; the first one is the cover."
 msgstr "Bis zu 10 Fotos; das erste ist das Titelbild."
 
-#: forms.py:47 models.py:289
+#: forms.py:47 models.py:294
 msgid "Everybody recognisable on the photos agreed to the publication."
 msgstr ""
 "Alle erkennbaren Personen auf den Fotos sind mit der Veröffentlichung "
@@ -275,11 +276,11 @@ msgstr ""
 msgid "Publish on"
 msgstr "Veröffentlichen auf"
 
-#: forms.py:52 models.py:291 templates/beitraege/pruefen.html:9
+#: forms.py:52 models.py:296 templates/beitraege/pruefen.html:9
 msgid "Publish at"
 msgstr "Veröffentlichen am"
 
-#: forms.py:55 models.py:292
+#: forms.py:55 models.py:297
 msgid "Empty: right after the approval."
 msgstr "Leer: direkt nach der Freigabe."
 
@@ -291,11 +292,11 @@ msgstr "Fotos hinzufügen"
 msgid "Up to 10 photos in all."
 msgstr "Insgesamt bis zu 10 Fotos."
 
-#: forms.py:77 views.py:168
+#: forms.py:77 views.py:174
 msgid "Confirm the consent before sending photos."
 msgstr "Bitte das Einverständnis bestätigen, bevor Fotos gesendet werden."
 
-#: forms.py:79 views.py:299
+#: forms.py:79 views.py:309
 msgid "Choose at least one platform."
 msgstr "Bitte mindestens eine Plattform wählen."
 
@@ -358,7 +359,16 @@ msgstr "WordPress-Anwendungspasswort"
 msgid "Users → Profile → Application passwords in WordPress."
 msgstr "In WordPress unter Benutzer → Profil → Anwendungspasswörter."
 
+#: models.py:97
+msgid "Allow comments on the website"
+msgstr "Kommentare auf der Website erlauben"
+
 #: models.py:98
+msgid "Off: posts are created with comments and pingbacks closed."
+msgstr ""
+"Aus: Posts werden mit geschlossenen Kommentaren und Pingbacks angelegt."
+
+#: models.py:103
 msgid ""
 "Staff send a mail with text and photos to a mailbox; OK-Tools turns it into a"
 " post."
@@ -366,45 +376,45 @@ msgstr ""
 "Mitarbeitende schicken eine E-Mail mit Text und Fotos an ein Postfach; OK-"
 "Tools macht daraus einen Post."
 
-#: models.py:100
+#: models.py:105
 msgid "IMAP server"
 msgstr "IMAP-Server"
 
-#: models.py:101
+#: models.py:106
 msgid "IMAP port"
 msgstr "IMAP-Port"
 
-#: models.py:102
+#: models.py:107
 msgid "993 for IMAP over SSL."
 msgstr "993 für IMAP über SSL."
 
-#: models.py:103
+#: models.py:108
 msgid "IMAP user"
 msgstr "IMAP-Benutzer"
 
-#: models.py:104
+#: models.py:109
 msgid "IMAP password"
 msgstr "IMAP-Passwort"
 
-#: models.py:105
+#: models.py:110
 msgid "IMAP folder"
 msgstr "IMAP-Ordner"
 
-#: models.py:107
+#: models.py:112
 msgid "Address for posts"
 msgstr "Adresse für Posts"
 
-#: models.py:108
+#: models.py:113
 msgid "Shown to staff; mails to it are fetched from the IMAP mailbox above."
 msgstr ""
 "Wird Mitarbeitenden angezeigt; E-Mails dorthin werden aus dem IMAP-Postfach "
 "oben abgeholt."
 
-#: models.py:110
+#: models.py:115
 msgid "Code in the subject"
 msgstr "Code im Betreff"
 
-#: models.py:111
+#: models.py:116
 msgid ""
 "Only mails whose subject contains this code are taken, e.g. \"#okpost\". The "
 "sender alone is no proof: a sender address can be forged."
@@ -412,94 +422,94 @@ msgstr ""
 "Nur E-Mails mit diesem Code im Betreff werden übernommen, z. B. „#okpost“. "
 "Der Absender allein beweist nichts: Absenderadressen lassen sich fälschen."
 
-#: models.py:115
+#: models.py:120
 msgid "Approval by mail"
 msgstr "Freigabe per E-Mail"
 
-#: models.py:116
+#: models.py:121
 msgid ""
 "Approvers get a mail with a link to check and approve the post on the phone."
 msgstr ""
 "Freigebende bekommen eine E-Mail mit einem Link, um den Post am Handy zu "
 "prüfen und freizugeben."
 
-#: models.py:120 models.py:121 models.py:124
+#: models.py:125 models.py:126 models.py:129
 msgid "Post configuration"
 msgstr "Post-Konfiguration"
 
-#: models.py:188
+#: models.py:193
 msgid "Posts: publish approved posts"
 msgstr "Posts: freigegebene Posts veröffentlichen"
 
-#: models.py:198
+#: models.py:203
 msgid "Posts: fetch posts sent by mail"
 msgstr "Posts: per E-Mail gesendete Posts abholen"
 
-#: models.py:215
+#: models.py:220
 msgid "Name"
 msgstr "Name"
 
-#: models.py:217
+#: models.py:222
 msgid "Hashtags"
 msgstr "Hashtags"
 
-#: models.py:218
+#: models.py:223
 msgid "Added to every post of this topic, e.g. \"#Medienbildung #Merseburg\"."
 msgstr "Kommen in jeden Post dieses Themas, z. B. „#Medienbildung #Merseburg“."
 
-#: models.py:221
+#: models.py:226
 msgid "Signature on Instagram"
 msgstr "Signatur auf Instagram"
 
-#: models.py:222
+#: models.py:227
 msgid "Last lines of every Instagram post of this topic."
 msgstr "Letzte Zeilen jedes Instagram-Posts dieses Themas."
 
-#: models.py:224
+#: models.py:229
 msgid "Signature on Facebook"
 msgstr "Signatur auf Facebook"
 
-#: models.py:226
+#: models.py:231
 msgid "Signature on the website"
 msgstr "Signatur auf der Website"
 
-#: models.py:228
+#: models.py:233
 msgid "WordPress categories"
 msgstr "WordPress-Kategorien"
 
-#: models.py:229
+#: models.py:234
 msgid ""
 "Category names on the website, comma separated; missing ones are created."
 msgstr ""
 "Kategorienamen auf der Website, durch Komma getrennt; fehlende werden "
 "angelegt."
 
-#: models.py:232
+#: models.py:237
 msgid "WordPress tags"
 msgstr "WordPress-Schlagwörter"
 
-#: models.py:233
+#: models.py:238
 msgid "Tag names on the website, comma separated; missing ones are created."
 msgstr ""
 "Schlagwörter auf der Website, durch Komma getrennt; fehlende werden angelegt."
 
-#: models.py:235
+#: models.py:240
 msgid "Instagram by default"
 msgstr "Instagram voreingestellt"
 
-#: models.py:236
+#: models.py:241
 msgid "Facebook by default"
 msgstr "Facebook voreingestellt"
 
-#: models.py:237
+#: models.py:242
 msgid "Website by default"
 msgstr "Website voreingestellt"
 
-#: models.py:240
+#: models.py:245
 msgid "Approvers"
 msgstr "Freigebende"
 
-#: models.py:241
+#: models.py:246
 msgid ""
 "May approve posts of this topic. People with \"approve all posts\" may "
 "approve every topic."
@@ -507,130 +517,134 @@ msgstr ""
 "Dürfen Posts dieses Themas freigeben. Wer „Posts aller Themen freigeben“ hat,"
 " darf jedes Thema freigeben."
 
-#: models.py:244
+#: models.py:249
 msgid "Active"
 msgstr "Aktiv"
 
-#: models.py:245 models.py:380
+#: models.py:250 models.py:385
 msgid "Order"
 msgstr "Reihenfolge"
 
-#: models.py:249
+#: models.py:254
 msgid "Topics"
 msgstr "Themen"
 
-#: models.py:269
+#: models.py:274
 msgid "Draft"
 msgstr "Entwurf"
 
-#: models.py:270
+#: models.py:275
 msgctxt "beitrag"
 msgid "Waiting for approval"
 msgstr "Wartet auf Freigabe"
 
-#: models.py:271 views.py:361
+#: models.py:276 views.py:371
 msgid "Approved"
 msgstr "Freigegeben"
 
-#: models.py:272 models.py:419
+#: models.py:277 models.py:424
 msgid "Publishing"
 msgstr "Wird veröffentlicht"
 
-#: models.py:273 models.py:420
+#: models.py:278 models.py:425
 msgid "Published"
 msgstr "Veröffentlicht"
 
-#: models.py:274
+#: models.py:279
 msgid "Partly published"
 msgstr "Teilweise veröffentlicht"
 
-#: models.py:275 models.py:421
+#: models.py:280 models.py:426
 msgid "Failed"
 msgstr "Fehlgeschlagen"
 
-#: models.py:276
+#: models.py:281
 msgid "Rejected"
 msgstr "Zurückgegeben"
 
-#: models.py:277 models.py:422
+#: models.py:282 models.py:427
 msgid "Withdrawn"
 msgstr "Zurückgezogen"
 
-#: models.py:288
+#: models.py:293
 msgid "Consent of the people shown"
 msgstr "Einverständnis der abgebildeten Personen"
 
-#: models.py:300
+#: models.py:305
 msgid "Approved by"
 msgstr "Freigegeben von"
 
-#: models.py:301
+#: models.py:306
 msgid "Approved at"
 msgstr "Freigegeben am"
 
-#: models.py:302
+#: models.py:307
 msgid "Reason for rejection"
 msgstr "Grund der Rückgabe"
 
-#: models.py:306
+#: models.py:311
 msgid "Created at"
 msgstr "Erstellt am"
 
-#: models.py:307
+#: models.py:312
 msgid "Updated at"
 msgstr "Geändert am"
 
-#: models.py:310 models.py:378 models.py:426
+#: models.py:315 models.py:383 models.py:431
 msgctxt "beitrag"
 msgid "Post"
 msgstr "Post"
 
-#: models.py:311
+#: models.py:316
 msgctxt "beitrag"
 msgid "Posts"
 msgstr "Posts"
 
-#: models.py:314
+#: models.py:319
 msgid "Can approve posts of every topic"
 msgstr "Darf Posts aller Themen freigeben"
 
-#: models.py:379 models.py:387
+#: models.py:384 models.py:392
 msgid "Photo"
 msgstr "Foto"
 
-#: models.py:382
+#: models.py:387
 msgid "Crop position (%)"
 msgstr "Bildausschnitt (%)"
 
-#: models.py:383
+#: models.py:388
 msgid "Where the 4:5 crop for Instagram sits: 0 top, 50 middle, 100 bottom."
 msgstr "Lage des 4:5-Ausschnitts für Instagram: 0 oben, 50 Mitte, 100 unten."
 
-#: models.py:427 models.py:440
+#: models.py:423
+msgid "Open"
+msgstr "Öffnen"
+
+#: models.py:432 models.py:445
 msgid "Platform"
 msgstr "Plattform"
 
-#: models.py:428
+#: models.py:433
 msgid "Publish here"
 msgstr "Hier veröffentlichen"
 
-#: models.py:429
+#: models.py:434
 msgid "Text on this platform"
 msgstr "Text auf dieser Plattform"
 
-#: models.py:430
+#: models.py:435
 msgid "Built from the post and its topic; may be changed."
 msgstr "Aus Post und Thema erstellt; kann geändert werden."
 
-#: models.py:434
+#: models.py:439
 msgid "ID on the platform"
 msgstr "ID auf der Plattform"
 
-#: models.py:436
+#: models.py:441
 msgid "Published at"
 msgstr "Veröffentlicht am"
 
-#: models.py:437
+#: models.py:442
 msgid "Error"
 msgstr "Fehler"
 
@@ -639,7 +653,7 @@ msgid "Write posts with photos and approve them on the phone."
 msgstr "Posts mit Fotos am Handy schreiben und freigeben."
 
 #: pwa.py:70 templates/beitraege/_base.html:113
-#: templates/beitraege/meine.html:27 views.py:91
+#: templates/beitraege/meine.html:40 views.py:91
 msgid "New post"
 msgstr "Neuer Post"
 
@@ -656,7 +670,7 @@ msgid "New post (phone)"
 msgstr "Neuer Post (Handy)"
 
 #: templates/beitraege/_base.html:112 templates/beitraege/_base.html:115
-#: templates/beitraege/eingereicht.html:10 views.py:112
+#: templates/beitraege/eingereicht.html:10 views.py:117
 msgid "My posts"
 msgstr "Meine Posts"
 
@@ -744,7 +758,7 @@ msgstr "Als Entwurf speichern"
 msgid "Save"
 msgstr "Speichern"
 
-#: templates/beitraege/bearbeiten.html:70 views.py:244
+#: templates/beitraege/bearbeiten.html:70 views.py:254
 msgid "Delete post"
 msgstr "Post löschen"
 
@@ -788,7 +802,15 @@ msgstr "Behalten"
 msgid "Waiting for my approval"
 msgstr "Wartet auf meine Freigabe"
 
-#: templates/beitraege/meine.html:26
+#: templates/beitraege/meine.html:18
+msgid "Approved by me"
+msgstr "Von mir freigegeben"
+
+#: templates/beitraege/meine.html:19
+msgid "Tap a post to see its links or to withdraw it."
+msgstr "Antippen, um die Links zu sehen oder den Post zurückzuziehen."
+
+#: templates/beitraege/meine.html:39
 msgid "No posts yet."
 msgstr "Noch keine Posts."
 
@@ -866,7 +888,7 @@ msgstr "An die Autorin / den Autor zurückgeben"
 msgid "Correct it myself"
 msgstr "Selbst korrigieren"
 
-#: templates/beitraege/pruefen.html:49 views.py:217
+#: templates/beitraege/pruefen.html:49 views.py:227
 msgid "Edit post"
 msgstr "Post bearbeiten"
 
@@ -874,7 +896,7 @@ msgstr "Post bearbeiten"
 msgid "Take the approval back (do not publish)"
 msgstr "Freigabe zurücknehmen (nicht veröffentlichen)"
 
-#: templates/beitraege/pruefen.html:58 views.py:314
+#: templates/beitraege/pruefen.html:58 views.py:324
 msgid "Withdraw post"
 msgstr "Post zurückziehen"
 
@@ -980,6 +1002,12 @@ msgid "Check and approve it here (also on the phone, no login needed):"
 msgstr "Hier prüfen und freigeben (auch am Handy, ohne Anmeldung):"
 
 #: templates/email/beitrag_freigabe_body.txt:10
+msgid "Something to fix? Correct it there yourself instead of sending it back."
+msgstr ""
+"Etwas zu ändern? Korrigieren Sie es dort selbst, statt den Post "
+"zurückzuschicken."
+
+#: templates/email/beitrag_freigabe_body.txt:12
 msgid ""
 "The link is personal and valid for 7 days. One approval publishes the post on"
 " all platforms switched on for it."
@@ -1022,83 +1050,83 @@ msgstr "Mitte"
 msgid "bottom"
 msgstr "unten"
 
-#: views.py:84 views.py:196
+#: views.py:84 views.py:206
 msgid "Saved as a draft. Tap it below to go on."
 msgstr "Als Entwurf gespeichert. Zum Weiterschreiben unten antippen."
 
-#: views.py:125
+#: views.py:131
 msgid "Post submitted"
 msgstr "Post eingereicht"
 
-#: views.py:211
+#: views.py:221
 msgid "Saved and approved."
 msgstr "Gespeichert und freigegeben."
 
-#: views.py:212
+#: views.py:222
 msgid "Saved and approved; the post is being published now."
 msgstr "Gespeichert und freigegeben; der Post wird jetzt veröffentlicht."
 
-#: views.py:214
+#: views.py:224
 msgid "Saved."
 msgstr "Gespeichert."
 
-#: views.py:242
+#: views.py:252
 #, python-format
 msgid "\"%(titel)s\" has been deleted."
 msgstr "„%(titel)s“ wurde gelöscht."
 
-#: views.py:261
+#: views.py:271
 msgid "Invalid or expired link"
 msgstr "Ungültiger oder abgelaufener Link"
 
-#: views.py:262
+#: views.py:272
 msgid "This link is invalid or has expired. Open the post in OK-Tools instead."
 msgstr ""
 "Dieser Link ist ungültig oder abgelaufen. Bitte den Post in OK-Tools öffnen."
 
-#: views.py:307
+#: views.py:317
 #, python-format
 msgid "Withdrawn from: %(platforms)s."
 msgstr "Zurückgezogen von: %(platforms)s."
 
-#: views.py:344
+#: views.py:354
 msgid "The approval is taken back; the post is not published."
 msgstr "Die Freigabe ist zurückgenommen; der Post wird nicht veröffentlicht."
 
-#: views.py:346
+#: views.py:356
 msgid "Too late: the post is already being published."
 msgstr "Zu spät: Der Post wird schon veröffentlicht."
 
-#: views.py:351
+#: views.py:361
 msgid "Sent back"
 msgstr "Zurückgegeben"
 
-#: views.py:352
+#: views.py:362
 msgid "The author has been told."
 msgstr "Die Autorin / der Autor ist benachrichtigt."
 
-#: views.py:357
+#: views.py:367
 msgid "The post cannot be approved"
 msgstr "Der Post kann nicht freigegeben werden"
 
-#: views.py:362
+#: views.py:372
 msgid "The post is being published now."
 msgstr "Der Post wird jetzt veröffentlicht."
 
-#: views.py:363
+#: views.py:373
 msgid "The post is published at its time."
 msgstr "Der Post wird zur geplanten Zeit veröffentlicht."
 
-#: views.py:366
+#: views.py:376
 msgid "Nothing to do"
 msgstr "Nichts zu tun"
 
-#: views.py:367 workflow.py:159
+#: views.py:377 workflow.py:159
 #, python-format
 msgid "This post is already %(status)s."
 msgstr "Dieser Post ist bereits: %(status)s."
 
-#: views.py:370
+#: views.py:380
 msgid "Check the post"
 msgstr "Post prüfen"
 
@@ -1131,15 +1159,3 @@ msgstr "Der Facebook-Post ist leer."
 #: workflow.py:155 workflow.py:176 workflow.py:187 workflow.py:202
 msgid "You may not approve posts of this topic."
 msgstr "Du darfst Posts dieses Themas nicht freigeben."
-
-#: templates/email/beitrag_freigabe_body.txt
-msgid "Something to fix? Correct it there yourself instead of sending it back."
-msgstr ""
-"Etwas zu ändern? Korrigieren Sie es dort selbst, statt den Post "
-"zurückzuschicken."
-
-#: admin.py templates/beitraege/pruefen.html
-#: templates/beitraege/zurueckziehen.html
-msgctxt "link"
-msgid "Open"
-msgstr "Öffnen"

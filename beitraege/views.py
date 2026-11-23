@@ -108,10 +108,16 @@ def meine(request):
     for beitrag in submitted.distinct().order_by('created_at'):
         beitrag.autor_name = person_name(beitrag.created_by)
         waiting.append(beitrag)
+    # What I approved and is (or will be) online: to look at it or withdraw it on the phone.
+    approved = Beitrag.objects.filter(approved_by=request.user, status__in=[
+        Beitrag.STATUS_APPROVED, Beitrag.STATUS_PUBLISHING, Beitrag.STATUS_PUBLISHED,
+        Beitrag.STATUS_PARTIAL, Beitrag.STATUS_FAILED,
+    ]).select_related('thema').order_by('-approved_at')[:20]
     return render(request, 'beitraege/meine.html', {
         'title': _('My posts'),
         'own': own,
         'waiting': waiting,
+        'approved': approved,
         'may_write': request.user.has_perm('beitraege.add_beitrag'),
     })
 

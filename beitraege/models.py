@@ -92,6 +92,11 @@ class BeitragsConfig(models.Model):
         max_length=200, blank=True, verbose_name=_('WordPress application password'),
         help_text=_('Users → Profile → Application passwords in WordPress.'),
     )
+    wordpress_comments = models.BooleanField(
+        default=False,
+        verbose_name=_('Allow comments on the website'),
+        help_text=_('Off: posts are created with comments and pingbacks closed.'),
+    )
     mail_enabled = models.BooleanField(
         default=False,
         verbose_name=_('Posts by mail'),

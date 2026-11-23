@@ -114,9 +114,11 @@ def trash_post(config, post_id) -> None:
 
 
 def create_post(config, *, title: str, content: str, featured_media: int | None = None,
-                categories=(), tags=(), status: str = 'publish') -> dict:
-    """Create the post; return ``{'id', 'link'}``."""
-    payload = {'title': title, 'content': content, 'status': status}
+                categories=(), tags=(), status: str = 'publish', comments: bool = False) -> dict:
+    """Create the post; return ``{'id', 'link'}``. Comments and pingbacks closed unless asked."""
+    state = 'open' if comments else 'closed'
+    payload = {'title': title, 'content': content, 'status': status,
+               'comment_status': state, 'ping_status': state}
     if featured_media:
         payload['featured_media'] = featured_media
     if categories:

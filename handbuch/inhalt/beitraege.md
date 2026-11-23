@@ -182,7 +182,8 @@ Bearbeiten lässt sich ein Post, bis er freigegeben ist.
 **Meine Posts** (oben auf jeder Post-Seite die Reiter **Meine Posts**
 und **Neuer Post**, `https://<portal>/beitraege/`): die eigenen Posts mit
 farbigem Status und, für Freigebende, alles, was auf ihre Freigabe wartet (mit
-Anzahl). Ein eigener Post lässt sich dort ansehen (Status, Links,
+Anzahl), sowie unter **Von mir freigegeben** die zuletzt selbst freigegebenen
+Posts. Ein eigener Post lässt sich dort ansehen (Status, Links,
 Grund einer Rückgabe), freigeben können ihn nur die Freigebenden.
 
 ### Freigabe zurücknehmen oder Post zurückziehen {#zurueckziehen}
@@ -190,7 +191,9 @@ Grund einer Rückgabe), freigeben können ihn nur die Freigebenden.
 - **Noch nicht veröffentlicht** (freigegeben mit fester Zeit): Auf der
   Prüfseite **Freigabe zurücknehmen (nicht veröffentlichen)**. Der Post
   wartet dann wieder auf Freigabe und lässt sich ändern.
-- **Schon veröffentlicht**: Auf der Prüfseite unten **Post zurückziehen**,
+- **Schon veröffentlicht**: Am Handy unter **Meine Posts → Von mir
+  freigegeben** den Post antippen (oder die Prüfseite aus der E-Mail öffnen),
+  dann unten **Post zurückziehen**,
   die Plattformen ankreuzen und **Zurückziehen**. Auf der Website landet der
   Post im Papierkorb von WordPress und lässt sich dort wiederherstellen. Auf
   Facebook und Instagram wird er endgültig gelöscht, mit Likes und

@@ -7,6 +7,9 @@
   * An approved post that waits for its time can be held back on the check page ("Freigabe zurücknehmen") or with the admin action; it waits for approval again.
   * "Post zurückziehen" on the check page (and the admin action "Von allen Plattformen zurückziehen"): approvers tick the platforms; the website post goes to the WordPress trash (restorable), Facebook and Instagram delete it. Each platform gets the status "Zurückgezogen", the post too once nothing is online; the author is told (`beitraege.withdrawn`). Withdrawn platforms are never published again.
   * Instagram allows the deletion only with the permission `instagram_manage_contents` on the Meta token (add it to the login configuration and issue a new token); without it the platform stays published and shows the reason.
+  * "Meine Posts" lists "Von mir freigegeben" (the last 20 posts the user approved), so the approver can withdraw a post on the phone.
+* **beitraege: website posts without comments**
+  * New setting "Kommentare auf der Website erlauben" (Post-Konfiguration, section Website), off by default: WordPress posts are created with `comment_status` and `ping_status` closed. Migration `beitraege.0006`.
 * Fixed: the "Open" link on the check page read "Offen" (the status) instead of "Öffnen".
 
 2026-11-23 (Version 4.83.0)

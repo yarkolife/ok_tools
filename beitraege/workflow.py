@@ -408,5 +408,6 @@ def _publish_website(beitrag: Beitrag, ziel: BeitragZiel):
         featured_media=media[0]['id'] if media else None,
         categories=wordpress.term_ids(config, 'categories', thema.wordpress_categories.split(',')),
         tags=wordpress.term_ids(config, 'tags', thema.wordpress_tags.split(',')),
+        comments=config.wordpress_comments,
     )
     return post['id'], post['link']

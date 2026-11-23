@@ -164,3 +164,32 @@ def test_approving_from_the_editor_without_changes_tells_the_author_nothing(clie
     beitrag.refresh_from_db()
     assert beitrag.status == Beitrag.STATUS_APPROVED
     assert not mail.called
+
+
+def test_website_posts_have_comments_closed_unless_switched_on(beitrag, freigeber, channel):
+    from beitraege.services import wordpress
+
+    sent = []
+
+    def request(method, url, **kwargs):
+        sent.append(kwargs.get('json'))
+        return _response(201, {'id': 5, 'link': 'https://www.example.de/x/'})
+
+    with mock.patch('beitraege.services.wordpress.requests.request', side_effect=request):
+        wordpress.create_post(channel, title='T', content='C')
+        channel.wordpress_comments = True
+        wordpress.create_post(channel, title='T', content='C', comments=channel.wordpress_comments)
+    assert (sent[0]['comment_status'], sent[0]['ping_status']) == ('closed', 'closed')
+    assert (sent[1]['comment_status'], sent[1]['ping_status']) == ('open', 'open')
+
+
+def test_my_posts_lists_what_i_approved_to_withdraw_it(client, beitrag, freigeber):
+    _published(beitrag)
+    beitrag.approved_by = freigeber
+    beitrag.approved_at = timezone.now()
+    beitrag.save()
+    client.force_login(freigeber)
+    page = client.get(reverse('beitraege:meine'))
+    assert reverse('beitraege:pruefen', args=[beitrag.pk]).encode() in page.content
+    check = client.get(reverse('beitraege:pruefen', args=[beitrag.pk]))
+    assert reverse('beitraege:zurueckziehen', args=[beitrag.pk]).encode() in check.content

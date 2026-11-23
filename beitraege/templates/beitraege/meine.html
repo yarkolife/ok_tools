@@ -13,6 +13,19 @@
   </div>
 {% endif %}
 
+{% if approved %}
+  <div class="card">
+    <h1>{% trans "Approved by me" %}</h1>
+    <p class="help">{% trans "Tap a post to see its links or to withdraw it." %}</p>
+    {% for b in approved %}
+      <a class="row-link" href="{% url 'beitraege:pruefen' b.pk %}"><span>
+        <strong>{{ b.titel }}</strong>
+        <span class="meta"><span class="pill {{ b.status }}">{{ b.get_status_display }}</span> {{ b.thema.name }} · {{ b.approved_at|date:"d.m. H:i" }}</span>
+      </span></a>
+    {% endfor %}
+  </div>
+{% endif %}
+
 <div class="card">
   <h1>{{ title }}</h1>
   {% for b in own %}

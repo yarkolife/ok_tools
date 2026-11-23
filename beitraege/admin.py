@@ -99,7 +99,8 @@ class BeitragsConfigAdmin(SecretFieldsMixin, ModelAdmin):
                              'in the Tools configuration (section Instagram).'),
         }),
         (_('Website (WordPress)'), {
-            'fields': ('wordpress_url', 'wordpress_user', 'wordpress_app_password', 'connection'),
+            'fields': ('wordpress_url', 'wordpress_user', 'wordpress_app_password', 'wordpress_comments',
+                       'connection'),
         }),
         (_('Posts by mail'), {
             'fields': ('mail_enabled', 'mail_address', 'mail_code', 'imap_host', 'imap_port',

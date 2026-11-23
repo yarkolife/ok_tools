@@ -152,7 +152,7 @@ Features
     phone without login
   - Instagram photo or carousel (4:5 crop, focus adjustable), Facebook page post with several photos and a
     clickable link, WordPress post (REST API, application password) with featured image, gallery, categories and
-    tags; photos are turned upright and stripped of location data
+    tags, comments closed unless switched on; photos are turned upright and stripped of location data
   - Each platform keeps its own status and link; a failure raises a notification and can be published again
     without touching the platforms that worked
   - Works from a phone outside the office network (nothing below ``/admin``): "Meine Posts", editing and
@@ -160,7 +160,8 @@ Features
   - Approvers correct a post themselves instead of sending it back, also from the mail link without login, and
     save and approve in one step; the author is told
   - Approval taken back while the post waits for its time; published posts withdrawn per platform (website: WordPress
-    trash, Facebook and Instagram: deleted; Instagram needs ``instagram_manage_contents`` on the token)
+    trash, Facebook and Instagram: deleted; Instagram needs ``instagram_manage_contents`` on the token), also on the
+    phone from "Meine Posts → Von mir freigegeben"
   - Photos stored without EXIF/GPS outside the public media; previews only through signed links until approval
   - Posts by mail: text and photos to a posts mailbox with a code in the subject, fetched over IMAP every 5 minutes;
     only staff with the right to add posts, others ignored silently; receipt mail with a link to the post
