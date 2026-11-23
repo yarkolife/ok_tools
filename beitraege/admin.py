@@ -131,6 +131,37 @@ class ThemaAdmin(ModelAdmin):
         (_('Approval'), {'fields': ('freigeber',)}),
     )
 
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        """Approvers: only active staff, shown as "First Last (mail)".
+
+        Approvers already chosen stay in the list even if they are no
+        longer staff, so saving the topic does not drop them silently.
+        """
+        if db_field.name == 'freigeber':
+            from django.contrib.auth import get_user_model
+            from django.db.models import Q
+
+            chosen = Q()
+            object_id = request.resolver_match.kwargs.get('object_id') if request.resolver_match else None
+            if object_id and str(object_id).isdigit():
+                chosen = Q(beitrag_themen__pk=int(object_id))
+            kwargs['queryset'] = (
+                get_user_model().objects
+                .filter(Q(is_staff=True, is_active=True) | chosen)
+                .select_related('profile')
+                .distinct()
+                .order_by('profile__last_name', 'profile__first_name', 'email')
+            )
+        field = super().formfield_for_manytomany(db_field, request, **kwargs)
+        if db_field.name == 'freigeber' and field is not None:
+            field.label_from_instance = _approver_label
+        return field
+
+
+def _approver_label(user) -> str:
+    name = person_name(user)
+    return f'{name} ({user.email})' if user.email and name != user.email else name
+
 
 class BeitragFotoInline(TabularInline):
     model = BeitragFoto

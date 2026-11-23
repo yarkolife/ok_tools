@@ -580,3 +580,20 @@ def test_returned_post_mail_links_to_the_phone_page(beitrag, freigeber, settings
     workflow.reject(beitrag, freigeber, 'Bitte kürzen')
     body = mail.outbox[0].body
     assert f'/beitraege/{beitrag.pk}/bearbeiten/' in body and '/admin/' not in body
+
+
+def test_topic_approvers_list_only_staff_with_name_and_mail(client, db, user_dict):
+    from ok_tools.testing import create_user
+
+    thema = Thema.objects.create(name='Freigabe-Test')
+    admin = OKUser.objects.create_superuser('admin@example.org', password='pw')
+    staff = create_user({**user_dict, 'email': 'kollegin@example.org', 'first_name': 'Erika',
+                         'last_name': 'Musterfrau'}, is_staff=True)
+    member = OKUser.objects.create_user('mitglied@example.org', password='pw')
+    former = OKUser.objects.create_user('ehemals@example.org', password='pw')
+    thema.freigeber.add(former)  # chosen earlier, no longer staff: stays visible
+    client.force_login(admin)
+    html = client.get(reverse('admin:beitraege_thema_change', args=[thema.pk])).content.decode()
+    assert 'Erika Musterfrau (kollegin@example.org)' in html
+    assert member.email not in html
+    assert former.email in html

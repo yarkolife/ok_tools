@@ -428,7 +428,7 @@ einem Thema; „Aktuell“ ist für alles, was in kein anderes passt.
 | Signatur auf Instagram / Facebook / Website | Letzte Zeilen des Textes auf der jeweiligen Plattform, z. B. „Mehr dazu: Link in Bio“. |
 | WordPress-Kategorien, -Schlagwörter | Namen, durch Komma getrennt; fehlende legt OK-Tools auf der Website an. |
 | Instagram / Facebook / Website voreingestellt | Welche Plattformen beim Schreiben angehakt sind. |
-| Freigebende | Wer Posts dieses Themas freigeben darf. |
+| Freigebende | Wer Posts dieses Themas freigeben darf. Zur Auswahl stehen nur aktive Mitarbeitende (mit Name und E-Mail). |
 
 **Rechte** (*Nutzer & Projekte*): „Post hinzufügen“ zum Schreiben (z. B.
 für alle Mitarbeitenden über eine Gruppe), „Darf Posts aller Themen
