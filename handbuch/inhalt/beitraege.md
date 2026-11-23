@@ -16,8 +16,9 @@ werden.
 4. OK-Tools veröffentlicht den Post sofort oder zur gewählten Zeit auf
    allen eingeschalteten Plattformen und trägt die Links ein.
 
-Wer was darf, legt die Verwaltung fest: Posts schreiben können alle mit dem
-Recht „Post hinzufügen“, freigeben die Freigebenden eines Themas und alle
+Wer was darf, legt die Verwaltung fest: Posts schreiben die **Autorinnen und
+Autoren** aus der Post-Konfiguration (und alle mit dem Recht „Post
+hinzufügen“), freigeben die Freigebenden eines Themas und alle
 mit dem Recht „Darf Posts aller Themen freigeben“. Benachrichtigt werden
 nur diese ausdrücklich genannten Personen: Superuser dürfen zwar freigeben,
 bekommen aber keine E-Mails und sehen unter **Meine Posts** nichts zur

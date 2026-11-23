@@ -8,7 +8,9 @@ from .models import BeitragZiel
 from .models import BeitragsConfig
 from .models import Thema
 from .models import person_name
+from django import forms
 from django.contrib import admin
+from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.exceptions import ValidationError
@@ -22,12 +24,73 @@ from ok_tools.admin_base import TabularInline
 from ok_tools.admin_secrets import SecretFieldsMixin
 
 
+WRITERS_GROUP = 'Posts schreiben'
+
+
+def writers_group():
+    """The group whose members may write posts (it carries ``add_beitrag``)."""
+    from django.contrib.auth.models import Group
+    from django.contrib.auth.models import Permission
+
+    group, _created = Group.objects.get_or_create(name=WRITERS_GROUP)
+    group.permissions.add(Permission.objects.get(content_type__app_label='beitraege',
+                                                 codename='add_beitrag'))
+    return group
+
+
+def staff_choices(also=None):
+    """Active staff sorted by name, plus the users in ``also`` (chosen earlier)."""
+    from django.contrib.auth import get_user_model
+    from django.db.models import Q
+
+    wanted = Q(is_staff=True, is_active=True)
+    if also is not None:
+        wanted |= Q(pk__in=also.values('pk'))
+    return (get_user_model().objects.filter(wanted).select_related('profile').distinct()
+            .order_by('profile__last_name', 'profile__first_name', 'email'))
+
+
+def approver_label(user) -> str:
+    """"First Last (mail)" for the staff pickers."""
+    name = person_name(user)
+    return f'{name} ({user.email})' if user.email and name != user.email else name
+
+
+class BeitragsConfigForm(forms.ModelForm):
+    """The configuration plus the people who may write posts."""
+
+    autoren = forms.ModelMultipleChoiceField(
+        queryset=None, required=False, label=_('Authors'),
+        widget=FilteredSelectMultiple(_('Authors'), is_stacked=False),
+    )
+
+    class Meta:
+        model = BeitragsConfig
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        members = writers_group().user_set.all()
+        field = self.fields['autoren']
+        field.queryset = staff_choices(also=members)
+        field.label_from_instance = approver_label
+        field.help_text = _('May write posts on the phone and by mail (group "%(group)s"). Superusers '
+                            'and people who have the right "Can add Post" otherwise may write too.') % {
+            'group': WRITERS_GROUP}
+        field.initial = list(members.values_list('pk', flat=True))
+
+    def save_writers(self):
+        writers_group().user_set.set(self.cleaned_data['autoren'])
+
+
 @admin.register(BeitragsConfig)
 class BeitragsConfigAdmin(SecretFieldsMixin, ModelAdmin):
     """Channels for posts; Instagram and Facebook use the Tools credentials."""
 
+    form = BeitragsConfigForm
     secret_fields = ('wordpress_app_password', 'imap_password')
     fieldsets = (
+        (_('Who may write'), {'fields': ('autoren',)}),
         (_('Platforms'), {
             'fields': ('instagram_enabled', 'facebook_enabled', 'website_enabled', 'approval_mail'),
             'description': _('Instagram and Facebook use the account, page and token entered '
@@ -45,6 +108,10 @@ class BeitragsConfigAdmin(SecretFieldsMixin, ModelAdmin):
         }),
     )
     readonly_fields = ('connection',)
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        form.save_writers()
 
     def has_add_permission(self, request):
         return not BeitragsConfig.objects.exists()
@@ -138,29 +205,15 @@ class ThemaAdmin(ModelAdmin):
         longer staff, so saving the topic does not drop them silently.
         """
         if db_field.name == 'freigeber':
-            from django.contrib.auth import get_user_model
-            from django.db.models import Q
-
-            chosen = Q()
             object_id = request.resolver_match.kwargs.get('object_id') if request.resolver_match else None
+            thema = None
             if object_id and str(object_id).isdigit():
-                chosen = Q(beitrag_themen__pk=int(object_id))
-            kwargs['queryset'] = (
-                get_user_model().objects
-                .filter(Q(is_staff=True, is_active=True) | chosen)
-                .select_related('profile')
-                .distinct()
-                .order_by('profile__last_name', 'profile__first_name', 'email')
-            )
+                thema = Thema.objects.filter(pk=int(object_id)).first()
+            kwargs['queryset'] = staff_choices(also=thema.freigeber.all() if thema else None)
         field = super().formfield_for_manytomany(db_field, request, **kwargs)
         if db_field.name == 'freigeber' and field is not None:
-            field.label_from_instance = _approver_label
+            field.label_from_instance = approver_label
         return field
-
-
-def _approver_label(user) -> str:
-    name = person_name(user)
-    return f'{name} ({user.email})' if user.email and name != user.email else name
 
 
 class BeitragFotoInline(TabularInline):

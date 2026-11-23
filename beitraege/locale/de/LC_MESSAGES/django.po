@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-22 10:23+0100\n"
+"POT-Creation-Date: 2026-11-23 10:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,29 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: admin.py:31 models.py:427
+#: admin.py:63 admin.py:64
+msgid "Authors"
+msgstr "Autorinnen und Autoren"
+
+#: admin.py:65
+#, python-format
+msgid ""
+"May write posts on the phone and by mail (group \"%(group)s\"). Superusers "
+"and people who have the right \"Can add Post\" otherwise may write too."
+msgstr ""
+"Dürfen Posts am Handy und per E-Mail schreiben (Gruppe „%(group)s“). "
+"Superuser und alle, die das Recht „Post hinzufügen“ auf anderem Weg haben, "
+"dürfen es auch."
+
+#: admin.py:93
+msgid "Who may write"
+msgstr "Wer darf schreiben"
+
+#: admin.py:94 models.py:427
 msgid "Platforms"
 msgstr "Plattformen"
 
-#: admin.py:33
+#: admin.py:96
 msgid ""
 "Instagram and Facebook use the account, page and token entered in the Tools "
 "configuration (section Instagram)."
@@ -29,15 +47,15 @@ msgstr ""
 "Instagram und Facebook nutzen Konto, Seite und Token aus der Werkzeuge-"
 "Konfiguration (Abschnitt Instagram)."
 
-#: admin.py:36
+#: admin.py:99
 msgid "Website (WordPress)"
 msgstr "Website (WordPress)"
 
-#: admin.py:39 models.py:97
+#: admin.py:102 models.py:97
 msgid "Posts by mail"
 msgstr "Posts per E-Mail"
 
-#: admin.py:42
+#: admin.py:105
 msgid ""
 "Every 5 minutes OK-Tools reads new mails of this mailbox. Only mails with the"
 " code in the subject from staff allowed to add posts are taken; all others "
@@ -48,35 +66,35 @@ msgstr ""
 "anlegen dürfen; alle anderen werden als gelesen markiert und ohne Antwort "
 "ignoriert."
 
-#: admin.py:55
+#: admin.py:122
 msgid "Connection"
 msgstr "Verbindung"
 
-#: admin.py:60
+#: admin.py:127
 msgid "Test connections"
 msgstr "Verbindungen testen"
 
-#: admin.py:77
+#: admin.py:144
 #, python-format
 msgid "Website: %(error)s"
 msgstr "Website: %(error)s"
 
-#: admin.py:79
+#: admin.py:146
 #, python-format
 msgid "Website: connected as %(name)s (%(roles)s)."
 msgstr "Website: verbunden als %(name)s (%(roles)s)."
 
-#: admin.py:86
+#: admin.py:153
 #, python-format
 msgid "Mailbox: %(error)s"
 msgstr "Postfach: %(error)s"
 
-#: admin.py:88
+#: admin.py:155
 #, python-format
 msgid "Mailbox: connected, %(count)s unread mail(s)."
 msgstr "Postfach: verbunden, %(count)s ungelesene E-Mail(s)."
 
-#: admin.py:91
+#: admin.py:158
 msgid ""
 "Posts by mail is switched on but server, user, password or the code is "
 "missing."
@@ -84,107 +102,107 @@ msgstr ""
 "Posts per E-Mail ist eingeschaltet, aber Server, Benutzer, Passwort oder Code"
 " fehlen."
 
-#: admin.py:99
+#: admin.py:166
 #, python-format
 msgid "Instagram: %(error)s"
 msgstr "Instagram: %(error)s"
 
-#: admin.py:101
+#: admin.py:168
 #, python-format
 msgid "Instagram: @%(name)s."
 msgstr "Instagram: @%(name)s."
 
-#: admin.py:107
+#: admin.py:174
 #, python-format
 msgid "Facebook: %(error)s"
 msgstr "Facebook: %(error)s"
 
-#: admin.py:109
+#: admin.py:176
 #, python-format
 msgid "Facebook: page \"%(name)s\"."
 msgstr "Facebook: Seite „%(name)s“."
 
-#: admin.py:113 admin.py:129 models.py:27
+#: admin.py:180 admin.py:196 models.py:27
 msgid "Website"
 msgstr "Website"
 
-#: admin.py:115
+#: admin.py:182
 #, python-format
 msgid "%(platform)s is switched on but not set up completely."
 msgstr "%(platform)s ist eingeschaltet, aber nicht vollständig eingerichtet."
 
-#: admin.py:128
+#: admin.py:195
 msgid "Texts"
 msgstr "Texte"
 
-#: admin.py:130
+#: admin.py:197
 msgid "Platforms by default"
 msgstr "Plattformen (Voreinstellung)"
 
-#: admin.py:131 admin.py:193
+#: admin.py:198 admin.py:277
 msgid "Approval"
 msgstr "Freigabe"
 
-#: admin.py:141
+#: admin.py:225
 msgid "Preview"
 msgstr "Vorschau"
 
-#: admin.py:170 forms.py:42 models.py:281 models.py:421
+#: admin.py:254 forms.py:42 models.py:281 models.py:421
 msgid "Link"
 msgstr "Link"
 
-#: admin.py:174 models.py:405 templates/beitraege/pruefen.html:28
+#: admin.py:258 models.py:405 templates/beitraege/pruefen.html:28
 msgid "Open"
 msgstr "Öffnen"
 
-#: admin.py:210
+#: admin.py:294
 msgid "The post was changed and needs a new approval."
 msgstr "Der Post wurde geändert und muss neu freigegeben werden."
 
-#: admin.py:228 models.py:292 models.py:419
+#: admin.py:312 models.py:292 models.py:419
 msgid "Status"
 msgstr "Status"
 
-#: admin.py:241 models.py:295
+#: admin.py:325 models.py:295
 msgid "Created by"
 msgstr "Erstellt von"
 
-#: admin.py:245
+#: admin.py:329
 msgid "Links"
 msgstr "Links"
 
-#: admin.py:253
+#: admin.py:337
 msgid "Check and approve"
 msgstr "Prüfen und freigeben"
 
-#: admin.py:258
+#: admin.py:342
 msgid "Open the check page"
 msgstr "Prüfseite öffnen"
 
-#: admin.py:260 templates/beitraege/bearbeiten.html:61
+#: admin.py:344 templates/beitraege/bearbeiten.html:61
 #: templates/beitraege/neu.html:37
 msgid "Submit for approval"
 msgstr "Zur Freigabe einreichen"
 
-#: admin.py:266
+#: admin.py:350
 #, python-format
 msgid "%(count)s post(s) submitted; the approvers have been told."
 msgstr "%(count)s Post(s) eingereicht; die Freigebenden sind benachrichtigt."
 
-#: admin.py:269
+#: admin.py:353
 msgid "Approve"
 msgstr "Freigeben"
 
-#: admin.py:281
+#: admin.py:365
 #, python-format
 msgid "%(count)s post(s) approved."
 msgstr "%(count)s Post(s) freigegeben."
 
-#: admin.py:283
+#: admin.py:367
 msgid "Publish failed platforms again"
 msgstr "Fehlgeschlagene Plattformen erneut veröffentlichen"
 
-#: admin.py:291
+#: admin.py:375
 #, python-format
 msgid "%(count)s post(s) are being published again."
 msgstr "%(count)s Post(s) werden erneut veröffentlicht."

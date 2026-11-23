@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.82.2
+**Current Version**: 4.83.0
 **Last Updated**: 23 November 2026
 
 Features
@@ -145,7 +145,8 @@ Features
   - Mobile page "Neuer Post" for staff with the right to add posts: photos from the camera or gallery (HEIC
     included), text, link, topic, platforms and an optional publishing time
   - Topics per channel (e.g. Aktuell, Medienpädagogik) with hashtags, a signature per platform, WordPress
-    categories/tags, default platforms and their approvers; "approve all posts" covers every topic
+    categories/tags, default platforms and their approvers (active staff only); "approve all posts" covers every topic
+  - Authors picked on the post configuration page (group "Posts schreiben" with the right to add posts)
   - Every platform gets its own text built from the post and the topic, editable before approval; one approval
     publishes on all platforms; approvers get a notification and a personal mail link to check and approve on the
     phone without login

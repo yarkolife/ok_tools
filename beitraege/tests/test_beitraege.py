@@ -597,3 +597,31 @@ def test_topic_approvers_list_only_staff_with_name_and_mail(client, db, user_dic
     assert 'Erika Musterfrau (kollegin@example.org)' in html
     assert member.email not in html
     assert former.email in html
+
+
+def test_post_configuration_picks_the_authors(client, db, user_dict):
+    from beitraege.admin import WRITERS_GROUP
+    from django.contrib.auth.models import Group
+    from ok_tools.testing import create_user
+
+    config = BeitragsConfig.get_config()
+    admin = OKUser.objects.create_superuser('admin@example.org', password='pw')
+    staff = create_user({**user_dict, 'email': 'kollegin@example.org', 'first_name': 'Erika',
+                         'last_name': 'Musterfrau'}, is_staff=True)
+    member = OKUser.objects.create_user('mitglied@example.org', password='pw')
+    client.force_login(admin)
+    url = reverse('admin:beitraege_beitragsconfig_change', args=[config.pk])
+    page = client.get(url)
+    html = page.content.decode()
+    assert 'Erika Musterfrau (kollegin@example.org)' in html
+    assert member.email not in html
+
+    data = {k: v for k, v in page.context['adminform'].form.initial.items()
+            if v is not None and not isinstance(v, (list, dict))}
+    data.update({'autoren': [staff.pk], 'imap_port': config.imap_port or 993,
+                 'imap_folder': config.imap_folder or 'INBOX'})
+    response = client.post(url, data)
+    assert response.status_code == 302, response.context['adminform'].form.errors
+    assert list(Group.objects.get(name=WRITERS_GROUP).user_set.all()) == [staff]
+    staff.refresh_from_db()
+    assert OKUser.objects.get(pk=staff.pk).has_perm('beitraege.add_beitrag')

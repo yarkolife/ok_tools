@@ -58,8 +58,8 @@ KAPITEL: Tuple[Kapitel, ...] = (
             'Eigentümer festlegen, Etikett drucken und aufkleben, ausleihen '
             '(geführt oder mit dem Scanner) und zurücknehmen.'
         ),
-        version='4.82.0',
-        stand=date(2026, 11, 22),
+        version='4.83.0',
+        stand=date(2026, 11, 23),
         icon='inventory_2',
         requires=('inventory', 'rental'),
         pfade=(
@@ -84,7 +84,7 @@ KAPITEL: Tuple[Kapitel, ...] = (
             'eine Freigabe veröffentlicht ihn auf Instagram, Facebook und der '
             'Website, jeweils mit eigenem Text.'
         ),
-        version='4.82.0',
+        version='4.83.0',
         stand=date(2026, 11, 23),
         icon='campaign',
         requires=('beitraege',),
@@ -106,8 +106,8 @@ KAPITEL: Tuple[Kapitel, ...] = (
             'Feld für Feld, Benachrichtigungen, Stammdaten, periodische Aufgaben '
             'und was nur in der .env eingestellt wird.'
         ),
-        version='4.82.0',
-        stand=date(2026, 11, 22),
+        version='4.83.0',
+        stand=date(2026, 11, 23),
         icon='settings',
         pfade=(
             'ok_tools/admin.py',

@@ -412,6 +412,7 @@ Wie Posts geschrieben und freigegeben werden, steht im Kapitel
 
 | Feld | Wirkung |
 |---|---|
+| Autorinnen und Autoren | Wer Posts schreiben darf (am Handy und per E-Mail). Zur Auswahl stehen aktive Mitarbeitende mit Name und E-Mail; gespeichert wird das als Gruppe „Posts schreiben“ mit dem Recht „Post hinzufügen“. |
 | Auf Instagram / Facebook veröffentlichen | Nutzen Konto, Seite und Token aus dem Abschnitt Instagram oben (Facebook nur mit Facebook-Login und Seiten-ID). |
 | Auf der Website veröffentlichen, WordPress-Adresse, -Benutzer, -Anwendungspasswort | Die WordPress-Website des Senders. Das Anwendungspasswort legen Sie in WordPress unter *Benutzer → Profil → Anwendungspasswörter* an; der Benutzer braucht das Recht, Posts zu veröffentlichen. Posts erscheinen dort sofort, mit Titelbild und Galerie. |
 | Freigabe per E-Mail | Freigebende bekommen eine E-Mail mit persönlichem Link zur Prüfseite (ohne Anmeldung, 7 Tage gültig). Aus: nur die Benachrichtigung in OK-Tools. |
@@ -430,9 +431,11 @@ einem Thema; „Aktuell“ ist für alles, was in kein anderes passt.
 | Instagram / Facebook / Website voreingestellt | Welche Plattformen beim Schreiben angehakt sind. |
 | Freigebende | Wer Posts dieses Themas freigeben darf. Zur Auswahl stehen nur aktive Mitarbeitende (mit Name und E-Mail). |
 
-**Rechte** (*Nutzer & Projekte*): „Post hinzufügen“ zum Schreiben (z. B.
-für alle Mitarbeitenden über eine Gruppe), „Darf Posts aller Themen
-freigeben“ für Freigebende aller Themen. Eine Freigabe genügt.
+**Rechte**: Schreiben dürfen die **Autorinnen und Autoren** der
+Post-Konfiguration, außerdem Superuser und alle, die das Recht „Post
+hinzufügen“ auf anderem Weg haben (*Nutzer & Projekte*). Freigeben dürfen die
+**Freigebenden** eines Themas und alle mit dem Recht „Darf Posts aller Themen
+freigeben“. Eine Freigabe genügt.
 
 Die periodischen Aufgaben „Posts: freigegebene Posts veröffentlichen“
 und „Posts: per E-Mail gesendete Posts abholen“ laufen alle 5 Minuten;

@@ -1,6 +1,8 @@
-2026-11-23 (Version 4.82.2)
+2026-11-23 (Version 4.83.0)
 ==========================
 
+* **beitraege: choose who may write posts on the post configuration page**
+  * New section "Wer darf schreiben" on "Post-Konfiguration" with the same two-column picker as the approvers: active staff shown as "First Last (mail)". The choice is kept as the group "Posts schreiben" (created on first use, carries "Can add Post"); superusers and people with that right from elsewhere may still write.
 * Fixed: the menu showed "Beiträge" twice, once for the videos and once for the photo posts for Instagram, Facebook and the website. The photo posts are now called "Posts" everywhere: menus, pages ("Neuer Post", "Meine Posts"), the app on the phone, notifications, mails and the manual. The two periodic tasks are renamed by migration `beitraege.0004` ("Posts: …"). The videos keep the name "Beiträge".
 * Fixed: the approvers of a topic were picked from the mail addresses of all users (members included). The list now shows only active staff as "First Last (mail)"; approvers chosen earlier stay visible.
 
