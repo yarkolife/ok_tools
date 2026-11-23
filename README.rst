@@ -4,8 +4,8 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.82.1
-**Last Updated**: 22 November 2026
+**Current Version**: 4.82.2
+**Last Updated**: 23 November 2026
 
 Features
 ========
@@ -139,10 +139,10 @@ Features
     Facebook's 30 reels a day stay on Instagram, with a warning when approving
   - Optional module (enabled via TOOLS_ENABLED setting)
 
-- **Posts (Beiträge)** - One post with up to 10 photos, published on Instagram, Facebook and the website after one
+- **Posts** - One post with up to 10 photos, published on Instagram, Facebook and the website after one
   approval (optional, ``BEITRAEGE_ENABLED``)
 
-  - Mobile page "Neuer Beitrag" for staff with the right to add posts: photos from the camera or gallery (HEIC
+  - Mobile page "Neuer Post" for staff with the right to add posts: photos from the camera or gallery (HEIC
     included), text, link, topic, platforms and an optional publishing time
   - Topics per channel (e.g. Aktuell, Medienpädagogik) with hashtags, a signature per platform, WordPress
     categories/tags, default platforms and their approvers; "approve all posts" covers every topic
@@ -154,7 +154,7 @@ Features
     tags; photos are turned upright and stripped of location data
   - Each platform keeps its own status and link; a failure raises a notification and can be published again
     without touching the platforms that worked
-  - Works from a phone outside the office network (nothing below ``/admin``): "Meine Beiträge", editing and
+  - Works from a phone outside the office network (nothing below ``/admin``): "Meine Posts", editing and
     resubmitting returned posts, approver edits of platform texts and crops
   - Photos stored without EXIF/GPS outside the public media; previews only through signed links until approval
   - Posts by mail: text and photos to a posts mailbox with a code in the subject, fetched over IMAP every 5 minutes;

@@ -1,3 +1,8 @@
+2026-11-23 (Version 4.82.2)
+==========================
+
+* Fixed: the menu showed "Beiträge" twice, once for the videos and once for the photo posts for Instagram, Facebook and the website. The photo posts are now called "Posts" everywhere: menus, pages ("Neuer Post", "Meine Posts"), the app on the phone, notifications, mails and the manual. The two periodic tasks are renamed by migration `beitraege.0004` ("Posts: …"). The videos keep the name "Beiträge".
+
 CHANGELOG
 =========
 

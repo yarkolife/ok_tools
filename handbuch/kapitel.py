@@ -78,14 +78,14 @@ KAPITEL: Tuple[Kapitel, ...] = (
     ),
     Kapitel(
         slug='beitraege',
-        title='Beiträge für Instagram, Facebook und Website',
+        title='Posts für Instagram, Facebook und Website',
         summary=(
-            'Einen Beitrag mit Fotos am Handy schreiben, prüfen und freigeben: '
+            'Einen Post mit Fotos am Handy schreiben, prüfen und freigeben: '
             'eine Freigabe veröffentlicht ihn auf Instagram, Facebook und der '
             'Website, jeweils mit eigenem Text.'
         ),
         version='4.82.0',
-        stand=date(2026, 11, 22),
+        stand=date(2026, 11, 23),
         icon='campaign',
         requires=('beitraege',),
         pfade=(

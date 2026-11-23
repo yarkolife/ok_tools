@@ -402,41 +402,41 @@ Wechsel werden auch die bereits veröffentlichten Reels sichtbar.
 | Systemnutzer erscheint nicht unter Unternehmenseinstellungen → Systemnutzer | Normal: Meta legt ihn beim Anmelden (Schritt 6) selbst an. Rechte ändern Sie über die Konfiguration und eine neue Anmeldung, nicht dort. |
 | Neuer Token nötig (Seite gewechselt, Rechte geändert) | Schritte 6–8 wiederholen; der alte Token bleibt bis zum Ersetzen gültig. |
 
-### Beiträge: Instagram, Facebook und Website {#beitraege}
+### Posts: Instagram, Facebook und Website {#beitraege}
 
-Nur wenn das Modul Beiträge aktiv ist (`BEITRAEGE_ENABLED` in der `.env`).
-Wie Beiträge geschrieben und freigegeben werden, steht im Kapitel
-[Beiträge](../beitraege/).
+Nur wenn das Modul Posts aktiv ist (`BEITRAEGE_ENABLED` in der `.env`).
+Wie Posts geschrieben und freigegeben werden, steht im Kapitel
+[Posts](../beitraege/).
 
-**Beitrags-Konfiguration** (Kachel):
+**Post-Konfiguration** (Kachel):
 
 | Feld | Wirkung |
 |---|---|
 | Auf Instagram / Facebook veröffentlichen | Nutzen Konto, Seite und Token aus dem Abschnitt Instagram oben (Facebook nur mit Facebook-Login und Seiten-ID). |
-| Auf der Website veröffentlichen, WordPress-Adresse, -Benutzer, -Anwendungspasswort | Die WordPress-Website des Senders. Das Anwendungspasswort legen Sie in WordPress unter *Benutzer → Profil → Anwendungspasswörter* an; der Benutzer braucht das Recht, Beiträge zu veröffentlichen. Beiträge erscheinen dort sofort, mit Titelbild und Galerie. |
+| Auf der Website veröffentlichen, WordPress-Adresse, -Benutzer, -Anwendungspasswort | Die WordPress-Website des Senders. Das Anwendungspasswort legen Sie in WordPress unter *Benutzer → Profil → Anwendungspasswörter* an; der Benutzer braucht das Recht, Posts zu veröffentlichen. Posts erscheinen dort sofort, mit Titelbild und Galerie. |
 | Freigabe per E-Mail | Freigebende bekommen eine E-Mail mit persönlichem Link zur Prüfseite (ohne Anmeldung, 7 Tage gültig). Aus: nur die Benachrichtigung in OK-Tools. |
-| Beiträge per E-Mail, Adresse für Beiträge, Code im Betreff | Mitarbeitende schicken Text und Fotos an diese Adresse; der Code muss im Betreff stehen (Absenderadressen lassen sich fälschen). Übernommen werden nur E-Mails von Personen mit dem Recht „Beitrag hinzufügen“; alle anderen werden ohne Antwort ignoriert. Wer das Recht hat, aber den Code vergessen oder einen alten benutzt hat, bekommt eine kurze Nachricht ohne den Code. Den Code ändern, wenn jemand das Team verlässt oder er nach außen gelangt ist; er gilt ab der nächsten Abholung (5 Minuten). Am besten ein eigenes Postfach nur dafür anlegen. |
+| Posts per E-Mail, Adresse für Posts, Code im Betreff | Mitarbeitende schicken Text und Fotos an diese Adresse; der Code muss im Betreff stehen (Absenderadressen lassen sich fälschen). Übernommen werden nur E-Mails von Personen mit dem Recht „Post hinzufügen“; alle anderen werden ohne Antwort ignoriert. Wer das Recht hat, aber den Code vergessen oder einen alten benutzt hat, bekommt eine kurze Nachricht ohne den Code. Den Code ändern, wenn jemand das Team verlässt oder er nach außen gelangt ist; er gilt ab der nächsten Abholung (5 Minuten). Am besten ein eigenes Postfach nur dafür anlegen. |
 | IMAP-Server, -Port, -Benutzer, -Passwort, -Ordner | Zugang zu diesem Postfach (IMAP über SSL, Port 993). Gelesene E-Mails werden als gelesen markiert. |
 | Verbindung | **Verbindungen testen** prüft Website, Instagram, Facebook und das Postfach, ohne etwas zu veröffentlichen. |
 
-**Themen** (*Einstellungen & Stammdaten → Themen*): Jeder Beitrag gehört zu
+**Themen** (*Einstellungen & Stammdaten → Themen*): Jeder Post gehört zu
 einem Thema; „Aktuell“ ist für alles, was in kein anderes passt.
 
 | Feld | Wirkung |
 |---|---|
-| Hashtags | Kommen in jeden Instagram- und Facebook-Text des Themas. Instagram erlaubt höchstens 5 Hashtags je Beitrag. |
+| Hashtags | Kommen in jeden Instagram- und Facebook-Text des Themas. Instagram erlaubt höchstens 5 Hashtags je Post. |
 | Signatur auf Instagram / Facebook / Website | Letzte Zeilen des Textes auf der jeweiligen Plattform, z. B. „Mehr dazu: Link in Bio“. |
 | WordPress-Kategorien, -Schlagwörter | Namen, durch Komma getrennt; fehlende legt OK-Tools auf der Website an. |
 | Instagram / Facebook / Website voreingestellt | Welche Plattformen beim Schreiben angehakt sind. |
-| Freigebende | Wer Beiträge dieses Themas freigeben darf. |
+| Freigebende | Wer Posts dieses Themas freigeben darf. |
 
-**Rechte** (*Nutzer & Projekte*): „Beitrag hinzufügen“ zum Schreiben (z. B.
-für alle Mitarbeitenden über eine Gruppe), „Darf Beiträge aller Themen
+**Rechte** (*Nutzer & Projekte*): „Post hinzufügen“ zum Schreiben (z. B.
+für alle Mitarbeitenden über eine Gruppe), „Darf Posts aller Themen
 freigeben“ für Freigebende aller Themen. Eine Freigabe genügt.
 
-Die periodischen Aufgaben „Beiträge: freigegebene Beiträge veröffentlichen“
-und „Beiträge: per E-Mail gesendete Beiträge abholen“ laufen alle 5 Minuten;
-sie werden beim Speichern der Beitrags-Konfiguration eingerichtet.
+Die periodischen Aufgaben „Posts: freigegebene Posts veröffentlichen“
+und „Posts: per E-Mail gesendete Posts abholen“ laufen alle 5 Minuten;
+sie werden beim Speichern der Post-Konfiguration eingerichtet.
 
 ## 11. Benachrichtigungen {#benachrichtigungen}
 

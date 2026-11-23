@@ -131,7 +131,7 @@ def parse(raw: bytes, config: BeitragsConfig) -> dict:
 
     text = _text_of(message)
     title = re.sub(re.escape(code), '', subject, flags=re.I)
-    title = _TOPIC_TAG.sub('', _PREFIX.sub('', title)).strip(' -:') or 'Beitrag per E-Mail'
+    title = _TOPIC_TAG.sub('', _PREFIX.sub('', title)).strip(' -:') or 'Post per E-Mail'
     thema = _topic(subject, text)
     if thema is None:
         raise Ignored('no active topic')
