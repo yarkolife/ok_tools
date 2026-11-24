@@ -140,11 +140,14 @@ class CopyVideosForPlanTests(TestCase):
             "media_files.tasks._copy_video_to_storage",
             side_effect=self._fail_storage("ARCHIVE", "Archive not reachable"),
         ):
-            result = self._run_expecting_errors([18628, 17431])
+            # Archive-only errors are listed but do not fail the task: the
+            # week folder is complete, the broadcast chain may go on.
+            result = self._run([18628, 17431])
 
         self.assertEqual(result["copied_to_playout"], 2)
         self.assertEqual(result["copied_to_archive"], 0)
         self.assertEqual(result["errors"], 2)
+        self.assertEqual(result["critical_errors"], 0)
         self.assertEqual(
             [e["message"] for e in result["details"]["errors"]],
             [
@@ -394,15 +397,119 @@ class CopyVideosForPlanTests(TestCase):
         self.assertEqual(len(playout_files), 1)
         self.assertEqual(playout_files[0].filename, newer.filename)
 
-    # --- missing video is a non-critical warning ---------------------------
+    # --- missing video ------------------------------------------------------
 
-    def test_missing_video_is_warning_not_error(self):
-        """A number with no source versions is skipped, not raised."""
-        result = self._run([99999])
-        self.assertEqual(result["warnings"], 1)
+    def test_video_missing_everywhere_fails_the_task(self):
+        """No file in CUSTOM, ARCHIVE or any playout week: the broadcast has a hole."""
+        result = self._run_expecting_errors([99999])
+        self.assertEqual(result["errors"], 1)
+        self.assertEqual(result["critical_errors"], 1)
+        self.assertIn("Not found", result["details"]["errors"][0]["message"])
+
+    # --- 24.11.2026: old weeks, playout-only sources, removed versions -----
+
+    def _old_week_copy(self, number, filename, week="2024_KW_35", checksum=""):
+        """A copy of ``filename`` in an older playout week folder."""
+        path = Path(self.playout_dir) / week / filename
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(f"fake video content {filename}".encode())
+        return VideoFile.objects.create(
+            number=number, filename=filename, storage_location=self.playout,
+            file_path=f"{week}/{filename}", is_available=True,
+            file_size=path.stat().st_size, checksum=checksum,
+        )
+
+    def _in_week(self, number, filename):
+        return (Path(self.playout_dir) / self.week_folder / filename).exists() and \
+            VideoFile.objects.filter(
+                number=number, storage_location=self.playout,
+                file_path=f"{self.week_folder}/{filename}", is_available=True,
+            ).exists()
+
+    def test_copy_in_an_old_week_does_not_block_the_new_week(self):
+        """Bug A: the file is copied into this week; the old week keeps its file."""
+        for checksum in ("", "abc123"):
+            with self.subTest(checksum=checksum):
+                number = 18834 if not checksum else 18698
+                filename = f"{number}_Sendung.mp4"
+                path = Path(self.archive_dir) / filename
+                path.write_bytes(f"fake video content {filename}".encode())
+                VideoFile.objects.create(
+                    number=number, filename=filename, storage_location=self.archive,
+                    file_path=filename, is_available=True,
+                    file_size=path.stat().st_size, checksum=checksum,
+                )
+                old = self._old_week_copy(number, filename, checksum=checksum)
+
+                result = self._run([number])
+
+                self.assertEqual(result["copied_to_playout"], 1)
+                self.assertEqual(result["skipped_playout"], 0)
+                self.assertTrue(self._in_week(number, filename))
+                old.refresh_from_db()
+                self.assertEqual(old.file_path, f"2024_KW_35/{filename}")
+                self.assertTrue((Path(self.playout_dir) / "2024_KW_35" / filename).exists())
+
+    def test_playout_only_video_is_copied_and_archived(self):
+        """Bug B: the only copy sits in an old playout week."""
+        self._old_week_copy(17851, "17851_Konzert.mp4", week="2024_KW_47")
+
+        result = self._run([17851])
+
+        self.assertTrue(self._in_week(17851, "17851_Konzert.mp4"))
+        self.assertTrue(VideoFile.objects.filter(
+            number=17851, storage_location=self.archive, is_available=True).exists())
+        self.assertTrue((Path(self.archive_dir) / "17851_Konzert.mp4").exists())
+        self.assertEqual(result["critical_errors"], 0)
+        self.assertTrue(any("old playout week" in w["message"] for w in result["details"]["warnings"]))
+
+    def test_archive_file_without_record_is_registered(self):
+        """Bug B: the file is on the archive disk, its record is missing."""
+        filename = "18537_GRAUZONE_Mary-Ann_v1.mp4"
+        (Path(self.archive_dir) / filename).write_bytes(b"fake video content")
+        (Path(self.archive_dir) / "18537_GRAUZONE_reel.mp4").write_bytes(b"reel")
+
+        with patch("media_files.utils.extract_video_metadata_fast", return_value={}):
+            result = self._run([18537])
+
+        archived = VideoFile.objects.get(number=18537, storage_location=self.archive)
+        self.assertEqual(archived.filename, filename)
+        self.assertTrue(archived.is_available)
+        self.assertTrue(self._in_week(18537, filename))
+        self.assertEqual(result["critical_errors"], 0)
+
+    def test_version_removed_during_the_task_is_a_warning(self):
+        """Bug C: a version deleted between Pass 0 and Pass 2 is skipped, CUSTOM is cleaned."""
+        master = _make_video(self.custom, 19135, "19135_Escape_GAME.mp4")
+        primary = _make_video(self.custom, 19135, "19135_Escape_GAME_v1.mp4", is_manual_primary=True)
+        real_copy = _copy_video_to_storage
+
+        def copy_then_delete_master(source_video, destination_storage, user, destination_subfolder=None):
+            result = real_copy(source_video, destination_storage, user,
+                               destination_subfolder=destination_subfolder)
+            if destination_storage.storage_type == "PLAYOUT":
+                # The user deletes the original in the admin while the task runs.
+                Path(master.full_path).unlink()
+                VideoFile.objects.filter(id=master.id).delete()
+            return result
+
+        with patch("media_files.tasks._copy_video_to_storage", side_effect=copy_then_delete_master):
+            result = self._run([19135])
+
         self.assertEqual(result["errors"], 0)
-        self.assertEqual(result["copied_to_archive"], 0)
-        self.assertEqual(result["copied_to_playout"], 0)
+        self.assertTrue(any("removed during task" in w["message"]
+                            for w in result["details"]["warnings"]))
+        self.assertTrue(VideoFile.objects.filter(
+            number=19135, storage_location=self.archive, filename=primary.filename).exists())
+        self.assertFalse(VideoFile.objects.filter(id=primary.id).exists())  # CUSTOM cleaned
+
+    def test_copy_helper_refuses_a_removed_source(self):
+        """Bug C: no foreign key error when the source row is gone."""
+        source = _make_video(self.custom, 19135, "19135_Escape_GAME.mp4")
+        VideoFile.objects.filter(id=source.id).delete()
+        success, message = _copy_video_to_storage(source, self.archive, user=None)
+        self.assertFalse(success)
+        self.assertIn("removed", message)
 
     def test_repeated_run_treats_existing_copies_as_skipped(self):
         """Running the same plan twice should not fail on existing targets."""

@@ -712,14 +712,17 @@ def get_file_modified_time(file_path: str) -> Optional[datetime]:
         return None
 
 
-def check_duplicate_before_copy(source_video, destination_storage):
+def check_duplicate_before_copy(source_video, destination_storage, destination_subfolder=None):
     """
     Check if copying would create a duplicate.
-    
+
     Args:
         source_video: VideoFile instance to copy
         destination_storage: StorageLocation where to copy
-        
+        destination_subfolder: Weekly folder of a playout copy (e.g. "2026_KW_49").
+            With it only a file at exactly that path counts: the same file in
+            an older week is no duplicate, the new week needs its own copy.
+
     Returns:
         Tuple of (is_duplicate: bool, existing_video: VideoFile or None, message: str)
     """
@@ -729,12 +732,15 @@ def check_duplicate_before_copy(source_video, destination_storage):
     # number (e.g. a rendered "_v1" primary and the original 50fps master) can
     # coexist in one storage location. A true duplicate is the same file
     # (same number + same filename) copied into the same storage again.
-    existing = VideoFile.objects.filter(
+    candidates = VideoFile.objects.filter(
         number=source_video.number,
         filename=source_video.filename,
         storage_location=destination_storage,
         is_available=True
-    ).first()
+    )
+    if destination_subfolder:
+        candidates = candidates.filter(file_path=f"{destination_subfolder}/{source_video.filename}")
+    existing = candidates.first()
 
     if not existing:
         return False, None, "No duplicate"

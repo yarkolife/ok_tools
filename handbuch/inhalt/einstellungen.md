@@ -173,7 +173,7 @@ Kachel *Mediendateien-Konfiguration*.
 
 | Feld | Wirkung |
 |---|---|
-| Automatisch kopieren bei Planung | Beim Speichern eines Sendeplans werden die Videos kopiert, und zwar ins Archiv und/oder ins Playout, je nach den zwei Schaltern darunter. |
+| Automatisch kopieren bei Planung | Beim Speichern eines Sendeplans werden die Videos kopiert, und zwar ins Archiv und/oder ins Playout, je nach den zwei Schaltern darunter. Jede Woche bekommt ihre eigene Kopie, auch wenn die Sendung schon in einer früheren Woche lief. Fehlt eine Sendung im Eingang und im Archiv, nimmt OK-Tools eine Datei, die im Archivordner ohne Eintrag liegt, oder die Kopie aus einer alten Playout-Woche (und legt sie gleich ins Archiv). Die Aufgabe gilt nur dann als fehlgeschlagen, wenn im Wochenordner etwas fehlt; Fehler nur beim Archiv stehen im Ergebnis. |
 | Wöchentliche Ordner verwenden | Im Playout-Speicher wird pro Woche ein Ordner `JJJJ_KW_WW` angelegt. |
 | Archiv geschützt | Dateien im Archiv-Speicher können nicht gelöscht werden. **Anlassen.** |
 | Automatisches Löschen aus Custom | Nach dem Kopieren wird das Video aus dem Eingangsspeicher (Typ „Custom“) gelöscht. |

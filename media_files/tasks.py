@@ -1177,6 +1177,21 @@ def transcode_hevc_to_h264(video_id, user_id=None, encode_preset=None):
         }
 
 
+SOURCE_REMOVED = "Source was removed during the task"
+
+
+def source_video_still_there(video):
+    """True while the VideoFile row is available and its file exists on disk."""
+    from media_files.models import VideoFile
+
+    if not VideoFile.objects.filter(id=video.id, is_available=True).exists():
+        return False
+    try:
+        return Path(video.full_path).exists()
+    except Exception:
+        return False
+
+
 def _copy_video_to_storage(source_video, destination_storage, user, destination_subfolder=None):
     """
     Helper function to copy video to storage location.
@@ -1195,28 +1210,24 @@ def _copy_video_to_storage(source_video, destination_storage, user, destination_
     from media_files.utils import check_duplicate_before_copy
     from media_files.utils import copy_file_with_progress
     from pathlib import Path
-    import os
-    
+
     try:
-        # Check for duplicates
+        # The source may have been deleted (e.g. in the admin) since the
+        # caller picked it; copying it then fails late with a foreign key error.
+        if not source_video_still_there(source_video):
+            return False, f"{SOURCE_REMOVED} ({source_video.filename})"
+
+        # Check for duplicates. With a weekly folder only a copy in that very
+        # folder counts: a copy in an older week stays where it is (it may
+        # still be on air) and the new week gets its own file.
         is_dup, existing, dup_msg = check_duplicate_before_copy(
-            source_video, destination_storage
+            source_video, destination_storage, destination_subfolder=destination_subfolder
         )
-        
+
         if is_dup and existing:
             # Check if it's the same file (same checksum) or different
             if source_video.checksum and existing.checksum:
                 if source_video.checksum == existing.checksum:
-                    # Identical file - just update file_path if needed
-                    if destination_subfolder and not existing.file_path.startswith(destination_subfolder):
-                        # Move to correct weekly folder
-                        old_path = Path(destination_storage.path) / existing.file_path
-                        new_path = Path(destination_storage.path) / destination_subfolder / source_video.filename
-                        new_path.parent.mkdir(parents=True, exist_ok=True)
-                        if old_path.exists():
-                            os.rename(str(old_path), str(new_path))
-                        existing.file_path = f"{destination_subfolder}/{source_video.filename}"
-                        existing.save(update_fields=['file_path'])
                     return True, f"Video already exists (identical file)"
                 else:
                     # Different file with same number - skip to avoid overwrite
@@ -1494,6 +1505,73 @@ def _copy_videos_for_plan_lock_key(video_numbers, plan_date):
     return f"copy_videos_for_plan:{plan_date}:{sorted_numbers}"
 
 
+def _register_archive_file(number, archive_storage):
+    """Find a file of ``number`` on the archive disk that has no available row; register it.
+
+    The archive scan may be switched off, so a file copied there by hand (or
+    whose row was lost) is invisible to the plan copy. Looking for
+    ``<number>_*`` in the archive root is far cheaper than a full scan.
+    Returns the VideoFile or None.
+    """
+    from media_files.config import get_video_supported_formats
+    from media_files.utils import extract_video_metadata_fast
+    from media_files.utils import is_reel_filename
+
+    root = Path(archive_storage.path)
+    if not root.is_dir():
+        return None
+    formats = {f.lower() for f in get_video_supported_formats()}
+    candidates = sorted(
+        (p for p in root.glob(f"{number}_*")
+         if p.is_file() and p.suffix.lstrip('.').lower() in formats
+         and not is_reel_filename(p.name) and not p.stem.lower().endswith('_preview')),
+        key=lambda p: p.stat().st_mtime, reverse=True,
+    )
+    if not candidates:
+        return None
+    path = candidates[0]
+    video, _created = VideoFile.objects.get_or_create(
+        number=number, storage_location=archive_storage, file_path=path.name,
+        defaults={'filename': path.name, 'is_available': True},
+    )
+    video.filename = path.name
+    video.is_available = True
+    video.is_preview = False
+    video.file_size = path.stat().st_size
+    fields = {f.name for f in VideoFile._meta.get_fields() if getattr(f, 'concrete', False)}
+    try:
+        metadata = extract_video_metadata_fast(str(path)) or {}
+    except Exception:
+        logger.warning("Video %s: ffprobe failed for %s", number, path, exc_info=True)
+        metadata = {}
+    if not metadata.get('duration'):
+        # Metadata of an unavailable row with the same name (e.g. the CUSTOM upload).
+        twin = VideoFile.objects.filter(number=number, filename=path.name, duration__isnull=False) \
+            .exclude(id=video.id).order_by('-updated_at').first()
+        if twin:
+            metadata = {name: getattr(twin, name) for name in (
+                'format', 'duration', 'total_bitrate', 'has_video', 'has_audio', 'video_codec',
+                'video_bitrate', 'fps', 'width', 'height', 'audio_codec', 'audio_channels')}
+    for name, value in metadata.items():
+        if name in fields and name not in ('id', 'number', 'storage_location', 'file_path', 'filename'):
+            setattr(video, name, value)
+    video.last_scanned = timezone.now()
+    video.save()
+    logger.info("Video %s: registered archive file %s (VideoFile %s)", number, path.name, video.id)
+    return video
+
+
+def _latest_playout_copy(number):
+    """The newest full copy of ``number`` in any playout folder whose file still exists."""
+    copies = VideoFile.objects.filter(
+        number=number, storage_location__storage_type='PLAYOUT', is_available=True,
+    ).exclude(is_preview=True).select_related('storage_location').order_by('-created_at', '-id')
+    for video in copies:
+        if Path(video.full_path).exists():
+            return video
+    return None
+
+
 def _copy_result_already_exists(message):
     """Return True when a copy helper result represents an idempotent skip."""
     return 'already exists' in message.lower()
@@ -1641,9 +1719,14 @@ def _copy_videos_for_plan_unlocked(video_numbers, plan_date, user_id=None):
     
     copied_to_archive = 0
     copied_to_playout = 0
-    skipped = 0
+    skipped_playout = 0  # already in this week's folder
+    skipped_archive = 0  # already in the archive
     errors = 0
-    warnings = 0  # Non-critical errors (e.g., video not found)
+    # Errors that leave a hole in the broadcast (no file in the week folder);
+    # only these fail the task. Archive-only errors are reported but the
+    # broadcast chain must not stop for them.
+    critical_errors = 0
+    warnings = 0
     operation_details = {'errors': [], 'warnings': []}
     
     # Pass 0: resolve source versions and the PRIMARY for every number.
@@ -1663,13 +1746,38 @@ def _copy_videos_for_plan_unlocked(video_numbers, plan_date, user_id=None):
                 is_preview=True
             ).select_related('storage_location'))
 
+            if not source_versions and archive_storage:
+                # A file on the archive disk without an available row (scan off).
+                registered = _register_archive_file(number, archive_storage)
+                if registered:
+                    source_versions = [registered]
+                    warnings += 1
+                    operation_details['warnings'].append({
+                        'number': number,
+                        'message': f'{registered.filename} found on the archive disk without a '
+                                   f'record, registered now',
+                    })
+
             if not source_versions:
-                # Video not found is a NON-CRITICAL error - it may not be uploaded yet
-                logger.warning(f"Video {number}: Not found in source storages (CUSTOM/ARCHIVE)")
-                warnings += 1
-                operation_details['warnings'].append({
+                # Last resort: a copy that only ever reached an older playout week.
+                fallback = _latest_playout_copy(number)
+                if fallback:
+                    source_versions = [fallback]
+                    warnings += 1
+                    operation_details['warnings'].append({
+                        'number': number,
+                        'message': f'Source from old playout week ({fallback.file_path})'
+                                   + (', archived now' if archive_storage else ''),
+                    })
+
+            if not source_versions:
+                # Nothing anywhere: the broadcast would have a hole.
+                logger.error(f"Video {number}: not found in CUSTOM, ARCHIVE or PLAYOUT")
+                errors += 1
+                critical_errors += 1
+                operation_details['errors'].append({
                     'number': number,
-                    'message': 'Not found in CUSTOM or ARCHIVE storage'
+                    'message': 'Not found in CUSTOM, ARCHIVE or any playout week'
                 })
                 continue
 
@@ -1680,6 +1788,8 @@ def _copy_videos_for_plan_unlocked(video_numbers, plan_date, user_id=None):
             primary_video = next(
                 (v for v in source_versions if v.is_manual_primary), None
             )
+            if primary_video is None and len(source_versions) == 1:
+                primary_video = source_versions[0]
             if primary_video is None:
                 for v in source_versions:
                     try:
@@ -1705,8 +1815,9 @@ def _copy_videos_for_plan_unlocked(video_numbers, plan_date, user_id=None):
                 )
 
             if primary_video is None:
-                warnings += 1
-                operation_details['warnings'].append({
+                errors += 1
+                critical_errors += 1
+                operation_details['errors'].append({
                     'number': number,
                     'message': 'No primary version could be selected'
                 })
@@ -1723,6 +1834,7 @@ def _copy_videos_for_plan_unlocked(video_numbers, plan_date, user_id=None):
         except Exception as e:
             logger.error(f"Video {number}: ERROR - {str(e)}", exc_info=True)
             errors += 1
+            critical_errors += 1
             operation_details['errors'].append({
                 'number': number,
                 'message': str(e)
@@ -1764,12 +1876,7 @@ def _copy_videos_for_plan_unlocked(video_numbers, plan_date, user_id=None):
                     if success:
                         item['playout_copy_success'] = True
                         if _copy_result_already_exists(msg):
-                            skipped += 1
-                            warnings += 1
-                            operation_details['warnings'].append({
-                                'number': number,
-                                'message': f'Playout copy skipped: {msg}'
-                            })
+                            skipped_playout += 1
                             logger.info(
                                 f"Video {number}: PRIMARY already in "
                                 f"playout/{week_folder or 'root'}, skipping"
@@ -1783,6 +1890,7 @@ def _copy_videos_for_plan_unlocked(video_numbers, plan_date, user_id=None):
                     else:
                         logger.error(f"Video {number}: ✗ Failed to copy PRIMARY to playout: {msg}")
                         errors += 1
+                        critical_errors += 1
                         operation_details['errors'].append({
                             'number': number,
                             'message': f'Playout copy failed: {msg}'
@@ -1792,13 +1900,13 @@ def _copy_videos_for_plan_unlocked(video_numbers, plan_date, user_id=None):
                     logger.debug(
                         f"Video {number}: PRIMARY already in playout/{week_folder or 'root'}, skipping"
                     )
-                    skipped += 1
+                    skipped_playout += 1
             else:
                 item['playout_copy_success'] = True  # Playout copy not required
-                skipped += 1
         except Exception as e:
             logger.error(f"Video {number}: ERROR - {str(e)}", exc_info=True)
             errors += 1
+            critical_errors += 1
             operation_details['errors'].append({
                 'number': number,
                 'message': str(e)
@@ -1826,6 +1934,15 @@ def _copy_videos_for_plan_unlocked(video_numbers, plan_date, user_id=None):
                         logger.debug(
                             f"Video {number}: {version.filename} already in archive, skipping"
                         )
+                        skipped_archive += 1
+                        continue
+                    if not source_video_still_there(version):
+                        # Deleted (e.g. in the admin) since Pass 0: nothing to archive.
+                        warnings += 1
+                        operation_details['warnings'].append({
+                            'number': number,
+                            'message': f'{version.filename} removed during task, skipped'
+                        })
                         continue
                     success, msg = _copy_video_to_storage(
                         version, archive_storage, user, destination_subfolder=None
@@ -1833,12 +1950,7 @@ def _copy_videos_for_plan_unlocked(video_numbers, plan_date, user_id=None):
                     if success:
                         already_exists = _copy_result_already_exists(msg)
                         if already_exists:
-                            skipped += 1
-                            warnings += 1
-                            operation_details['warnings'].append({
-                                'number': number,
-                                'message': f'Archive copy skipped for {version.filename}: {msg}'
-                            })
+                            skipped_archive += 1
                             logger.info(
                                 f"Video {number}: {version.filename} already in archive, skipping"
                             )
@@ -1849,11 +1961,20 @@ def _copy_videos_for_plan_unlocked(video_numbers, plan_date, user_id=None):
                             )
                         if version.storage_location.storage_type == 'CUSTOM' and not already_exists:
                             item['archived_custom_ids'].append(version.id)
+                    elif msg.startswith(SOURCE_REMOVED):
+                        # Removed between the check above and the copy.
+                        warnings += 1
+                        operation_details['warnings'].append({
+                            'number': number,
+                            'message': f'{version.filename} removed during task, skipped'
+                        })
                     else:
                         logger.error(
                             f"Video {number}: ✗ Failed to copy {version.filename} to archive: {msg}"
                         )
                         errors += 1
+                        if not playout_storage:
+                            critical_errors += 1
                         operation_details['errors'].append({
                             'number': number,
                             'message': f'Archive copy failed for {version.filename}: {msg}'
@@ -1863,6 +1984,8 @@ def _copy_videos_for_plan_unlocked(video_numbers, plan_date, user_id=None):
         except Exception as e:
             logger.error(f"Video {number}: ERROR - {str(e)}", exc_info=True)
             errors += 1
+            if not playout_storage:
+                critical_errors += 1
             operation_details['errors'].append({
                 'number': number,
                 'message': str(e)
@@ -1916,23 +2039,27 @@ def _copy_videos_for_plan_unlocked(video_numbers, plan_date, user_id=None):
     
     logger.info(
         f"[AUTO-COPY] Completed: archive={copied_to_archive}, "
-        f"playout={copied_to_playout}, skipped={skipped}, warnings={warnings}, errors={errors}"
+        f"playout={copied_to_playout}, already in week={skipped_playout}, "
+        f"already archived={skipped_archive}, warnings={warnings}, errors={errors} "
+        f"(for the broadcast: {critical_errors})"
     )
     
     result = {
         'copied_to_archive': copied_to_archive,
         'copied_to_playout': copied_to_playout,
-        'skipped': skipped,
+        'skipped': skipped_playout + skipped_archive,
+        'skipped_playout': skipped_playout,
+        'skipped_archive': skipped_archive,
         'warnings': warnings,
         'errors': errors,
+        'critical_errors': critical_errors,
         'details': operation_details
     }
     
-    # CRITICAL errors (storage access issues, copy failures) should fail the task.
-    # NON-CRITICAL errors (video not found) are treated as warnings and don't fail the task.
-    # This allows partial success to be visible while not failing when some videos
-    # simply haven't been uploaded yet.
-    if errors > 0:
+    # Only errors that leave the week folder incomplete fail the task (and so
+    # stop the broadcast chain). Archive-only errors are listed in the result;
+    # the next plan run copies what is missing in the archive.
+    if critical_errors > 0:
         import json
         raise RuntimeError(json.dumps(result, ensure_ascii=False))
 
