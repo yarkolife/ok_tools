@@ -902,7 +902,7 @@ class ReelPostAdmin(InstagramOnlyMixin, ModelAdmin):
     def _may_publish(self, request):
         if request.user.has_perm('tools.publish_reelpost'):
             return True
-        self.message_user(request, _('You may not approve or publish Instagram posts.'),
+        self.message_user(request, _('You may not approve or publish reels.'),
                           level=messages.ERROR)
         return False
 

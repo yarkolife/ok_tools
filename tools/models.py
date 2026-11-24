@@ -1487,11 +1487,11 @@ class ReelPost(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated at'))
 
     class Meta:
-        verbose_name = _('Instagram post')
-        verbose_name_plural = _('Instagram posts')
+        verbose_name = _('Reel post')
+        verbose_name_plural = _('Reel posts')
         ordering = ['-scheduled_at', '-id']
         permissions = [
-            ('publish_reelpost', _('Can approve and publish Instagram posts')),
+            ('publish_reelpost', _('Can approve and publish reels')),
         ]
 
     def __str__(self):

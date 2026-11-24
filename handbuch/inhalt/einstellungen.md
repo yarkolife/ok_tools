@@ -275,7 +275,7 @@ URL und API-Schlüssel eingetragen sind.
 | Ausgabedateinamen-Muster | Vorschlag für den Dateinamen, mit `{number}` und `{date}`. |
 | Mediathek-Zeile 1 und 2 | Standardtext der Mediathek-Plakette im Reel. |
 | Ausgabespeicher, Unterverzeichnis | Wohin fertige Reels geschrieben werden. |
-| Tägliche Reel-Erinnerung, Empfänger, Uhrzeit | Morgens eine E-Mail mit den Reels des Tages. Zur selben Uhrzeit werden freigegebene Instagram-Posts veröffentlicht. |
+| Tägliche Reel-Erinnerung, Empfänger, Uhrzeit | Morgens eine E-Mail mit den Reels des Tages. Zur selben Uhrzeit werden freigegebene Reels veröffentlicht. |
 
 ### Instagram {#instagram}
 
@@ -289,7 +289,7 @@ Erscheint erst, wenn das Reel-Studio eingerichtet ist.
 | Bildunterschrift (Vorlage) | Platzhalter `{hook}` (der Hook aus dem Reel), `{titel}`, `{untertitel}`, `{beschreibung}`, `{autor}`, `{sendetermin}`, `{uhrzeit}`, `{mediathek}`, `{hashtags}`. Zeilen, deren Platzhalter leer sind, entfallen. Wird die Bildunterschrift zu lang, endet die Beschreibung am letzten passenden Satzende. `{sendetermin}`, `{uhrzeit}` und `{mediathek}` bleiben im Entwurf stehen und werden erst beim Veröffentlichen eingesetzt, mit dem dann aktuellen Sendeplan. |
 | Feste Hashtags | Kommen in jedem Post nach den Tags der Freistellung dazu, z. B. `#OKMQ #Merseburg #Saalekreis`; doppelte entfallen. Instagram erlaubt höchstens 5 Hashtags je Post: Die festen bekommen immer ihren Platz, Tags der Freistellung füllen den Rest. Darum höchstens 3 feste Hashtags eintragen. |
 | Auch im Feed zeigen | Aus: Das Reel erscheint nur im Reels-Tab. |
-| Auch auf Facebook veröffentlichen, Facebook-Seiten-ID | Nach Instagram wird dasselbe Reel auf der Facebook-Seite veröffentlicht, mit derselben Bildunterschrift und demselben Titelbild-Frame, ohne Collab-Konten. Nur mit Facebook-Login; der Token braucht `pages_show_list`, `pages_read_engagement` und `pages_manage_posts` für die Seite. Facebook nimmt Reels von 3 bis 90 Sekunden und höchstens 30 am Tag; andere gehen nur auf Instagram (Hinweis beim Freigeben). Schlägt Facebook fehl, bleibt der Instagram-Post unberührt; in der Post-Liste schickt **Erneut auf Facebook veröffentlichen** das Reel noch einmal. |
+| Auch auf Facebook veröffentlichen, Facebook-Seiten-ID | Nach Instagram wird dasselbe Reel auf der Facebook-Seite veröffentlicht, mit derselben Bildunterschrift und demselben Titelbild-Frame, ohne Collab-Konten. Nur mit Facebook-Login; der Token braucht `pages_show_list`, `pages_read_engagement` und `pages_manage_posts` für die Seite. Facebook nimmt Reels von 3 bis 90 Sekunden und höchstens 30 am Tag; andere gehen nur auf Instagram (Hinweis beim Freigeben). Schlägt Facebook fehl, bleibt der Instagram-Post unberührt; in der Liste *Tagesgeschäft → Reels (Instagram/Facebook)* schickt **Erneut auf Facebook veröffentlichen** das Reel noch einmal. |
 | Verbindung | **Verbindung testen** prüft Konto-ID und Token bei Instagram, ohne etwas zu veröffentlichen, und mit Facebook auch die Seite. |
 
 ### Meta-App einrichten: Instagram und Facebook anbinden {#meta-app}

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-12 13:26+0000\n"
+"POT-Creation-Date: 2026-11-24 12:56+0000\n"
 "PO-Revision-Date: 2026-01-15 23:36+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: admin.py:127 templates/tools/audio_normalize.html:671
+#: admin.py:131 templates/tools/audio_normalize.html:671
 msgid "Storage"
 msgstr "Speicherort"
 
-#: admin.py:136
+#: admin.py:140
 msgid ""
 "Storage Location (optional): when set, overrides the path below. Storage "
 "Path and Output Path are required when no Storage Location is selected."
@@ -31,19 +31,19 @@ msgstr ""
 "unten. Speicherpfad und Ausgabepfad sind erforderlich, wenn kein Speicherort"
 " ausgewählt ist."
 
-#: admin.py:140
+#: admin.py:144
 msgid "Allowed formats"
 msgstr "Erlaubte Formate"
 
-#: admin.py:143
+#: admin.py:147
 msgid "FFmpeg"
 msgstr "FFmpeg"
 
-#: admin.py:146
+#: admin.py:150
 msgid "Audio normalize"
 msgstr "Audio-Normalisierung"
 
-#: admin.py:157
+#: admin.py:161
 msgid ""
 "Storage Location (optional): when set, overrides the path below; output can "
 "be outside MEDIA_ROOT. Path fields are used when no storage is selected. "
@@ -61,13 +61,13 @@ msgstr ""
 "dem Verzeichnis tools/rnn_models/. Leer lassen, um FFT-basierte Entrauschung"
 " zu verwenden."
 
-#: admin.py:162 templates/tools/index.html:164
+#: admin.py:166 templates/tools/index.html:164
 #: templates/tools/reel_studio.html:14 templates/tools/reel_studio.html:15
 #: templates/tools/reel_studio.html:21 templates/tools/reel_studio.html:57
 msgid "Reel Studio"
 msgstr "Reel-Studio"
 
-#: admin.py:178
+#: admin.py:182
 msgid ""
 "External reel renderer. The tool card, page and license admin action are "
 "only shown when \"Reel Studio enabled\" is on AND URL + API key are set."
@@ -76,11 +76,11 @@ msgstr ""
 "werden nur angezeigt, wenn „Reel-Studio aktiviert“ an ist UND URL + API-"
 "Schlüssel gesetzt sind."
 
-#: admin.py:182 admin.py:729
+#: admin.py:186 admin.py:215 admin.py:787
 msgid "Instagram"
 msgstr "Instagram"
 
-#: admin.py:195
+#: admin.py:202
 msgid ""
 "Every rendered reel gets an Instagram post draft, to be published on the "
 "broadcast day at the daily reel reminder time (Reel Studio section). "
@@ -93,206 +93,281 @@ msgstr ""
 "Video über SITE_BASE_URL herunter, das muss daher eine öffentliche https-"
 "Adresse sein."
 
-#: admin.py:214
+#: admin.py:228
 msgid ""
 "A token is stored. Leave empty to keep it; enter a new one to replace it."
 msgstr ""
 "Ein Token ist gespeichert. Leer lassen, um ihn zu behalten; einen neuen "
 "eingeben, um ihn zu ersetzen."
 
-#: admin.py:228
+#: admin.py:242
 msgid "Connection"
 msgstr "Verbindung"
 
-#: admin.py:231
+#: admin.py:245
 msgid "Switch posting on and enter account ID and token first."
 msgstr "Zuerst das Posten einschalten und Konto-ID und Token eintragen."
 
-#: admin.py:235
+#: admin.py:249
 msgid "Test connection"
 msgstr "Verbindung testen"
 
-#: admin.py:248
+#: admin.py:262
 msgid "Only superusers may test the Instagram connection."
 msgstr "Nur Superuser dürfen die Instagram-Verbindung testen."
 
-#: admin.py:254
+#: admin.py:268
 #, python-format
 msgid "Instagram connection failed: %(error)s"
 msgstr "Instagram-Verbindung fehlgeschlagen: %(error)s"
 
-#: admin.py:256
+#: admin.py:270
 #, python-format
 msgid "Connected to Instagram account @%(username)s."
 msgstr "Verbunden mit dem Instagram-Konto @%(username)s."
 
-#: admin.py:259
+#: admin.py:273
 #, python-format
 msgid "Posts in the last 24 hours: %(used)s of %(total)s."
 msgstr "Posts in den letzten 24 Stunden: %(used)s von %(total)s."
 
-#: admin.py:378 templates/tools/slideshow_creator.html:485
+#: admin.py:282
+#, python-format
+msgid "Facebook page not reachable: %(error)s"
+msgstr "Facebook-Seite nicht erreichbar: %(error)s"
+
+#: admin.py:284
+#, python-format
+msgid "Reels are also published on the Facebook page \"%(name)s\"."
+msgstr "Reels werden auch auf der Facebook-Seite „%(name)s“ veröffentlicht."
+
+#: admin.py:288
+msgid ""
+"Facebook is switched on but not used: it needs Facebook Login as Instagram "
+"API and the page ID."
+msgstr ""
+"Facebook ist eingeschaltet, wird aber nicht genutzt: Dafür braucht es "
+"Facebook-Login als Instagram-API und die Seiten-ID."
+
+#: admin.py:406 templates/tools/slideshow_creator.html:485
 #: templates/tools/slideshow_detail.html:130
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: admin.py:390
+#: admin.py:418
 msgid "Ownership"
 msgstr "Besitz"
 
-#: admin.py:391 admin.py:641
+#: admin.py:419 admin.py:669
 msgid "Information"
 msgstr "Information"
 
-#: admin.py:434
+#: admin.py:462
 msgid "You do not have permission to edit this preset."
 msgstr "Sie haben keine Berechtigung, dieses Preset zu bearbeiten."
 
-#: admin.py:441 templates/admin/tools/preset_editor.html:4
+#: admin.py:469 templates/admin/tools/preset_editor.html:4
 msgid "Edit Preset"
 msgstr "Preset bearbeiten"
 
-#: admin.py:564 templates/admin/tools/preset_editor.html:1065
+#: admin.py:592 templates/admin/tools/preset_editor.html:1065
 msgid "Preset saved successfully"
 msgstr "Preset erfolgreich gespeichert"
 
-#: admin.py:575
+#: admin.py:603
 msgid "Overlays"
 msgstr "Überlagerungen"
 
-#: admin.py:581
+#: admin.py:609
 msgid "Visual Editor"
 msgstr "Visueller Editor"
 
-#: admin.py:584
+#: admin.py:612
 msgid "Editor"
 msgstr "Editor"
 
-#: admin.py:606
+#: admin.py:634
 msgid "All presets imported successfully"
 msgstr "Alle Presets wurden erfolgreich importiert"
 
-#: admin.py:608
+#: admin.py:636
 #, python-format
 msgid "Error importing presets: %s"
 msgstr "Fehler beim Importieren der Presets: %s"
 
-#: admin.py:618
+#: admin.py:646
 #, python-format
 msgid "Preset \"%s\" imported successfully"
 msgstr "Preset \"%s\" wurde erfolgreich importiert"
 
-#: admin.py:620
+#: admin.py:648
 #, python-format
 msgid "Error importing preset \"%s\": %s"
 msgstr "Fehler beim Importieren des Presets \"%s\": %s"
 
-#: admin.py:637
+#: admin.py:665
 msgid "Video Settings"
 msgstr "Videoeinstellungen"
 
-#: admin.py:640
+#: admin.py:668
 msgid "Audio Settings"
 msgstr "Audioeinstellungen"
 
-#: admin.py:671 admin.py:689
+#: admin.py:699 admin.py:717
 msgid "Content"
 msgstr "Inhalt"
 
-#: admin.py:672 templates/admin/tools/preset_editor.html:833
+#: admin.py:700 templates/admin/tools/preset_editor.html:833
 msgid "Position"
 msgstr "Position"
 
-#: admin.py:673 templates/admin/tools/preset_editor.html:860
+#: admin.py:701 templates/admin/tools/preset_editor.html:860
 msgid "Timing & Animation"
 msgstr "Timing & Animation"
 
-#: admin.py:675
+#: admin.py:703
 msgid "Text Styling"
 msgstr "Textstil"
 
-#: admin.py:695
+#: admin.py:723
 msgid "Timing"
 msgstr "Timing"
 
-#: admin.py:725
+#: admin.py:783
 msgid "Post"
 msgstr "Post"
 
-#: admin.py:751
+#: admin.py:791 admin.py:803 admin.py:863 models.py:1478
+msgid "Facebook"
+msgstr "Facebook"
+
+#: admin.py:794
+msgid ""
+"Published on the Facebook page after Instagram, with the same caption and "
+"without collab accounts."
+msgstr ""
+"Wird nach Instagram auf der Facebook-Seite veröffentlicht, mit derselben "
+"Bildunterschrift und ohne Collab-Konten."
+
+#: admin.py:835
 msgid "The post was changed and is a draft again; approve it once more."
 msgstr ""
 "Der Post wurde geändert und ist wieder ein Entwurf; bitte erneut freigeben."
 
-#: admin.py:754 models.py:1355 templates/tools/video_render.html:135
+#: admin.py:838 models.py:1429 templates/tools/video_render.html:136
 msgid "License"
 msgstr "Freistellung"
 
-#: admin.py:760 models.py:155 models.py:1380 models.py:1474
+#: admin.py:844 models.py:155 models.py:1454 models.py:1562
 #: templates/tools/audio_normalize.html:247
 #: templates/tools/audio_normalize.html:349
 #: templates/tools/audio_normalize_job_detail.html:50
-#: templates/tools/audio_normalize_job_list.html:58
-#: templates/tools/audio_normalize_job_list.html:74
+#: templates/tools/audio_normalize_job_list.html:60
+#: templates/tools/audio_normalize_job_list.html:77
 #: templates/tools/slideshow_detail.html:92
 #: templates/tools/slideshow_list.html:67
 #: templates/tools/slideshow_list.html:82
-#: templates/tools/video_render_job_list.html:68
-#: templates/tools/video_render_job_list.html:85
+#: templates/tools/video_render_job_list.html:70
+#: templates/tools/video_render_job_list.html:88
 msgid "Status"
 msgstr "Status"
 
-#: admin.py:772 models.py:1395
+#: admin.py:856 models.py:1469
 msgid "Instagram link"
 msgstr "Instagram-Link"
 
-#: admin.py:777 templates/tools/video_render.html:116
+#: admin.py:861 admin.py:867 templates/tools/video_render.html:117
 msgid "Open"
 msgstr "Öffnen"
 
-#: admin.py:779
+#: admin.py:877
 msgid "Reel"
 msgstr "Reel"
 
-#: admin.py:788
+#: admin.py:886
 msgid "Length"
 msgstr "Länge"
 
-#: admin.py:793
+#: admin.py:891
 #, python-format
 msgid ""
 "%(chars)s of %(max_chars)s characters, %(tags)s of %(max_tags)s hashtags"
 msgstr ""
 "%(chars)s von %(max_chars)s Zeichen, %(tags)s von %(max_tags)s Hashtags"
 
-#: admin.py:804
-msgid "You may not approve or publish Instagram posts."
-msgstr "Sie dürfen keine Instagram-Posts freigeben oder veröffentlichen."
+#: admin.py:897
+#, python-format
+msgid ""
+"%(placeholders)s are filled in when the post is published (broadcast day and"
+" time from the plan, Mediathek link)."
+msgstr ""
+"%(placeholders)s werden beim Veröffentlichen eingesetzt (Sendetag und "
+"Uhrzeit aus dem Plan, Mediathek-Link)."
 
-#: admin.py:829
+#: admin.py:905
+msgid "You may not approve or publish reels."
+msgstr "Sie dürfen keine Reels freigeben oder veröffentlichen."
+
+#: admin.py:929
+#, python-format
+msgid "%(post)s goes to Instagram only: %(reason)s"
+msgstr "%(post)s geht nur auf Instagram: %(reason)s"
+
+#: admin.py:936
 #, python-format
 msgid "%(count)s post(s) are being published now."
 msgstr "%(count)s Post(s) werden jetzt veröffentlicht."
 
-#: admin.py:831
+#: admin.py:938
 #, python-format
 msgid "%(count)s post(s) approved; they are published at their time."
 msgstr ""
 "%(count)s Post(s) freigegeben; sie werden zu ihrer Zeit veröffentlicht."
 
-#: admin.py:834
+#: admin.py:941
 msgid "Approve (publish at its time)"
 msgstr "Freigeben (zur geplanten Zeit veröffentlichen)"
 
-#: admin.py:838
+#: admin.py:945
 msgid "Publish now"
 msgstr "Jetzt veröffentlichen"
 
-#: admin.py:842
+#: admin.py:968
+#, python-format
+msgid "%(count)s draft(s) created."
+msgstr "%(count)s Entwurf/Entwürfe angelegt."
+
+#: admin.py:970
+msgid "No new drafts: every finished reel from today on already has a post."
+msgstr ""
+"Keine neuen Entwürfe: Jedes fertige Reel ab heute hat schon einen Post."
+
+#: admin.py:974
+msgid "Publish on Facebook again"
+msgstr "Erneut auf Facebook veröffentlichen"
+
+#: admin.py:980
+msgid "Facebook posting is switched off or not configured."
+msgstr "Facebook-Veröffentlichung ist ausgeschaltet oder nicht eingerichtet."
+
+#: admin.py:993
+#, python-format
+msgid "%(count)s reel(s) are being published on Facebook."
+msgstr "%(count)s Reel(s) werden auf Facebook veröffentlicht."
+
+#: admin.py:996
+msgid ""
+"Only reels published on Instagram and not on Facebook yet can be sent to "
+"Facebook."
+msgstr ""
+"Nur Reels, die auf Instagram und noch nicht auf Facebook veröffentlicht "
+"sind, können zu Facebook geschickt werden."
+
+#: admin.py:999
 msgid "Back to draft"
 msgstr "Zurück zum Entwurf"
 
-#: admin.py:849
+#: admin.py:1006
 #, python-format
 msgid "%(count)s post(s) are drafts again."
 msgstr "%(count)s Post(s) sind wieder Entwürfe."
@@ -684,28 +759,28 @@ msgstr "Unteres Drittel links"
 msgid "Lower Third Right"
 msgstr "Unteres Drittel rechts"
 
-#: models.py:102 models.py:1330 templates/tools/slideshow_list.html:70
+#: models.py:102 models.py:1385 templates/tools/slideshow_list.html:70
 msgid "Draft"
 msgstr "Entwurf"
 
-#: models.py:103 models.py:1448 templates/tools/audio_normalize.html:433
-#: templates/tools/audio_normalize_job_list.html:63
+#: models.py:103 models.py:1536 templates/tools/audio_normalize.html:433
+#: templates/tools/audio_normalize_job_list.html:65
 #: templates/tools/slideshow_list.html:71
 msgid "Processing"
 msgstr "Wird verarbeitet"
 
-#: models.py:104 models.py:1449 templates/tools/audio_normalize.html:434
-#: templates/tools/audio_normalize_job_list.html:64
+#: models.py:104 models.py:1537 templates/tools/audio_normalize.html:434
+#: templates/tools/audio_normalize_job_list.html:66
 #: templates/tools/slideshow_detail.html:121
 #: templates/tools/slideshow_list.html:72
 msgid "Completed"
 msgstr "Abgeschlossen"
 
-#: models.py:105 models.py:1334 models.py:1450
+#: models.py:105 models.py:1389 models.py:1402 models.py:1538
 #: templates/tools/audio_normalize.html:435
-#: templates/tools/audio_normalize_job_list.html:65
+#: templates/tools/audio_normalize_job_list.html:67
 #: templates/tools/slideshow_list.html:73
-#: templates/tools/video_render_job_list.html:73
+#: templates/tools/video_render_job_list.html:75
 msgid "Failed"
 msgstr "Fehlgeschlagen"
 
@@ -783,7 +858,7 @@ msgstr "Projektname"
 msgid "Name of the slideshow project"
 msgstr "Name des Diashow-Projekts"
 
-#: models.py:148 models.py:535 models.py:1467
+#: models.py:148 models.py:535 models.py:1555
 msgid "Created By"
 msgstr "Erstellt von"
 
@@ -848,7 +923,7 @@ msgstr "Video-Bitrate"
 msgid "Video bitrate (e.g., 5M, 10M)"
 msgstr "Video-Bitrate (z.B. 5M, 10M)"
 
-#: models.py:208 models.py:1537
+#: models.py:208 models.py:1625
 msgid "Audio Bitrate"
 msgstr "Audio-Bitrate"
 
@@ -890,7 +965,7 @@ msgstr "Wenn Bilder kürzer als Musik sind"
 msgid "Output Video File"
 msgstr "Ausgabe-Videodatei"
 
-#: models.py:243 models.py:1576
+#: models.py:243 models.py:1664
 msgid "Error Message"
 msgstr "Fehlermeldung"
 
@@ -908,7 +983,7 @@ msgstr ""
 msgid "What to do when images are shorter than music"
 msgstr "Wenn Bilder kürzer als Musik sind"
 
-#: models.py:275 models.py:446 models.py:1586
+#: models.py:275 models.py:446 models.py:1674
 msgid "Created At"
 msgstr "Erstellt am"
 
@@ -916,7 +991,7 @@ msgstr "Erstellt am"
 msgid "Updated At"
 msgstr "Aktualisiert am"
 
-#: models.py:284 models.py:1596
+#: models.py:284 models.py:1684
 msgid "Completed At"
 msgstr "Abgeschlossen am"
 
@@ -934,7 +1009,7 @@ msgstr "Diashow-Projekte"
 #: models.py:316 templates/tools/slideshow_creator.html:360
 #: templates/tools/slideshow_creator.html:407
 #: templates/tools/slideshow_detail.html:161
-#: templates/tools/video_render_job_list.html:87
+#: templates/tools/video_render_job_list.html:90
 msgid "Video"
 msgstr "Video"
 
@@ -950,7 +1025,7 @@ msgstr "Projekt, zu dem dieses Medium gehört (null für Bibliotheksdateien)"
 msgid "Media File"
 msgstr "Mediendatei"
 
-#: models.py:340 models.py:430 models.py:1284
+#: models.py:340 models.py:430 models.py:1339
 #: templates/tools/slideshow_list.html:81
 msgid "Name"
 msgstr "Name"
@@ -1117,10 +1192,10 @@ msgstr "Intro"
 msgid "Outro"
 msgstr "Outro"
 
-#: models.py:572 models.py:1480 templates/tools/audio_normalize.html:212
+#: models.py:572 models.py:1568 templates/tools/audio_normalize.html:212
 #: templates/tools/audio_normalize.html:1156
 #: templates/tools/audio_normalize_job_detail.html:68
-#: templates/tools/audio_normalize_job_list.html:76
+#: templates/tools/audio_normalize_job_list.html:79
 msgid "Preset"
 msgstr "Preset"
 
@@ -1563,7 +1638,10 @@ msgstr "Reel-Render-Timeout (Sekunden)"
 msgid ""
 "HTTP read timeout for reel render/start and hook requests. Must be generous "
 "(e.g. 360) so a cold AI model is not cut off before the renderer responds."
-msgstr "HTTP-Lese-Timeout für Reel-Render-, Start- und Hook-Anfragen. Großzügig wählen (z. B. 360), damit ein kalt startendes KI-Modell nicht abgebrochen wird, bevor der Renderer antwortet."
+msgstr ""
+"HTTP-Lese-Timeout für Reel-Render-, Start- und Hook-Anfragen. Großzügig "
+"wählen (z. B. 360), damit ein kalt startendes KI-Modell nicht abgebrochen "
+"wird, bevor der Renderer antwortet."
 
 #: models.py:974
 msgid "Reel output filename pattern"
@@ -1712,52 +1790,105 @@ msgstr "Instagram-Token erneuert am"
 msgid "Instagram caption template"
 msgstr "Instagram-Bildunterschrift (Vorlage)"
 
-#: models.py:1099 models.py:1364 templates/tools/reel_post_approve.html:45
+#: models.py:1091
+#, python-brace-format
+msgid ""
+"Placeholders: {hook} (the hook shown in the reel), {titel}, {untertitel}, "
+"{beschreibung} (shortened at a sentence end if the caption gets too long), "
+"{autor}, {sendetermin} (day, date and the time if planned), {uhrzeit}, "
+"{mediathek}, {hashtags} (license tags and the fixed hashtags). "
+"{sendetermin}, {uhrzeit} and {mediathek} are filled in when the post is "
+"published. A line whose placeholders are all empty is left out."
+msgstr ""
+"Platzhalter: {hook} (der Hook aus dem Reel), {titel}, {untertitel}, "
+"{beschreibung} (wird bei zu langer Bildunterschrift am Satzende gekürzt), "
+"{autor}, {sendetermin} (Tag, Datum und Uhrzeit, falls geplant), {uhrzeit}, "
+"{mediathek}, {hashtags} (Tags der Freistellung und feste Hashtags). "
+"{sendetermin}, {uhrzeit} und {mediathek} werden erst beim Veröffentlichen "
+"eingesetzt. Eine Zeile, deren Platzhalter alle leer sind, entfällt."
+
+#: models.py:1102
+msgid "Fixed hashtags"
+msgstr "Feste Hashtags"
+
+#: models.py:1103
+#, python-brace-format
+msgid ""
+"Added to {hashtags} in every post, e.g. \"#OffenerKanal #Merseburg\". "
+"Duplicates of license tags are left out."
+msgstr ""
+"Kommen in jedem Post zu {hashtags} dazu, z. B. „#OffenerKanal #Merseburg“. "
+"Doppelte Tags der Freistellung entfallen."
+
+#: models.py:1108 models.py:1438 templates/tools/reel_post_approve.html:45
 msgid "Also show in the feed"
 msgstr "Auch im Feed zeigen"
 
-#: models.py:1100
+#: models.py:1109
 msgid "Off: the reel only appears in the Reels tab."
 msgstr "Aus: Das Reel erscheint nur im Reels-Tab."
 
-#: models.py:1104 models.py:1105
+#: models.py:1115
+msgid "Also publish on Facebook"
+msgstr "Auch auf Facebook veröffentlichen"
+
+#: models.py:1117
+msgid ""
+"After a reel is published on Instagram it is published on the Facebook page "
+"as well, with the same caption and without collab accounts. Needs Facebook "
+"Login and a token with pages_manage_posts for the page."
+msgstr ""
+"Nach der Veröffentlichung auf Instagram wird das Reel auch auf der Facebook-"
+"Seite veröffentlicht, mit derselben Bildunterschrift und ohne Collab-Konten."
+" Braucht Facebook-Login und ein Token mit pages_manage_posts für die Seite."
+
+#: models.py:1126
+msgid "Facebook page ID"
+msgstr "Facebook-Seiten-ID"
+
+#: models.py:1127
+msgid "Numeric ID of the Facebook page linked to the Instagram account."
+msgstr ""
+"Numerische ID der Facebook-Seite, die mit dem Instagram-Konto verknüpft ist."
+
+#: models.py:1131 models.py:1132
 msgid "Tools Configuration"
 msgstr "Werkzeuge-Konfiguration"
 
-#: models.py:1211
+#: models.py:1253
 msgid "Tools: send daily reel reminder"
 msgstr "Tools: tägliche Reel-Erinnerung senden"
 
-#: models.py:1245
+#: models.py:1300
 msgid "Tools: publish due Instagram posts"
 msgstr "Werkzeuge: fällige Instagram-Posts veröffentlichen"
 
-#: models.py:1259
+#: models.py:1314
 msgid "Tools: renew Instagram token"
 msgstr "Werkzeuge: Instagram-Token erneuern"
 
-#: models.py:1278
+#: models.py:1333
 msgid "Title, subtitle, tags, description, further persons or author"
 msgstr "Titel, Untertitel, Tags, Beschreibung, weitere Personen oder Autor"
 
-#: models.py:1279
+#: models.py:1334
 msgid "Title or subtitle"
 msgstr "Titel oder Untertitel"
 
-#: models.py:1280 templates/email/daily_reel_reminder_body.html:15
+#: models.py:1335 templates/email/daily_reel_reminder_body.html:15
 #: templates/email/daily_reel_reminder_body.txt:9
 msgid "Tags"
 msgstr "Tags"
 
-#: models.py:1281
+#: models.py:1336
 msgid "Author (profile) or further persons"
 msgstr "Autor (Profil) oder weitere Personen"
 
-#: models.py:1287
+#: models.py:1342
 msgid "Keywords"
 msgstr "Stichwörter"
 
-#: models.py:1289
+#: models.py:1344
 msgid ""
 "Comma separated; whole words, upper/lower case does not matter. E.g. \"HoMe,"
 " Hochschule Merseburg\"."
@@ -1765,61 +1896,73 @@ msgstr ""
 "Durch Kommas getrennt; ganze Wörter, Groß-/Kleinschreibung egal. Z. B. "
 "„HoMe, Hochschule Merseburg“."
 
-#: models.py:1297
+#: models.py:1352
 msgid "Search in"
 msgstr "Suchen in"
 
-#: models.py:1301
+#: models.py:1356
 msgid "Instagram accounts"
 msgstr "Instagram-Konten"
 
-#: models.py:1302
+#: models.py:1357
 msgid "Usernames invited as collaborators, comma separated, without @."
 msgstr ""
 "Benutzernamen, die als Collab eingeladen werden, durch Kommas getrennt, ohne"
 " @."
 
-#: models.py:1304
+#: models.py:1359
 msgid "Active"
 msgstr "Aktiv"
 
-#: models.py:1307
+#: models.py:1362
 msgid "Instagram partner"
 msgstr "Instagram-Partner"
 
-#: models.py:1308
+#: models.py:1363
 msgid "Instagram partners"
 msgstr "Instagram-Partner"
 
-#: models.py:1331 reel_post_views.py:45
+#: models.py:1386 reel_post_views.py:49
 msgid "Approved"
 msgstr "Freigegeben"
 
-#: models.py:1332
+#: models.py:1387 models.py:1400
 msgid "Publishing"
 msgstr "Wird veröffentlicht"
 
-#: models.py:1333
+#: models.py:1388 models.py:1401
 msgid "Published"
 msgstr "Veröffentlicht"
 
-#: models.py:1346
+#: models.py:1398
+msgid "Not planned"
+msgstr "Nicht vorgesehen"
+
+#: models.py:1399
+msgid "Waiting for Instagram"
+msgstr "Wartet auf Instagram"
+
+#: models.py:1403
+msgid "Not possible"
+msgstr "Nicht möglich"
+
+#: models.py:1420
 msgid "Reel file"
 msgstr "Reel-Datei"
 
-#: models.py:1347
+#: models.py:1421
 msgid "Finished reel in the reel output folder."
 msgstr "Fertiges Reel im Reel-Ausgabeordner."
 
-#: models.py:1357
+#: models.py:1431
 msgid "Caption"
 msgstr "Bildunterschrift"
 
-#: models.py:1361 templates/tools/reel_post_approve.html:44
+#: models.py:1435 templates/tools/reel_post_approve.html:44
 msgid "Collab accounts"
 msgstr "Collab-Konten"
 
-#: models.py:1362
+#: models.py:1436
 msgid ""
 "Up to 3 Instagram usernames, comma separated, without @. They get a collab "
 "invitation."
@@ -1827,142 +1970,157 @@ msgstr ""
 "Bis zu 3 Instagram-Benutzernamen, durch Kommas getrennt, ohne @. Sie "
 "erhalten eine Collab-Einladung."
 
-#: models.py:1367
+#: models.py:1441
 msgid "Cover frame (ms)"
 msgstr "Titelbild-Frame (ms)"
 
-#: models.py:1368
+#: models.py:1442
 msgid "Position of the cover frame in milliseconds; 0 is the first frame."
 msgstr "Position des Titelbilds in Millisekunden; 0 ist der erste Frame."
 
-#: models.py:1373
+#: models.py:1447
 msgid "Publish at"
 msgstr "Veröffentlichen am"
 
-#: models.py:1388
+#: models.py:1462
 msgid "Approved by"
 msgstr "Freigegeben von"
 
-#: models.py:1390
+#: models.py:1464
 msgid "Approved at"
 msgstr "Freigegeben am"
 
-#: models.py:1391
+#: models.py:1465
 msgid "Instagram container"
 msgstr "Instagram-Container"
 
-#: models.py:1394
+#: models.py:1468
 msgid "Instagram media ID"
 msgstr "Instagram-Medien-ID"
 
-#: models.py:1396
+#: models.py:1470
 msgid "Published at"
 msgstr "Veröffentlicht am"
 
-#: models.py:1397 templates/tools/audio_normalize_job_detail.html:55
-#: templates/tools/audio_normalize_job_list.html:96
+#: models.py:1471 templates/tools/audio_normalize_job_detail.html:55
+#: templates/tools/audio_normalize_job_list.html:99
 #: templates/tools/reel_studio.html:363 templates/tools/reel_studio.html:413
 #: templates/tools/slideshow_detail.html:98
-#: templates/tools/video_render_job_list.html:107
+#: templates/tools/video_render_job_list.html:110
 msgid "Error"
 msgstr "Fehler"
 
-#: models.py:1398
+#: models.py:1480
+msgid "Facebook video ID"
+msgstr "Facebook-Video-ID"
+
+#: models.py:1481
+msgid "Facebook link"
+msgstr "Facebook-Link"
+
+#: models.py:1483
+msgid "Published on Facebook at"
+msgstr "Auf Facebook veröffentlicht am"
+
+#: models.py:1485
+msgid "Facebook error"
+msgstr "Facebook-Fehler"
+
+#: models.py:1486
 msgid "Created at"
 msgstr "Erstellt am"
 
-#: models.py:1399
+#: models.py:1487
 msgid "Updated at"
 msgstr "Aktualisiert am"
 
-#: models.py:1402 templates/email/reel_story_reminder_body.html:5
-#: templates/email/reel_story_reminder_body.txt:5
-msgid "Instagram post"
-msgstr "Instagram-Post"
+#: models.py:1490
+msgid "Reel post"
+msgstr "Reel-Post"
 
-#: models.py:1403
-msgid "Instagram posts"
-msgstr "Instagram-Posts"
+#: models.py:1491
+msgid "Reel posts"
+msgstr "Reels (Instagram/Facebook)"
 
-#: models.py:1406
-msgid "Can approve and publish Instagram posts"
-msgstr "Kann Instagram-Posts freigeben und veröffentlichen"
+#: models.py:1494
+msgid "Can approve and publish reels"
+msgstr "Kann Reels freigeben und veröffentlichen"
 
-#: models.py:1427
+#: models.py:1515
 #, python-format
 msgid "At most %(max)s characters (now %(count)s)."
 msgstr "Höchstens %(max)s Zeichen (jetzt %(count)s)."
 
-#: models.py:1430
+#: models.py:1518
 #, python-format
 msgid "At most %(max)s hashtags."
 msgstr "Höchstens %(max)s Hashtags."
 
-#: models.py:1432
+#: models.py:1520
 #, python-format
 msgid "At most %(max)s @ mentions."
 msgstr "Höchstens %(max)s @-Erwähnungen."
 
-#: models.py:1435
+#: models.py:1523
 #, python-format
 msgid "At most %(max)s collab accounts."
 msgstr "Höchstens %(max)s Collab-Konten."
 
-#: models.py:1437
+#: models.py:1525
 msgid "Only Instagram usernames: letters, digits, dot and underscore."
 msgstr ""
 "Nur Instagram-Benutzernamen: Buchstaben, Ziffern, Punkt und Unterstrich."
 
-#: models.py:1446 templates/tools/audio_normalize.html:431
-#: templates/tools/audio_normalize_job_list.html:61
+#: models.py:1534 templates/tools/audio_normalize.html:431
+#: templates/tools/audio_normalize_job_list.html:63
 msgid "Pending"
 msgstr "Ausstehend"
 
-#: models.py:1447 templates/tools/audio_normalize.html:432
-#: templates/tools/audio_normalize_job_list.html:62
+#: models.py:1535 templates/tools/audio_normalize.html:432
+#: templates/tools/audio_normalize_job_list.html:64
 msgid "Analyzing"
 msgstr "Analysiere"
 
-#: models.py:1454
+#: models.py:1542
 msgid "TV (R128)"
 msgstr "TV (R128)"
 
-#: models.py:1455
+#: models.py:1543
 msgid "Web"
 msgstr "Web"
 
-#: models.py:1459
+#: models.py:1547
 msgid "192 kbps"
 msgstr "192 kbps"
 
-#: models.py:1460
+#: models.py:1548
 msgid "256 kbps"
 msgstr "256 kbps"
 
-#: models.py:1481
+#: models.py:1569
 msgid "Audio normalize preset ID"
 msgstr "Preset-ID für Audio-Normalisierung"
 
-#: models.py:1487 templates/tools/audio_normalize.html:348
+#: models.py:1575 templates/tools/audio_normalize.html:348
 msgid "Target"
 msgstr "Ziel"
 
-#: models.py:1488
+#: models.py:1576
 msgid "Target loudness profile"
 msgstr "Ziel-Lautheitsprofil"
 
-#: models.py:1493
+#: models.py:1581
 msgid "Input File"
 msgstr "Eingabedatei"
 
 # AudioNormalizeJob - output_path_external
-#: models.py:1504
+#: models.py:1592
 #, fuzzy
 #| msgid "Output Path (external)"
 msgid "Input path (external)"
 msgstr "Eingabepfad (extern)"
 
-#: models.py:1505
+#: models.py:1593
 #, fuzzy
 #| msgid ""
 #| "Absolute path when output was written outside MEDIA_ROOT (e.g. to a storage "
@@ -1974,13 +2132,13 @@ msgstr ""
 "Absoluter Pfad, wenn die Eingabe außerhalb von MEDIA_ROOT liegt (z. B. von "
 "einem Speicherort)."
 
-#: models.py:1510
+#: models.py:1598
 #, fuzzy
 #| msgid "No media files"
 msgid "Input media file ID"
 msgstr "ID der Eingabedatei"
 
-#: models.py:1511
+#: models.py:1599
 msgid ""
 "media_files.VideoFile ID when input was chosen by media number (for stream "
 "URL)."
@@ -1988,16 +2146,16 @@ msgstr ""
 "media_files.VideoFile-ID, wenn die Eingabe nach Mediennummer (Nummer) "
 "ausgewählt wurde (für Stream-URL)."
 
-#: models.py:1517
+#: models.py:1605
 msgid "Output File"
 msgstr "Ausgabedatei"
 
 # AudioNormalizeJob - output_path_external
-#: models.py:1522
+#: models.py:1610
 msgid "Output Path (external)"
 msgstr "Ausgabepfad (extern)"
 
-#: models.py:1523
+#: models.py:1611
 msgid ""
 "Absolute path when output was written outside MEDIA_ROOT (e.g. to a storage "
 "location)."
@@ -2005,76 +2163,76 @@ msgstr ""
 "Absoluter Pfad, wenn die Ausgabe außerhalb von MEDIA_ROOT geschrieben wurde "
 "(z. B. in einen Speicherort)."
 
-#: models.py:1529
+#: models.py:1617
 msgid "Output Filename"
 msgstr "Ausgabedateiname"
 
-#: models.py:1530
+#: models.py:1618
 msgid "If empty, will default to <input>_R128.mp4"
 msgstr "Wenn leer, wird standardmäßig <input>_R128.mp4 verwendet"
 
-#: models.py:1541
+#: models.py:1629
 msgid "Sample Rate"
 msgstr "Abtastrate"
 
-#: models.py:1545
+#: models.py:1633
 msgid "Force Stereo"
 msgstr "Stereo erzwingen"
 
-#: models.py:1546
+#: models.py:1634
 msgid "If enabled, audio will be forced to 2 channels"
 msgstr "Wenn aktiviert, wird das Audio auf 2 Kanäle erzwungen"
 
-#: models.py:1552
+#: models.py:1640
 msgid "Input Metadata"
 msgstr "Eingabe-Metadaten"
 
-#: models.py:1553
+#: models.py:1641
 msgid "ffprobe JSON output"
 msgstr "ffprobe-JSON-Ausgabe"
 
-#: models.py:1558
+#: models.py:1646
 msgid "Analysis Before"
 msgstr "Analyse vorher"
 
-#: models.py:1559
+#: models.py:1647
 msgid "loudnorm analysis JSON from pass 1"
 msgstr "loudnorm-Analyse-JSON aus Durchgang 1"
 
-#: models.py:1564
+#: models.py:1652
 msgid "Analysis After"
 msgstr "Analyse nachher"
 
-#: models.py:1565
+#: models.py:1653
 msgid "loudnorm analysis JSON from after-processing verification pass"
 msgstr ""
 "loudnorm-Analyse-JSON aus dem Verifikationsdurchgang nach der Verarbeitung"
 
-#: models.py:1570
+#: models.py:1658
 msgid "Progress (%)"
 msgstr "Fortschritt (%)"
 
-#: models.py:1571
+#: models.py:1659
 msgid "Processing progress 0..100"
 msgstr "Verarbeitungsfortschritt 0..100"
 
-#: models.py:1580
+#: models.py:1668
 msgid "FFmpeg Log"
 msgstr "FFmpeg-Protokoll"
 
-#: models.py:1591
+#: models.py:1679
 #, fuzzy
 #| msgid "Created At"
 msgid "Started At"
 msgstr "Gestartet am"
 
-#: models.py:1600 templates/tools/audio_normalize_job_detail.html:4
+#: models.py:1688 templates/tools/audio_normalize_job_detail.html:4
 #: templates/tools/audio_normalize_job_detail.html:5
 #: templates/tools/audio_normalize_job_detail.html:38
 msgid "Audio Normalize Job"
 msgstr "Audio-Normalisierungsauftrag"
 
-#: models.py:1601 templates/tools/audio_normalize.html:11
+#: models.py:1689 templates/tools/audio_normalize.html:11
 #: templates/tools/audio_normalize_job_detail.html:11
 #: templates/tools/audio_normalize_job_list.html:4
 #: templates/tools/audio_normalize_job_list.html:5
@@ -2082,41 +2240,55 @@ msgstr "Audio-Normalisierungsauftrag"
 msgid "Audio Normalize Jobs"
 msgstr "Audio-Normalisierungsaufträge"
 
-#: reel_post_views.py:25
+#: reel_post_views.py:29
 msgid "Invalid or expired link"
 msgstr "Ungültiger oder abgelaufener Link"
 
-#: reel_post_views.py:26
+#: reel_post_views.py:30
 msgid ""
 "This link is invalid or has expired. Approve the post in OK-Tools instead."
 msgstr ""
 "Dieser Link ist ungültig oder abgelaufen. Bitte den Post in OK-Tools "
 "freigeben."
 
-#: reel_post_views.py:34
+#: reel_post_views.py:38
 msgid "[Mediathek link is added when publishing]"
 msgstr "[Mediathek-Link wird beim Veröffentlichen eingefügt]"
 
-#: reel_post_views.py:42
+#: reel_post_views.py:46
 msgid "The post cannot be published"
 msgstr "Der Post kann nicht veröffentlicht werden"
 
-#: reel_post_views.py:46
+#: reel_post_views.py:50
 msgid "The reel is being published on Instagram now."
 msgstr "Das Reel wird jetzt auf Instagram veröffentlicht."
 
-#: reel_post_views.py:50
+#: reel_post_views.py:54
 msgid "Nothing to do"
 msgstr "Nichts zu tun"
 
-#: reel_post_views.py:51
+#: reel_post_views.py:55
 #, python-format
 msgid "This post is already %(status)s."
 msgstr "Dieser Post ist bereits: %(status)s."
 
-#: reel_post_views.py:55
+#: reel_post_views.py:59
 msgid "Publish the reel on Instagram?"
 msgstr "Reel auf Instagram veröffentlichen?"
+
+#: reel_posts.py:619
+#, python-format
+msgid ""
+"Facebook accepts reels of %(min)s to %(max)s seconds; this one is %(len)s "
+"seconds."
+msgstr ""
+"Facebook nimmt Reels von %(min)s bis %(max)s Sekunden an; dieses ist %(len)s"
+" Sekunden lang."
+
+#: reel_posts.py:625
+#, python-format
+msgid "Facebook allows %(max)s reels through the API within 24 hours."
+msgstr "Facebook erlaubt %(max)s Reels über die API innerhalb von 24 Stunden."
 
 #: services/audio_normalizer.py:855
 #, python-brace-format
@@ -2437,9 +2609,9 @@ msgstr "Speichern"
 
 #: templates/admin/tools/preset_editor.html:341
 #: templates/tools/audio_normalize.html:393
-#: templates/tools/video_render.html:246 templates/tools/video_render.html:341
-#: templates/tools/video_render.html:406 templates/tools/video_render.html:469
-#: templates/tools/video_render_job_list.html:99
+#: templates/tools/video_render.html:247 templates/tools/video_render.html:342
+#: templates/tools/video_render.html:407 templates/tools/video_render.html:470
+#: templates/tools/video_render_job_list.html:102
 msgid "Preview"
 msgstr "Vorschau"
 
@@ -2529,6 +2701,26 @@ msgstr "Bitte geben Sie den Namen des Presets und den Anzeigenamen ein"
 #: templates/tools/slideshow_creator.html:1336
 msgid "Unknown error"
 msgstr "Unbekannter Fehler"
+
+#: templates/admin/tools/reelpost/change_list.html:11
+msgid ""
+"Create drafts for every finished reel from today on that has no post yet? "
+"Nothing is published."
+msgstr ""
+"Für jedes fertige Reel ab heute ohne Post einen Entwurf anlegen? Es wird "
+"nichts veröffentlicht."
+
+#: templates/admin/tools/reelpost/change_list.html:12
+msgid ""
+"Reels in the reel output folder with a broadcast day from today on get a "
+"draft with the caption template and the collab partners."
+msgstr ""
+"Reels im Reel-Ausgabeordner mit Sendetag ab heute bekommen einen Entwurf mit"
+" der Bildunterschrift-Vorlage und den Collab-Partnern."
+
+#: templates/admin/tools/reelpost/change_list.html:13
+msgid "Drafts for finished reels"
+msgstr "Entwürfe für fertige Reels"
 
 #: templates/admin/tools/videopreset/change_form.html:10
 msgid "Edit in Visual Editor"
@@ -2660,6 +2852,11 @@ msgstr ""
 "Bitte jetzt als Story teilen und den Mediathek-Link als Link-Sticker "
 "einfügen."
 
+#: templates/email/reel_story_reminder_body.html:5
+#: templates/email/reel_story_reminder_body.txt:5
+msgid "Instagram post"
+msgstr "Instagram-Post"
+
 #: templates/email/reel_story_reminder_body.html:6
 #: templates/email/reel_story_reminder_body.txt:6
 msgid "Mediathek link for the sticker"
@@ -2673,7 +2870,7 @@ msgstr "Reel ist online – jetzt als Story teilen: %(title)s"
 #: templates/tools/audio_normalize.html:4
 #: templates/tools/audio_normalize.html:5
 #: templates/tools/audio_normalize.html:173
-#: templates/tools/audio_normalize_job_list.html:48
+#: templates/tools/audio_normalize_job_list.html:50
 #: templates/tools/index.html:130
 msgid "Audio Broadcast Normalize (R128)"
 msgstr "Audio-Broadcast-Normalisierung (R128)"
@@ -2690,7 +2887,7 @@ msgid "Home"
 msgstr "Start"
 
 #: templates/tools/audio_normalize.html:12
-#: templates/tools/audio_normalize_job_list.html:52
+#: templates/tools/audio_normalize_job_list.html:54
 #: templates/tools/index.html:136
 msgid "New Job"
 msgstr "Neuer Auftrag"
@@ -2705,12 +2902,12 @@ msgstr ""
 "wird neu kodiert."
 
 #: templates/tools/audio_normalize.html:180
-#: templates/tools/video_render.html:84
+#: templates/tools/video_render.html:85
 msgid "Input / Output"
 msgstr "Eingabe / Ausgabe"
 
 #: templates/tools/audio_normalize.html:188
-#: templates/tools/reel_studio.html:66 templates/tools/video_render.html:87
+#: templates/tools/reel_studio.html:66 templates/tools/video_render.html:88
 msgid "Media number"
 msgstr "Mediennummer"
 
@@ -2719,12 +2916,12 @@ msgid "Suche"
 msgstr "Suche"
 
 #: templates/tools/audio_normalize.html:193
-#: templates/tools/reel_studio.html:71 templates/tools/video_render.html:92
+#: templates/tools/reel_studio.html:71 templates/tools/video_render.html:93
 msgid "Find an existing video file by number (from Media Files)."
 msgstr "Vorhandene Videodatei nach Nummer suchen (aus Mediendateien)."
 
 #: templates/tools/audio_normalize.html:198
-#: templates/tools/video_render.html:97
+#: templates/tools/video_render.html:98
 msgid "Source file"
 msgstr "Quelldatei"
 
@@ -2733,7 +2930,7 @@ msgid "Select a local file to upload for processing."
 msgstr "Wählen Sie eine lokale Datei zum Hochladen für die Verarbeitung aus."
 
 #: templates/tools/audio_normalize.html:204
-#: templates/tools/reel_studio.html:96 templates/tools/video_render.html:107
+#: templates/tools/reel_studio.html:96 templates/tools/video_render.html:108
 msgid "Output filename"
 msgstr "Ausgabe-Dateiname"
 
@@ -2795,7 +2992,7 @@ msgstr "Erzeugen (Auftrag)"
 
 #: templates/tools/audio_normalize.html:248
 #: templates/tools/audio_normalize_job_detail.html:52
-#: templates/tools/audio_normalize_job_list.html:77
+#: templates/tools/audio_normalize_job_list.html:80
 msgid "Progress"
 msgstr "Fortschritt"
 
@@ -2908,7 +3105,7 @@ msgid "Failed to create job."
 msgstr "Auftrag konnte nicht erstellt werden."
 
 #: templates/tools/audio_normalize.html:650
-#: templates/tools/reel_studio.html:261 templates/tools/video_render.html:555
+#: templates/tools/reel_studio.html:261 templates/tools/video_render.html:556
 msgid "Searching..."
 msgstr "Suche..."
 
@@ -3021,13 +3218,13 @@ msgid "Model"
 msgstr "Modell"
 
 #: templates/tools/audio_normalize_job_detail.html:40
-#: templates/tools/audio_normalize_job_list.html:108
-#: templates/tools/video_render_job_list.html:129
+#: templates/tools/audio_normalize_job_list.html:111
+#: templates/tools/video_render_job_list.html:132
 msgid "Open Tool"
 msgstr "Tool öffnen"
 
 #: templates/tools/audio_normalize_job_detail.html:43
-#: templates/tools/audio_normalize_job_list.html:111
+#: templates/tools/audio_normalize_job_list.html:114
 #: templates/tools/reel_studio.html:377
 #: templates/tools/slideshow_list.html:108
 msgid "Download"
@@ -3038,10 +3235,10 @@ msgid "Job Information"
 msgstr "Auftragsinformationen"
 
 #: templates/tools/audio_normalize_job_detail.html:64
-#: templates/tools/audio_normalize_job_list.html:75
+#: templates/tools/audio_normalize_job_list.html:78
 #: templates/tools/slideshow_detail.html:108
 #: templates/tools/slideshow_list.html:83
-#: templates/tools/video_render_job_list.html:86
+#: templates/tools/video_render_job_list.html:89
 msgid "Created"
 msgstr "Erstellt"
 
@@ -3053,59 +3250,59 @@ msgstr "Audio-Einstellungen"
 msgid "Files"
 msgstr "Dateien"
 
-#: templates/tools/audio_normalize_job_list.html:49
+#: templates/tools/audio_normalize_job_list.html:51
 msgid "Queue and history of audio normalization jobs."
 msgstr "Warteschlange und Verlauf der Audio-Normalisierungsaufträge."
 
-#: templates/tools/audio_normalize_job_list.html:60
+#: templates/tools/audio_normalize_job_list.html:62
 #: templates/tools/slideshow_creator.html:344
 #: templates/tools/slideshow_list.html:69
-#: templates/tools/video_render_job_list.html:70
+#: templates/tools/video_render_job_list.html:72
 msgid "All"
 msgstr "Alle"
 
-#: templates/tools/audio_normalize_job_list.html:73
+#: templates/tools/audio_normalize_job_list.html:76
 msgid "Job"
 msgstr "Auftrag"
 
-#: templates/tools/audio_normalize_job_list.html:78
+#: templates/tools/audio_normalize_job_list.html:81
 #: templates/tools/slideshow_list.html:85
-#: templates/tools/video_render_job_list.html:89
+#: templates/tools/video_render_job_list.html:92
 msgid "Actions"
 msgstr "Aktionen"
 
-#: templates/tools/audio_normalize_job_list.html:107
+#: templates/tools/audio_normalize_job_list.html:110
 #: templates/tools/reel_studio.html:376
 #: templates/tools/slideshow_list.html:104
 msgid "View"
 msgstr "Ansehen"
 
-#: templates/tools/audio_normalize_job_list.html:119
-#: templates/tools/video_render_job_list.html:138
+#: templates/tools/audio_normalize_job_list.html:122
+#: templates/tools/video_render_job_list.html:141
 msgid "No jobs found"
 msgstr "Keine Aufträge gefunden"
 
-#: templates/tools/audio_normalize_job_list.html:129
+#: templates/tools/audio_normalize_job_list.html:133
 #: templates/tools/slideshow_list.html:125
-#: templates/tools/video_render_job_list.html:148
+#: templates/tools/video_render_job_list.html:152
 msgid "Previous"
 msgstr "Zurück"
 
-#: templates/tools/audio_normalize_job_list.html:131
+#: templates/tools/audio_normalize_job_list.html:135
 #: templates/tools/slideshow_list.html:127
-#: templates/tools/video_render_job_list.html:150
+#: templates/tools/video_render_job_list.html:154
 msgid "Page"
 msgstr "Seite"
 
-#: templates/tools/audio_normalize_job_list.html:131
+#: templates/tools/audio_normalize_job_list.html:135
 #: templates/tools/slideshow_list.html:127
-#: templates/tools/video_render_job_list.html:150
+#: templates/tools/video_render_job_list.html:154
 msgid "of"
 msgstr "von"
 
-#: templates/tools/audio_normalize_job_list.html:133
+#: templates/tools/audio_normalize_job_list.html:137
 #: templates/tools/slideshow_list.html:129
-#: templates/tools/video_render_job_list.html:152
+#: templates/tools/video_render_job_list.html:156
 msgid "Next"
 msgstr "Weiter"
 
@@ -3172,7 +3369,7 @@ msgstr ""
 "Medienanstalt) und Kodierungsvorlagen rendern"
 
 #: templates/tools/index.html:207
-#: templates/tools/video_render_job_list.html:62
+#: templates/tools/video_render_job_list.html:64
 msgid "New Render"
 msgstr "Neues Rendering"
 
@@ -3184,7 +3381,7 @@ msgstr "Beitrag"
 msgid "Video (path from share root or URL)"
 msgstr "Video (Pfad ab Share-Wurzel oder URL)"
 
-#: templates/tools/reel_studio.html:69 templates/tools/video_render.html:90
+#: templates/tools/reel_studio.html:69 templates/tools/video_render.html:91
 msgid "Search"
 msgstr "Suchen"
 
@@ -3248,7 +3445,7 @@ msgstr "Startsekunde – für Manuell"
 msgid "Hook (AI)"
 msgstr "Hook (KI)"
 
-#: templates/tools/reel_studio.html:119 templates/tools/video_render.html:172
+#: templates/tools/reel_studio.html:119 templates/tools/video_render.html:173
 msgid "Title"
 msgstr "Titel"
 
@@ -3312,7 +3509,7 @@ msgstr "Mediathek-Plakette einblenden"
 msgid "Render reel"
 msgstr "Reel rendern"
 
-#: templates/tools/reel_studio.html:257 templates/tools/video_render.html:551
+#: templates/tools/reel_studio.html:257 templates/tools/video_render.html:552
 msgid "Please enter a valid number."
 msgstr "Bitte geben Sie eine gültige Nummer ein."
 
@@ -3320,21 +3517,21 @@ msgstr "Bitte geben Sie eine gültige Nummer ein."
 msgid "License data loaded, but no videos found."
 msgstr ""
 
-#: templates/tools/reel_studio.html:285 templates/tools/video_render.html:562
+#: templates/tools/reel_studio.html:285 templates/tools/video_render.html:563
 msgid "No videos found."
 msgstr "Keine Videos gefunden."
 
-#: templates/tools/reel_studio.html:295 templates/tools/video_render.html:570
+#: templates/tools/reel_studio.html:295 templates/tools/video_render.html:571
 msgid "Select"
 msgstr "Auswählen"
 
-#: templates/tools/reel_studio.html:296 templates/tools/video_render.html:571
-#: templates/tools/video_render_job_list.html:130
+#: templates/tools/reel_studio.html:296 templates/tools/video_render.html:572
+#: templates/tools/video_render_job_list.html:133
 msgid "Admin"
 msgstr "Admin"
 
-#: templates/tools/reel_studio.html:302 templates/tools/video_render.html:576
-#: templates/tools/video_render.html:610
+#: templates/tools/reel_studio.html:302 templates/tools/video_render.html:577
+#: templates/tools/video_render.html:611
 msgid "Error:"
 msgstr "Fehler:"
 
@@ -3777,33 +3974,33 @@ msgstr "Keine Projekte gefunden"
 msgid "Video Render"
 msgstr "Video-Rendering"
 
-#: templates/tools/video_render.html:77
+#: templates/tools/video_render.html:78
 msgid "Video Render with Overlays"
 msgstr "Video-Rendering mit Overlays"
 
-#: templates/tools/video_render.html:78
+#: templates/tools/video_render.html:79
 msgid ""
 "Render a new video version with intro/outro overlays and encoding presets."
 msgstr ""
 "Eine neue Video-Version mit Intro-/Outro-Overlays und Encoding-Presets "
 "rendern."
 
-#: templates/tools/video_render.html:99
+#: templates/tools/video_render.html:100
 msgid ""
 "Select a local file to upload into Media Files and open it in the tool."
 msgstr ""
 "Wählen Sie eine lokale Datei aus, um sie zu Mediendateien hochzuladen und im"
 " Tool zu öffnen."
 
-#: templates/tools/video_render.html:101
+#: templates/tools/video_render.html:102
 msgid "Upload & Open"
 msgstr "Hochladen & Öffnen"
 
-#: templates/tools/video_render.html:108
+#: templates/tools/video_render.html:109
 msgid "Leave empty for automatic naming"
 msgstr "Leer lassen für automatische Benennung"
 
-#: templates/tools/video_render.html:109
+#: templates/tools/video_render.html:110
 msgid ""
 "Optional. If empty, a versioned name will be generated next to the source "
 "file."
@@ -3811,31 +4008,31 @@ msgstr ""
 "Optional. Wenn leer, wird neben der Quelldatei ein Name mit Versionssuffix "
 "erzeugt."
 
-#: templates/tools/video_render.html:113
+#: templates/tools/video_render.html:114
 msgid "Video ID"
 msgstr "Video-ID"
 
-#: templates/tools/video_render.html:118
+#: templates/tools/video_render.html:119
 msgid "Open the tool for a specific VideoFile ID."
 msgstr "Das Tool für eine bestimmte VideoFile-ID öffnen."
 
-#: templates/tools/video_render.html:125
+#: templates/tools/video_render.html:126
 msgid "Selected Video"
 msgstr "Ausgewähltes Video"
 
-#: templates/tools/video_render.html:128
+#: templates/tools/video_render.html:129
 msgid "Filename"
 msgstr "Dateiname"
 
-#: templates/tools/video_render.html:131
+#: templates/tools/video_render.html:132
 msgid "Open in admin"
 msgstr "Im Admin öffnen"
 
-#: templates/tools/video_render.html:141
+#: templates/tools/video_render.html:142
 msgid "Source for rendering"
 msgstr "Quelle für das Rendering"
 
-#: templates/tools/video_render.html:145
+#: templates/tools/video_render.html:146
 msgid ""
 "The selected file is a preview or an already rendered version; the original "
 "is rendered instead."
@@ -3843,11 +4040,11 @@ msgstr ""
 "Die ausgewählte Datei ist eine Vorschau oder eine bereits gerenderte "
 "Version; gerendert wird stattdessen das Original."
 
-#: templates/tools/video_render.html:148
+#: templates/tools/video_render.html:149
 msgid "No original video found"
 msgstr "Kein Originalvideo gefunden"
 
-#: templates/tools/video_render.html:149
+#: templates/tools/video_render.html:150
 msgid ""
 "Only previews or rendered versions exist for this license; rendering is not "
 "possible."
@@ -3855,82 +4052,82 @@ msgstr ""
 "Zu dieser Freistellung gibt es nur Vorschauen oder gerenderte Versionen; "
 "Rendern ist nicht möglich."
 
-#: templates/tools/video_render.html:165
+#: templates/tools/video_render.html:166
 msgid "1. Select Elements and Styles"
 msgstr "1. Elemente und Stile auswählen"
 
-#: templates/tools/video_render.html:174
+#: templates/tools/video_render.html:175
 msgid "Title text"
 msgstr "Titeltext"
 
-#: templates/tools/video_render.html:210 templates/tools/video_render.html:217
-#: templates/tools/video_render.html:309 templates/tools/video_render.html:316
-#: templates/tools/video_render.html:391 templates/tools/video_render.html:398
-#: templates/tools/video_render.html:454 templates/tools/video_render.html:461
+#: templates/tools/video_render.html:211 templates/tools/video_render.html:218
+#: templates/tools/video_render.html:310 templates/tools/video_render.html:317
+#: templates/tools/video_render.html:392 templates/tools/video_render.html:399
+#: templates/tools/video_render.html:455 templates/tools/video_render.html:462
 msgid "Broadcast Info"
 msgstr "Sendeinfo"
 
-#: templates/tools/video_render.html:267
+#: templates/tools/video_render.html:268
 msgid "Subtitle"
 msgstr "Untertitel"
 
-#: templates/tools/video_render.html:269
+#: templates/tools/video_render.html:270
 msgid "Subtitle text"
 msgstr "Untertiteltext"
 
-#: templates/tools/video_render.html:362
+#: templates/tools/video_render.html:363
 msgid "Broadcast Responsibility"
 msgstr "Sendeverantwortung"
 
-#: templates/tools/video_render.html:364
+#: templates/tools/video_render.html:365
 msgid "Broadcast responsibility text"
 msgstr "Text zur Sendeverantwortung"
 
-#: templates/tools/video_render.html:426
+#: templates/tools/video_render.html:427
 msgid "Media Authority"
 msgstr "Medienanstalt"
 
-#: templates/tools/video_render.html:428
+#: templates/tools/video_render.html:429
 msgid "Media authority text"
 msgstr "Text zur Medienanstalt"
 
-#: templates/tools/video_render.html:488
+#: templates/tools/video_render.html:489
 msgid "2. Quality Settings"
 msgstr "2. Qualitätseinstellungen"
 
-#: templates/tools/video_render.html:491
+#: templates/tools/video_render.html:492
 msgid "Encoding Quality"
 msgstr "Kodierungsqualität"
 
-#: templates/tools/video_render.html:499
+#: templates/tools/video_render.html:500
 msgid "Mode"
 msgstr "Modus"
 
-#: templates/tools/video_render.html:502
+#: templates/tools/video_render.html:503
 msgid "Add intro/outro clips and apply overlays to them"
 msgstr "Intro-/Outro-Clips hinzufügen und Overlays darauf anwenden"
 
-#: templates/tools/video_render.html:506
+#: templates/tools/video_render.html:507
 msgid "Intro overlay text color"
 msgstr "Textfarbe für Intro-Overlays"
 
-#: templates/tools/video_render.html:508 templates/tools/video_render.html:516
+#: templates/tools/video_render.html:509 templates/tools/video_render.html:517
 msgid "Preset default"
 msgstr "Preset-Standard"
 
-#: templates/tools/video_render.html:509 templates/tools/video_render.html:517
+#: templates/tools/video_render.html:510 templates/tools/video_render.html:518
 msgid "White"
 msgstr "Weiß"
 
-#: templates/tools/video_render.html:510 templates/tools/video_render.html:518
+#: templates/tools/video_render.html:511 templates/tools/video_render.html:519
 msgid "Black"
 msgstr "Schwarz"
 
-#: templates/tools/video_render.html:514
+#: templates/tools/video_render.html:515
 msgid "Outro overlay text color"
 msgstr "Textfarbe für Outro-Overlays"
 
-#: templates/tools/video_render.html:522
+#: templates/tools/video_render.html:523
 msgid ""
 "If unchecked, overlays will be applied to the first and last segment of the "
 "main video."
@@ -3938,105 +4135,105 @@ msgstr ""
 "Wenn deaktiviert, werden Overlays auf das erste und letzte Segment des "
 "Hauptvideos angewendet."
 
-#: templates/tools/video_render.html:528
+#: templates/tools/video_render.html:529
 msgid "3. Submit"
 msgstr "3. Start"
 
-#: templates/tools/video_render.html:530
+#: templates/tools/video_render.html:531
 msgid "Preview (10s)"
 msgstr "Vorschau (10s)"
 
-#: templates/tools/video_render.html:531
+#: templates/tools/video_render.html:532
 msgid "Render Full Video"
 msgstr "Komplettes Video rendern"
 
-#: templates/tools/video_render.html:533
+#: templates/tools/video_render.html:534
 msgid ""
 "This will create a new VideoFile + FileOperation and render asynchronously."
 msgstr ""
 "Dies erstellt eine neue VideoFile und einen Dateivorgang und rendert "
 "asynchron."
 
-#: templates/tools/video_render.html:587
+#: templates/tools/video_render.html:588
 msgid "Please select a file."
 msgstr "Bitte wählen Sie eine Datei aus."
 
-#: templates/tools/video_render.html:591
+#: templates/tools/video_render.html:592
 msgid "Please enter a valid media number (license number) first."
 msgstr ""
 "Bitte geben Sie zuerst eine gültige Mediennummer (Freistellungsnummer) ein."
 
-#: templates/tools/video_render.html:595
+#: templates/tools/video_render.html:596
 msgid "Uploading..."
 msgstr "Hochladen..."
 
 #: templates/tools/video_render_job_list.html:4
 #: templates/tools/video_render_job_list.html:5
 #: templates/tools/video_render_job_list.html:11
-#: templates/tools/video_render_job_list.html:58
+#: templates/tools/video_render_job_list.html:60
 msgid "Video Render Jobs"
 msgstr "Video-Rendering-Aufträge"
 
-#: templates/tools/video_render_job_list.html:59
+#: templates/tools/video_render_job_list.html:61
 msgid ""
 "Queue and history of video render operations started from the Tools UI."
 msgstr ""
 "Warteschlange und Verlauf der Video-Rendering-Aufträge (gestartet über die "
 "Tools-Oberfläche)."
 
-#: templates/tools/video_render_job_list.html:71
+#: templates/tools/video_render_job_list.html:73
 msgid "In Progress"
 msgstr "In Bearbeitung"
 
-#: templates/tools/video_render_job_list.html:72
+#: templates/tools/video_render_job_list.html:74
 msgid "Success"
 msgstr "Erfolgreich"
 
-#: templates/tools/video_render_job_list.html:77
+#: templates/tools/video_render_job_list.html:79
 msgid "Auto-refresh is enabled while jobs are running."
 msgstr "Die automatische Aktualisierung ist aktiv, solange Aufträge laufen."
 
-#: templates/tools/video_render_job_list.html:84
+#: templates/tools/video_render_job_list.html:87
 msgid "Operation"
 msgstr "Vorgang"
 
-#: templates/tools/video_render_job_list.html:88
+#: templates/tools/video_render_job_list.html:91
 msgid "Config"
 msgstr "Konfiguration"
 
-#: templates/tools/video_render_job_list.html:99
+#: templates/tools/video_render_job_list.html:102
 msgid "Full"
 msgstr "Voll"
 
-#: templates/tools/video_render_job_list.html:118
+#: templates/tools/video_render_job_list.html:121
 msgid "Encode"
 msgstr "Encoding"
 
-#: templates/tools/video_render_job_list.html:119
+#: templates/tools/video_render_job_list.html:122
 msgid "Style"
 msgstr "Stil"
 
-#: templates/tools/video_render_job_list.html:120
+#: templates/tools/video_render_job_list.html:123
 msgid "Intro/Outro"
 msgstr "Intro/Outro"
 
-#: templates/tools/video_render_job_list.html:120
+#: templates/tools/video_render_job_list.html:123
 msgid "Yes"
 msgstr "Ja"
 
-#: templates/tools/video_render_job_list.html:120
+#: templates/tools/video_render_job_list.html:123
 msgid "No"
 msgstr "Nein"
 
-#: templates/tools/video_render_job_list.html:121
+#: templates/tools/video_render_job_list.html:124
 msgid "Intro text color"
 msgstr "Intro-Textfarbe"
 
-#: templates/tools/video_render_job_list.html:122
+#: templates/tools/video_render_job_list.html:125
 msgid "Outro text color"
 msgstr "Outro-Textfarbe"
 
-#: templates/tools/video_render_job_list.html:131
+#: templates/tools/video_render_job_list.html:134
 msgid "File Operation"
 msgstr "Dateivorgang"
 
@@ -4054,120 +4251,5 @@ msgstr "Sendeverantwortung"
 msgid "Rendered reel not found"
 msgstr "Gerendertes Reel nicht gefunden"
 
-#: admin.py
-msgid "Drafts for finished reels"
-msgstr "Entwürfe für fertige Reels"
-
-#: templates/admin/tools/reelpost/change_list.html
-msgid ""
-"Create drafts for every finished reel from today on that has no post yet? "
-"Nothing is published."
-msgstr ""
-"Für jedes fertige Reel ab heute ohne Post einen Entwurf anlegen? Es wird "
-"nichts veröffentlicht."
-
-#: templates/admin/tools/reelpost/change_list.html
-msgid ""
-"Reels in the reel output folder with a broadcast day from today on get a "
-"draft with the caption template and the collab partners."
-msgstr ""
-"Reels im Reel-Ausgabeordner mit Sendetag ab heute bekommen einen Entwurf mit "
-"der Bildunterschrift-Vorlage und den Collab-Partnern."
-
-#: admin.py
-#, python-format
-msgid "%(count)s draft(s) created."
-msgstr "%(count)s Entwurf/Entwürfe angelegt."
-
-#: admin.py
-msgid "No new drafts: every finished reel from today on already has a post."
-msgstr "Keine neuen Entwürfe: Jedes fertige Reel ab heute hat schon einen Post."
-
-#, python-brace-format
-msgid "Placeholders: {hook} (the hook shown in the reel), {titel}, {untertitel}, {beschreibung} (shortened at a sentence end if the caption gets too long), {autor}, {sendetermin} (day, date and the time if planned), {uhrzeit}, {mediathek}, {hashtags} (license tags and the fixed hashtags). {sendetermin}, {uhrzeit} and {mediathek} are filled in when the post is published. A line whose placeholders are all empty is left out."
-msgstr "Platzhalter: {hook} (der Hook aus dem Reel), {titel}, {untertitel}, {beschreibung} (wird bei zu langer Bildunterschrift am Satzende gekürzt), {autor}, {sendetermin} (Tag, Datum und Uhrzeit, falls geplant), {uhrzeit}, {mediathek}, {hashtags} (Tags der Freistellung und feste Hashtags). {sendetermin}, {uhrzeit} und {mediathek} werden erst beim Veröffentlichen eingesetzt. Eine Zeile, deren Platzhalter alle leer sind, entfällt."
-
-msgid "Fixed hashtags"
-msgstr "Feste Hashtags"
-
-#, python-brace-format
-msgid "Added to {hashtags} in every post, e.g. \"#OffenerKanal #Merseburg\". Duplicates of license tags are left out."
-msgstr "Kommen in jedem Post zu {hashtags} dazu, z. B. „#OffenerKanal #Merseburg“. Doppelte Tags der Freistellung entfallen."
-
-msgid "%(placeholders)s are filled in when the post is published (broadcast day and time from the plan, Mediathek link)."
-msgstr "%(placeholders)s werden beim Veröffentlichen eingesetzt (Sendetag und Uhrzeit aus dem Plan, Mediathek-Link)."
-
-#, python-format
-msgid "Facebook page not reachable: %(error)s"
-msgstr "Facebook-Seite nicht erreichbar: %(error)s"
-
-#, python-format
-msgid "Reels are also published on the Facebook page \"%(name)s\"."
-msgstr "Reels werden auch auf der Facebook-Seite „%(name)s“ veröffentlicht."
-
-msgid "Facebook is switched on but not used: it needs Facebook Login as Instagram API and the page ID."
-msgstr "Facebook ist eingeschaltet, wird aber nicht genutzt: Dafür braucht es Facebook-Login als Instagram-API und die Seiten-ID."
-
-msgid "Facebook"
-msgstr "Facebook"
-
-msgid "Published on the Facebook page after Instagram, with the same caption and without collab accounts."
-msgstr "Wird nach Instagram auf der Facebook-Seite veröffentlicht, mit derselben Bildunterschrift und ohne Collab-Konten."
-
-#, python-format
-msgid "%(post)s goes to Instagram only: %(reason)s"
-msgstr "%(post)s geht nur auf Instagram: %(reason)s"
-
-msgid "Publish on Facebook again"
-msgstr "Erneut auf Facebook veröffentlichen"
-
-msgid "Facebook posting is switched off or not configured."
-msgstr "Facebook-Veröffentlichung ist ausgeschaltet oder nicht eingerichtet."
-
-#, python-format
-msgid "%(count)s reel(s) are being published on Facebook."
-msgstr "%(count)s Reel(s) werden auf Facebook veröffentlicht."
-
-msgid "Only reels published on Instagram and not on Facebook yet can be sent to Facebook."
-msgstr "Nur Reels, die auf Instagram und noch nicht auf Facebook veröffentlicht sind, können zu Facebook geschickt werden."
-
-msgid "Also publish on Facebook"
-msgstr "Auch auf Facebook veröffentlichen"
-
-msgid "After a reel is published on Instagram it is published on the Facebook page as well, with the same caption and without collab accounts. Needs Facebook Login and a token with pages_manage_posts for the page."
-msgstr "Nach der Veröffentlichung auf Instagram wird das Reel auch auf der Facebook-Seite veröffentlicht, mit derselben Bildunterschrift und ohne Collab-Konten. Braucht Facebook-Login und ein Token mit pages_manage_posts für die Seite."
-
-msgid "Facebook page ID"
-msgstr "Facebook-Seiten-ID"
-
-msgid "Numeric ID of the Facebook page linked to the Instagram account."
-msgstr "Numerische ID der Facebook-Seite, die mit dem Instagram-Konto verknüpft ist."
-
-msgid "Not planned"
-msgstr "Nicht vorgesehen"
-
-msgid "Waiting for Instagram"
-msgstr "Wartet auf Instagram"
-
-msgid "Not possible"
-msgstr "Nicht möglich"
-
-msgid "Facebook video ID"
-msgstr "Facebook-Video-ID"
-
-msgid "Facebook link"
-msgstr "Facebook-Link"
-
-msgid "Published on Facebook at"
-msgstr "Auf Facebook veröffentlicht am"
-
-msgid "Facebook error"
-msgstr "Facebook-Fehler"
-
-#, python-format
-msgid "Facebook accepts reels of %(min)s to %(max)s seconds; this one is %(len)s seconds."
-msgstr "Facebook nimmt Reels von %(min)s bis %(max)s Sekunden an; dieses ist %(len)s Sekunden lang."
-
-#, python-format
-msgid "Facebook allows %(max)s reels through the API within 24 hours."
-msgstr "Facebook erlaubt %(max)s Reels über die API innerhalb von 24 Stunden."
+#~ msgid "Instagram posts"
+#~ msgstr "Instagram-Posts"
