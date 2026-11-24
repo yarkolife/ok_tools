@@ -78,7 +78,7 @@ KAPITEL: Tuple[Kapitel, ...] = (
     ),
     Kapitel(
         slug='beitraege',
-        title='Posts für Instagram, Facebook und Website',
+        title='Posts für Instagram, Facebook, Website und Mastodon',
         summary=(
             'Einen Post mit Fotos am Handy schreiben, prüfen und freigeben: '
             'eine Freigabe veröffentlicht ihn auf Instagram, Facebook und der '

@@ -139,7 +139,7 @@ Features
     Facebook's 30 reels a day stay on Instagram, with a warning when approving
   - Optional module (enabled via TOOLS_ENABLED setting)
 
-- **Posts** - One post with up to 10 photos, published on Instagram, Facebook and the website after one
+- **Posts** - One post with up to 10 photos, published on Instagram, Facebook, the website and Mastodon after one
   approval (optional, ``BEITRAEGE_ENABLED``)
 
   - Mobile page "Neuer Post" for staff with the right to add posts: photos from the camera or gallery (HEIC
@@ -158,6 +158,8 @@ Features
     without touching the platforms that worked
   - Works from a phone outside the office network (nothing below ``/admin``): "Meine Posts", editing and
     resubmitting returned posts, approver edits of platform texts and crops
+  - Mastodon (access token of the channel's account): status with photos and alt text, link and hashtags,
+    character limit of the server checked before approval, withdrawing deletes the status
   - Approvers correct a post themselves instead of sending it back, also from the mail link without login, and
     save and approve in one step; the author is told
   - Approval taken back while the post waits for its time; published posts withdrawn per platform (website: WordPress

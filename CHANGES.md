@@ -4,6 +4,9 @@
 * **beitraege: the link in the website text, empty lines around link and hashtags**
   * The website text of a post now contains the link from the field "Link" (between the text and the signature), so it can be edited like the other platforms; it is clickable on the website. Posts written before keep getting the link appended when it is missing from their text.
   * When a platform text is edited by hand (admin, phone edit page), an empty line is put before and after a line with only a link and before the hashtags, so Facebook and Instagram posts do not glue them to the text.
+* **beitraege: posts on Mastodon**
+  * Mastodon is a fourth platform: Post-Konfiguration section "Mastodon" with server, access token (Preferences → Development → New application, scopes `write:statuses`, `write:media`, `read:accounts`), visibility (public or quiet public) and the limits of the server; "Verbindungen testen" checks the account and reads the limits (characters, photos per post). Topics get "Signatur auf Mastodon" and "Mastodon voreingestellt".
+  * The Mastodon text is title, text, link, signature and hashtags; a text over the limit (links count 23 characters) stops the approval. Photos are uploaded with the title as alt text, up to the server's limit; the check page says when photos are left out. A retry does not post twice (idempotency key). Withdrawing deletes the status. Migration `beitraege.0007`.
 
 2026-11-23 (Version 4.84.0)
 ==========================

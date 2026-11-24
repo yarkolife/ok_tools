@@ -406,7 +406,7 @@ Wechsel werden auch die bereits veröffentlichten Reels sichtbar.
 | Systemnutzer erscheint nicht unter Unternehmenseinstellungen → Systemnutzer | Normal: Meta legt ihn beim Anmelden (Schritt 6) selbst an. Rechte ändern Sie über die Konfiguration und eine neue Anmeldung, nicht dort. |
 | Neuer Token nötig (Seite gewechselt, Rechte geändert) | Schritte 6–8 wiederholen; der alte Token bleibt bis zum Ersetzen gültig. |
 
-### Posts: Instagram, Facebook und Website {#beitraege}
+### Posts: Instagram, Facebook, Website und Mastodon {#beitraege}
 
 Nur wenn das Modul Posts aktiv ist (`BEITRAEGE_ENABLED` in der `.env`).
 Wie Posts geschrieben und freigegeben werden, steht im Kapitel
@@ -420,20 +420,23 @@ Wie Posts geschrieben und freigegeben werden, steht im Kapitel
 | Auf Instagram / Facebook veröffentlichen | Nutzen Konto, Seite und Token aus dem Abschnitt Instagram oben (Facebook nur mit Facebook-Login und Seiten-ID). |
 | Auf der Website veröffentlichen, WordPress-Adresse, -Benutzer, -Anwendungspasswort | Die WordPress-Website des Senders. Das Anwendungspasswort legen Sie in WordPress unter *Benutzer → Profil → Anwendungspasswörter* an; der Benutzer braucht das Recht, Posts zu veröffentlichen. Posts erscheinen dort sofort, mit Titelbild und Galerie. |
 | Kommentare auf der Website erlauben | Aus (Standard): Posts werden mit geschlossenen Kommentaren und Pingbacks angelegt. Ein: Kommentare sind offen, wie in WordPress eingestellt. Gilt für neue Posts; bei schon veröffentlichten ändern Sie es in WordPress. |
+| Auf Mastodon veröffentlichen, Mastodon-Server, -Zugriffstoken | Das Mastodon-Konto des Senders, z. B. auf `https://digitalcourage.social`. Das Token legen Sie in Mastodon an, angemeldet mit dem Konto des Senders: *Einstellungen → Entwicklung → Neue Anwendung*, Name z. B. „OK-Tools“, Berechtigungen nur **write:statuses**, **write:media** und **read:accounts** (die übrigen Häkchen entfernen), speichern, die Anwendung öffnen und **Dein Zugriffstoken** kopieren. Es läuft nicht ab; wer es löschen will, löscht die Anwendung in Mastodon. |
+| Sichtbarkeit auf Mastodon | **Öffentlich** (Standard) oder **Still öffentlich**: Follower und das Profil zeigen den Post, die öffentlichen Timelines und Trends nicht. |
+| Zeichen / Fotos je Mastodon-Post | Grenzen des Servers (meist 500 Zeichen und 4 Fotos). **Verbindungen testen** liest sie vom Server. Links zählen 23 Zeichen. Ist der Text länger, lässt sich der Post nicht freigeben; weitere Fotos fehlen auf Mastodon, die Prüfseite sagt das. |
 | Freigabe per E-Mail | Freigebende bekommen eine E-Mail mit persönlichem Link zur Prüfseite (ohne Anmeldung, 7 Tage gültig). Aus: nur die Benachrichtigung in OK-Tools. |
 | Posts per E-Mail, Adresse für Posts, Code im Betreff | Mitarbeitende schicken Text und Fotos an diese Adresse; der Code muss im Betreff stehen (Absenderadressen lassen sich fälschen). Übernommen werden nur E-Mails von Personen mit dem Recht „Post hinzufügen“; alle anderen werden ohne Antwort ignoriert. Wer das Recht hat, aber den Code vergessen oder einen alten benutzt hat, bekommt eine kurze Nachricht ohne den Code. Den Code ändern, wenn jemand das Team verlässt oder er nach außen gelangt ist; er gilt ab der nächsten Abholung (5 Minuten). Am besten ein eigenes Postfach nur dafür anlegen. |
 | IMAP-Server, -Port, -Benutzer, -Passwort, -Ordner | Zugang zu diesem Postfach (IMAP über SSL, Port 993). Gelesene E-Mails werden als gelesen markiert. |
-| Verbindung | **Verbindungen testen** prüft Website, Instagram, Facebook und das Postfach, ohne etwas zu veröffentlichen. |
+| Verbindung | **Verbindungen testen** prüft Website, Instagram, Facebook, Mastodon und das Postfach, ohne etwas zu veröffentlichen. |
 
 **Themen** (*Einstellungen & Stammdaten → Themen*): Jeder Post gehört zu
 einem Thema; „Aktuell“ ist für alles, was in kein anderes passt.
 
 | Feld | Wirkung |
 |---|---|
-| Hashtags | Kommen in jeden Instagram- und Facebook-Text des Themas. Instagram erlaubt höchstens 5 Hashtags je Post. |
-| Signatur auf Instagram / Facebook / Website | Letzte Zeilen des Textes auf der jeweiligen Plattform, z. B. „Mehr dazu: Link in Bio“. |
+| Hashtags | Kommen in jeden Instagram-, Facebook- und Mastodon-Text des Themas. Instagram erlaubt höchstens 5 Hashtags je Post; auf Mastodon finden Menschen Posts vor allem über Hashtags. |
+| Signatur auf Instagram / Facebook / Website / Mastodon | Letzte Zeilen des Textes auf der jeweiligen Plattform, z. B. „Mehr dazu: Link in Bio“. |
 | WordPress-Kategorien, -Schlagwörter | Namen, durch Komma getrennt; fehlende legt OK-Tools auf der Website an. |
-| Instagram / Facebook / Website voreingestellt | Welche Plattformen beim Schreiben angehakt sind. |
+| Instagram / Facebook / Website / Mastodon voreingestellt | Welche Plattformen beim Schreiben angehakt sind. |
 | Freigebende | Wer Posts dieses Themas freigeben darf. Zur Auswahl stehen nur aktive Mitarbeitende (mit Name und E-Mail). |
 
 **Rechte**: Schreiben dürfen die **Autorinnen und Autoren** der

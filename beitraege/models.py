@@ -1,4 +1,4 @@
-"""Posts: one text with photos, published on Instagram, Facebook and the website.
+"""Posts: one text with photos, published on Instagram, Facebook, the website and Mastodon.
 
 A post is written once and belongs to a topic. The topic adds hashtags and a
 signature per platform; every platform gets its own text, built from the
@@ -21,17 +21,19 @@ import uuid
 PLATFORM_INSTAGRAM = 'instagram'
 PLATFORM_FACEBOOK = 'facebook'
 PLATFORM_WEBSITE = 'website'
+PLATFORM_MASTODON = 'mastodon'
 PLATFORM_CHOICES = [
     (PLATFORM_INSTAGRAM, _('Instagram')),
     (PLATFORM_FACEBOOK, _('Facebook')),
     (PLATFORM_WEBSITE, _('Website')),
+    (PLATFORM_MASTODON, _('Mastodon')),
 ]
 # Pages list the platforms in this order, not alphabetically.
 PLATFORM_ORDER = [code for code, _label in PLATFORM_CHOICES]
 
 
 def in_platform_order(ziele) -> list:
-    """Instagram, Facebook, website."""
+    """Instagram, Facebook, website, Mastodon."""
     return sorted(ziele, key=lambda ziel: PLATFORM_ORDER.index(ziel.plattform))
 
 
@@ -97,6 +99,36 @@ class BeitragsConfig(models.Model):
         verbose_name=_('Allow comments on the website'),
         help_text=_('Off: posts are created with comments and pingbacks closed.'),
     )
+    mastodon_enabled = models.BooleanField(
+        default=False,
+        verbose_name=_('Publish on Mastodon'),
+        help_text=_('Mastodon account of the channel, through an access token.'),
+    )
+    mastodon_url = models.URLField(
+        blank=True,
+        verbose_name=_('Mastodon server'),
+        help_text=_('Address of the server the account is on, e.g. https://digitalcourage.social'),
+    )
+    mastodon_token = models.CharField(
+        max_length=200, blank=True, verbose_name=_('Mastodon access token'),
+        help_text=_('Preferences → Development → New application in Mastodon, with the scopes '
+                    'write:statuses, write:media and read:accounts.'),
+    )
+    mastodon_visibility = models.CharField(
+        max_length=10, default='public', verbose_name=_('Visibility on Mastodon'),
+        choices=[('public', _('Public')), ('unlisted', _('Quiet public'))],
+        help_text=_('Quiet public: followers and the profile see the post, the public timelines '
+                    'and trends do not.'),
+    )
+    mastodon_max_characters = models.PositiveIntegerField(
+        default=500, verbose_name=_('Characters per Mastodon post'),
+        help_text=_('Limit of the server; "Test connections" reads it from the server.'),
+    )
+    mastodon_max_photos = models.PositiveSmallIntegerField(
+        default=4, verbose_name=_('Photos per Mastodon post'),
+        help_text=_('Limit of the server; more photos are left out on Mastodon. "Test '
+                    'connections" reads it from the server.'),
+    )
     mail_enabled = models.BooleanField(
         default=False,
         verbose_name=_('Posts by mail'),
@@ -138,6 +170,9 @@ class BeitragsConfig(models.Model):
         return bool(self.website_enabled and self.wordpress_url and self.wordpress_user
                     and self.wordpress_app_password)
 
+    def is_mastodon_configured(self) -> bool:
+        return bool(self.mastodon_enabled and self.mastodon_url and self.mastodon_token)
+
     def is_mail_configured(self) -> bool:
         return bool(self.mail_enabled and self.imap_host and self.imap_user and self.imap_password
                     and self.mail_code)
@@ -170,6 +205,7 @@ class BeitragsConfig(models.Model):
             (PLATFORM_INSTAGRAM, self.is_instagram_configured()),
             (PLATFORM_FACEBOOK, self.is_facebook_configured()),
             (PLATFORM_WEBSITE, self.is_website_configured()),
+            (PLATFORM_MASTODON, self.is_mastodon_configured()),
         ]
         return [platform for platform, ready in checks if ready]
 
@@ -229,6 +265,8 @@ class Thema(models.Model):
         blank=True, verbose_name=_('Signature on Facebook'))
     signatur_website = models.TextField(
         blank=True, verbose_name=_('Signature on the website'))
+    signatur_mastodon = models.TextField(
+        blank=True, verbose_name=_('Signature on Mastodon'))
     wordpress_categories = models.CharField(
         max_length=300, blank=True, verbose_name=_('WordPress categories'),
         help_text=_('Category names on the website, comma separated; missing ones are created.'),
@@ -240,6 +278,7 @@ class Thema(models.Model):
     instagram = models.BooleanField(default=True, verbose_name=_('Instagram by default'))
     facebook = models.BooleanField(default=True, verbose_name=_('Facebook by default'))
     website = models.BooleanField(default=True, verbose_name=_('Website by default'))
+    mastodon = models.BooleanField(default=True, verbose_name=_('Mastodon by default'))
     freigeber = models.ManyToManyField(
         settings.AUTH_USER_MODEL, blank=True, related_name='beitrag_themen',
         verbose_name=_('Approvers'),
@@ -286,7 +325,7 @@ class Beitrag(models.Model):
     titel = models.CharField(max_length=200, verbose_name=_('Title'))
     text = models.TextField(verbose_name=_('Text'))
     link = models.URLField(blank=True, verbose_name=_('Link'),
-                           help_text=_('E.g. the Mediathek; clickable on Facebook and the website.'))
+                           help_text=_('E.g. the Mediathek; clickable on Facebook, the website and Mastodon.'))
     thema = models.ForeignKey(Thema, on_delete=models.PROTECT, related_name='beitraege',
                               verbose_name=_('Topic'))
     einwilligung = models.BooleanField(

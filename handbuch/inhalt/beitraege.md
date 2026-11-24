@@ -1,5 +1,5 @@
 Ein Post ist ein Text mit bis zu 10 Fotos, der einmal geschrieben und nach
-**einer** Freigabe auf Instagram, Facebook und der Website veröffentlicht
+**einer** Freigabe auf Instagram, Facebook, der Website und Mastodon veröffentlicht
 wird. Jede Plattform bekommt ihren eigenen Text: Er entsteht aus dem Post
 und seinem Thema (Hashtags, Signatur) und kann vor der Freigabe geändert
 werden.
@@ -36,10 +36,10 @@ Handy](#app)).
 | Feld | Hinweis |
 |---|---|
 | Thema | Bestimmt Hashtags, Signaturen, die Kategorie auf der Website und wer freigibt. Passt kein Thema, „Aktuell“ wählen. |
-| Titel, Text | Der Titel steht auf Instagram und Facebook oben, auf der Website ist er die Überschrift. |
+| Titel, Text | Der Titel steht auf Instagram, Facebook und Mastodon oben, auf der Website ist er die Überschrift. Mastodon erlaubt meist nur 500 Zeichen: den Mastodon-Text dann vor der Freigabe kürzen. |
 | Fotos | Bis zu 10, direkt aus der Kamera oder der Galerie; iPhone-Fotos (HEIC) gehen auch. Das erste ist das Titelbild. |
 | Einverständnis | Pflicht, sobald Fotos dabei sind: Alle erkennbaren Personen sind mit der Veröffentlichung einverstanden. |
-| Link | Z. B. die Mediathek. Steht im Text für Facebook und die Website und ist dort anklickbar; auf Instagram nicht, darum steht er dort nicht im Text. Beim Speichern eines geänderten Plattform-Texts setzt OK-Tools vor und nach dem Link und vor den Hashtags eine Leerzeile. |
+| Link | Z. B. die Mediathek. Steht im Text für Facebook, die Website und Mastodon und ist dort anklickbar; auf Instagram nicht, darum steht er dort nicht im Text. Beim Speichern eines geänderten Plattform-Texts setzt OK-Tools vor und nach dem Link und vor den Hashtags eine Leerzeile. |
 | Veröffentlichen auf | Voreingestellt vom Thema; nur eingerichtete Plattformen erscheinen. |
 | Zu einem festen Zeitpunkt veröffentlichen | Ohne Haken: direkt nach der Freigabe. Mit Haken erscheint das Datumsfeld (vorgeschlagen: morgen 10 Uhr). |
 
@@ -196,7 +196,7 @@ Grund einer Rückgabe), freigeben können ihn nur die Freigebenden.
   dann unten **Post zurückziehen**,
   die Plattformen ankreuzen und **Zurückziehen**. Auf der Website landet der
   Post im Papierkorb von WordPress und lässt sich dort wiederherstellen. Auf
-  Facebook und Instagram wird er endgültig gelöscht, mit Likes und
+  Facebook, Instagram und Mastodon wird er endgültig gelöscht, mit Likes und
   Kommentaren. Die Autorin oder der Autor wird benachrichtigt.
 
 ![Seite „Post zurückziehen“ mit Instagram, Facebook und Webseite zum Ankreuzen](bilder/b07-post-zurueckziehen.jpg "Post zurückziehen: Plattformen wählen.")

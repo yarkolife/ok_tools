@@ -90,17 +90,22 @@ class BeitragsConfigAdmin(SecretFieldsMixin, ModelAdmin):
     """Channels for posts; Instagram and Facebook use the Tools credentials."""
 
     form = BeitragsConfigForm
-    secret_fields = ('wordpress_app_password', 'imap_password')
+    secret_fields = ('wordpress_app_password', 'imap_password', 'mastodon_token')
     fieldsets = (
         (_('Who may write'), {'fields': ('autoren',)}),
         (_('Platforms'), {
-            'fields': ('instagram_enabled', 'facebook_enabled', 'website_enabled', 'approval_mail'),
+            'fields': ('instagram_enabled', 'facebook_enabled', 'website_enabled', 'mastodon_enabled',
+                       'approval_mail'),
             'description': _('Instagram and Facebook use the account, page and token entered '
                              'in the Tools configuration (section Instagram).'),
         }),
         (_('Website (WordPress)'), {
             'fields': ('wordpress_url', 'wordpress_user', 'wordpress_app_password', 'wordpress_comments',
                        'connection'),
+        }),
+        (_('Mastodon'), {
+            'fields': ('mastodon_url', 'mastodon_token', 'mastodon_visibility', 'mastodon_max_characters',
+                       'mastodon_max_photos'),
         }),
         (_('Posts by mail'), {
             'fields': ('mail_enabled', 'mail_address', 'mail_code', 'imap_host', 'imap_port',
@@ -148,6 +153,19 @@ class BeitragsConfigAdmin(SecretFieldsMixin, ModelAdmin):
             else:
                 messages.success(request, _('Website: connected as %(name)s (%(roles)s).') % {
                     'name': user['name'], 'roles': ', '.join(user['roles']) or '-'})
+        if config.is_mastodon_configured():
+            from .services import mastodon
+            try:
+                account = mastodon.check(config)
+                chars, photos = mastodon.limits(config)
+            except mastodon.MastodonError as exc:
+                messages.error(request, _('Mastodon: %(error)s') % {'error': exc})
+            else:
+                config.mastodon_max_characters, config.mastodon_max_photos = chars, photos
+                config.save(update_fields=['mastodon_max_characters', 'mastodon_max_photos'])
+                messages.success(request, _('Mastodon: @%(name)s, up to %(chars)s characters and '
+                                            '%(photos)s photos per post.') % {
+                    'name': account.get('acct') or '?', 'chars': chars, 'photos': photos})
         if config.is_mail_configured():
             from . import mailin
             try:
@@ -180,7 +198,8 @@ class BeitragsConfigAdmin(SecretFieldsMixin, ModelAdmin):
         for flag, ready, label in (
                 (config.instagram_enabled, config.is_instagram_configured(), 'Instagram'),
                 (config.facebook_enabled, config.is_facebook_configured(), 'Facebook'),
-                (config.website_enabled, config.is_website_configured(), _('Website'))):
+                (config.website_enabled, config.is_website_configured(), _('Website')),
+                (config.mastodon_enabled, config.is_mastodon_configured(), 'Mastodon')):
             if flag and not ready:
                 messages.warning(request, _('%(platform)s is switched on but not set up completely.') % {
                     'platform': label})
@@ -189,15 +208,17 @@ class BeitragsConfigAdmin(SecretFieldsMixin, ModelAdmin):
 
 @admin.register(Thema)
 class ThemaAdmin(ModelAdmin):
-    list_display = ['name', 'hashtags', 'instagram', 'facebook', 'website', 'is_active', 'position']
+    list_display = ['name', 'hashtags', 'instagram', 'facebook', 'website', 'mastodon', 'is_active',
+                    'position']
     list_editable = ['position', 'is_active']
     search_fields = ['name', 'hashtags']
     filter_horizontal = ['freigeber']
     fieldsets = (
         (None, {'fields': ('name', 'is_active', 'position')}),
-        (_('Texts'), {'fields': ('hashtags', 'signatur_instagram', 'signatur_facebook', 'signatur_website')}),
+        (_('Texts'), {'fields': ('hashtags', 'signatur_instagram', 'signatur_facebook', 'signatur_website',
+                                'signatur_mastodon')}),
         (_('Website'), {'fields': ('wordpress_categories', 'wordpress_tags')}),
-        (_('Platforms by default'), {'fields': ('instagram', 'facebook', 'website')}),
+        (_('Platforms by default'), {'fields': ('instagram', 'facebook', 'website', 'mastodon')}),
         (_('Approval'), {'fields': ('freigeber',)}),
     )
 

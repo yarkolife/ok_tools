@@ -29,6 +29,7 @@ from .links import previews
 from .models import Beitrag
 from .models import BeitragFoto
 from .models import BeitragZiel
+from .models import BeitragsConfig
 from .models import approves_all
 from .models import in_platform_order
 from .models import person_name
@@ -332,6 +333,7 @@ def _check_page(request, beitrag, user, token=None):
         'ziele': in_platform_order(beitrag.ziele.filter(aktiv=True)),
         'autor': person_name(beitrag.created_by),
         'fotos': previews(beitrag.fotos.all()),
+        'mastodon_photos': BeitragsConfig.get_config().mastodon_max_photos,
         'may_edit': may_edit,
         'edit_url': ((reverse('beitraege:freigabe_bearbeiten', args=[token]) if token
                       else reverse('beitraege:bearbeiten', args=[beitrag.pk])) if may_edit else ''),

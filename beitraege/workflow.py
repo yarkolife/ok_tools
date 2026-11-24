@@ -10,6 +10,7 @@ publishing again only retries the platforms that are not published yet.
 
 from .models import PLATFORM_FACEBOOK
 from .models import PLATFORM_INSTAGRAM
+from .models import PLATFORM_MASTODON
 from .models import PLATFORM_WEBSITE
 from .models import Beitrag
 from .models import BeitragZiel
@@ -92,6 +93,9 @@ def compose(beitrag: Beitrag, plattform: str) -> str:
     if plattform == PLATFORM_FACEBOOK:
         return _join(beitrag.titel, beitrag.text, beitrag.link, thema.signatur_facebook,
                      hashtags(thema.hashtags))
+    if plattform == PLATFORM_MASTODON:
+        return _join(beitrag.titel, beitrag.text, beitrag.link, thema.signatur_mastodon,
+                     hashtags(thema.hashtags))
     # Website: the title is the post title; the photos are added when
     # publishing, the topic's tags become WordPress tags.
     return _join(beitrag.text, beitrag.link, thema.signatur_website)
@@ -109,9 +113,10 @@ def ensure_ziele(beitrag: Beitrag, platforms=None) -> list[BeitragZiel]:
         PLATFORM_INSTAGRAM: beitrag.thema.instagram,
         PLATFORM_FACEBOOK: beitrag.thema.facebook,
         PLATFORM_WEBSITE: beitrag.thema.website,
+        PLATFORM_MASTODON: beitrag.thema.mastodon,
     }
     ziele = []
-    for plattform in (PLATFORM_INSTAGRAM, PLATFORM_FACEBOOK, PLATFORM_WEBSITE):
+    for plattform in (PLATFORM_INSTAGRAM, PLATFORM_FACEBOOK, PLATFORM_WEBSITE, PLATFORM_MASTODON):
         ziel = beitrag.ziele.filter(plattform=plattform).first()
         if ziel is None:
             if plattform not in available:
@@ -160,6 +165,16 @@ def problems(beitrag: Beitrag) -> list[str]:
                     'count': tags, 'max': INSTAGRAM_MAX_HASHTAGS})
         if ziel.plattform == PLATFORM_FACEBOOK and not (fotos or ziel.text.strip()):
             found.append(_('The Facebook post is empty.'))
+        if ziel.plattform == PLATFORM_MASTODON:
+            from .services import mastodon
+
+            limit = BeitragsConfig.get_config().mastodon_max_characters
+            count = mastodon.length(ziel.text)
+            if count > limit:
+                found.append(_('The Mastodon text has %(count)s of at most %(max)s characters '
+                               '(links count as 23).') % {'count': count, 'max': limit})
+            if not (fotos or ziel.text.strip()):
+                found.append(_('The Mastodon post is empty.'))
     return found
 
 
@@ -227,7 +242,7 @@ def withdraw(beitrag: Beitrag, user, platforms=None) -> list[str]:
     """Take the post off the chosen platforms (all published ones by default).
 
     The website post goes to the trash of WordPress (it can be restored
-    there), Facebook and Instagram delete it. A platform that refuses keeps
+    there), Facebook, Instagram and Mastodon delete it. A platform that refuses keeps
     its state and its error; the errors are returned.
     """
     if not beitrag.may_approve(user):
@@ -236,6 +251,7 @@ def withdraw(beitrag: Beitrag, user, platforms=None) -> list[str]:
         PLATFORM_INSTAGRAM: _withdraw_instagram,
         PLATFORM_FACEBOOK: _withdraw_facebook,
         PLATFORM_WEBSITE: _withdraw_website,
+        PLATFORM_MASTODON: _withdraw_mastodon,
     }
     errors = []
     ziele = beitrag.ziele.filter(status=BeitragZiel.STATUS_PUBLISHED)
@@ -277,6 +293,11 @@ def _withdraw_website(remote_id):
     wordpress.trash_post(BeitragsConfig.get_config(), remote_id)
 
 
+def _withdraw_mastodon(remote_id):
+    from .services import mastodon
+    mastodon.delete_status(BeitragsConfig.get_config(), remote_id)
+
+
 def is_due(beitrag: Beitrag) -> bool:
     return beitrag.status == Beitrag.STATUS_APPROVED and (
         beitrag.publish_at is None or beitrag.publish_at <= timezone.now())
@@ -312,6 +333,7 @@ def publish(beitrag: Beitrag) -> str:
                 PLATFORM_INSTAGRAM: _publish_instagram,
                 PLATFORM_FACEBOOK: _publish_facebook,
                 PLATFORM_WEBSITE: _publish_website,
+                PLATFORM_MASTODON: _publish_mastodon,
             }[ziel.plattform]
             remote_id, link = publisher(beitrag, ziel)
         except Exception as exc:  # any platform error stays with that platform
@@ -413,6 +435,22 @@ def _publish_facebook(beitrag: Beitrag, ziel: BeitragZiel):
     urls = [_require_https(photo_url(f, 'web')) for f in beitrag.fotos.all()]
     post_id = facebook.publish_photos(config, image_urls=urls, message=ziel.text)
     return post_id, facebook.post_permalink(config, post_id)
+
+
+def _publish_mastodon(beitrag: Beitrag, ziel: BeitragZiel):
+    from .services import images
+    from .services import mastodon
+
+    config = BeitragsConfig.get_config()
+    media_ids = []
+    for index, foto in enumerate(beitrag.fotos.all()[:config.mastodon_max_photos], start=1):
+        with foto.bild.open('rb') as handle:
+            content = images.rendition(handle, 'web')
+        media_ids.append(mastodon.upload_media(
+            config, f'beitrag-{beitrag.pk}-{index}.jpg', content, description=beitrag.titel))
+    status = mastodon.post_status(config, ziel.text, media_ids, visibility=config.mastodon_visibility,
+                                  key=f'oktools-beitrag-{beitrag.pk}-{ziel.pk}')
+    return status['id'], status['url']
 
 
 def _publish_website(beitrag: Beitrag, ziel: BeitragZiel):

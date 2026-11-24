@@ -22,7 +22,10 @@
         <p class="meta">{% trans "Instagram shows the photos cut to 4:5:" %}</p>
         <div class="photos ig">{% for p in fotos %}<img src="{{ p.instagram }}" alt="" loading="lazy">{% endfor %}</div>
       {% endif %}
-      <div class="text">{{ ziel.text }}{% if ziel.plattform == 'website' and beitrag.link %}
+      {% if ziel.plattform == 'mastodon' and fotos|length > mastodon_photos %}
+        <p class="meta">{% blocktrans with max=mastodon_photos %}Mastodon shows only the first {{ max }} photos.{% endblocktrans %}</p>
+      {% endif %}
+      <div class="text">{{ ziel.text }}{% if ziel.plattform == 'website' and beitrag.link and beitrag.link not in ziel.text %}
 
 {{ beitrag.link }}{% endif %}</div>
       {% if ziel.permalink %}<p><a href="{{ ziel.permalink }}" target="_blank" rel="noopener">{% translate "Open" context "link" %}</a></p>{% endif %}
