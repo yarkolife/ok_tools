@@ -121,7 +121,8 @@ def test_every_platform_gets_its_own_text(beitrag):
         'Mehr im Link in Bio\n\n#Medienbildung #Merseburg')
     assert 'https://mediathek.example/v/1' not in texts[PLATFORM_INSTAGRAM]
     assert 'https://mediathek.example/v/1' in texts[PLATFORM_FACEBOOK]
-    assert texts[PLATFORM_WEBSITE] == 'Zehn Jugendliche drehen ihren ersten Film.\n\nIhr Offener Kanal'
+    assert texts[PLATFORM_WEBSITE] == (
+        'Zehn Jugendliche drehen ihren ersten Film.\n\nhttps://mediathek.example/v/1\n\nIhr Offener Kanal')
 
 
 def test_edited_text_is_kept_when_the_post_changes(beitrag):

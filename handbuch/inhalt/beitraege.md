@@ -39,7 +39,7 @@ Handy](#app)).
 | Titel, Text | Der Titel steht auf Instagram und Facebook oben, auf der Website ist er die Überschrift. |
 | Fotos | Bis zu 10, direkt aus der Kamera oder der Galerie; iPhone-Fotos (HEIC) gehen auch. Das erste ist das Titelbild. |
 | Einverständnis | Pflicht, sobald Fotos dabei sind: Alle erkennbaren Personen sind mit der Veröffentlichung einverstanden. |
-| Link | Z. B. die Mediathek. Auf Facebook und der Website anklickbar; auf Instagram nicht, darum steht er dort nicht im Text. |
+| Link | Z. B. die Mediathek. Steht im Text für Facebook und die Website und ist dort anklickbar; auf Instagram nicht, darum steht er dort nicht im Text. Beim Speichern eines geänderten Plattform-Texts setzt OK-Tools vor und nach dem Link und vor den Hashtags eine Leerzeile. |
 | Veröffentlichen auf | Voreingestellt vom Thema; nur eingerichtete Plattformen erscheinen. |
 | Zu einem festen Zeitpunkt veröffentlichen | Ohne Haken: direkt nach der Freigabe. Mit Haken erscheint das Datumsfeld (vorgeschlagen: morgen 10 Uhr). |
 

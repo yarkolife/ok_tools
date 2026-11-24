@@ -7,6 +7,7 @@ name and created on the website when they do not exist yet.
 
 from html import escape
 import logging
+import re
 import requests
 
 
@@ -84,7 +85,12 @@ def paragraphs(text: str) -> str:
     """Plain text to HTML paragraphs; single line breaks stay line breaks."""
     blocks = [block.strip() for block in (text or '').replace('\r\n', '\n').split('\n\n')]
     return '\n'.join(
-        '<p>' + escape(block).replace('\n', '<br>') + '</p>' for block in blocks if block)
+        '<p>' + _links(escape(block)).replace('\n', '<br>') + '</p>' for block in blocks if block)
+
+
+def _links(html: str) -> str:
+    """Make the web addresses in escaped text clickable."""
+    return re.sub(r'https?://[^\s<]+', lambda m: f'<a href="{m.group(0)}">{m.group(0)}</a>', html)
 
 
 def gallery_block(media: list[dict]) -> str:

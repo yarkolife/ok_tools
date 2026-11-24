@@ -52,6 +52,37 @@ def _join(*parts) -> str:
     return '\n\n'.join(part.strip() for part in parts if part and part.strip())
 
 
+URL_LINE = re.compile(r'https?://\S+')
+
+
+def _kind(line: str) -> str:
+    line = line.strip()
+    if not line:
+        return 'blank'
+    if URL_LINE.fullmatch(line):
+        return 'link'
+    if all(word.startswith('#') for word in line.split()):
+        return 'tags'
+    return 'text'
+
+
+def tidy(text: str) -> str:
+    """An empty line before and after a link line and before the hashtags.
+
+    People edit the platform texts by hand and often leave the link and the
+    hashtags glued to the text; on Facebook and Instagram that reads badly.
+    """
+    out, last = [], None
+    for line in (text or '').replace('\r\n', '\n').split('\n'):
+        kind = _kind(line)
+        if kind != 'blank' and last not in (None, 'blank', kind) and (
+                'link' in (kind, last) or kind == 'tags'):
+            out.append('')
+        out.append(line.rstrip())
+        last = kind
+    return '\n'.join(out).strip()
+
+
 def compose(beitrag: Beitrag, plattform: str) -> str:
     """The text of a platform as built from the post and its topic."""
     thema = beitrag.thema
@@ -61,9 +92,9 @@ def compose(beitrag: Beitrag, plattform: str) -> str:
     if plattform == PLATFORM_FACEBOOK:
         return _join(beitrag.titel, beitrag.text, beitrag.link, thema.signatur_facebook,
                      hashtags(thema.hashtags))
-    # Website: the title is the post title; the link and the photos are added
-    # when publishing, the topic's tags become WordPress tags.
-    return _join(beitrag.text, thema.signatur_website)
+    # Website: the title is the post title; the photos are added when
+    # publishing, the topic's tags become WordPress tags.
+    return _join(beitrag.text, beitrag.link, thema.signatur_website)
 
 
 def ensure_ziele(beitrag: Beitrag, platforms=None) -> list[BeitragZiel]:
@@ -97,6 +128,7 @@ def ensure_ziele(beitrag: Beitrag, platforms=None) -> list[BeitragZiel]:
 
 def mark_edited(ziel: BeitragZiel) -> None:
     """Keep a hand-written text from being rebuilt."""
+    ziel.text = tidy(ziel.text)
     ziel.text_bearbeitet = ziel.text.strip() != compose(ziel.beitrag, ziel.plattform).strip()
 
 
@@ -395,7 +427,7 @@ def _publish_website(beitrag: Beitrag, ziel: BeitragZiel):
         media.append(wordpress.upload_media(
             config, f'beitrag-{beitrag.pk}-{index}.jpg', content, alt=beitrag.titel))
     content = wordpress.paragraphs(ziel.text)
-    if beitrag.link:
+    if beitrag.link and beitrag.link not in ziel.text:  # texts written before 4.85
         from html import escape
         content += f'\n<p><a href="{escape(beitrag.link)}">{escape(beitrag.link)}</a></p>'
     if len(media) > 1:

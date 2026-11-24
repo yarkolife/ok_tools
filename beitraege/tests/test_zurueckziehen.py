@@ -193,3 +193,35 @@ def test_my_posts_lists_what_i_approved_to_withdraw_it(client, beitrag, freigebe
     assert reverse('beitraege:pruefen', args=[beitrag.pk]).encode() in page.content
     check = client.get(reverse('beitraege:pruefen', args=[beitrag.pk]))
     assert reverse('beitraege:zurueckziehen', args=[beitrag.pk]).encode() in check.content
+
+
+# ---------------------------------------------------------------------------
+# empty lines around the link and before the hashtags
+# ---------------------------------------------------------------------------
+
+def test_hand_edited_texts_get_empty_lines_around_link_and_hashtags():
+    text = 'Titel\r\n\r\nText.\r\nhttps://example.de/v/1\r\n#okmq #aktuell'
+    assert workflow.tidy(text) == 'Titel\n\nText.\n\nhttps://example.de/v/1\n\n#okmq #aktuell'
+    assert workflow.tidy('Text.\n#okmq\n#aktuell') == 'Text.\n\n#okmq\n#aktuell'
+    assert workflow.tidy('Text mit #okmq drin.\nNoch eine Zeile.') == 'Text mit #okmq drin.\nNoch eine Zeile.'
+    assert workflow.tidy(workflow.tidy(text)) == workflow.tidy(text)
+
+
+def test_approver_edit_is_tidied(client, beitrag, freigeber):
+    workflow.submit(beitrag)
+    token = approval_token(beitrag, freigeber)
+    with mock.patch('beitraege.notify._mail'), mock.patch('notifications.services.emit'):
+        client.post(reverse('beitraege:freigabe_bearbeiten', args=[token]), _edit_data(
+            beitrag, text_instagram='Text.\r\n#okmq', aktion='speichern'))
+    assert beitrag.ziele.get(plattform=PLATFORM_INSTAGRAM).text == 'Text.\n\n#okmq'
+
+
+def test_website_text_has_the_link_and_it_is_clickable(beitrag):
+    from beitraege.services import wordpress
+
+    beitrag.link = 'https://example.de/v/1?a=1&b=2'
+    beitrag.save()
+    text = workflow.compose(beitrag, PLATFORM_WEBSITE)
+    assert 'https://example.de/v/1?a=1&b=2' in text
+    html = wordpress.paragraphs(text)
+    assert '<p><a href="https://example.de/v/1?a=1&amp;b=2">https://example.de/v/1?a=1&amp;b=2</a></p>' in html

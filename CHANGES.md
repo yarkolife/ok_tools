@@ -1,3 +1,10 @@
+2026-11-24 (Version 4.85.0)
+==========================
+
+* **beitraege: the link in the website text, empty lines around link and hashtags**
+  * The website text of a post now contains the link from the field "Link" (between the text and the signature), so it can be edited like the other platforms; it is clickable on the website. Posts written before keep getting the link appended when it is missing from their text.
+  * When a platform text is edited by hand (admin, phone edit page), an empty line is put before and after a line with only a link and before the hashtags, so Facebook and Instagram posts do not glue them to the text.
+
 2026-11-23 (Version 4.84.0)
 ==========================
 

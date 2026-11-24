@@ -4,8 +4,8 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.84.0
-**Last Updated**: 23 November 2026
+**Current Version**: 4.85.0
+**Last Updated**: 24 November 2026
 
 Features
 ========
@@ -151,8 +151,9 @@ Features
     publishes on all platforms; approvers get a notification and a personal mail link to check and approve on the
     phone without login
   - Instagram photo or carousel (4:5 crop, focus adjustable), Facebook page post with several photos and a
-    clickable link, WordPress post (REST API, application password) with featured image, gallery, categories and
-    tags, comments closed unless switched on; photos are turned upright and stripped of location data
+    clickable link, WordPress post (REST API, application password) with featured image, gallery, categories,
+    tags and the link in its editable text, comments closed unless switched on; hand-edited texts get empty lines
+    around the link and before the hashtags; photos are turned upright and stripped of location data
   - Each platform keeps its own status and link; a failure raises a notification and can be published again
     without touching the platforms that worked
   - Works from a phone outside the office network (nothing below ``/admin``): "Meine Posts", editing and
