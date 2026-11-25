@@ -1,3 +1,9 @@
+2026-11-25 (Version 4.85.2)
+==========================
+
+* Fixed: a storage location showed "no response" as its read speed although the share was fine, because the check read only the newest file there, and that one file was listed but would not open (deleted on the NAS while another computer still had it open). The check now skips a file that fails to open and reads the next one (up to five known videos, then up to five files from the folder, largest first); "no response" means nothing there could be read in time. The export source picker reports such a copy as "file unreadable" without marking its storage as silent.
+* Fixed: the storage scan created an available record for a file it could not open (no size, no metadata, "File not found" in every scan). Such a file is now skipped with a warning and an existing record is marked unavailable until the file opens again.
+
 2026-11-24 (Version 4.85.1)
 ==========================
 

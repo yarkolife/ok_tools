@@ -20,6 +20,22 @@ import os
 logger = logging.getLogger('django')
 
 
+def unreadable_reason(abs_path):
+    """Return why ``abs_path`` does not open, or ``''`` when it does.
+
+    A file can be listed on a CIFS share and still not open, e.g. when it was
+    deleted on the NAS while another client keeps it open (case 24.11.2026).
+    Such a file gets no available record: as the newest record of its
+    location it was taken as the sample of the read check and showed the
+    whole storage as "no response".
+    """
+    try:
+        with open(abs_path, 'rb'):
+            return ''
+    except OSError as exc:
+        return exc.strerror or str(exc)
+
+
 class Command(BaseCommand):
     """Scan video storage and update VideoFile records in database."""
 
@@ -102,6 +118,7 @@ class Command(BaseCommand):
         total_errors = 0
         total_deleted = 0
         total_marked_unavailable = 0
+        total_unreadable = 0
 
         for storage in storages:
             self.stdout.write(f'\nScanning storage: {storage.name} ({storage.path})')
@@ -185,7 +202,22 @@ class Command(BaseCommand):
                                 )
                             )
                             continue
-                        
+
+                        reason = unreadable_reason(abs_path)
+                        if reason:
+                            total_unreadable += 1
+                            marked = VideoFile.objects.filter(
+                                storage_location=storage, file_path=rel_path,
+                                is_available=True,
+                            ).update(is_available=False)
+                            self.stdout.write(self.style.WARNING(
+                                f'Cannot open, skipped: {filename} ({reason})'))
+                            logger.warning(
+                                'Scan: %s is listed but cannot be opened (%s)%s',
+                                abs_path, reason,
+                                '; record marked unavailable' if marked else '')
+                            continue
+
                         # Check if VideoFile already exists by file_path first (most specific)
                         # This allows multiple files with same number but different paths
                         video_file, created = VideoFile.objects.get_or_create(
@@ -359,6 +391,10 @@ class Command(BaseCommand):
         if total_marked_unavailable > 0:
             self.stdout.write(
                 self.style.WARNING(f'Records marked unavailable: {total_marked_unavailable}')
+            )
+        if total_unreadable > 0:
+            self.stdout.write(
+                self.style.WARNING(f'Files listed but not opening (skipped): {total_unreadable}')
             )
         if total_errors > 0:
             self.stdout.write(self.style.ERROR(f'Errors: {total_errors}'))

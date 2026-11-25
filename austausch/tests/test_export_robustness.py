@@ -321,7 +321,7 @@ class TestExportSourceSelection(TestCase):
         """Patch the probe so each path answers with a fixed speed."""
         def fake_probe(path, **kwargs):
             return archive_mbps if path.startswith(self.archive_dir) else playout_mbps
-        return patch('media_files.storage_health.probe_read_speed',
+        return patch('media_files.storage_health.probe_file',
                      side_effect=fake_probe)
 
     def test_healthy_archive_stays_the_source(self):
@@ -402,6 +402,18 @@ class TestExportSourceSelection(TestCase):
             self.archive_video, self.NUMBER)
         assert chosen is None
         assert 'file missing' in reason
+
+    def test_unreadable_file_does_not_mark_its_storage_silent(self):
+        """A listed file that does not open is a bad copy, not a dead storage."""
+        from media_files.storage_health import UNREADABLE
+
+        with self._speeds(UNREADABLE, 136.0):
+            chosen, note = self.service._select_export_source(
+                self.archive_video, self.NUMBER)
+        assert chosen.pk == self.playout_video.pk
+        assert 'ARCHIVE (file unreadable)' in note
+        self.archive.refresh_from_db()
+        assert self.archive.last_health_check is None
 
 
 @pytest.mark.django_db

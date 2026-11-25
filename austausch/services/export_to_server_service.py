@@ -307,7 +307,8 @@ class ExportToServerService:
         primary was used, or ``(None, reason)`` when nothing is reachable.
         """
         from media_files.storage_health import health_state
-        from media_files.storage_health import probe_read_speed
+        from media_files.storage_health import UNREADABLE
+        from media_files.storage_health import probe_file
         from media_files.storage_health import record_read_speed
 
         min_mbps = self._min_source_read_mbps()
@@ -337,7 +338,12 @@ class ExportToServerService:
             if not os.path.isfile(path):
                 rejected.append(f'{candidate.storage_location.storage_type} (file missing)')
                 continue
-            read_mbps = probe_read_speed(path)
+            read_mbps = probe_file(path)
+            if read_mbps == UNREADABLE:
+                # Listed but does not open: this copy is bad, the storage is
+                # not, so its health stays as it was.
+                rejected.append(f'{candidate.storage_location.storage_type} (file unreadable)')
+                continue
             try:
                 record_read_speed(candidate.storage_location, read_mbps)
             except Exception:

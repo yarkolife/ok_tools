@@ -47,6 +47,14 @@ TERMINATE_GRACE = 10.0
 DIR_SCAN_LIMIT = 200
 # probe_directory(): the folder answered but holds no file to read.
 EMPTY = 'empty'
+# probe_file(): opening or reading failed at once. The storage answered; this
+# one file is bad (gone, deleted on the NAS while another client still has it
+# open, no permission) and says nothing about the storage.
+UNREADABLE = 'unreadable'
+# Known videos measure_storage_health() tries before reading any file there.
+SAMPLE_CANDIDATES = 5
+# Files probe_directory() tries, largest first.
+DIR_SAMPLE_CANDIDATES = 5
 # OS cache files: small, and say nothing about the share (lower case).
 _SKIP_SAMPLE_NAMES = frozenset({'thumbs.db', 'desktop.ini', 'ehthumbs.db'})
 
@@ -116,19 +124,20 @@ def _probe_worker(path, sample_bytes, result):
     os._exit(0)
 
 
-def _find_sample_in_dir(root, limit=DIR_SCAN_LIMIT):
-    """Return the largest regular file among the first entries under ``root``.
+def _find_samples_in_dir(root, limit=DIR_SCAN_LIMIT, count=DIR_SAMPLE_CANDIDATES):
+    """Return up to ``count`` regular files under ``root``, largest first.
 
-    Breadth first and bounded by ``limit`` entries; ``''`` when there is no
-    file. The largest one, because on a small file the latency of the first
+    Breadth first and bounded by ``limit`` entries; ``[]`` when there is no
+    file. Largest first, because on a small file the latency of the first
     open (share connection, automount) outweighs the transfer: a 73 KB
-    Thumbs.db read cold at 0.5 MB/s from a share doing 30 MB/s. Hidden and
+    Thumbs.db read cold at 0.5 MB/s from a share doing 30 MB/s. Several,
+    because one file can be unreadable while the share is fine. Hidden and
     OS cache files are skipped. Raises ``OSError`` when ``root`` itself
     cannot be listed; unreadable subfolders are skipped.
     """
     queue = [root]
     seen = 0
-    best, best_size = '', 0
+    files = []
     while queue and seen < limit:
         folder = queue.pop(0)
         try:
@@ -148,23 +157,45 @@ def _find_sample_in_dir(root, limit=DIR_SCAN_LIMIT):
                 try:
                     if entry.is_file(follow_symlinks=False):
                         size = entry.stat().st_size
-                        if size > best_size:
-                            best, best_size = entry.path, size
+                        if size > 0:
+                            files.append((size, entry.path))
                     elif entry.is_dir(follow_symlinks=False):
                         queue.append(entry.path)
                 except OSError:
                     continue
-    return best
+    files.sort(reverse=True)
+    return [path for _size, path in files[:count]]
+
+
+def _find_sample_in_dir(root, limit=DIR_SCAN_LIMIT):
+    """Return the largest regular file under ``root``, ``''`` when there is none."""
+    samples = _find_samples_in_dir(root, limit=limit, count=1)
+    return samples[0] if samples else ''
+
+
+def _read_first_readable(paths, sample_bytes):
+    """Read the first of ``paths`` that opens: (bytes, seconds) or ``None``."""
+    for path in paths:
+        try:
+            read, elapsed = _read_sample(path, sample_bytes)
+        except OSError:
+            continue
+        if read > 0:
+            return read, elapsed
+    return None
 
 
 def _dir_probe_worker(root, sample_bytes, result):
     """Child entry point for probe_directory(): -1 unreadable, -2 empty."""
     try:
-        path = _find_sample_in_dir(root)
-        if path:
-            read, elapsed = _read_sample(path, sample_bytes)
-            result[0] = float(read)
-            result[1] = elapsed
+        paths = _find_samples_in_dir(root)
+        if paths:
+            sample = _read_first_readable(paths, sample_bytes)
+            if sample:
+                result[0] = float(sample[0])
+                result[1] = sample[1]
+            else:
+                result[0] = -1.0
         else:
             result[0] = -2.0
     except BaseException:  # noqa: BLE001 - any failure means "cannot read"
@@ -191,13 +222,13 @@ def probe_directory(root, sample_bytes=PROBE_SAMPLE_BYTES, timeout=PROBE_TIMEOUT
             'Cannot fork a probe process; probing %s in-process without a timeout',
             root, exc_info=True)
         try:
-            path = _find_sample_in_dir(root)
-            if not path:
-                return EMPTY
-            read, elapsed = _read_sample(path, sample_bytes)
+            paths = _find_samples_in_dir(root)
         except OSError:
             return None
-        return (read / MB) / elapsed if read > 0 else None
+        if not paths:
+            return EMPTY
+        sample = _read_first_readable(paths, sample_bytes)
+        return (sample[0] / MB) / sample[1] if sample else None
 
     proc.join(timeout)
     if proc.is_alive():
@@ -218,7 +249,18 @@ def probe_read_speed(path, sample_bytes=PROBE_SAMPLE_BYTES, timeout=PROBE_TIMEOU
 
     ``None`` covers both "the file is not there" and "the storage stopped
     answering": the caller only wants to know whether reading this copy is
-    worth attempting.
+    worth attempting. probe_file() tells the two apart.
+    """
+    read_mbps = probe_file(path, sample_bytes=sample_bytes, timeout=timeout)
+    return None if read_mbps == UNREADABLE else read_mbps
+
+
+def probe_file(path, sample_bytes=PROBE_SAMPLE_BYTES, timeout=PROBE_TIMEOUT):
+    """Read speed of ``path`` in MB/s, ``UNREADABLE`` or ``None``.
+
+    ``UNREADABLE``: opening or reading failed at once, or the file is empty;
+    the storage answered, only this file is bad. ``None``: no bytes within
+    ``timeout``, the storage itself is not answering.
     """
     context = mp_context()
     result = context.Array(ctypes.c_double, 2)
@@ -233,8 +275,8 @@ def probe_read_speed(path, sample_bytes=PROBE_SAMPLE_BYTES, timeout=PROBE_TIMEOU
         try:
             read, elapsed = _read_sample(path, sample_bytes)
         except OSError:
-            return None
-        return (read / MB) / elapsed if read > 0 else None
+            return UNREADABLE
+        return (read / MB) / elapsed if read > 0 else UNREADABLE
 
     proc.join(timeout)
     if proc.is_alive():
@@ -244,7 +286,7 @@ def probe_read_speed(path, sample_bytes=PROBE_SAMPLE_BYTES, timeout=PROBE_TIMEOU
 
     read, elapsed = result[0], result[1]
     if read <= 0:
-        return None
+        return UNREADABLE
     return (read / MB) / elapsed
 
 
@@ -270,28 +312,47 @@ def _clear_health(storage_location):
         last_read_mbps=None, last_health_check=None)
 
 
-def _pick_sample_file(storage_location):
-    """Return the path of a file on this location that is cheap to sample."""
+def _sample_files(storage_location, count=SAMPLE_CANDIDATES):
+    """Return paths of known videos on this location, last scanned first.
+
+    Records never scanned come last (PostgreSQL sorts NULL first in a
+    descending order): the scanner could not read them, as with a file that
+    is listed on the share but does not open (case 24.11.2026).
+    """
+    from django.db.models import F
     from media_files.models import VideoFile
 
-    video = (
+    videos = (
         VideoFile.objects
         .filter(storage_location=storage_location, is_available=True)
-        .order_by('-last_scanned', '-created_at')
-        .first()
+        .select_related('storage_location')
+        .order_by(F('last_scanned').desc(nulls_last=True), '-created_at')[:count]
     )
-    return video.full_path if video else None
+    return [video.full_path for video in videos]
 
 
 def measure_storage_health(storage_location, timeout=PROBE_TIMEOUT):
     """Measure and store the read speed of one location. Returns MB/s or None.
 
     ``None`` means the location delivered no bytes within the timeout — it is
-    either empty, gone, or hung.
+    either empty, gone, or hung. A known video that fails to open at once is
+    skipped for the next one: one bad file does not make the storage silent.
     """
-    sample_path = _pick_sample_file(storage_location)
-    if not sample_path:
-        # No known video (e.g. a share with photos only): read any file there.
+    read_mbps, sample_path, unreadable = None, None, []
+    for path in _sample_files(storage_location):
+        result = probe_file(path, timeout=timeout)
+        if result == UNREADABLE:
+            unreadable.append(path)
+            continue
+        read_mbps, sample_path = result, path
+        break
+    if unreadable:
+        logger.warning(
+            'Storage %s: %d known file(s) could not be opened, e.g. %s',
+            storage_location, len(unreadable), unreadable[0])
+    if sample_path is None:
+        # No readable known video (e.g. a share with photos only): read any
+        # file there.
         read_mbps = probe_directory(storage_location.path, timeout=timeout)
         if read_mbps == EMPTY:
             # Reachable but nothing to read: health unknown, not "silent".
@@ -299,8 +360,6 @@ def measure_storage_health(storage_location, timeout=PROBE_TIMEOUT):
             logger.debug('Storage %s holds no file to sample; health unknown', storage_location)
             return None
         sample_path = storage_location.path
-    else:
-        read_mbps = probe_read_speed(sample_path, timeout=timeout)
     record_read_speed(storage_location, read_mbps)
     if read_mbps is None:
         logger.warning(
