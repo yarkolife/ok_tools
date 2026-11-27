@@ -254,6 +254,24 @@ apply_required_compose_service_update() {
     print_success "Applied updated docker-compose.yml with required service: $service_name"
 }
 
+# Variable names an .env line may legitimately start with: those in the file
+# and in the templates, as an alternation for grep -E / [[ =~ ]].
+env_var_names() {
+    local env_file="$1"
+    cat "$env_file" "$PROJECT_DIR"/deployment/configs/*.env.template 2>/dev/null         | grep -oE '^[A-Z][A-Z0-9_]*=' | tr -d '=' | sort -u | paste -sd'|' -
+}
+
+# Lines where one variable swallowed the next (a missing line break), e.g.
+# "DEBUG=FalseALLOWED_HOSTS=x". Only real variable names count, so a value
+# ending in "=" (a base64 password or key) is not reported.
+env_concatenated_lines() {
+    local env_file="$1"
+    local names
+    names=$(env_var_names "$env_file")
+    [ -n "$names" ] || return 0
+    grep -E "^[A-Z][A-Z0-9_]*=.*(${names})=" "$env_file" || true
+}
+
 # Function to validate .env file (from install.sh)
 validate_env_file() {
     local env_file="$1"
@@ -342,18 +360,19 @@ validate_env_file() {
         echo "✓ $var: OK"
     done
     
-    # Check for concatenated lines (common issue) - IMPROVED DETECTION
-    # Only flag as error if it's clearly a concatenation of separate variables
-    local concatenated
-    concatenated=$(grep -cE '^[A-Z_][A-Z0-9_]*=[^=]*[A-Z_][A-Z0-9_]*=' "$env_file" || true)
-    if [ "$concatenated" -gt 0 ]; then
+    # Check for concatenated lines (common issue)
+    local concatenated_lines
+    concatenated_lines=$(env_concatenated_lines "$env_file")
+    if [ -n "$concatenated_lines" ]; then
+        local concatenated
+        concatenated=$(printf '%s\n' "$concatenated_lines" | wc -l | tr -d ' ')
         echo "❌ ERROR: Found $concatenated line(s) with concatenated variables"
         echo "   This usually means line breaks are missing in .env file"
         errors=$((errors+1))
-        
+
         # Show problematic lines
         echo "   Problematic lines:"
-        grep -E '^[A-Z_][A-Z0-9_]*=[^=]*[A-Z_][A-Z0-9_]*=' "$env_file" | head -5 | sed 's/^/   /'
+        printf '%s\n' "$concatenated_lines" | head -5 | sed 's/^/   /'
     fi
     
     # Summary
@@ -396,61 +415,42 @@ repair_env_file() {
         return 1
     fi
     
-    # Check for corruption pattern: ONLY flag clear concatenations of separate variables
-    # Pattern: KEY1=VALUE1KEY2=VALUE2 (no space between VALUE1 and KEY2)
-    local corrupted_lines
-    corrupted_lines=$(grep -cE '^[A-Z_][A-Z0-9_]*=[^=]*[A-Z_][A-Z0-9_]*=' "$env_file" 2>/dev/null || true)
+    # Corruption: KEY1=VALUE1KEY2=VALUE2, where KEY2 is a real variable name.
+    # A value that merely contains or ends in "=" (base64) is left alone.
+    local names corrupted_lines
+    names=$(env_var_names "$env_file")
+    corrupted_lines=$(env_concatenated_lines "$env_file" | grep -c . || true)
     corrupted_lines=${corrupted_lines:-0}
-    
+
     if [ "$corrupted_lines" -gt 0 ]; then
         echo "Detected corruption in .env file ($corrupted_lines corrupted lines)"
         echo "Creating backup..."
         cp "$env_file" "$env_file.backup.$(date +%Y%m%d_%H%M%S)"
-        
+
         echo "Repairing .env file..."
-        
-        # Create temporary file for repaired content
-        local temp_file="/tmp/repaired_env.tmp"
-        
-        # Process each line to fix concatenated variables
-        while IFS= read -r line; do
-            # Skip comments and empty lines
-            if [[ $line =~ ^# ]] || [[ -z "$line" ]]; then
-                echo "$line" >> "$temp_file"
-                continue
-            fi
-            
-            # Check if line contains ACTUAL concatenated variables (not just = in values)
-            if [[ $line =~ ^([^=]+)=(.*) ]]; then
+
+        local temp_file
+        temp_file=$(mktemp)
+
+        while IFS= read -r line || [ -n "$line" ]; do
+            # Split off swallowed variables one by one, leftmost first.
+            while [[ $line =~ ^([A-Z][A-Z0-9_]*=)(.*)$ ]]; do
                 local key="${BASH_REMATCH[1]}"
-                local value="${BASH_REMATCH[2]}"
-                
-                # Check if this is actually a concatenation by looking for pattern: VALUEKEY2=
-                # where KEY2 starts with uppercase letter and is followed by =
-                if [[ $value =~ ([^=]*[A-Z_][A-Z0-9_]*)=(.*)$ ]]; then
-                    # This is a concatenation, split it
-                    local first_value="${BASH_REMATCH[1]}"
-                    local remaining="${BASH_REMATCH[2]}"
-                    
-                    # Write the first key-value pair
-                    echo "$key=$first_value" >> "$temp_file"
-                    
-                    # Try to extract the second key-value pair
-                    if [[ $remaining =~ ^([^=]+)=(.*)$ ]]; then
-                        local second_key="${BASH_REMATCH[1]}"
-                        local second_value="${BASH_REMATCH[2]}"
-                        echo "$second_key=$second_value" >> "$temp_file"
+                local rest="${BASH_REMATCH[2]}"
+                local cut=-1 i
+                for ((i = 0; i < ${#rest}; i++)); do
+                    if [[ ${rest:i} =~ ^(${names})= ]]; then
+                        cut=$i
+                        break
                     fi
-                else
-                    # Line is not corrupted, write as-is
-                    echo "$line" >> "$temp_file"
-                fi
-            else
-                # Line is not corrupted, write as-is
-                echo "$line" >> "$temp_file"
-            fi
+                done
+                [ "$cut" -ge 0 ] || break
+                printf '%s\n' "$key${rest:0:cut}" >> "$temp_file"
+                line="${rest:cut}"
+            done
+            printf '%s\n' "$line" >> "$temp_file"
         done < "$env_file"
-        
+
         # Replace original file with repaired version
         mv "$temp_file" "$env_file"
         chmod 600 "$env_file"

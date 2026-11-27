@@ -143,6 +143,23 @@ show_templates() {
     return 0
 }
 
+# Lines where one variable swallowed the next (a missing line break), e.g.
+# "DEBUG=FalseALLOWED_HOSTS=x". Only names that really are variables (in the
+# file or the templates) count, so a value ending in "=" (base64) is fine.
+env_concatenated_lines() {
+    local env_file="$1"
+    local names
+    names=$(cat "$env_file" "$CONFIGS_DIR"/*.env.template 2>/dev/null         | grep -oE '^[A-Z][A-Z0-9_]*=' | tr -d '=' | sort -u | paste -sd'|' -)
+    [ -n "$names" ] || return 0
+    grep -E "^[A-Z][A-Z0-9_]*=.*(${names})=" "$env_file" || true
+}
+
+# Random secret of letters and digits only: safe in .env, sed and URLs.
+generate_secret() {
+    local length="${1:-32}"
+    openssl rand -base64 $((length * 2)) | tr -d '=+/\n' | cut -c1-"$length"
+}
+
 # Function to validate .env file
 validate_env_file() {
     local env_file="$1"
@@ -214,15 +231,18 @@ validate_env_file() {
     done
     
     # Check for concatenated lines (common issue)
-    local concatenated=$(grep -E '^[A-Z_]+=.*[A-Z_]+=' "$env_file" | wc -l | tr -d ' ')
-    if [ "$concatenated" -gt 0 ]; then
+    local concatenated_lines
+    concatenated_lines=$(env_concatenated_lines "$env_file")
+    if [ -n "$concatenated_lines" ]; then
+        local concatenated
+        concatenated=$(printf '%s\n' "$concatenated_lines" | wc -l | tr -d ' ')
         echo "❌ ERROR: Found $concatenated line(s) with concatenated variables"
         echo "   This usually means line breaks are missing in the .env file"
         errors=$((errors+1))
-        
+
         # Show problematic lines
         echo "   Problematic lines:"
-        grep -E '^[A-Z_]+=.*[A-Z_]+=' "$env_file" | head -5 | sed 's/^/   /'
+        printf '%s\n' "$concatenated_lines" | head -5 | sed 's/^/   /'
     fi
     
     # Summary
@@ -577,7 +597,7 @@ elif [ "$INSTALL_MODE" = "2" ]; then
     echo "=============================="
     read -p "Database password (leave empty for auto-generated): " DB_PASSWORD
     if [ -z "$DB_PASSWORD" ]; then
-        DB_PASSWORD=$(openssl rand -base64 32)
+        DB_PASSWORD=$(generate_secret 32)
         echo "Generated database password: $DB_PASSWORD"
     fi
 
@@ -589,14 +609,14 @@ elif [ "$INSTALL_MODE" = "2" ]; then
     read -p "Superuser email: " SUPERUSER_EMAIL
     read -p "Superuser password (leave empty for auto-generated): " SUPERUSER_PASSWORD
     if [ -z "$SUPERUSER_PASSWORD" ]; then
-        SUPERUSER_PASSWORD=$(openssl rand -base64 32)
+        SUPERUSER_PASSWORD=$(generate_secret 32)
         echo "Generated superuser password: $SUPERUSER_PASSWORD"
     fi
 
     echo ""
     echo "Step 4: Django Configuration"
     echo "============================"
-    DJANGO_SECRET_KEY=$(openssl rand -base64 50)
+    DJANGO_SECRET_KEY=$(generate_secret 50)
     
     # Set ALLOWED_HOSTS based on installation type
     if [ "$INSTALL_TYPE" = "1" ]; then

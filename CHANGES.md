@@ -1,3 +1,9 @@
+2026-11-27 (Version 4.87.1)
+==========================
+
+* Fixed: the installer (`deployment/scripts/install.sh`, manual configuration) generated the database and admin passwords and the secret key as raw base64, which can end in `=` and contain `/` or `+`; the `.env` check then reported the line as two concatenated variables and stopped the installation, and a `/` broke `DATABASE_URL`. Generated secrets now consist of letters and digits only, and the check in `install.sh` and `update.sh` only reports a line when a real variable name (from `.env` or the templates) is glued into another value.
+* Fixed: `update.sh` would "repair" such a line by cutting a password that ends in `=` into two lines, breaking the password. The repair now only splits at a real variable name and leaves other values unchanged.
+
 2026-11-27 (Version 4.87.0)
 ==========================
 
