@@ -205,6 +205,12 @@ if not LICENSES_ENABLED:
     MEDIA_FILES_ENABLED = False
     AUSTAUSCH_ENABLED = False
 
+# Media files needs the tools app: its migrations depend on tools (the video
+# presets moved there, media_files 0019) and media_files.admin imports
+# tools.rendering. Without it "migrate" fails with a missing dependency.
+if MEDIA_FILES_ENABLED:
+    TOOLS_ENABLED = True
+
 # Apply module flags
 if LICENSES_ENABLED:
     INSTALLED_APPS.append("licenses")
