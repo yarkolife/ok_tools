@@ -1,6 +1,8 @@
 from datetime import timedelta
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db import transaction
 from django.utils import timezone
@@ -698,6 +700,18 @@ class LicensesConfig(models.Model):
         default=20,
         verbose_name=_('Screen Board Duration (seconds)'),
         help_text=_('Fixed duration for screen board display in seconds')
+    )
+
+    # QR signing (phone signature via link)
+    sign_session_minutes = models.PositiveIntegerField(
+        default=10,
+        validators=[MinValueValidator(1), MaxValueValidator(1440)],
+        verbose_name=_('QR signing link validity (minutes)'),
+        help_text=_(
+            'How long a QR code / signing link stays valid. Applies to every '
+            'signing session; a longer link (days) can only be created for a '
+            'single license on its admin page.'
+        ),
     )
 
     # Storage settings

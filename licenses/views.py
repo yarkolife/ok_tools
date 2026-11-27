@@ -9,6 +9,7 @@ from .models import NextcloudVideoFile
 from .models import SigningSession
 from .models import SigningSessionStatus
 from .models import YouthProtectionCategory
+from .services import signing
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -32,7 +33,6 @@ import io
 import json
 import logging
 import qrcode
-import uuid
 import xml.etree.ElementTree as ET
 
 
@@ -945,14 +945,8 @@ class CreateSigningSessionView(generic.View):
         if license_obj.confirmed:
             return JsonResponse({'success': False, 'error': _('Cannot sign a confirmed license.')}, status=400)
 
-        expires_at = timezone.now() + datetime.timedelta(minutes=10)
-        session = SigningSession.objects.create(
-            license=license_obj,
-            owner=request.user,
-            token=uuid.uuid4().hex,
-            status=SigningSessionStatus.PENDING,
-            expires_at=expires_at,
-        )
+        session = signing.create_session(request.user, license_obj)
+        expires_at = session.expires_at
         sign_url = request.build_absolute_uri(reverse('licenses:sign_session_page', kwargs={'token': session.token}))
         qr_url = reverse('licenses:sign_session_qr', kwargs={'token': session.token})
         return JsonResponse({
@@ -970,13 +964,8 @@ class CreatePreLicenseSigningSessionView(generic.View):
     """Create QR signing session before license is submitted on create page."""
 
     def post(self, request, *args, **kwargs):
-        expires_at = timezone.now() + datetime.timedelta(minutes=10)
-        session = SigningSession.objects.create(
-            owner=request.user,
-            token=uuid.uuid4().hex,
-            status=SigningSessionStatus.PENDING,
-            expires_at=expires_at,
-        )
+        session = signing.create_session(request.user)
+        expires_at = session.expires_at
         sign_url = request.build_absolute_uri(reverse('licenses:sign_session_page', kwargs={'token': session.token}))
         qr_url = reverse('licenses:sign_session_qr', kwargs={'token': session.token})
         return JsonResponse({
@@ -1062,7 +1051,10 @@ class SigningSessionPageView(generic.TemplateView):
         token = kwargs.get('token')
         session = SigningSession.objects.select_related('license').filter(token=token).first()
         context['session'] = session
-        context['is_valid_session'] = bool(session and session.status == SigningSessionStatus.PENDING and not session.is_expired())
+        context['is_valid_session'] = bool(
+            session and session.status == SigningSessionStatus.PENDING and not session.is_expired()
+            and not (session.license_id and session.license.confirmed)
+        )
         return context
 
 
@@ -1085,6 +1077,10 @@ class SubmitSigningSessionView(generic.View):
             session.status = SigningSessionStatus.EXPIRED
             session.save(update_fields=['status'])
             return JsonResponse({'success': False, 'error': _('Signing session expired.')}, status=400)
+        if session.license_id and session.license.confirmed:
+            # A link that stayed open for days must not change a license
+            # that was confirmed in the meantime.
+            return JsonResponse({'success': False, 'error': _('Cannot sign a confirmed license.')}, status=400)
 
         try:
             if request.content_type == 'application/json':

@@ -3041,3 +3041,151 @@ msgstr "Für eine Live-Sendung sind Sendedatum und Uhrzeit Pflichtangaben."
 
 msgid "Please check your entries."
 msgstr "Bitte prüfen Sie Ihre Eingaben."
+
+#: admin.py:1962
+msgid "Invalid validity."
+msgstr "Ungültige Gültigkeitsdauer."
+
+#: admin.py:1966
+msgid "The license holder has no e-mail address."
+msgstr "Der Rechteinhaber hat keine E-Mail-Adresse."
+
+#: admin.py:1978
+msgid "The link was created, but the e-mail could not be sent."
+msgstr ""
+"Der Link wurde erstellt, aber die E-Mail konnte nicht gesendet werden."
+
+#: admin.py:2859
+msgid "QR Signing"
+msgstr "QR-Unterschrift"
+
+#: models.py:709
+msgid "QR signing link validity (minutes)"
+msgstr "Gültigkeit des QR-Unterschriftslinks (Minuten)"
+
+#: models.py:711
+msgid ""
+"How long a QR code / signing link stays valid. Applies to every signing "
+"session; a longer link (days) can only be created for a single license on "
+"its admin page."
+msgstr ""
+"Wie lange ein QR-Code bzw. Unterschriftslink gültig ist. Gilt für jede "
+"Unterschriftssitzung; einen längeren Link (Tage) kann man nur für eine "
+"einzelne Freistellung auf ihrer Admin-Seite erstellen."
+
+#: templates/admin/licenses_change_form_edit.html:286
+msgid "Link for later (e.g. by e-mail)"
+msgstr "Link für später (z. B. per E-Mail)"
+
+#: templates/admin/licenses_change_form_edit.html:288
+#, python-format
+msgid ""
+"A QR code is valid for %(minutes)s minutes. For this license only you can "
+"create a link that stays open for days; the signature is saved to the "
+"license as soon as it is submitted."
+msgstr ""
+"Ein QR-Code ist %(minutes)s Minuten gültig. Nur für diese Freistellung "
+"können Sie einen Link erstellen, der mehrere Tage offen bleibt; die "
+"Unterschrift wird in der Freistellung gespeichert, sobald sie abgeschickt "
+"wird."
+
+#: templates/admin/licenses_change_form_edit.html:291
+msgid "Valid for"
+msgstr "Gültig für"
+
+#: templates/admin/licenses_change_form_edit.html:300
+#, python-format
+msgid "Send to %(email)s"
+msgstr "An %(email)s senden"
+
+#: templates/admin/licenses_change_form_edit.html:303
+msgid ""
+"The license holder has no e-mail address; copy the link and send it "
+"yourself."
+msgstr ""
+"Der Rechteinhaber hat keine E-Mail-Adresse; kopieren Sie den Link und "
+"schicken Sie ihn selbst."
+
+#: templates/admin/licenses_change_form_edit.html:306
+msgid "Create link"
+msgstr "Link erstellen"
+
+#: templates/admin/licenses_change_form_edit.html:314
+#, python-format
+msgid "valid until %(expires)s"
+msgstr "gültig bis %(expires)s"
+
+#: templates/admin/licenses_change_form_edit.html:316
+#: templates/admin/licenses_change_form_edit.html:632
+msgid "Revoke"
+msgstr "Widerrufen"
+
+#: templates/admin/licenses_change_form_edit.html:625
+msgid "valid until"
+msgstr "gültig bis"
+
+#: templates/admin/licenses_change_form_edit.html:660
+msgid "Signed - the signature was saved to the license."
+msgstr ""
+"Unterschrieben - die Unterschrift wurde in der Freistellung gespeichert."
+
+#: templates/admin/licenses_change_form_edit.html:674
+msgid "Creating link..."
+msgstr "Link wird erstellt..."
+
+#: templates/admin/licenses_change_form_edit.html:688
+msgid "Link created and sent to"
+msgstr "Link erstellt und gesendet an"
+
+#: templates/admin/licenses_change_form_edit.html:690
+msgid "Link created. Copy it and send it to the signer."
+msgstr ""
+"Link erstellt. Kopieren Sie ihn und schicken Sie ihn an die unterschreibende"
+" Person."
+
+#: templates/admin/licenses_change_form_edit.html:705
+msgid "Link copied."
+msgstr "Link kopiert."
+
+#: templates/admin/licenses_change_form_edit.html:723
+msgid "Link revoked."
+msgstr "Link widerrufen."
+
+#: templates/email/license_sign_link_body.html:4
+#: templates/email/license_sign_link_body.txt:4
+#, python-format
+msgid ""
+"License #%(license_number)s (%(title)s) still needs your signature. Open the"
+" link below on your phone, tablet or computer and sign there:"
+msgstr ""
+"Für die Freistellung #%(license_number)s (%(title)s) fehlt noch Ihre "
+"Unterschrift. Öffnen Sie den folgenden Link auf Ihrem Telefon, Tablet oder "
+"Computer und unterschreiben Sie dort:"
+
+#: templates/email/license_sign_link_body.html:8
+#: templates/email/license_sign_link_body.txt:8
+#, python-format
+msgid "The link can be used once and is valid until %(expires)s."
+msgstr "Der Link kann einmal verwendet werden und ist gültig bis %(expires)s."
+
+#: templates/email/license_sign_link_subject.txt:1
+#, python-format
+msgid "Please sign license #%(license_number)s"
+msgstr "Bitte unterschreiben Sie die Freistellung #%(license_number)s"
+
+#: templates/licenses/sign_session.html:18
+#, python-format
+msgid "License #%(number)s: %(title)s"
+msgstr "Freistellung #%(number)s: %(title)s"
+
+#: templates/licenses/sign_session.html:20
+#, python-format
+msgid "Valid until %(expires)s"
+msgstr "Gültig bis %(expires)s"
+
+#: templates/admin/licenses_change_form_edit.html:294
+#, python-format
+msgid "%(days)s day"
+msgid_plural "%(days)s days"
+msgstr[0] "%(days)s Tag"
+msgstr[1] "%(days)s Tage"

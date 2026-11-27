@@ -279,6 +279,46 @@
                     </div>
                 </div>
             </div>
+            {% if original.pk and not original.confirmed %}
+            <div class="admin-sign-link" id="admin-sign-link"
+                 data-create-url="{% url 'admin:licenses_license_create_sign_link' original.pk %}"
+                 data-revoke-url="{% url 'admin:licenses_license_revoke_sign_link' original.pk 'TOKEN' %}">
+                <h4 class="admin-sign-link-title">{% translate 'Link for later (e.g. by e-mail)' %}</h4>
+                <p class="help">
+                    {% blocktranslate with minutes=sign_session_minutes %}A QR code is valid for {{ minutes }} minutes. For this license only you can create a link that stays open for days; the signature is saved to the license as soon as it is submitted.{% endblocktranslate %}
+                </p>
+                <div class="admin-sign-link-form">
+                    <label for="admin-sign-link-days">{% translate 'Valid for' %}</label>
+                    <select id="admin-sign-link-days">
+                        {% for d in sign_link_days %}
+                        <option value="{{ d }}"{% if d == 3 %} selected{% endif %}>{% blocktranslate count days=d %}{{ days }} day{% plural %}{{ days }} days{% endblocktranslate %}</option>
+                        {% endfor %}
+                    </select>
+                    {% if sign_link_email %}
+                    <label class="admin-sign-link-check">
+                        <input type="checkbox" id="admin-sign-link-email" checked>
+                        {% blocktranslate with email=sign_link_email %}Send to {{ email }}{% endblocktranslate %}
+                    </label>
+                    {% else %}
+                    <span class="text-muted small">{% translate 'The license holder has no e-mail address; copy the link and send it yourself.' %}</span>
+                    {% endif %}
+                    <button type="button" class="btn btn-outline-primary" id="admin-sign-link-create" onclick="createAdminSignLink()">
+                        {% translate 'Create link' %}
+                    </button>
+                </div>
+                <div id="admin-sign-link-status" class="small mt-2" aria-live="polite"></div>
+                <ul class="admin-sign-link-list" id="admin-sign-link-list">
+                    {% for item in sign_link_open %}
+                    <li data-token="{{ item.session.token }}">
+                        <a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.url }}</a>
+                        <span class="text-muted">{% blocktranslate with expires=item.session.expires_at|date:"DATETIME_FORMAT" %}valid until {{ expires }}{% endblocktranslate %}</span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyAdminSignLink(this)" data-url="{{ item.url }}">{% translate 'Copy' %}</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="revokeAdminSignLink(this)">{% translate 'Revoke' %}</button>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -562,6 +602,132 @@
         }
     };
     window.createAdminSignSession = createAdminSignSession;
+
+    // Link for later: one license, open for days, optionally e-mailed.
+    var adminLinkPollTimer = null;
+
+    function setAdminSignLinkStatus(text, kind) {
+        var el = document.getElementById('admin-sign-link-status');
+        if (!el) return;
+        el.textContent = text || '';
+        el.className = 'small mt-2' + (kind ? ' text-' + kind : '');
+    }
+
+    function addAdminSignLinkItem(token, url, expiresAt) {
+        var list = document.getElementById('admin-sign-link-list');
+        if (!list) return;
+        var li = document.createElement('li');
+        li.dataset.token = token;
+        var a = document.createElement('a');
+        a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = url;
+        var span = document.createElement('span');
+        span.className = 'text-muted';
+        span.textContent = '{{ _("valid until")|escapejs }} ' + new Date(expiresAt).toLocaleString();
+        var copy = document.createElement('button');
+        copy.type = 'button'; copy.className = 'btn btn-sm btn-outline-secondary';
+        copy.dataset.url = url; copy.textContent = '{{ _("Copy")|escapejs }}';
+        copy.onclick = function() { copyAdminSignLink(copy); };
+        var revoke = document.createElement('button');
+        revoke.type = 'button'; revoke.className = 'btn btn-sm btn-outline-danger';
+        revoke.textContent = '{{ _("Revoke")|escapejs }}';
+        revoke.onclick = function() { revokeAdminSignLink(revoke); };
+        li.appendChild(a); li.appendChild(span); li.appendChild(copy); li.appendChild(revoke);
+        list.insertBefore(li, list.firstChild);
+    }
+
+    function pollAdminSignLink(token) {
+        // No consume: the session stays as the record of who signed when.
+        fetch('/licenses/sign-session/' + token + '/status/')
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (!data.success || data.status === 'pending') return;
+            clearInterval(adminLinkPollTimer);
+            adminLinkPollTimer = null;
+            if (data.status !== 'signed') return;
+            if (data.signature_points && adminSignaturePad) {
+                try {
+                    var points = typeof data.signature_points === 'string'
+                        ? JSON.parse(data.signature_points) : data.signature_points;
+                    if (Array.isArray(points) && points.length) {
+                        adminSignaturePad.clear();
+                        adminSignaturePad.fromData(points);
+                        saveAdminSignature();
+                    }
+                } catch (e) {}
+            }
+            var li = document.querySelector('#admin-sign-link-list li[data-token="' + token + '"]');
+            if (li) li.remove();
+            setAdminSignLinkStatus('{{ _("Signed - the signature was saved to the license.")|escapejs }}', 'success');
+        })
+        .catch(function(error) { console.error('Poll error:', error); });
+    }
+
+    function createAdminSignLink() {
+        var box = document.getElementById('admin-sign-link');
+        var btn = document.getElementById('admin-sign-link-create');
+        if (!box || !btn) return;
+        var emailBox = document.getElementById('admin-sign-link-email');
+        var body = new URLSearchParams();
+        body.append('days', document.getElementById('admin-sign-link-days').value);
+        if (emailBox && emailBox.checked) body.append('send_email', '1');
+        btn.disabled = true;
+        setAdminSignLinkStatus('{{ _("Creating link...")|escapejs }}', 'info');
+        fetch(box.dataset.createUrl, {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCookie('csrftoken'), 'Content-Type': 'application/x-www-form-urlencoded'},
+            body: body.toString()
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            btn.disabled = false;
+            if (!data.success) throw new Error(data.error || 'Failed');
+            addAdminSignLinkItem(data.token, data.sign_url, data.expires_at);
+            if (data.email_error) {
+                setAdminSignLinkStatus(data.email_error, 'danger');
+            } else if (data.emailed_to) {
+                setAdminSignLinkStatus('{{ _("Link created and sent to")|escapejs }} ' + data.emailed_to + '.', 'success');
+            } else {
+                setAdminSignLinkStatus('{{ _("Link created. Copy it and send it to the signer.")|escapejs }}', 'success');
+            }
+            if (adminLinkPollTimer) clearInterval(adminLinkPollTimer);
+            adminLinkPollTimer = setInterval(function() { pollAdminSignLink(data.token); }, 5000);
+        })
+        .catch(function(error) {
+            btn.disabled = false;
+            setAdminSignLinkStatus(error.message, 'danger');
+        });
+    }
+
+    function copyAdminSignLink(button) {
+        var url = button.dataset.url;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(function() {
+                setAdminSignLinkStatus('{{ _("Link copied.")|escapejs }}', 'success');
+            });
+        }
+    }
+
+    function revokeAdminSignLink(button) {
+        var box = document.getElementById('admin-sign-link');
+        var li = button.closest('li');
+        if (!box || !li) return;
+        var token = li.dataset.token;
+        fetch(box.dataset.revokeUrl.replace('TOKEN', token), {
+            method: 'POST',
+            headers: {'X-CSRFToken': getCookie('csrftoken')}
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (!data.success) throw new Error(data.error || 'Failed');
+            li.remove();
+            setAdminSignLinkStatus('{{ _("Link revoked.")|escapejs }}', 'success');
+        })
+        .catch(function(error) { setAdminSignLinkStatus(error.message, 'danger'); });
+    }
+
+    window.createAdminSignLink = createAdminSignLink;
+    window.copyAdminSignLink = copyAdminSignLink;
+    window.revokeAdminSignLink = revokeAdminSignLink;
 })();
 </script>
 {% endblock %}

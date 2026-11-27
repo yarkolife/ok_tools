@@ -29,8 +29,13 @@ class Command(BaseCommand):
         expired_count = expired_pending.update(status=SigningSessionStatus.EXPIRED)
 
         delete_before = now - timedelta(days=retention_days)
+        # A link e-mailed for one license may stay open for days: never
+        # delete a session that can still be signed.
         deleted_count, _ = SigningSession.objects.filter(
             created_at__lt=delete_before,
+        ).exclude(
+            status=SigningSessionStatus.PENDING,
+            expires_at__gt=now,
         ).delete()
 
         self.stdout.write(

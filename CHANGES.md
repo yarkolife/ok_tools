@@ -1,3 +1,11 @@
+2026-11-27 (Version 4.86.0)
+==========================
+
+* **licenses: signing link for later, sent by e-mail**
+  * On the license admin page, under "Mit dem Telefon unterschreiben (QR)", the new block "Link für später (z. B. per E-Mail)" creates a signing link for this one license that stays valid for 1, 3 or 7 days (default 3) and, if the holder has an e-mail address, sends it to them (mail "Bitte unterschreiben Sie die Freistellung #…", with the link and its expiry). The signature is saved to the license as soon as it is submitted, no admin page has to be open. Open links are listed with their expiry and can be copied or revoked; a link works once, and not any more once the license is confirmed. Confirmed licenses get no link.
+  * Every other QR session keeps a short lifetime, now set in *Freistellungen-Konfiguration* → "QR-Unterschrift" → "Gültigkeit des QR-Unterschriftslinks (Minuten)" (default 10, at most 1440; migration `licenses.0034`). The signing page on the phone shows the license and how long the link is valid.
+  * The nightly `cleanup_signing_sessions` no longer deletes a session that can still be signed.
+
 2026-11-25 (Version 4.85.2)
 ==========================
 

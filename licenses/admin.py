@@ -1523,6 +1523,16 @@ class LicenseAdmin(ExportMixin, ModelAdmin):
             extra_context['show_save'] = False
             extra_context['show_save_and_add_another'] = False
 
+        from .services import signing
+        extra_context['sign_link_days'] = signing.LONG_LINK_DAYS
+        extra_context['sign_link_open'] = [
+            {'session': s, 'url': signing.sign_url(s, request)}
+            for s in signing.open_links(license)
+        ]
+        extra_context['sign_link_email'] = signing.recipient_email(license)
+        extra_context['sign_session_minutes'] = int(
+            signing.default_session_lifetime().total_seconds() // 60)
+
         return super().changeform_view(
             request, object_id, form_url, extra_context)
 
@@ -1630,6 +1640,16 @@ class LicenseAdmin(ExportMixin, ModelAdmin):
                 '<int:license_id>/clear-mediathek/',
                 self.admin_site.admin_view(self.clear_mediathek_view),
                 name='licenses_license_clear_mediathek',
+            ),
+            path(
+                '<int:license_id>/sign-link/',
+                self.admin_site.admin_view(self.create_sign_link_view),
+                name='licenses_license_create_sign_link',
+            ),
+            path(
+                '<int:license_id>/sign-link/<str:token>/revoke/',
+                self.admin_site.admin_view(self.revoke_sign_link_view),
+                name='licenses_license_revoke_sign_link',
             ),
             path(
                 'cover-candidates/<int:number>/',
@@ -1914,6 +1934,75 @@ class LicenseAdmin(ExportMixin, ModelAdmin):
         else:
             self.message_user(request, _('Frame nicht gefunden.'), messages.ERROR)
         return redirect(request.path)
+
+    def create_sign_link_view(self, request, license_id):
+        """Create a signing link for this license that stays open for days.
+
+        POST ``days`` (one of signing.LONG_LINK_DAYS) and optionally
+        ``send_email=1`` to mail it to the license holder. Only this one
+        session lives longer; all others keep the configured minutes.
+        """
+        from .services import signing
+        from django.http import JsonResponse
+
+        if request.method != 'POST':
+            return JsonResponse({'success': False, 'error': 'POST only'}, status=405)
+        license_obj = get_object_or_404(
+            License.objects.select_related('profile', 'profile__okuser'), pk=license_id)
+        if not self.has_change_permission(request, license_obj):
+            return JsonResponse({'success': False, 'error': str(_('Not allowed.'))}, status=403)
+        if license_obj.confirmed:
+            return JsonResponse(
+                {'success': False, 'error': str(_('Cannot sign a confirmed license.'))}, status=400)
+        try:
+            days = int(request.POST.get('days', ''))
+        except ValueError:
+            days = 0
+        if days not in signing.LONG_LINK_DAYS:
+            return JsonResponse({'success': False, 'error': str(_('Invalid validity.'))}, status=400)
+        send_email = str(request.POST.get('send_email', '')).lower() in {'1', 'true', 'on', 'yes'}
+        if send_email and not signing.recipient_email(license_obj):
+            return JsonResponse(
+                {'success': False, 'error': str(_('The license holder has no e-mail address.'))},
+                status=400)
+
+        session = signing.create_long_link(license_obj, request.user, days)
+        url = signing.sign_url(session, request)
+        emailed_to = ''
+        email_error = ''
+        if send_email:
+            try:
+                emailed_to = signing.send_link_email(session, url)
+            except Exception:
+                logger.exception('Sending the signing link for license %s failed', license_obj.number)
+                email_error = str(_('The link was created, but the e-mail could not be sent.'))
+        return JsonResponse({
+            'success': True,
+            'token': session.token,
+            'status': session.status,
+            'expires_at': session.expires_at.isoformat(),
+            'sign_url': url,
+            'qr_url': reverse('licenses:sign_session_qr', kwargs={'token': session.token}),
+            'emailed_to': emailed_to,
+            'email_error': email_error,
+        })
+
+    def revoke_sign_link_view(self, request, license_id, token):
+        """Revoke an open signing link of this license."""
+        from .models import SigningSession
+        from .services import signing
+        from django.http import JsonResponse
+
+        if request.method != 'POST':
+            return JsonResponse({'success': False, 'error': 'POST only'}, status=405)
+        license_obj = get_object_or_404(License, pk=license_id)
+        if not self.has_change_permission(request, license_obj):
+            return JsonResponse({'success': False, 'error': str(_('Not allowed.'))}, status=403)
+        session = get_object_or_404(SigningSession, token=token, license=license_obj)
+        if not signing.revoke(session):
+            return JsonResponse(
+                {'success': False, 'error': str(_('Signing session is not active.'))}, status=400)
+        return JsonResponse({'success': True})
 
     def refresh_mediathek_view(self, request, license_id):
         """Queue mediathek URL refresh for one license from admin change view."""
@@ -2766,6 +2855,9 @@ class LicensesConfigAdmin(ModelAdmin):
         }),
         (_('Screen Board Settings'), {
             'fields': ('screen_board_duration',),
+        }),
+        (_('QR Signing'), {
+            'fields': ('sign_session_minutes',),
         }),
         (_('Freistellung Print Form'), {
             'fields': ('freistellung_city',),

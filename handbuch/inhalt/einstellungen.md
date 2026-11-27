@@ -163,6 +163,7 @@ Kachel *Freistellungen-Konfiguration*.
 | Nextcloud-Dateien automatisch herunterladen | Ein nach Nextcloud hochgeladenes Video wird ohne Klick heruntergeladen. |
 | VideoFile beim Nextcloud-Download anlegen | Nach dem Download erscheint das Video sofort mit Player in der Freistellungsliste. Der Download-Pfad muss dafür in einem Speicherort liegen. |
 | Bildschirm-Board-Dauer | Wie lange ein Eintrag auf dem Bildschirm-Board steht, in Sekunden. |
+| Gültigkeit des QR-Unterschriftslinks (Minuten) | Wie lange ein QR-Code zum Unterschreiben auf dem Telefon gilt (Standard 10). Gilt für alle QR-Sitzungen. Einen Link, der mehrere Tage offen bleibt, erstellt man nur für eine einzelne Freistellung auf ihrer Seite im Admin („Link für später“). |
 | Ort im Freistellungsformular | Ortsname für „Ort, Datum“ auf dem gedruckten Formular. |
 
 ## 7. Mediendateien {#mediendateien}

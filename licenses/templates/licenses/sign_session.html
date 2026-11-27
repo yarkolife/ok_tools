@@ -14,6 +14,10 @@
                     <h5 class="mb-1">{% trans 'Digital Signature' %}</h5>
                     {% if is_valid_session %}
                     <p class="text-muted mb-0">{% trans 'Please sign below and submit your signature.' %}</p>
+                    {% if session.license %}
+                    <p class="small mb-0 mt-2" id="sign-session-license">{% blocktranslate with number=session.license.number title=session.license.title %}License #{{ number }}: {{ title }}{% endblocktranslate %}</p>
+                    {% endif %}
+                    <p class="small text-muted mb-0" id="sign-session-expiry">{% blocktranslate with expires=session.expires_at|date:"DATETIME_FORMAT" %}Valid until {{ expires }}{% endblocktranslate %}</p>
                     {% else %}
                     <p class="text-muted mb-0">{% trans 'This signing session is invalid or expired.' %}</p>
                     {% endif %}

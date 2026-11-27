@@ -116,6 +116,35 @@
 .admin-qr-sign-panel a { color: var(--ok-brand, #417690); }
 #admin-qr-session-qr { background: #fff; }
 
+/* Link for later (one license, open for days) */
+.admin-sign-link {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--ok-line, #ccc);
+}
+.admin-sign-link-title { margin: 0 0 6px; font-size: 14px; font-weight: 600; color: var(--ok-ink, inherit); }
+.admin-sign-link-form { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.admin-sign-link-form select {
+    padding: 4px 8px;
+    border: 1px solid var(--ok-line, #ccc);
+    border-radius: var(--ok-radius, 4px);
+    background: var(--ok-surface, #fff);
+    color: var(--ok-ink, inherit);
+}
+.admin-sign-link-check { display: inline-flex; align-items: center; gap: 6px; }
+.admin-sign-link-list { list-style: none; margin: 10px 0 0; padding: 0; }
+.admin-sign-link-list li {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    padding: 6px 0; border-bottom: 1px dashed var(--ok-line, #ccc);
+    font-size: 13px; word-break: break-all;
+}
+.admin-sign-link-list .btn-sm {
+    padding: 2px 8px; font-size: 12px; cursor: pointer;
+    border-radius: var(--ok-radius, 4px); background: transparent;
+    border: 1px solid var(--ok-line, #ccc); color: var(--ok-ink-2, inherit);
+}
+.admin-sign-link-list .btn-outline-danger { border-color: var(--ok-danger, #b42318); color: var(--ok-danger, #b42318); }
+
 .signature-actions,
 .admin-signature-actions {
     display: flex;
