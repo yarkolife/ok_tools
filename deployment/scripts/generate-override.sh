@@ -194,11 +194,11 @@ if [ $MOUNT_COUNT -eq 0 ] && [ -z "${NAS_MOUNT_PATH:-}" ]; then
     print_info "No custom mounts configured"
 fi
 
-# Always consider UID/GID build args (permission alignment for bind mounts)
+# Always consider UID/GID build args (permission alignment for bind mounts).
+# Only web builds the image; the Celery services run the same image
+# (image: oktools-app:latest, no build: block). A build: entry here for them
+# would give them a build with no context and break the build.
 add_uid_gid_build_args "web"
-for service in "${CELERY_SERVICES[@]}"; do
-    add_uid_gid_build_args "$service"
-done
 
 # Always consider Celery entrypoint (safe even if permissions are already correct)
 for service in "${CELERY_SERVICES[@]}"; do

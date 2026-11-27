@@ -22,6 +22,21 @@ disagree, fix both.
   fixes in the database) are done through the admin or a reviewed
   `manage.py shell` snippet, read-only first, and mentioned in the commit
   or the change log when they belong to a change.
+- One Docker image for the whole stack: in `deployment/docker-compose.production*.yml`
+  only `web` has a `build:` block and names the image `oktools-app:latest`;
+  `celery_beat` and the Celery workers run that image (`image:` +
+  `pull_policy: never`) with their own `command`. A deploy builds and unpacks
+  one image instead of seven (2026-11-27: seven identical builds kept the VM
+  at 60 % iowait and filled 12 GB of disk). This holds only while every
+  service needs the same Dockerfile and the same build args. A service that
+  needs its own Dockerfile, build args or system packages gets its own
+  `build:` block and its own image name back; `generate-override.sh` then
+  has to add the UID/GID build args to it as well. A new Celery service uses
+  `image: oktools-app:latest`, not `build:`.
+- `update.sh` replaces a production `docker-compose.yml` that differs from
+  the repository only with `FORCE_OVERWRITE=1`, which also overwrites
+  `nginx.conf.template`; otherwise it leaves `docker-compose.yml.new` next to
+  it. A compose change has to be put in place on both production servers.
 
 ## Commits
 

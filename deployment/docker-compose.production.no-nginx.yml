@@ -34,12 +34,17 @@ services:
       retries: 5
 
   web:
+    # One image for the whole stack: only web builds it, the Celery services
+    # run the same image with another command. This works only while every
+    # service needs the same Dockerfile and the same build args; a service
+    # that needs its own image gets its own build: block back (DEVELOPMENT.md).
     build:
       context: ../ok_tools
       dockerfile: deployment/production.Dockerfile
       args:
         USER_UID: ${USER_UID:-1000}
         USER_GID: ${USER_GID:-1000}
+    image: oktools-app:latest
     container_name: oktools_web
     ports:
       - "8010:8000"
@@ -70,12 +75,8 @@ services:
       retries: 3
 
   celery_worker:
-    build:
-      context: ../ok_tools
-      dockerfile: deployment/production.Dockerfile
-      args:
-        USER_UID: ${USER_UID:-1000}
-        USER_GID: ${USER_GID:-1000}
+    image: oktools-app:latest
+    pull_policy: never
     container_name: oktools_celery_worker
     user: app
     env_file:
@@ -108,12 +109,8 @@ services:
       retries: 3
 
   celery_download_worker:
-    build:
-      context: ../ok_tools
-      dockerfile: deployment/production.Dockerfile
-      args:
-        USER_UID: ${USER_UID:-1000}
-        USER_GID: ${USER_GID:-1000}
+    image: oktools-app:latest
+    pull_policy: never
     container_name: oktools_celery_download_worker
     user: app
     env_file:
@@ -151,12 +148,8 @@ services:
       retries: 3
 
   celery_render_worker:
-    build:
-      context: ../ok_tools
-      dockerfile: deployment/production.Dockerfile
-      args:
-        USER_UID: ${USER_UID:-1000}
-        USER_GID: ${USER_GID:-1000}
+    image: oktools-app:latest
+    pull_policy: never
     container_name: oktools_celery_render_worker
     user: app
     env_file:
@@ -189,12 +182,8 @@ services:
       retries: 3
 
   celery_copy_worker:
-    build:
-      context: ../ok_tools
-      dockerfile: deployment/production.Dockerfile
-      args:
-        USER_UID: ${USER_UID:-1000}
-        USER_GID: ${USER_GID:-1000}
+    image: oktools-app:latest
+    pull_policy: never
     container_name: oktools_celery_copy_worker
     user: app
     env_file:
@@ -232,12 +221,8 @@ services:
       retries: 3
 
   celery_anchor_render_worker:
-    build:
-      context: ../ok_tools
-      dockerfile: deployment/production.Dockerfile
-      args:
-        USER_UID: ${USER_UID:-1000}
-        USER_GID: ${USER_GID:-1000}
+    image: oktools-app:latest
+    pull_policy: never
     container_name: oktools_celery_anchor_render_worker
     user: app
     env_file:
@@ -270,12 +255,8 @@ services:
       retries: 3
 
   celery_beat:
-    build:
-      context: ../ok_tools
-      dockerfile: deployment/production.Dockerfile
-      args:
-        USER_UID: ${USER_UID:-1000}
-        USER_GID: ${USER_GID:-1000}
+    image: oktools-app:latest
+    pull_policy: never
     container_name: oktools_celery_beat
     user: app
     env_file:
