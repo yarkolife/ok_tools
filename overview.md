@@ -37,6 +37,7 @@
 
 ### Recent Updates
 
+- **Signing link recipient (4.87.0)**: `SigningSession.emailed_to`/`emailed_at` are set by `signing.send_link_email()` after the mail went out and shown with the open links on the license change page, so staff see who got a link and when without the logs.
 - **Signing links for later (4.86.0)**: `licenses/services/signing.py` holds the QR session logic: `default_session_lifetime()` from the new `LicensesConfig.sign_session_minutes` (default 10, used by both site endpoints instead of a hard-coded 10 minutes), `create_long_link()` for one unconfirmed license (`LONG_LINK_DAYS` = 1, 3, 7), `open_links()`, `revoke()` (status `cancelled`) and `send_link_email()` (`email/license_sign_link_*`). Admin endpoints `<id>/sign-link/` and `<id>/sign-link/<token>/revoke/` (change permission) back the "Link für später" block of the license change page; long sessions are bound to the license, so `SubmitSigningSessionView` stores the signature on it without an open page, and refuses once the license is confirmed. Only these sessions live longer, so a leaked QR code still expires within minutes. `cleanup_signing_sessions` keeps pending sessions that have not expired.
 - **Posts on Mastodon (4.85.0)**: `PLATFORM_MASTODON` is a fourth platform. `beitraege/services/mastodon.py` (REST API with a bearer token: `check`, `limits` from `/api/v2/instance`, `upload_media` waiting for HTTP 202 processing, `post_status` with an `Idempotency-Key`, `delete_status`). `BeitragsConfig.mastodon_*` (server, token as secret field, visibility, `mastodon_max_characters`/`mastodon_max_photos` filled by the connection test), `Thema.signatur_mastodon`/`mastodon`; `workflow.problems` checks `mastodon.length` (links as 23 characters); `_publish_mastodon`, `_withdraw_mastodon`. Migration `0007_mastodon`.
 - **Posts: link in the website text, tidy platform texts (4.85.0)**: `workflow.compose` puts `beitrag.link` into the website text too, and `wordpress.paragraphs` makes addresses clickable; `_publish_website` appends the link only when an older text lacks it. `workflow.tidy`, called by `mark_edited` (admin formset and phone edit page), puts an empty line before and after a link-only line and before a hashtag line, because hand edits left them glued to the text on Facebook and Instagram.
@@ -309,7 +310,7 @@ graph TB
 - **Purpose**: Media license management
 - **Key Models**:
   - `License`: License records with metadata
-  - `SigningSession`: QR/phone signing session (token, status, expiry, signature payload)
+  - `SigningSession`: QR/phone signing session (token, status, expiry, signature payload, e-mail recipient and time)
 - **Key Services**:
   - `services/signing.py`: session lifetime from `LicensesConfig`, long links for one license, e-mailed signing links, revocation
 - **Key Features**:

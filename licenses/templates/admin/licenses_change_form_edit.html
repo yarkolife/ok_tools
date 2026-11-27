@@ -312,6 +312,9 @@
                     <li data-token="{{ item.session.token }}">
                         <a href="{{ item.url }}" target="_blank" rel="noopener">{{ item.url }}</a>
                         <span class="text-muted">{% blocktranslate with expires=item.session.expires_at|date:"DATETIME_FORMAT" %}valid until {{ expires }}{% endblocktranslate %}</span>
+                        {% if item.session.emailed_at %}
+                        <span class="text-muted admin-sign-link-sent">{% blocktranslate with email=item.session.emailed_to sent=item.session.emailed_at|date:"DATETIME_FORMAT" %}sent to {{ email }} on {{ sent }}{% endblocktranslate %}</span>
+                        {% endif %}
                         <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyAdminSignLink(this)" data-url="{{ item.url }}">{% translate 'Copy' %}</button>
                         <button type="button" class="btn btn-sm btn-outline-danger" onclick="revokeAdminSignLink(this)">{% translate 'Revoke' %}</button>
                     </li>
@@ -613,7 +616,7 @@
         el.className = 'small mt-2' + (kind ? ' text-' + kind : '');
     }
 
-    function addAdminSignLinkItem(token, url, expiresAt) {
+    function addAdminSignLinkItem(token, url, expiresAt, emailedTo) {
         var list = document.getElementById('admin-sign-link-list');
         if (!list) return;
         var li = document.createElement('li');
@@ -631,7 +634,14 @@
         revoke.type = 'button'; revoke.className = 'btn btn-sm btn-outline-danger';
         revoke.textContent = '{{ _("Revoke")|escapejs }}';
         revoke.onclick = function() { revokeAdminSignLink(revoke); };
-        li.appendChild(a); li.appendChild(span); li.appendChild(copy); li.appendChild(revoke);
+        li.appendChild(a); li.appendChild(span);
+        if (emailedTo) {
+            var sent = document.createElement('span');
+            sent.className = 'text-muted admin-sign-link-sent';
+            sent.textContent = '{{ _("sent to")|escapejs }} ' + emailedTo + ', ' + new Date().toLocaleString();
+            li.appendChild(sent);
+        }
+        li.appendChild(copy); li.appendChild(revoke);
         list.insertBefore(li, list.firstChild);
     }
 
@@ -681,7 +691,7 @@
         .then(function(data) {
             btn.disabled = false;
             if (!data.success) throw new Error(data.error || 'Failed');
-            addAdminSignLinkItem(data.token, data.sign_url, data.expires_at);
+            addAdminSignLinkItem(data.token, data.sign_url, data.expires_at, data.emailed_to);
             if (data.email_error) {
                 setAdminSignLinkStatus(data.email_error, 'danger');
             } else if (data.emailed_to) {

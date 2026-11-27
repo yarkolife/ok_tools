@@ -979,6 +979,17 @@ class SigningSession(models.Model):
         blank=True,
         null=True,
     )
+    # Set when the link was e-mailed to the license holder from the admin.
+    emailed_to = models.EmailField(
+        _('E-mailed to'),
+        blank=True,
+        default='',
+    )
+    emailed_at = models.DateTimeField(
+        _('E-mailed at'),
+        blank=True,
+        null=True,
+    )
     created_at = models.DateTimeField(
         _('Created at'),
         auto_now_add=True,

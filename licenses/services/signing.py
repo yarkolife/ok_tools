@@ -128,6 +128,9 @@ def send_link_email(session: SigningSession, url: str) -> str:
             from_email=from_email,
             to_email=to_email,
         )
+    session.emailed_to = to_email
+    session.emailed_at = timezone.now()
+    session.save(update_fields=['emailed_to', 'emailed_at'])
     logger.info('Signing link for license %s sent to %s (expires %s)',
                 license_obj.number, to_email, session.expires_at.isoformat())
     return to_email

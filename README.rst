@@ -4,7 +4,7 @@ ok_tools
 
 A universal set of tools to support administrative tasks for community media organizations. Originally developed for the Offener Kanal system of Medienanstalt Sachsen-Anhalt, now configurable for any organization.
 
-**Current Version**: 4.86.0
+**Current Version**: 4.87.0
 **Last Updated**: 27 November 2026
 
 Features
@@ -29,7 +29,7 @@ Features
   - Import of legacy archives (old OK Stendal database, OK Merseburg Sendearchiv DVD/tape numbers)
   - Download license PDFs from the admin list (one as PDF, several as ZIP)
   - Multi-method digital signatures (draw on page or sign via phone QR)
-  - QR signing links valid for a configurable number of minutes (default 10); for one license staff can create a link valid for 1, 3 or 7 days, e-mail it to the license holder, see and revoke open links on the license page
+  - QR signing links valid for a configurable number of minutes (default 10); for one license staff can create a link valid for 1, 3 or 7 days, e-mail it to the license holder, see open links with recipient and sending time, revoke them on the license page
   - Signature payload v2 support (SVG, biometric points, metadata)
   - Nextcloud video file integration
   - Video upload support

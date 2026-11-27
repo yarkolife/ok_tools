@@ -1,3 +1,9 @@
+2026-11-27 (Version 4.87.0)
+==========================
+
+* **licenses: who got a signing link by e-mail, and when**
+  * A signing link sent by e-mail now records the address and the time (`SigningSession.emailed_to`, `emailed_at`, migration `licenses.0035`). The open links on the license admin page show "gesendet an … am …"; before, the sending was only written to the log.
+
 2026-11-27 (Version 4.86.0)
 ==========================
 

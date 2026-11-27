@@ -73,6 +73,11 @@ def test__licenses__admin_sign_link__long_link_mailed_and_signed_later(
     assert session.license == license
     assert session.expires_at - timezone.now() > timedelta(days=2, hours=23)
     assert len(mail.outbox) == 1
+    session.refresh_from_db()
+    assert session.emailed_to == license.profile.okuser.email
+    assert session.emailed_at is not None
+    page = staff_client.get(reverse('admin:licenses_license_change', args=[license.pk]))
+    assert 'admin-sign-link-sent' in page.content.decode()
     assert data['sign_url'] in mail.outbox[0].body
     assert str(license.number) in mail.outbox[0].subject
 

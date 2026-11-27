@@ -3189,3 +3189,20 @@ msgid "%(days)s day"
 msgid_plural "%(days)s days"
 msgstr[0] "%(days)s Tag"
 msgstr[1] "%(days)s Tage"
+
+#: models.py:984
+msgid "E-mailed to"
+msgstr "Per E-Mail gesendet an"
+
+#: models.py:989
+msgid "E-mailed at"
+msgstr "Per E-Mail gesendet am"
+
+#: templates/admin/licenses_change_form_edit.html:316
+#, python-format
+msgid "sent to %(email)s on %(sent)s"
+msgstr "gesendet an %(email)s am %(sent)s"
+
+#: templates/admin/licenses_change_form_edit.html:641
+msgid "sent to"
+msgstr "gesendet an"
