@@ -2,8 +2,14 @@
 set -e
 
 # Detect whether the domain is localhost or a private IP.
+# No DOMAIN_NAME at all (LAN install) counts as local too: the domain config
+# would render "server_name ;" and a certificate path without a name.
 IS_LOCAL=false
-if [ -n "${DOMAIN_NAME}" ]; then
+if [ -z "${DOMAIN_NAME}" ]; then
+  IS_LOCAL=true
+  DOMAIN_NAME=_
+  export DOMAIN_NAME
+else
   if [ "${DOMAIN_NAME}" = "localhost" ] || [ "${DOMAIN_NAME}" = "127.0.0.1" ] || echo "${DOMAIN_NAME}" | grep -qE '^192\.168\.|^10\.|^172\.(1[6-9]|2[0-9]|3[01])\.'; then
     IS_LOCAL=true
   fi
@@ -22,8 +28,15 @@ if [ "$IS_LOCAL" = "true" ] && [ ! -f "/etc/letsencrypt/live/${DOMAIN_NAME}/full
 
 # HTTP server (no SSL for localhost)
 server {
-    listen 80;
+    listen 80 default_server;
     server_name ${DOMAIN_NAME};
+
+    # Resolve the web container per request (Docker DNS), not once at start:
+    # a recreated web container gets a new IP, and the upstream block kept the
+    # old one, so nginx answered 502 until it was restarted.
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    resolver_timeout 5s;
+    set $django_upstream web:8000;
     
     # Health check endpoint
     location /health {
@@ -47,8 +60,8 @@ server {
 
     # Video streaming with range support
     location ~ ^/admin/media_files/videofile/\d+/stream/ {
-        proxy_pass http://django;
-        proxy_set_header Host $server_name;
+        proxy_pass http://$django_upstream$request_uri;
+        proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -68,8 +81,8 @@ server {
     # Rate limiting for sensitive endpoints
     location ~ ^/(admin|api)/ {
         limit_req zone=api burst=10 nodelay;
-        proxy_pass http://django;
-        proxy_set_header Host $server_name;
+        proxy_pass http://$django_upstream$request_uri;
+        proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -78,8 +91,8 @@ server {
     # Login rate limiting
     location /profile/login/ {
         limit_req zone=login burst=3 nodelay;
-        proxy_pass http://django;
-        proxy_set_header Host $server_name;
+        proxy_pass http://$django_upstream$request_uri;
+        proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -87,8 +100,8 @@ server {
 
     # All other requests
     location / {
-        proxy_pass http://django;
-        proxy_set_header Host $server_name;
+        proxy_pass http://$django_upstream$request_uri;
+        proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;

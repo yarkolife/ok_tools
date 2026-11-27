@@ -30,7 +30,12 @@ RemainAfterExit=yes
 WorkingDirectory=__PRODUCTION_DIR__
 # docker-compose.override.yml (mounts, UID/GID) is picked up automatically
 # because it sits next to docker-compose.yml in WorkingDirectory.
-ExecStart=__DOCKER_BIN__ compose up -d --remove-orphans
+# --no-recreate: at boot only start what exists. Docker's restart policy
+# (unless-stopped) starts the same containers at the same time; recreating
+# containers whose config is stale (e.g. .env edited without a full
+# "docker compose up -d") raced with it. Config changes are applied by
+# update.sh or "systemctl reload ok-tools".
+ExecStart=__DOCKER_BIN__ compose up -d --no-recreate --remove-orphans
 ExecStop=__DOCKER_BIN__ compose down
 ExecReload=__DOCKER_BIN__ compose up -d --remove-orphans
 # Image pulls / builds on first boot can take a while.

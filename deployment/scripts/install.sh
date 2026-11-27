@@ -143,6 +143,57 @@ show_templates() {
     return 0
 }
 
+# True when the site is reached by localhost or a private IP address: no
+# public domain, so no Let's Encrypt certificate and no HTTPS.
+is_local_host() {
+    case "$1" in
+        ""|localhost|127.0.0.1) return 0 ;;
+    esac
+    echo "$1" | grep -qE '^(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.)'
+}
+
+# Set KEY=VALUE in an .env file, replacing an existing line or appending one.
+set_env_value() {
+    local key="$1" value="$2" env_file="$3" tmp
+    tmp=$(mktemp)
+    awk -v k="$key" -v v="$value" '
+        BEGIN { done = 0 }
+        index($0, k "=") == 1 { if (!done) print k "=" v; done = 1; next }
+        { print }
+        END { if (!done) print k "=" v }
+    ' "$env_file" > "$tmp" && cat "$tmp" > "$env_file"
+    rm -f "$tmp"
+}
+
+# Bring DOMAIN_NAME and the HTTPS-only settings in line with how the site is
+# reached. nginx (production compose) needs a DOMAIN_NAME: with an empty one it
+# renders "server_name ;" and a certificate path without a name, and fails.
+# Secure settings (Secure cookies, redirect to https) are only switched on when
+# there is HTTPS, i.e. production with a public domain; over plain HTTP the
+# browser drops the Secure session cookie and nobody can log in.
+align_env_with_install_type() {
+    local env_file="$1" domain secure=False
+    if [ "$INSTALL_TYPE" = "1" ]; then
+        domain=$(grep '^DOMAIN_NAME=' "$env_file" | tail -1 | cut -d'=' -f2-)
+        if [ -z "$domain" ]; then
+            domain=$(grep '^ALLOWED_HOSTS=' "$env_file" | tail -1 | cut -d'=' -f2- \
+                | tr ',' '\n' | tr -d ' ' | grep -vE '^(localhost|127\.0\.0\.1)?$' | head -1)
+            domain=${domain:-localhost}
+            set_env_value DOMAIN_NAME "$domain" "$env_file"
+            echo "✓ DOMAIN_NAME=$domain"
+        fi
+        is_local_host "$domain" || secure=True
+    fi
+    set_env_value DJANGO_USE_SECURE_SETTINGS "$secure" "$env_file"
+    # The unprefixed name (templates) wins over DJANGO_* in settings.py.
+    if grep -q '^USE_SECURE_SETTINGS=' "$env_file"; then
+        set_env_value USE_SECURE_SETTINGS "$secure" "$env_file"
+    fi
+    if [ "$secure" = "False" ]; then
+        echo "✓ No HTTPS for this installation: secure cookie settings off (USE_SECURE_SETTINGS=False)"
+    fi
+}
+
 # Lines where one variable swallowed the next (a missing line break), e.g.
 # "DEBUG=FalseALLOWED_HOSTS=x". Only names that really are variables (in the
 # file or the templates) count, so a value ending in "=" (base64) is fine.
@@ -463,13 +514,7 @@ if [ "$INSTALL_MODE" = "1" ]; then
         # Prompt for secrets and create .env file directly
         ENV_FILE="$PRODUCTION_DIR/.env"
         prompt_secrets "$TEMPLATE_FILE" "$ENV_FILE"
-        if [ "$INSTALL_TYPE" = "1" ] && ! grep -q "^DOMAIN_NAME=" "$ENV_FILE"; then
-            ALLOWED_VAL=$(grep '^ALLOWED_HOSTS=' "$ENV_FILE" | cut -d'=' -f2-)
-            DOMAIN_CANDIDATE=$(echo "$ALLOWED_VAL" | tr ',' '\n' | grep -v -E '^(localhost|127\\.0\\.0\\.1)$' | head -1)
-            DOMAIN_CANDIDATE=${DOMAIN_CANDIDATE:-localhost}
-            echo "DOMAIN_NAME=$DOMAIN_CANDIDATE" >> "$ENV_FILE"
-            echo "✓ Added DOMAIN_NAME=$DOMAIN_CANDIDATE to .env"
-        fi
+        align_env_with_install_type "$ENV_FILE"
         chmod 600 "$ENV_FILE"
         # Set ownership if not root
         if [ "$(id -u)" -ne 0 ]; then
@@ -630,7 +675,7 @@ elif [ "$INSTALL_MODE" = "2" ]; then
         echo "Using ALLOWED_HOSTS: $ALLOWED_HOSTS"
     else
         # Localhost: automatically set
-        ALLOWED_HOSTS="localhost,127.0.1"
+        ALLOWED_HOSTS="localhost,127.0.0.1"
     fi
     
     # Additional configuration for backup directory
@@ -782,7 +827,8 @@ elif [ "$INSTALL_MODE" = "2" ]; then
     echo "DJANGO_TIMEZONE=Europe/Berlin" >> "$ENV_FILE"
     echo "DJANGO_STATIC_ROOT=/app/staticfiles/" >> "$ENV_FILE"
     echo "DJANGO_MEDIA_ROOT=/app/media/" >> "$ENV_FILE"
-    echo "DJANGO_USE_SECURE_SETTINGS=True" >> "$ENV_FILE"
+    # Set to True/False by align_env_with_install_type below.
+    echo "DJANGO_USE_SECURE_SETTINGS=False" >> "$ENV_FILE"
     echo "" >> "$ENV_FILE"
 
     # Email Configuration
@@ -880,13 +926,7 @@ elif [ "$INSTALL_MODE" = "2" ]; then
     echo "CELERY_BEAT_SYNC_VIDEOS=0 5 * * *" >> "$ENV_FILE"
     echo "CELERY_BEAT_UPDATE_METADATA=0 1 1 * *" >> "$ENV_FILE"
 
-        if [ "$INSTALL_TYPE" = "1" ] && ! grep -q "^DOMAIN_NAME=" "$ENV_FILE"; then
-            ALLOWED_VAL=$(grep '^ALLOWED_HOSTS=' "$ENV_FILE" | cut -d'=' -f2-)
-            DOMAIN_CANDIDATE=$(echo "$ALLOWED_VAL" | tr ',' '\n' | grep -v -E '^(localhost|127\\.0\\.0\\.1)$' | head -1)
-            DOMAIN_CANDIDATE=${DOMAIN_CANDIDATE:-localhost}
-            echo "DOMAIN_NAME=$DOMAIN_CANDIDATE" >> "$ENV_FILE"
-            echo "✓ Added DOMAIN_NAME=$DOMAIN_CANDIDATE to .env"
-        fi
+        align_env_with_install_type "$ENV_FILE"
         chmod 600 "$ENV_FILE"
         # Set ownership if not root
         if [ "$(id -u)" -ne 0 ]; then
@@ -955,10 +995,18 @@ elif [ "$INSTALL_MODE" = "2" ]; then
             cp "$PROJECT_DIR/deployment/nginx.conf.template" "$PRODUCTION_DIR/nginx.conf.template"
             echo "✓ Copied nginx.conf.template"
         fi
-        cp "$PROJECT_DIR/deployment/nginx-entrypoint.sh" "$PRODUCTION_DIR/nginx-entrypoint.sh"
-        chmod +x "$PRODUCTION_DIR/nginx-entrypoint.sh"
+        # docker-compose.yml mounts ./deployment/99-custom-nginx-config.sh; a
+        # missing file there makes Docker create a directory and nginx comes up
+        # with its stock welcome page.
+        mkdir -p "$PRODUCTION_DIR/deployment"
+        if [ -d "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" ]; then
+            rm -rf "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh" 2>/dev/null \
+                || sudo rm -rf "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
+        fi
+        cp "$PROJECT_DIR/deployment/nginx-entrypoint.sh" "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
+        chmod +x "$PRODUCTION_DIR/deployment/99-custom-nginx-config.sh"
         echo "✓ Copied docker-compose.yml (with nginx)"
-        echo "✓ Copied nginx-entrypoint.sh"
+        echo "✓ Copied nginx script to deployment/99-custom-nginx-config.sh"
     else
         # Local Network or Localhost: use compose file without nginx
         cp "$PROJECT_DIR/deployment/docker-compose.production.no-nginx.yml" "$PRODUCTION_DIR/docker-compose.yml"
